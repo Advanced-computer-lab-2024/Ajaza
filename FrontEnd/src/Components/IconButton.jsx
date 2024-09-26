@@ -1,42 +1,96 @@
-import React from "react";
-import Icon, { QuestionCircleOutlined } from "@ant-design/icons";
-import { FloatButton } from "antd";
-import "./IconButton.css";
-import { Colors } from "./Constants";
+// import React from "react";
+// import Icon, { QuestionCircleOutlined } from "@ant-design/icons";
+// import { FloatButton } from "antd";
+// import "./IconButton.css";
+// import { Colors } from "./Constants";
 
-const IconButton = ({
-  icon,
-  color = Colors.grey[900],
+// const IconButton = ({
+//   icon,
+//   color = Colors.grey[900],
+//   shape,
+//   badge,
+//   backgroundColor,
+//   size = 45,
+//   fontSize = 25,
+//   onClick,
+//   tooltip,
+//   style,
+// }) => {
+//   // Check documentation for badge types https://ant.design/components/float-button
+//   // tooltip is the text onHover
+//   console.log(backgroundColor);
+
+//   return (
+//     <div className="iconButton">
+//       <FloatButton
+//         shape={shape}
+//         badge={badge}
+//         onClick={onClick}
+//         tooltip={tooltip}
+//         style={{
+//           position: "relative",
+//           bottom: 0,
+//           width: `${size}px`,
+//           height: `${size}px`,
+//           insetInlineEnd: 0,
+//           ...style,
+//           backgroundColor: backgroundColor,
+//         }}
+//         icon={
+//           <Icon
+//             component={icon}
+//             style={{
+//               backgroundColor: backgroundColor,
+//               width: "100%",
+//               fontSize: `${fontSize}px`,
+//               color: color,
+//             }}
+//             width={"100%"}
+//           />
+//         }
+//       />
+//     </div>
+//   );
+// };
+
+// export default IconButton;
+
+import { FloatButton } from "antd";
+import { Icon } from "@ant-design/icons"; // If you need to customize icons
+
+const IconFloatButton = ({
+  shape,
   badge,
-  backgroundColor,
-  size = 60,
-  fontSize = 30,
   onClick,
+  tooltip,
+  size,
+  fontSize,
+  backgroundColor,
+  color,
+  icon: IconComponent, // Passed as a prop
+  style,
 }) => {
-  // Check documentation for badge types https://ant.design/components/float-button
   return (
     <div className="iconButton">
       <FloatButton
-        shape="circle"
+        shape={shape}
         badge={badge}
         onClick={onClick}
+        tooltip={tooltip}
         style={{
-          backgroundColor: backgroundColor,
           position: "relative",
           bottom: 0,
           width: `${size}px`,
           height: `${size}px`,
           insetInlineEnd: 0,
+          ...style, // Spread custom styles
         }}
         icon={
-          <Icon
-            component={icon}
+          <IconComponent
             style={{
-              width: "100%",
               fontSize: `${fontSize}px`,
-              color: color,
+              color: color, // Icon color
             }}
-            width={"100%"}
           />
         }
       />
@@ -44,4 +98,4 @@ const IconButton = ({
   );
 };
 
-export default IconButton;
+export default IconFloatButton;

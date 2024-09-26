@@ -28,27 +28,34 @@ const Search = ({
   size,
   searchValue,
   setSearchValue,
-  initialHover = false,
+  activateHover = true,
+  textColor,
+  style,
 }) => {
-  // TODO remove initialHover after previewing
   // Use useState to create a state "searchValue" and state modifier "setSearchValue"
   // This is an example
   // const [searchValue, setSearchValue] = useState("")
   // <Search searchValue={searchValue} setSearchValue={setSearchValue} />
+  // activateHover=True --> when hover it expands, activateHover=false --> always expanded
 
-  const [hover, setHover] = useState(initialHover);
+  const [hover, setHover] = useState(false);
+  let booleanHover = activateHover && !hover;
 
-  let formStyle = {};
+  // console.log(activateHover & !hover ? "none" : "block");
+
+  let formStyle = { backgroundColor: Colors.grey[50] };
   let inputStyle = {
-    display: hover ? "block" : "none",
-    color: Colors.grey[900],
+    backgroundColor: Colors.grey[50],
+    display: booleanHover ? "none" : "block",
+    color: textColor,
     padding: "0 20px",
   };
   let iconStyle = {};
 
   if (size === "s") {
     formStyle = {
-      width: hover ? "150px" : "30px",
+      ...formStyle,
+      width: booleanHover ? "30px" : "150px",
       height: "30px",
       border: "2px solid white",
     };
@@ -65,7 +72,8 @@ const Search = ({
     };
   } else if (size === "m") {
     formStyle = {
-      width: hover ? "230px" : "40px",
+      ...formStyle,
+      width: booleanHover ? "40px" : "230px",
       height: "40px",
       border: "3px solid white",
     };
@@ -80,7 +88,11 @@ const Search = ({
       fontSize: "25px",
     };
   } else {
-    formStyle = { width: hover ? "300px" : "50px", height: "50px" };
+    formStyle = {
+      ...formStyle,
+      width: booleanHover ? "50px" : "300px",
+      height: "50px",
+    };
     inputStyle = {
       ...inputStyle,
       fontSize: "1.5em",
@@ -98,7 +110,7 @@ const Search = ({
       <form
         action=""
         className={styles.searchForm}
-        style={formStyle}
+        style={{ ...formStyle, ...style }}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
       >

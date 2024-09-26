@@ -78,10 +78,8 @@ const items = [
     ],
   },
 ];
-
-const SideBar = () => {
-  const [collapsed, setCollapsed] = useState(true);
-  const [hover, setHover] = useState(false);
+const App = () => {
+  const [collapsed, setCollapsed] = useState(false);
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
   };
@@ -102,17 +100,13 @@ const SideBar = () => {
       </Button>
       <Menu
         defaultSelectedKeys={["1"]}
-        // defaultOpenKeys={{}}
+        defaultOpenKeys={["sub1"]}
         mode="inline"
-        theme="light"
-        inlineCollapsed={collapsed && !hover}
+        theme="dark"
+        inlineCollapsed={collapsed}
         items={items}
-        triggerSubMenuAction={"click"}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-        style={{ position: "fixed", top: 0, left: 0 }}
       />
     </div>
   );
 };
-export default SideBar;
+export default App;

@@ -1,13 +1,11 @@
-import logo from "./logo.svg";
-import "./App.css";
 import { Button, Search, CircularButton, CustomLayout } from "./Components";
 
 import { useState } from "react";
 import { BellFilled, UserOutlined } from "@ant-design/icons";
 import { IconButton, SideBar } from "./Components";
-import { Colors } from "./Components/Constants";
+import { Colors } from "./";
 
-function App() {
+function TestingComponents() {
   const [searchValue, setSearchValue] = useState("");
 
   const testFunction = (param1, param2) => {
@@ -15,7 +13,7 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div>
       <CustomLayout>
         <div>
           <Button size={"s"} value={"Button"} rounded={false} />
@@ -84,4 +82,4 @@ function App() {
   );
 }
 
-export default App;
+export default TestingComponents;

@@ -2,7 +2,15 @@ import React, { useState } from "react";
 import { Button as AntdButton } from "antd";
 import { Colors } from "./Constants";
 
-const Button = ({ size, style, rounded, value, onClick }) => {
+const Button = ({
+  size,
+  style,
+  rounded,
+  value,
+  onClick,
+  disabled = false,
+  loading = false,
+}) => {
   const [hover, setHover] = useState(false);
 
   let width = null;
@@ -36,11 +44,12 @@ const Button = ({ size, style, rounded, value, onClick }) => {
     fontWeight = "bold";
     margin = "20px";
   }
-  console.log("render");
 
   return (
     <AntdButton
       type="primary"
+      disabled={disabled}
+      loading={loading}
       style={{
         backgroundColor: backgroundColor,
         width: width,
@@ -51,7 +60,7 @@ const Button = ({ size, style, rounded, value, onClick }) => {
         margin: margin,
         ...style,
       }}
-      onClick={() => onClick()}
+      onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >

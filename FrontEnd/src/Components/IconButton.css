@@ -13,7 +13,7 @@
 }
 
 .iconButton .ant-float-btn-body:hover {
-  background-color: white;
+  background-color: transparent !important;
 }
 
 .iconButton .ant-badge-count {
