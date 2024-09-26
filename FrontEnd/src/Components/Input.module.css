@@ -1,0 +1,44 @@
+.flexContainer {
+  display: flex;
+  align-items: center;
+}
+
+/* Text/Input field */
+.inputField {
+  position: relative;
+  margin-bottom: 30px;
+  width: 100%;
+}
+.inputField input {
+  width: 96%;
+  height: 50px;
+  border-radius: 6px;
+  font-size: 17px;
+  padding: 0 15px;
+  border: 1px solid var(--darkest-grey);
+  background: transparent;
+  color: var(--black);
+  outline: none;
+}
+.inputField label {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  transform: translateY(-50%);
+  color: var(--darkest-grey);
+  font-size: 19px;
+  pointer-events: none;
+  transition: 0.3s;
+}
+.inputField input:focus {
+  border: 2px solid var(--focus-color);
+}
+.inputField input:focus ~ label,
+.inputField input:valid ~ label {
+  color: var(--focus-color);
+  top: 0;
+  left: 15px;
+  font-size: 16px;
+  padding: 0 2px;
+  background: var(--light-grey);
+}

@@ -1,0 +1,30 @@
+:root {
+  --grey-900: #1a1a1a;
+  --grey-800: #333333;
+  --grey-700: #4d4d4d;
+  --grey-600: #666666;
+  --grey-500: #808080;
+  --grey-400: #999999;
+  --grey-300: #b3b3b3;
+  --grey-200: #cccccc;
+  --grey-100: #e6e6e6;
+  --grey-50: #f2f2f2;
+  --primary-color-light: #2781ff;
+  --primary-color: #1676fd;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+}
+
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  display: none;
+}
