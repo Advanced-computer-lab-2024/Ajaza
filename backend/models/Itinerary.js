@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const itinerarySchema = new mongoose.Schema({
   guideId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Guide' }, // Reference to the guide
+  name: { type: String, required: true},
   activities: [
     {
       start: { type: Number, required: true},

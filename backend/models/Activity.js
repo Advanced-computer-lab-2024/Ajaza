@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const activitySchema = new mongoose.Schema({ //an event is an activity
   advertiserId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Advertiser' }, // Reference to the advertiser
+  name: { type: String, required: true},
   date: { type: Date, required: true }, // Date of the activity
   location: { type: String, required: true }, // Google Maps link or location description
   upper: { type: Number, required: true }, // Upper limit of pricing or capacity
