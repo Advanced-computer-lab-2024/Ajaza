@@ -1,4 +1,6 @@
 const Product = require('../models/Product');
+const Tourist = require('../models/Tourist');
+
 
 // Create a new product
 exports.createProduct = async (req, res) => {
@@ -60,11 +62,15 @@ exports.deleteProduct = async (req, res) => {
   }
 };
 
-// req102 & req103 NOT TESTED
+// req102 & req103 TESTED
 exports.giveFeedback = async (req, res) => {
-  const productId = req.params.id;
+  const productId = req.params.productId;
   const touristId = req.params.touristId;
   const { rating, comments } = req.body;
+
+  if(!rating || !comments) {
+    return res.status(400).json({ message: 'Rating and comments are required.' });
+  }
 
   if (typeof rating !== 'number' || rating < 1 || rating > 5) {
     return res.status(400).json({ message: 'Rating must be a number between 1 and 5.' });
@@ -78,7 +84,7 @@ exports.giveFeedback = async (req, res) => {
     }
 
     const hasPurchased = tourist.orders.some(order =>
-      order.products.some(product => product.productId === productId && order.status !== 'Cancelled')
+      order.products.some(product => product.productId.toString() === productId && order.status !== 'Cancelled')
     );
 
     if (!hasPurchased) {
