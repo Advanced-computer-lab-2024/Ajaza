@@ -1,4 +1,3 @@
-// src/components/CustomLayout.js
 import React, { useState } from "react";
 import {
   MenuFoldOutlined,
@@ -6,8 +5,12 @@ import {
   UploadOutlined,
   UserOutlined,
   VideoCameraOutlined,
+  CalendarOutlined,
+  ContainerOutlined,
+  HourglassFilled,
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme } from "antd";
+import NavBar from './NavBar';
 
 const { Header, Sider, Content } = Layout;
 
@@ -22,28 +25,88 @@ const CustomLayout = ({ children }) => {
   let sideBarItems = [];
   let items = [];
 
-  if (user == "tourist") {
+  if (user == "Tour Guide") {
     navBarItems = [];
     sideBarItems = [
       {
         key: "1",
-        icon: <UserOutlined />,
-        label: "nav 1",
+        icon: <CalendarOutlined />,
+        label: "Itineraries",
       },
       {
         key: "2",
-        icon: <VideoCameraOutlined />,
-        label: "nav 2",
+        icon: <ContainerOutlined />,
+        label: "Report",
       },
       {
         key: "3",
-        icon: <UploadOutlined />,
-        label: "nav 3",
+        icon: <CalendarOutlined />,
+        label: "Tourists's itineraries",
+      },
+            // {
+      //   key: "4",
+      //   icon: <CalendarOutlined />,
+      //   label: "Actiivities",
+      // },
+    ];
+  } else if (user == "Tourism Governor") {
+    navBarItems = [];
+    sideBarItems = [
+      {
+        key: "1",
+        icon: <CalendarOutlined />,
+        label: "Itineraries",
+      },
+      // {
+      //   key: "5",
+      //   icon: <CalendarOutlined />,
+      //   label: "Actiivities",
+      // },
+      {
+        key: "2",
+        icon: <HourglassFilled />,
+        label: "Museums",
+      },
+      {
+        key: "3",
+        icon: <HourglassFilled />,
+        label: "Historical places",
+      },
+      {
+        key: "4",
+        icon: <HourglassFilled />,
+        label: "Tags or Historical locations",
+      }
+    ];
+  } else if (user == "Advertiser") {
+    navBarItems = [];
+    sideBarItems = [
+      {
+        key: "1",
+        icon: <CalendarOutlined />,
+        label: "Itineraries",
+      },
+      {
+        key: "2",
+        icon: <CalendarOutlined />,
+        label: "Actiivities",
+      },
+      {
+        key: "3",
+        icon: <HourglassFilled />,
+        label: "Museums",
+      },
+      {
+        key: "4",
+        icon: <HourglassFilled />,
+        label: "Historical places",
+      },
+      {
+        key: "5",
+        icon: <ContainerOutlined />,
+        label: "Report",
       },
     ];
-  } else if (user == "admin") {
-    navBarItems = [];
-    sideBarItems = [{}];
   }
 
   return (
@@ -80,6 +143,7 @@ const CustomLayout = ({ children }) => {
         />
       </Sider>
       <Layout>
+      <NavBar />
         <Header
           style={{
             padding: 0,

@@ -1,14 +1,16 @@
 import logo from "./logo.svg";
 import "./App.css";
 import { Button, Search, CircularButton, CustomLayout } from "./Components";
-
 import { useState } from "react";
+import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import { BellFilled, UserOutlined } from "@ant-design/icons";
 import { IconButton, SideBar } from "./Components";
 import { Colors } from "./Components/Constants";
+import Profile from './Components/Profile';
 
 function App() {
   const [searchValue, setSearchValue] = useState("");
+  const navigate = useNavigate(); // Use navigate for routing
 
   const testFunction = (param1, param2) => {
     console.log(param1, param2);
@@ -16,72 +18,71 @@ function App() {
 
   return (
     <div className="App">
-      <CustomLayout>
-        <div>
-          <Button size={"s"} value={"Button"} rounded={false} />
-          <Button
-            size={"s"}
-            value={"Button"}
-            rounded={true}
-            onClick={() => testFunction(1, 2)}
-            style={{ marginLeft: "40px" }}
-          />
+      <Routes>
+        <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/"
+          element={
+            <CustomLayout>
+              <div>
+                <Button size={"s"} value={"Button"} rounded={false} />
+                <Button
+                  size={"s"}
+                  value={"Button"}
+                  rounded={true}
+                  onClick={() => testFunction(1, 2)}
+                  style={{ marginLeft: "40px" }}
+                />
 
-          <Button size={"m"} value={"Button"} rounded={false} />
-          <Button size={"m"} value={"Button"} rounded={true} />
+                <Button size={"m"} value={"Button"} rounded={false} />
+                <Button size={"m"} value={"Button"} rounded={true} />
 
-          <Button size={"l"} value={"Button"} rounded={false} />
-          <Button size={"l"} value={"Button"} rounded={true} />
+                <Button size={"l"} value={"Button"} rounded={false} />
+                <Button size={"l"} value={"Button"} rounded={true} />
 
-          <Search
-            searchValue={searchValue}
-            setSearchValue={setSearchValue}
-            size={"l"}
-            style={{ marginLeft: "40px" }}
-          />
+                <Search
+                  searchValue={searchValue}
+                  setSearchValue={setSearchValue}
+                  size={"l"}
+                  style={{ marginLeft: "40px" }}
+                />
 
-          <Search
-            searchValue={searchValue}
-            setSearchValue={setSearchValue}
-            size={"s"}
-            activateHover={false}
-            style={{ marginLeft: "40px" }}
-          />
+                <Search
+                  searchValue={searchValue}
+                  setSearchValue={setSearchValue}
+                  size={"s"}
+                  activateHover={false}
+                  style={{ marginLeft: "40px" }}
+                />
 
-          <Search
-            searchValue={searchValue}
-            setSearchValue={setSearchValue}
-            size={"m"}
-            activateHover={false}
-            style={{ marginLeft: "40px" }}
-          />
+                <Search
+                  searchValue={searchValue}
+                  setSearchValue={setSearchValue}
+                  size={"m"}
+                  activateHover={false}
+                  style={{ marginLeft: "40px" }}
+                />
 
-          <Search
-            searchValue={searchValue}
-            setSearchValue={setSearchValue}
-            size={"l"}
-            activateHover={false}
-            style={{ marginLeft: "40px" }}
-          />
-
-          <IconButton
-            icon={BellFilled}
-            backgroundColor={Colors.primary.default}
-            badge={{ count: "5" }}
-            onClick={() => testFunction(1, 2)}
-            style={{ margin: "50px" }}
-          />
-
-          <IconButton
-            icon={UserOutlined}
-            backgroundColor={Colors.primary.default}
-            onClick={() => testFunction(1, 2)}
-            style={{ marginLeft: "50px" }}
-          />
-        </div>
-      </CustomLayout>
+                <Search
+                  searchValue={searchValue}
+                  setSearchValue={setSearchValue}
+                  size={"l"}
+                  activateHover={false}
+                  style={{ marginLeft: "40px" }}
+                />
+              </div>
+            </CustomLayout>
+          }
+        />
+      </Routes>
     </div>
   );
 }
 
-export default App;
+export default function AppWrapper() {
+  return (
+    <Router>
+      <App />
+    </Router>
+  );
+}
