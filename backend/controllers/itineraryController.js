@@ -1,4 +1,6 @@
 const Itinerary = require('../models/Itinerary');
+const Tourist = require('../models/Tourist');
+
 
 // Create a new itinerary
 exports.createItinerary = async (req, res) => {
@@ -55,6 +57,62 @@ exports.deleteItinerary = async (req, res) => {
       return res.status(404).json({ message: 'Itinerary not found' });
     }
     res.status(200).json({ message: 'Itinerary deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// req 37 NOT TESTED
+exports.searchByName = async (req, res) => {
+  const searchString = req.params.id;
+
+  if (!searchString) {
+    return res.status(400).json({ message: 'Search string is required' });
+  }
+
+  try {
+    const itineraries = await Itinerary.find({
+      name: { $regex: searchString, $options: 'i' }
+    });
+    res.status(200).json(itineraries);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// req54 & req55
+exports.giveItineraryFeedback = async (req, res) => {
+  try {
+    const { touristId, itineraryId } = req.params;
+    const { rating, comments } = req.body;
+
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: 'Tourist not found' });
+    }
+
+    const itineraryBooking = tourist.itineraryBookings.find(
+      booking => booking.itineraryId.toString() === itineraryId && booking.date < new Date()
+    );
+
+    if (!itineraryBooking) {
+      return res.status(400).json({ message: 'No valid past itinerary booking found' });
+    }
+
+    const itinerary = await Itinerary.findById(itineraryId);
+    if (!itinerary) {
+      return res.status(404).json({ message: 'Itinerary not found' });
+    }
+    if(itinerary.date < new Date()) {
+      return res.status(400).json({ message: 'No valid past itinerary booking found' });
+    }
+
+    // append the feedback to the itinerary
+    itinerary.feedback.push({ rating, comments});
+
+    await itinerary.save();
+
+    res.status(200).json({ message: 'Feedback submitted successfully', feedback: itinerary.feedback });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

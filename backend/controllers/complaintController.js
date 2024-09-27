@@ -59,3 +59,50 @@ exports.deleteComplaint = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// req80
+exports.getTouristComplaints = async (req, res) => {
+  const touristId = req.params.touristId;
+
+  try {
+    const complaints = await Complaint.find({ touristId });
+
+    if (complaints.length === 0) {
+      return res.status(404).json({ message: 'No complaints found for this tourist.' });
+    }
+
+    res.status(200).json(complaints);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// req73 NOT TESTED
+exports.fileComplaint = async (req, res) => {
+  const { title, body } = req.body;
+  const touristId = req.params.id;
+
+  if (!title || !body) {
+    return res.status(400).json({ message: 'Title and body are required.' });
+  }
+
+  try {
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: 'Tourist not found.' });
+    }
+
+    const newComplaint = new Complaint({
+      touristId,
+      title,
+      body,
+    });
+
+    // insert line
+    await newComplaint.save();
+
+    res.status(201).json({ message: 'Complaint filed successfully.', complaint: newComplaint });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

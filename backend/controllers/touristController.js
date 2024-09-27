@@ -1,4 +1,8 @@
 const Tourist = require('../models/Tourist');
+const Activity = require('../models/Activity');
+const Itinerary = require('../models/Itinerary');
+
+
 
 // Create a new tourist
 exports.createTourist = async (req, res) => {
@@ -47,6 +51,43 @@ exports.updateTourist = async (req, res) => {
   }
 };
 
+// tourist updates his profile req11 TESTED
+
+exports.touristUpdateProfile = async (req, res) => {
+  const allowedFields = ['email', 'mobile', 'nationality', 'occupation'];
+
+  const filteredBody = Object.keys(req.body)
+    .filter(key => allowedFields.includes(key))
+    .reduce((obj, key) => {
+      obj[key] = req.body[key];
+      return obj;
+    }, {});
+
+  try {
+    const updatedTourist = await Tourist.findByIdAndUpdate(req.params.id, filteredBody, { new: true });
+    if (!updatedTourist) {
+      return res.status(404).json({ message: 'Tourist not found' });
+    }
+    res.status(200).json(updatedTourist);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+exports.touristReadProfile = async (req, res) => {
+  try {
+    const touristProfile = await Tourist.findById(req.params.id)
+      .select('-pass -activityBookings -itineraryBookings -activityBookmarks -itineraryBookmarks -notifications -totalPoints -wishlist -cart -orders -deliveryAddresses -usedPromoCodes');
+
+    if (!touristProfile) {
+      return res.status(404).json({ message: 'Tourist not found' });
+    }
+    res.status(200).json(touristProfile);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 // Delete tourist by ID
 exports.deleteTourist = async (req, res) => {
   try {
@@ -55,6 +96,327 @@ exports.deleteTourist = async (req, res) => {
       return res.status(404).json({ message: 'Tourist not found' });
     }
     res.status(200).json({ message: 'Tourist deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// req 72 NOT TESTED
+exports.redeemPoints = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: 'Tourist not found.' });
+    }
+
+    const maxRedeemablePoints = Math.floor(tourist.points / 10000) * 100; // For every 10,000 points, redeem $100
+    if (maxRedeemablePoints <= 0) {
+      return res.status(400).json({ message: 'Not enough points to redeem.' });
+    }
+
+    tourist.wallet += maxRedeemablePoints;
+    tourist.points -= maxRedeemablePoints * 10000 / 100;
+
+    // Save the updated tourist document
+    await tourist.save();
+
+    // Respond with the updated tourist data
+    res.status(200).json({
+      message: 'Points redeemed successfully!',
+      wallet: tourist.wallet,
+      points: tourist.points,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// req 40 NOT TESTED
+exports.bookFlight = async (req, res) => {
+  const { origin, destination, departureDate, returnDate, cabinClass } = req.query;
+
+  const BASE_URL = process.env.BASE_URL;
+  const SKYSCANNER_API_KEY = process.env.SKYSCANNER_API_KEY;
+  
+  try {
+    const response = await axios.get(`${BASE_URL}/pricing/v1.0`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-rapidapi-key': SKYSCANNER_API_KEY, // API Key here
+        'x-rapidapi-host': 'skyscanner-skyscanner-flight-search-v1.p.rapidapi.com',
+      },
+      params: {
+        originPlace: origin, // e.g., "JFK-sky"
+        destinationPlace: destination, // e.g., "LHR-sky"
+        outboundDate: departureDate, // e.g., "2023-12-01"
+        inboundDate: returnDate, // e.g., "2023-12-15" (for round trip)
+        cabinClass: cabinClass || 'economy', // e.g., "economy", "business"
+        adults: 1,
+        country: 'US', // Adjust based on your user's country
+        currency: 'USD', // Adjust based on your user's preference
+        locale: 'en-US', // Locale for language and region
+      },
+    });
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching flights:', error);
+    res.status(500).json({ error: 'Error fetching flight data' });
+  }
+};
+
+// req61 NOT TESTED
+exports.cancelActivityBooking = async (req, res) => {
+  try {
+    const touristId = req.params.touristId;
+    const activityId = req.params.activityId;
+
+    const activity = await Activity.findById(activityId);
+    if (!activity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
+
+    const now = new Date();
+    const hoursDifference = (new Date(activity.date) - now) / (1000 * 60 * 60); // difference in hours
+
+    if (hoursDifference < 48) {
+      return res.status(400).json({ message: 'Cannot cancel the activity within 48 hours of its scheduled time.' });
+    }
+
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: 'Tourist not found' });
+    }
+
+    // find the booking for the activity and remove it
+    const bookingIndex = tourist.activityBookings.findIndex(
+      (booking) => booking.activityId.toString() === activityId
+    );
+
+    if (bookingIndex === -1) {
+      return res.status(404).json({ message: 'Activity booking not found for this tourist.' });
+    }
+
+    const totalPaid = tourist.activityBookings[bookingIndex].total;
+    tourist.wallet += totalPaid;
+
+    // remove the booking from the tourist activity bookings
+    tourist.activityBookings.splice(bookingIndex, 1);
+
+    await tourist.save();
+
+    activity.spots += 1;
+    await activity.save();
+
+    res.status(200).json({ message: 'Activity booking canceled successfully' , refund: totalPaid,});
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+exports.cancelItineraryBooking = async (req, res) => {
+  try {
+    const touristId = req.params.touristId;
+    const itineraryId = req.params.itineraryId;
+
+    const itinerary = await Itinerary.findById(itineraryId);
+    if (!itinerary) {
+      return res.status(404).json({ message: 'Itinerary not found' });
+    }
+
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: 'Tourist not found' });
+    }
+
+    const bookingIndex = tourist.itineraryBookings.findIndex(
+      (booking) => booking.itineraryId.toString() === itineraryId
+    );
+
+    if (bookingIndex === -1) {
+      return res.status(404).json({ message: 'Itinerary booking not found for this tourist.' });
+    }
+
+    const itineraryDate = tourist.itineraryBookings[bookingIndex].date;
+
+    const now = new Date();
+    const hoursDifference = (new Date(itineraryDate) - now) / (1000 * 60 * 60); // difference in hours
+
+    if (hoursDifference < 48) {
+      return res.status(400).json({ message: 'Cannot cancel the itinerary within 48 hours of its scheduled time.' });
+    }
+    
+    const totalPaid = tourist.itineraryBookings[bookingIndex].total;
+    tourist.wallet += totalPaid;
+
+    // remove the booking from the tourist itinerary bookings
+    tourist.itineraryBookings.splice(bookingIndex, 1);
+
+    await tourist.save();
+
+    // increasing spots
+    const availableDate = itinerary.availableDateTime.find(
+      dateEntry => dateEntry.date.toISOString() === itineraryDate.toISOString()
+    );
+
+    if (availableDate) {
+      availableDate.spots += 1;
+    } else {
+      return res.status(404).json({ message: 'Available DateTime not found (cannot restore spots)' });
+    }
+
+    await itinerary.save();
+
+    res.status(200).json({ message: 'Itinerary booking canceled successfully' , refund: totalPaid,});
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// req58 req70 req71
+exports.bookActivity = async (req, res) => {
+  try {
+    const { touristId, activityId } = req.params;
+    const { useWallet, total } = req.body; // Boolean to check if wallet should be used for payment, and total passed from frontend
+
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: 'Tourist not found' });
+    }
+
+    const activity = await Activity.findById(activityId);
+    if (!activity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
+
+    // check if the activity is open for booking
+    if (!activity.isOpen && activity.spots <= 0) {
+      return res.status(400).json({ message: 'This activity is not open for booking' });
+    }
+
+    // if the wallet is being used, check if the tourist has enough balance
+    if (useWallet) {
+      if (tourist.wallet < total) {
+        return res.status(400).json({ message: 'Insufficient wallet balance' });
+      }
+      
+      tourist.wallet -= total;
+    }
+
+    // otherwise, deduct the payment from another method (e.g. COD, card), assumed handled elsewhere.
+
+    // deduct 1 spot from the activity
+    activity.spots -= 1;
+
+    // Add the booking to the tourist's activityBookings array
+    tourist.activityBookings.push({
+      activityId: activity._id,
+      total: activity.price,
+    });
+
+    var newPoints;
+    switch(tourist.badge) {
+      case(1): newPoints = 0.5*total;break;
+      case(2): newPoints = total;break;
+      case(3): newPoints = 1.5*total;break;
+      default: newPoints = 0.5*total;
+    }
+
+    tourist.points+=newPoints;
+    tourist.totalPoints+=newPoints;
+
+    if(totalPoints > 500000) {
+      tourist.badge = 3;
+    } else if(totalPoints > 100000) {
+      tourist.badge = 2;
+    } else {
+      tourist.badge = 1;
+    }
+
+    // Save both the tourist and activity updates
+    await tourist.save();
+    await activity.save();
+
+    res.status(200).json({ message: 'Activity booked successfully', tourist });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+exports.bookitinerary = async (req, res) => {
+  try {
+    const { touristId, itineraryId } = req.params;
+    const { useWallet, total, date } = req.body; // Boolean to check if wallet should be used for payment, and total passed from frontend
+
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: 'Tourist not found' });
+    }
+
+    const itinerary = await Itinerary.findById(itineraryId);
+    if (!itinerary) {
+      return res.status(404).json({ message: 'Itinerary not found' });
+    }
+
+    // check if the itinerary is open for booking
+    if (!itinerary.active) {
+      return res.status(400).json({ message: 'This itinerary is not open for booking' });
+    }
+
+    const availableDate = itinerary.availableDates.find(
+      (dateObj) => dateObj.date.getTime() === date.getTime()
+    );
+
+    if (!availableDate || availableDate.spots <= 0) {
+      return res.status(400).json({ message: 'No spots available for this itinerary on the selected date' });
+    }
+
+    // check if date is in future and has an availableDateTime === date passed
+
+    // if the wallet is being used, check if the tourist has enough balance
+    if (useWallet) {
+      if (tourist.wallet < total) {
+        return res.status(400).json({ message: 'Insufficient wallet balance' });
+      }
+      
+      tourist.wallet -= total;
+    }
+
+    // otherwise, deduct the payment from another method (e.g. COD, card), assumed handled elsewhere.
+
+    // deduct 1 spot from the itinerary
+    availableDate.spots -= 1;
+
+    // add the booking to the tourist's itineraryBookings array
+    tourist.itineraryBookings.push({
+      itineraryId: itinerary._id,
+      date: date,
+      total: itinerary.price,
+    });
+
+    var newPoints;
+    switch(tourist.badge) {
+      case(1): newPoints = 0.5*total;break;
+      case(2): newPoints = total;break;
+      case(3): newPoints = 1.5*total;break;
+      default: newPoints = 0.5*total;
+    }
+
+    tourist.points+=newPoints;
+    tourist.totalPoints+=newPoints;
+
+    if(totalPoints > 500000) {
+      tourist.badge = 3;
+    } else if(totalPoints > 100000) {
+      tourist.badge = 2;
+    } else {
+      tourist.badge = 1;
+    }
+
+    // Save both the tourist and itinerary updates
+    await tourist.save();
+    await itinerary.save();
+
+    res.status(200).json({ message: 'Itinerary booked successfully', tourist });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

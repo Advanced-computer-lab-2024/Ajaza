@@ -59,3 +59,25 @@ exports.deleteVenue = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// req 37 NOT TESTED
+exports.searchByNameTag = async (req, res) => {
+  const searchString = req.params.id;
+
+  if (!searchString) {
+    return res.status(400).json({ message: 'Search string is required' });
+  }
+
+  try {
+    const venues = await Venue.find({
+      $or: [
+        { name: { $regex: searchString, $options: 'i' } },
+        { tags: { $elemMatch: { $regex: searchString, $options: 'i' } } }
+      ]
+    });
+
+    res.status(200).json(venues);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
