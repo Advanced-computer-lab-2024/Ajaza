@@ -60,12 +60,12 @@ exports.deleteVenue = async (req, res) => {
   }
 };
 
-// req37
+// req37 TESTED
 exports.searchByNameTag = async (req, res) => {
 
   //authentication middleware
 
-  const { searchString } = req.body;
+  const searchString = req.body.searchString;
 
   if (!searchString) {
     return res.status(400).json({ message: 'Search string is required' });
