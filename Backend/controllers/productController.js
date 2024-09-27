@@ -59,3 +59,46 @@ exports.deleteProduct = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// req102 & req103 NOT TESTED
+exports.giveFeedback = async (req, res) => {
+  const productId = req.params.id;
+  const touristId = req.params.touristId;
+  const { rating, comments } = req.body;
+
+  if (typeof rating !== 'number' || rating < 1 || rating > 5) {
+    return res.status(400).json({ message: 'Rating must be a number between 1 and 5.' });
+  }
+
+  try {
+    const tourist = await Tourist.findById(touristId);
+
+    if (!tourist) {
+      return res.status(404).json({ message: 'Tourist not found' });
+    }
+
+    const hasPurchased = tourist.orders.some(order =>
+      order.products.some(product => product.productId === productId && order.status !== 'Cancelled')
+    );
+
+    if (!hasPurchased) {
+      return res.status(403).json({ message: 'You must purchase the product before giving feedback.' });
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      {
+        $push: { feedback: { rating, comments } }
+      },
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.status(200).json(updatedProduct);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

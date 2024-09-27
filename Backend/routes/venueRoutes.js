@@ -13,4 +13,7 @@ router.patch('/:id', venueController.updateVenue);
 
 router.delete('/:id', venueController.deleteVenue);
 
+// req37
+router.get('/search', venueController.searchByNameTag);
+
 module.exports = router;

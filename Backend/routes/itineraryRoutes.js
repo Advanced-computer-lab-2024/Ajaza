@@ -12,4 +12,11 @@ router.patch('/:id', itineraryController.updateItinerary);
 
 router.delete('/:id', itineraryController.deleteItinerary);
 
+// req37
+router.get('/search', itineraryController.searchByName); 
+
+// req54 & req55
+router.post('/:touristId/itinerary/:itineraryId/feedback', itineraryController.giveItineraryFeedback);
+
+
 module.exports = router;

@@ -59,3 +59,28 @@ exports.deleteVenue = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// req37
+exports.searchByNameTag = async (req, res) => {
+
+  //authentication middleware
+
+  const { searchString } = req.body;
+
+  if (!searchString) {
+    return res.status(400).json({ message: 'Search string is required' });
+  }
+
+  try {
+    const venues = await Venue.find({
+      $or: [
+        { name: { $regex: searchString, $options: 'i' } },
+        { tags: { $elemMatch: { $regex: searchString, $options: 'i' } } }
+      ]
+    });
+
+    res.status(200).json(venues);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
