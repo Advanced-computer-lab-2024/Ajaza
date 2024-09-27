@@ -14,10 +14,10 @@ router.patch('/:id', complaintController.updateComplaint);
 // this will probably not be used
 router.delete('/:id', complaintController.deleteComplaint);
 
-// req80 NOT TESTED
+// req80
 router.get('/:touristId', complaintController.getTouristComplaints);
 
-// req73 NOT TESTED
+// req73
 router.post('/fileComplaint/:id', complaintController.fileComplaint);
 
 module.exports = router;

@@ -1,4 +1,6 @@
 const Complaint = require('../models/Complaint');
+const Tourist = require('../models/Tourist');
+
 
 // Create a new complaint
 exports.createComplaint = async (req, res) => {
@@ -77,7 +79,7 @@ exports.getTouristComplaints = async (req, res) => {
   }
 };
 
-// req73 NOT TESTED
+// req73 TESTED
 exports.fileComplaint = async (req, res) => {
   const { title, body } = req.body;
   const touristId = req.params.id;
