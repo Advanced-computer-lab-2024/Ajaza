@@ -86,7 +86,7 @@ exports.searchByNameCategoryTag = async (req, res) => {
   }
 };
 
-// req56 & req57
+// req56 & req57 TESTED
 exports.giveActivityFeedback = async (req, res) => {
   try {
     const { touristId, activityId } = req.params;
