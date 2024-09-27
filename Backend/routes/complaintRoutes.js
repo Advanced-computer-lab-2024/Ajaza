@@ -15,7 +15,7 @@ router.patch('/:id', complaintController.updateComplaint);
 router.delete('/:id', complaintController.deleteComplaint);
 
 // req80
-router.get('/:touristId', complaintController.getTouristComplaints);
+router.get('/myComplaints/:touristId', complaintController.getTouristComplaints);
 
 // req73
 router.post('/fileComplaint/:id', complaintController.fileComplaint);

@@ -62,7 +62,7 @@ exports.deleteComplaint = async (req, res) => {
   }
 };
 
-// req80
+// req80 TESTED
 exports.getTouristComplaints = async (req, res) => {
   const touristId = req.params.touristId;
 
