@@ -1,0 +1,21 @@
+.iconButton .ant-float-btn-content {
+  overflow: visible !important;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.iconButton .ant-float-btn-icon {
+  margin: auto;
+  width: 18px;
+  margin: 0 !important;
+  width: auto !important;
+}
+
+.iconButton .ant-float-btn-body:hover {
+  background-color: transparent !important;
+}
+
+.iconButton .ant-badge-count {
+  inset-inline-end: 0;
+}
