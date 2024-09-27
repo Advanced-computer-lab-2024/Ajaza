@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const touristSchema = new mongoose.Schema({
-  username: { type: String, required: true },
+  username: { type: String, required: true, unique: true},
   email: { type: String, required: true, unique: true },
   pass: { type: String, required: true }, // hashed password
   mobile: { type: String, required: true },
@@ -12,18 +12,19 @@ const touristSchema = new mongoose.Schema({
   wallet: { type: Number, default: 0 },
   activityBookings: [
     {
-      activityId: { type: Number, required: true },
+      activityId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Activity'},
       total: { type: Number, required: true },
     },
   ],
   itineraryBookings: [
     {
-      itineraryId: { type: Number, required: true },
+      itineraryId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Itinerary'},
+      date: { type: Date, required: true},
       total: { type: Number, required: true },
     },
   ],
-  activityBookmarks: [{ type: Number }],
-  itineraryBookmarks: [{ type: Number }],
+  activityBookmarks: [{ type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Activity'}],
+  itineraryBookmarks: [{ type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Itinerary'}],
   notifications: [
     {
       text: { type: String, required: true },
@@ -33,18 +34,18 @@ const touristSchema = new mongoose.Schema({
     },
   ],
   points: { type: Number, default: 0 }, //points updated after booking, if cancelled do not refund points from user
-  totalPoints: { type: Number, default: 0 }, //determines badge
+  totalPoints: { type: Number, default: 0 }, //determines badge whenever we increment points increment total points
   badge: { type: Number, default: 1 }, // level 1, 2, or 3
-  wishlist: [{ type: Number }],
+  wishlist: [{ type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Product'}],
   cart: [
     {
-      productId: { type: Number, required: true },
+      productId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Itinerary'},
       quantity: { type: Number, required: true, default: 1 },
     },
   ],
   orders: [
     {
-      products: [{ productId: { type: Number, required: true }, quantity: { type: Number, required: true } }],
+      products: [{ productId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Itinerary'}, quantity: { type: Number, required: true } }],
       date: { type: Date, default: Date.now },
       cod: { type: Boolean, required: true },
       total: { type: Number, required: true },

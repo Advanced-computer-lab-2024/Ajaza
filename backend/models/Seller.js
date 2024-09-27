@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
 
 const sellerSchema = new mongoose.Schema({
-  username: { type: String, required: true },
+  username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   pass: { type: String, required: true }, // hashed password
-  id: { type: String, required: true }, // serialized number for the seller's image
-  taxationRegCard: { type: String, required: true }, // serialized number for taxation registration card
+  id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Img'}, // serialized number for the seller's beta2a
+  taxationRegCard: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Img'}, // serialized number for taxation registration card
   name: { type: String, required: true }, // name of the seller
   desc: { type: String, required: true }, // description of the seller's business
-  logo: { type: String, required: true }, // serialized number for the seller's logo
+  logo: { type: mongoose.Schema.Types.ObjectId, ref: 'Img'}, // serialized number for the seller's logo
   acceptedTerms: { type: Boolean, default: false }, // initially false until accepted
   notifications: [
     {
@@ -17,6 +17,7 @@ const sellerSchema = new mongoose.Schema({
       productId: { type: Number }, // optional field
     },
   ],
+  requestingDeletion: { type:Boolean, default: false}
 });
 
 // Create the model

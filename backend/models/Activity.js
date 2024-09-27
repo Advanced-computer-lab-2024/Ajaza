@@ -2,22 +2,23 @@ const mongoose = require('mongoose');
 
 const activitySchema = new mongoose.Schema({ //an event is an activity
   advertiserId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Advertiser' }, // Reference to the advertiser
-  name: { type: String, required: true},
+  name: { type: String, required: true}, // name of activity
   date: { type: Date, required: true }, // Date of the activity
   location: { type: String, required: true }, // Google Maps link or location description
-  upper: { type: Number, required: true }, // Upper limit of pricing or capacity
+  upper: { type: Number, required: true }, // TODO
   lower: { type: Number, required: true }, // Lower limit (equal to upper if not a range)
-  category: { type: String, required: true }, // Activity category
+  category: [{ type: String, required: true }], // Activity category: advertiser chooses this when creating
   tags: [{ type: String }], // Array of tags related to the activity, advertiser enters them as he wants
   discounts: { type: String }, // TODO
   isOpen: { type: Boolean, default: true }, // Booking availability
-  flagged: { type: Boolean, default: false }, // Flag status for inappropriate content, delete from database after sending notification
   feedback: [
     {
-      rating: { type: Number, min: 1, max: 5 }, // Rating between 1 and 5
-      comments: { type: String },
+      rating: { type: Number, min: 1, max: 5, required: true }, // Rating between 1 and 5
+      comments: { type: String, required: true },
     },
   ],
+  spots: { type: Number, required: true },
+  hidden: { type: Boolean, default: false}
 });
 
 // Create the model
