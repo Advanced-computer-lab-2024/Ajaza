@@ -12,4 +12,9 @@ router.patch('/:id', activityController.updateActivity);
 
 router.delete('/:id', activityController.deleteActivity);
 
+router.get('/search/:id', activityController.searchByNameCategoryTag); // req37
+
+router.post('/:touristId/activity/:activityId/feedback', touristController.giveActivityFeedback); //req56 & req57
+
+
 module.exports = router;

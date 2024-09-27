@@ -12,4 +12,7 @@ router.patch('/:id', guideController.updateGuide);
 
 router.delete('/:id', guideController.deleteGuide);
 
+router.post('/:touristId/itinerary/:itineraryId/feedback', touristController.giveGuideFeedback);
+
+
 module.exports = router;

@@ -12,4 +12,9 @@ router.patch('/:id', itineraryController.updateItinerary);
 
 router.delete('/:id', itineraryController.deleteItinerary);
 
+router.get('/search/:id', itineraryController.searchByName); // req37
+
+router.post('/:touristId/itinerary/:itineraryId/feedback', touristController.giveItineraryFeedback);
+
+
 module.exports = router;
