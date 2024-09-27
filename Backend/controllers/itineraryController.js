@@ -83,7 +83,7 @@ exports.searchByName = async (req, res) => {
   }
 };
 
-// req54 & req55
+// req54 & req55 TESTED
 exports.giveItineraryFeedback = async (req, res) => {
 
   //authentication middleware

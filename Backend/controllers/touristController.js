@@ -332,11 +332,15 @@ exports.redeemPoints = async (req, res) => {
 exports.bookActivity = async (req, res) => {
   try {
     const { touristId, activityId } = req.params;
-    const { useWallet, total } = req.body; // Boolean to check if wallet should be used for payment, and total passed from frontend
+    const { useWallet, total , promoCode} = req.body; // Boolean to check if wallet should be used for payment, and total passed from frontend
 
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
       return res.status(404).json({ message: 'Tourist not found' });
+    }
+
+    if(promoCode && tourist.usedPromoCodes.includes(promoCode)) {
+      return res.status(404).json({ message: 'You already used this promo code' });
     }
 
     const activity = await Activity.findById(activityId);
@@ -369,6 +373,10 @@ exports.bookActivity = async (req, res) => {
       total: activity.price,
     });
 
+    if(promoCode) {
+      tourist.usedPromoCodes.push(promoCode);
+    }
+
     var newPoints;
     switch(tourist.badge) {
       case(1): newPoints = 0.5*total;break;
@@ -400,11 +408,15 @@ exports.bookActivity = async (req, res) => {
 exports.bookItinerary = async (req, res) => {
   try {
     const { touristId, itineraryId } = req.params;
-    const { useWallet, total, date } = req.body; // Boolean to check if wallet should be used for payment, and total passed from frontend
+    const { useWallet, total, date, promoCode} = req.body; // Boolean to check if wallet should be used for payment, and total passed from frontend
 
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
       return res.status(404).json({ message: 'Tourist not found' });
+    }
+
+    if(promoCode && tourist.usedPromoCodes.includes(promoCode)) {
+      return res.status(404).json({ message: 'You already used this promo code' });
     }
 
     const itinerary = await Itinerary.findById(itineraryId);
@@ -447,6 +459,10 @@ exports.bookItinerary = async (req, res) => {
       date: date,
       total: itinerary.price,
     });
+
+    if(promoCode) {
+      tourist.usedPromoCodes.push(promoCode);
+    }
 
     var newPoints;
     switch(tourist.badge) {
