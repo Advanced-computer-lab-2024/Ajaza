@@ -1,12 +1,12 @@
 import React from 'react';
 import { Card, Avatar, Typography, Space } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, EditOutlined} from '@ant-design/icons';
 import './Profile.css';
 
 const { Title, Text } = Typography;
 
 const Profile = () => {
-  // Dummy data for the profile but soon we get it from a globle context variable from the backend
+  // Dummy data for the profile but soon we get it from a global context variable from the backend and edit it as needed
   const userData = {
     name: "John Doe",
     email: "john.doe@example.com",
@@ -14,6 +14,10 @@ const Profile = () => {
     bio: "Software engineer with 5+ years of experience in web development, passionate about creating efficient and scalable solutions.",
     location: "San Francisco, CA",
   };
+
+  const actions = [
+    <EditOutlined key="edit" />,
+  ];
 
   return (
     <div className="profile-page">
@@ -25,6 +29,7 @@ const Profile = () => {
           padding: "20px",
           boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
         }}
+        actions={actions}
       >
         <Space direction="vertical" align="center" style={{ width: "100%" }}>
           <Avatar
@@ -44,30 +49,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
-
-
-
-
-
-
-// const Profile = () => {
-//   const user = {
-//     name: 'John Doe',
-//     email: 'john.doe@example.com',
-//     bio: 'This is a sample bio for the user profile page.'
-//   };
-
-//   return (
-//     <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
-//       <Card 
-//         title="User Profile"
-//         style={{ width: 300 }}
-//       >
-//         <p><strong>Name:</strong> {user.name}</p>
-//         <p><strong>Email:</strong> {user.email}</p>
-//         <p><strong>Bio:</strong> {user.bio}</p>
-//       </Card>
-//     </div>
-//   );
-// };
