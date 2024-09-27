@@ -65,6 +65,7 @@ exports.deleteGuide = async (req, res) => {
 // req52 & req53
 exports.giveGuideFeedback = async (req, res) => {
 
+  // we are rating the guide who gave us the itinerary so passed is itineraryId
   //authentication middleware
   //validation middleware
 
