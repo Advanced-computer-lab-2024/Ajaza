@@ -176,7 +176,7 @@ exports.bookFlight = async (req, res) => {
   }
 };
 
-// req61 NOT TESTED
+// req61 TESTED
 exports.cancelActivityBooking = async (req, res) => {
 
   //authentication middleware
@@ -227,9 +227,13 @@ exports.cancelActivityBooking = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+//req61 TESTED
 exports.cancelItineraryBooking = async (req, res) => {
 
   //authentication middleware
+
+  //itinerary: 66f6adef0f0094718a1f6050
 
   try {
     const touristId = req.params.touristId;
@@ -244,6 +248,9 @@ exports.cancelItineraryBooking = async (req, res) => {
     if (!tourist) {
       return res.status(404).json({ message: 'Tourist not found' });
     }
+
+    console.log(tourist.itineraryBookings);
+    console.log(itineraryId);
 
     const bookingIndex = tourist.itineraryBookings.findIndex(
       (booking) => booking.itineraryId.toString() === itineraryId
@@ -261,14 +268,6 @@ exports.cancelItineraryBooking = async (req, res) => {
     if (hoursDifference < 48) {
       return res.status(400).json({ message: 'Cannot cancel the itinerary within 48 hours of its scheduled time.' });
     }
-    
-    const totalPaid = tourist.itineraryBookings[bookingIndex].total;
-    tourist.wallet += totalPaid;
-
-    // remove the booking from the tourist itinerary bookings
-    tourist.itineraryBookings.splice(bookingIndex, 1);
-
-    await tourist.save();
 
     // increasing spots
     const availableDate = itinerary.availableDateTime.find(
@@ -280,7 +279,14 @@ exports.cancelItineraryBooking = async (req, res) => {
     } else {
       return res.status(404).json({ message: 'Available DateTime not found (cannot restore spots)' });
     }
+    
+    const totalPaid = tourist.itineraryBookings[bookingIndex].total;
+    tourist.wallet += totalPaid;
 
+    // remove the booking from the tourist itinerary bookings
+    tourist.itineraryBookings.splice(bookingIndex, 1);
+
+    await tourist.save();
     await itinerary.save();
 
     res.status(200).json({ message: 'Itinerary booking canceled successfully' , refund: totalPaid,});
@@ -405,6 +411,8 @@ exports.bookActivity = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 exports.bookItinerary = async (req, res) => {
   try {
     const { touristId, itineraryId } = req.params;
