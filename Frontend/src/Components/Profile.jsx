@@ -6,7 +6,7 @@ import './Profile.css';
 const { Title, Text } = Typography;
 
 const Profile = () => {
-  // Dummy data for the profile but soon we get it from a global context variable from the backend
+  // Dummy data for the profile but soon we get it from a global context variable from the backend and edit it as needed
   const userData = {
     name: "John Doe",
     email: "john.doe@example.com",
