@@ -24,6 +24,9 @@ const tagRouter = require('./routes/tagRoutes');
 const touristRouter = require('./routes/touristRoutes');
 const venueRouter = require('./routes/venueRoutes');
 
+app.use(cors());
+app.use(express.json());
+
 app.use('/activity', activityRouter);
 app.use('/admin', adminRouter);
 app.use('/advertiser', advertiserRouter);
@@ -39,8 +42,6 @@ app.use('/tag', tagRouter);
 app.use('/tourist', touristRouter);
 app.use('/venue', venueRouter);
 
-app.use(cors());
-app.use(express.json());
 
 const uri = process.env.ATLAS_URI;
 if (!uri) {

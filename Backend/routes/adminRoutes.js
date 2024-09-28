@@ -16,4 +16,8 @@ router.patch('/:id', adminController.updateAdmin);
 // this will probably be commented for security reasons
 router.delete('/:id', adminController.deleteAdmin);
 
+//this will receive user type and if from frontend and delete from db
+router.delete('/deleteUser/:userId', adminController.deleteUser);
+
+
 module.exports = router;
