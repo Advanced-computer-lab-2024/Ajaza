@@ -128,3 +128,10 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+
+.env
+PORT=7000
+ATLAS_URI = "mongodb+srv://Tatos:tatos123@ajaza.agcsd.mongodb.net/?retryWrites=true&w=majority&appName=AJAZA"
+NODE_MAILER_USER=reservy.me@gmail.com
+NODE_MAILER_PASS=vxvspkilqhembmiz
