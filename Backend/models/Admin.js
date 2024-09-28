@@ -5,7 +5,7 @@ const adminSchema = new mongoose.Schema({
   pass: { type: String, required: true }, // hashed password
   notifications: [
     {
-      text: { type: String, required: true },
+      text: { type: String},//shelt required
       seen: { type: Boolean, default: false },
       productId: { type: Number }, // optional field for product-related notifications
     },
