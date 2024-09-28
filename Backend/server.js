@@ -26,6 +26,7 @@ const sellerRouter = require('./routes/sellerRoutes');
 const tagRouter = require('./routes/tagRoutes');
 const touristRouter = require('./routes/touristRoutes');
 const venueRouter = require('./routes/venueRoutes');
+const guideProfileRouter = require('./routes/guideProfileRoutes')
 
 app.use(cors());
 app.use(express.json());
@@ -44,6 +45,10 @@ app.use('/seller', sellerRouter);
 app.use('/tag', tagRouter);
 app.use('/tourist', touristRouter);
 app.use('/venue', venueRouter);
+
+app.use('/guideProfile',guideProfileRouter)
+app.use(cors());
+app.use(express.json());
 
 
 const uri = process.env.ATLAS_URI;
