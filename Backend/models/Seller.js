@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
-const { hashPassword, comparePassword } = require('../passwordUtils'); // Adjust the path as necessary
+const { hashPassword, comparePassword } = require('../passwordUtils'); // Import the hashPassword and comparePassword methods
 
 
 const sellerSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   pass: { type: String, required: true }, // hashed password
-  id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Img'}, // serialized number for the seller's beta2a
-  taxationRegCard: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Img'}, // serialized number for taxation registration card
+  id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Img'}, // serialized number for the seller's national id (image)    
+  taxationRegCard: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Img'}, // serialized number for taxation registration card (image)
   name: { type: String, required: true }, // name of the seller
   desc: { type: String, required: true }, // description of the seller's business
   logo: { type: mongoose.Schema.Types.ObjectId, ref: 'Img'}, // serialized number for the seller's logo
@@ -28,7 +28,7 @@ sellerSchema.pre('save', hashPassword);
 // Use the pre-update middleware to hash the password   (PATCH request)
 sellerSchema.pre('findOneAndUpdate', hashPassword);
 
-// Add the compare password method to the schema
+// Add the compare password method to the schema  
 sellerSchema.methods.comparePassword = comparePassword;
 
 
