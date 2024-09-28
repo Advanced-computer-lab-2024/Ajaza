@@ -1,4 +1,5 @@
 const Activity = require('../models/Activity');
+const Advertiser = require('../models/Advertiser');
 const Tourist = require('../models/Tourist');
 
 // Create a new activity
@@ -151,5 +152,41 @@ exports.getTransportation = async (req,res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-
 }
+
+  //needed for req42
+  exports.createTransportation = async (req, res) => {
+    const advertiserId = req.params.id;
+
+    const advertiser = await Advertiser.findById(advertiserId);
+    if (!advertiser) {
+      return res.status(404).json({ message: 'Advertiser not found' });
+    }
+
+
+    const {transportation,date,location,upper,lower,category,tags,discounts,spots} = req.body;
+
+    const name = "Transportation";
+
+    try {
+      const newActivity = new Activity({
+        advertiserId,
+        name,
+        date,
+        location,
+        upper,
+        lower,
+        category,
+        tags,
+        discounts,
+        spots,
+        transportation
+      });
+  
+      const savedActivity = await newActivity.save();
+  
+      res.status(201).json(savedActivity);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }

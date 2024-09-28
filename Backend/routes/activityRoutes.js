@@ -20,6 +20,7 @@ router.post('/:touristId/activity/:activityId/feedback', activityController.give
 
 // req42
 router.get('/transportation/transportationAgain', activityController.getTransportation);
+router.post('/transportation/createTransportation/:id', activityController.createTransportation);
 
 
 module.exports = router;
