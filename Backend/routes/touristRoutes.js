@@ -17,7 +17,7 @@ router.patch('/touristUpdateProfile/:id', touristController.touristUpdateProfile
 router.get('/touristReadProfile/:id', touristController.touristReadProfile);
 
 // req50
-router.post('/emailShare', touristController.emailShare)
+router.post('/emailShare/:id', touristController.emailShare)
 
 // req 72
 router.patch('/redeemPoints/:id', touristController.redeemPoints);

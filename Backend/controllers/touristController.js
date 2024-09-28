@@ -1,7 +1,7 @@
 const Tourist = require('../models/Tourist');
 const Activity = require('../models/Activity');
 const Itinerary = require('../models/Itinerary');
-
+const nodemailer = require('nodemailer');
 
 
 // Create a new tourist
@@ -131,12 +131,34 @@ exports.emailShare = async (req, res) => {
     if (!tourist) {
       return res.status(404).json({ message: 'Tourist not found' });
     }
-    const emailSubject = "Check out what I found on Ajaza!";
-    const emailBody = "Your friend " + tourist.username + " shared this link with you: \n " + link;
 
-    //email middleware
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.NODE_MAILER_USER,
+        pass: process.env.NODE_MAILER_PASS,
+      },
+    });
 
-    res.status(200).json({ message: 'Email sent' , subject: emailSubject, body: emailBody});
+    const mailOptions = {
+        from: "reservy.me@gmail.com",
+        to: email,
+        subject: "Check out what I found on Ajaza!",
+        html: '<h1>Your friend ' + tourist.username +  ' shared a link with you!</h1> \n\n<a href="' + link + '"><button>Go to link</button></a>',
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email: ", error);
+      } else {
+        console.log("Email sent: ", info.response);
+      }
+    });
+
+    res.status(200).json({ message: 'Email sent'});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
