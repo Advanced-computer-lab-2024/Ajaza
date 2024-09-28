@@ -123,3 +123,33 @@ exports.giveActivityFeedback = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// req42 TESTED
+exports.getTransportation = async (req,res) => {
+  
+  //authentication middleware
+
+  try {
+    const { from, to } = req.body;
+
+    let query = {
+      'transportation.from': { $ne: null },
+      'transportation.to': { $ne: null }
+    };
+
+    if (from) {
+      query['transportation.from'] = from;
+    }
+
+    if (to) {
+      query['transportation.to'] = to;
+    }
+
+    const activities = await Activity.find(query);
+
+    res.status(200).json(activities);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+
+}

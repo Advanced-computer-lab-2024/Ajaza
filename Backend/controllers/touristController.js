@@ -108,7 +108,7 @@ exports.touristReadProfile = async (req, res) => {
   }
 };
 
-// req50
+// req50 TESTED
 exports.emailShare = async (req, res) => {
 
   //authentication middleware
