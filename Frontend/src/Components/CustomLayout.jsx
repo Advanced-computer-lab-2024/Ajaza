@@ -11,6 +11,7 @@ import {
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme } from "antd";
 import NavBar from './NavBar';
+import { useNavigate } from 'react-router-dom';
 
 const { Header, Sider, Content } = Layout;
 
@@ -18,6 +19,7 @@ const CustomLayout = ({ children }) => {
   const [user, setUser] = useState("");
   const [collapsed, setCollapsed] = useState(true);
   const [hover, setHover] = useState(false);
+  const navigate = useNavigate();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -32,6 +34,7 @@ const CustomLayout = ({ children }) => {
         key: "1",
         icon: <CalendarOutlined />,
         label: "Itineraries",
+        onClick: () => navigate("Tour-Guide/itineraries"),
       },
       {
         key: "2",

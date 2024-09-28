@@ -7,6 +7,8 @@ import { BellFilled, UserOutlined } from "@ant-design/icons";
 import { IconButton, SideBar } from "./Components";
 import { Colors } from "./Components/Constants";
 import Profile from './Components/Profile';
+import Itineraries from "./Components/Itineraries";
+import Activities from "./Components/Activities";
 
 function App() {
   const [searchValue, setSearchValue] = useState("");
@@ -20,6 +22,8 @@ function App() {
     <div className="App">
       <Routes>
         <Route path="/profile" element={<Profile />} />
+        <Route path="/itineraries" element={<Itineraries />} />
+        <Route path="/activities" element={<Activities />} />
         <Route
           path="/"
           element={
