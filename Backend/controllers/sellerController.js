@@ -35,36 +35,52 @@ exports.getSellerById = async (req, res) => {
   }
 };
 
-// Update seller by ID
+// // Update seller by ID
+// exports.updateSeller = async (req, res) => {
+//   try {
+//     const { pass } = req.body;
+
+//     // Retrieve the existing seller document
+//     const existingSeller = await Seller.findById(req.params.id).select('pass');
+//     if (!existingSeller) {
+//       return res.status(404).json({ message: 'Seller not found' });
+//     }
+
+//     // If a new password is provided, compare it with the existing hashed password
+//     if (pass) {
+//       const isMatch = await bcrypt.compare(pass, existingSeller.pass);
+//       if (isMatch) {
+//         return res.status(400).json({ message: 'New password cannot be the same as old password' });
+//       }
+
+//       // Hash the new password before updating
+//       const salt = await bcrypt.genSalt(10);
+//       req.body.pass = await bcrypt.hash(pass, salt);
+//     }
+
+//     // Proceed with the update
+//     const updatedSeller = await Seller.findByIdAndUpdate(req.params.id, req.body, { new: true });
+//     res.status(200).json(updatedSeller);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+
+// Update seller by ID (PATCH)
 exports.updateSeller = async (req, res) => {
   try {
-    const { pass } = req.body;
-
-    // Retrieve the existing seller document
-    const existingSeller = await Seller.findById(req.params.id).select('pass');
-    if (!existingSeller) {
+    const updatedSeller = await Seller.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!updatedSeller) {
       return res.status(404).json({ message: 'Seller not found' });
     }
-
-    // If a new password is provided, compare it with the existing hashed password
-    if (pass) {
-      const isMatch = await bcrypt.compare(pass, existingSeller.pass);
-      if (isMatch) {
-        return res.status(400).json({ message: 'New password cannot be the same as old password' });
-      }
-
-      // Hash the new password before updating
-      const salt = await bcrypt.genSalt(10);
-      req.body.pass = await bcrypt.hash(pass, salt);
-    }
-
-    // Proceed with the update
-    const updatedSeller = await Seller.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.status(200).json(updatedSeller);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 // Delete seller by ID
 exports.deleteSeller = async (req, res) => {
