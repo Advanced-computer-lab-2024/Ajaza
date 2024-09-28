@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const touristController = require('../controllers/touristController');
+const amadeusController = require('../controllers/amadeusController');
+
+const axios = require('axios');
+const qs = require('qs');
+require('dotenv').config();
 
 router.post('/', touristController.createTourist);
 
@@ -19,13 +24,14 @@ router.get('/touristReadProfile/:id', touristController.touristReadProfile);
 // req50
 router.post('/emailShare/:id', touristController.emailShare)
 
-// req 72
+// req72
 router.patch('/redeemPoints/:id', touristController.redeemPoints);
 
-// req 40
-router.get('/flights', touristController.bookFlight);
+// req40
+//router.get('/flights', touristController.bookFlight);
+router.get('/hotels/searchHotel', amadeusController.searchHotels);
 
-// req 61
+// req61
 router.delete('/:touristId/activity/:activityId/cancel', touristController.cancelActivityBooking);
 router.delete('/:touristId/itinerary/:itineraryId/cancel', touristController.cancelItineraryBooking);
 
