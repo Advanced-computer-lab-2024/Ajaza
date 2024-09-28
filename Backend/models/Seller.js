@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { hashPassword, comparePassword } = require('../passwordUtils'); // Adjust the path as necessary
+const { hashPassword, comparePassword } = require('../passwordUtils'); // Import the hashPassword and comparePassword methods
 
 
 const sellerSchema = new mongoose.Schema({
@@ -28,7 +28,7 @@ sellerSchema.pre('save', hashPassword);
 // Use the pre-update middleware to hash the password   (PATCH request)
 sellerSchema.pre('findOneAndUpdate', hashPassword);
 
-// Add the compare password method to the schema
+// Add the compare password method to the schema  
 sellerSchema.methods.comparePassword = comparePassword;
 
 
