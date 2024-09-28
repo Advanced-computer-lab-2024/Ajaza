@@ -11,20 +11,20 @@ exports.createSeller = async (req, res) => {
   }
 };
 
-// Get all sellers
+// Get all sellers (admin Read all sellers)
 exports.getAllSellers = async (req, res) => {
   try {
-    const sellers = await Seller.find();
+    const sellers = await Seller.find().select('-pass'); // exclude password from the response
     res.status(200).json(sellers);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// Get seller by ID
+// Get seller by ID (seller Read profile)
 exports.getSellerById = async (req, res) => {
   try {
-    const seller = await Seller.findById(req.params.id);
+    const seller = await Seller.findById(req.params.id).select('-pass'); // exclude password from the response
     if (!seller) {
       return res.status(404).json({ message: 'Seller not found' });
     }
