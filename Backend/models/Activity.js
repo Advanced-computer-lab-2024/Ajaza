@@ -18,7 +18,11 @@ const activitySchema = new mongoose.Schema({ //an event is an activity
     },
   ],
   spots: { type: Number, required: true },
-  hidden: { type: Boolean, default: false}
+  hidden: { type: Boolean, default: false},
+  transportation: {
+    from: { type: String},
+    to: { type: String}
+  }
 });
 
 // Create the model

@@ -12,4 +12,26 @@ router.patch('/:id', touristController.updateTourist);
 
 router.delete('/:id', touristController.deleteTourist);
 
+// req11
+router.patch('/touristUpdateProfile/:id', touristController.touristUpdateProfile); 
+router.get('/touristReadProfile/:id', touristController.touristReadProfile);
+
+// req50
+router.post('/emailShare/:id', touristController.emailShare)
+
+// req 72
+router.patch('/redeemPoints/:id', touristController.redeemPoints);
+
+// req 40
+router.get('/flights', touristController.bookFlight);
+
+// req 61
+router.delete('/:touristId/activity/:activityId/cancel', touristController.cancelActivityBooking);
+router.delete('/:touristId/itinerary/:itineraryId/cancel', touristController.cancelItineraryBooking);
+
+// req58 req71 req70
+router.post('/:touristId/activity/:activityId/book', touristController.bookActivity);
+router.post('/:touristId/itinerary/:itineraryId/book', touristController.bookItinerary);
+
+
 module.exports = router;
