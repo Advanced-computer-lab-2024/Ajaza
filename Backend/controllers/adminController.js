@@ -77,8 +77,6 @@ exports.deleteUser = async (req, res) => {
   try {
     let deletedUser;
     let userType;
-
-    // Check each model to see if the user exists
     deletedUser = await Seller.findByIdAndDelete(userId);
     if (deletedUser) {
       userType = 'Seller';
