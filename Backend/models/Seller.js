@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const { hashPassword, comparePassword } = require('../passwordUtils'); // Adjust the path as necessary
+
 
 const sellerSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
@@ -19,6 +21,16 @@ const sellerSchema = new mongoose.Schema({
   ],
   requestingDeletion: { type:Boolean, default: false}
 });
+
+// Use the pre-save middleware to hash the password before saving it to the database (POST request)
+sellerSchema.pre('save', hashPassword);
+
+// Use the pre-update middleware to hash the password   (PATCH request)
+sellerSchema.pre('findOneAndUpdate', hashPassword);
+
+// Add the compare password method to the schema
+sellerSchema.methods.comparePassword = comparePassword;
+
 
 // Create the model
 const Seller = mongoose.model('Seller', sellerSchema);
