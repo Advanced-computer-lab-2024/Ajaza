@@ -34,7 +34,7 @@ const CustomLayout = ({ children }) => {
         key: "1",
         icon: <CalendarOutlined />,
         label: "Itineraries",
-        onClick: () => navigate("Tour-Guide/itineraries"),
+        onClick: () => navigate("/itineraries"),
       },
       {
         key: "2",
