@@ -3,6 +3,24 @@ const Activity = require('../models/Activity');
 const Itinerary = require('../models/Itinerary');
 const nodemailer = require('nodemailer');
 
+function isAdult(dob) {
+  // Convert the dob string to a Date object
+  const birthDate = new Date(dob);
+  const today = new Date();
+
+  // Calculate the age
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDifference = today.getMonth() - birthDate.getMonth();
+
+  // Adjust age if the birth date hasn't occurred yet this year
+  if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+  }
+
+  // Return true if age is 18 or older, otherwise false
+  return age >= 18;
+}
+
 
 // Create a new tourist
 exports.createTourist = async (req, res) => {
@@ -334,6 +352,10 @@ exports.bookActivity = async (req, res) => {
       return res.status(404).json({ message: 'Tourist not found' });
     }
 
+    if(!isAdult(tourist.dob)) {
+      return res.status(400).json({ message: 'Tourist is not an adult' });
+    }
+
     if(promoCode && tourist.usedPromoCodes.includes(promoCode)) {
       return res.status(404).json({ message: 'You already used this promo code' });
     }
@@ -410,6 +432,10 @@ exports.bookItinerary = async (req, res) => {
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
       return res.status(404).json({ message: 'Tourist not found' });
+    }
+
+    if(!isAdult(tourist.dob)) {
+      return res.status(400).json({ message: 'Tourist is not an adult' });
     }
 
     if(promoCode && tourist.usedPromoCodes.includes(promoCode)) {
