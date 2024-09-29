@@ -34,4 +34,15 @@ router.post('/:touristId/activity/:activityId/book', touristController.bookActiv
 router.post('/:touristId/itinerary/:itineraryId/book', touristController.bookItinerary);
 
 
+
+
+//req4      --Tatos
+router.post('/guestTouristCreateProfile', touristController.guestTouristCreateProfile);    // Guest Tourist sign up
+
+
+
+
+
+
+
 module.exports = router;
