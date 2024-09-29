@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const touristController = require('../controllers/touristController');
-const amadeusController = require('../controllers/amadeusController');
+const apiController = require('../controllers/apiController');
 
 const axios = require('axios');
 const qs = require('qs');
@@ -28,8 +28,11 @@ router.post('/emailShare/:id', touristController.emailShare)
 router.patch('/redeemPoints/:id', touristController.redeemPoints);
 
 // req40
-//router.get('/flights', touristController.bookFlight);
-router.get('/hotels/searchHotel', amadeusController.searchHotels);
+router.get('/flights/searchFlights', apiController.searchFlights);
+//router.post('/flights/bookFlight', apiController.bookFlight);
+// req41
+//router.get('/hotels/searchHotels', apiController.searchHotels);
+//router.post('/hotels/bookHotel', apiController.bookHotel);
 
 // req61
 router.delete('/:touristId/activity/:activityId/cancel', touristController.cancelActivityBooking);
