@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Breadcrumb, Layout, Menu, theme, Button, Input, Form, message } from 'antd';
 //import CustomLayout from './tempCustomLayout';
-import CustomLayout from './Components/CustomLayout';
+import AdminCustomLayout from './Components/AdminCustomLayout';
 const { Header, Content, Footer } = Layout;
 
 const items = [
@@ -172,7 +172,7 @@ const AddAccounts = () => {
   };
 
   return (
-    <CustomLayout>
+    <AdminCustomLayout>
     <Layout>
       <Header
         style={{
@@ -219,7 +219,7 @@ const AddAccounts = () => {
       </Content>
       
     </Layout>
- </CustomLayout> );
+ </AdminCustomLayout> );
 };
 
 export default AddAccounts;
