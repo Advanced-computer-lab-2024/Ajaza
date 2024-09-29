@@ -8,8 +8,8 @@ const sellerSchema = new mongoose.Schema({
   pass: { type: String, required: true }, // hashed password
   id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Img'}, // serialized number for the seller's national id (image)    
   taxationRegCard: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Img'}, // serialized number for taxation registration card (image)
-  name: { type: String, required: true }, // name of the seller
-  desc: { type: String, required: true }, // description of the seller's business
+  name: { type: String, required: false }, // name of the seller
+  desc: { type: String, required: false }, // description of the seller's business
   logo: { type: mongoose.Schema.Types.ObjectId, ref: 'Img'}, // serialized number for the seller's logo
   acceptedTerms: { type: Boolean, default: false }, // initially false until accepted
   notifications: [

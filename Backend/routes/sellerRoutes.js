@@ -12,6 +12,9 @@ router.patch('/:id', sellerController.updateSeller);
 
 router.delete('/:id', sellerController.deleteSeller);
 
+//req5
+router.post('/guestSellerCreateProfile', sellerController.guestSellerCreateProfile);    // Guest Seller sign up
+
 // req6
 router.post('/sellerCreateProfile', sellerController.sellerCreateProfile);    // Seller sign up
 router.get('/sellerReadProfile/:id', sellerController.sellerReadProfile);    // Seller read profile
