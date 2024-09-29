@@ -9,9 +9,15 @@ import {
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme } from "antd";
 
+import { IconButton } from "../Components";
+import { Colors } from "../Components/Constants";
+
 const { Header, Sider, Content } = Layout;
 
 const CustomLayout = ({ children }) => {
+  const testFunction = () => {
+    console.log("Test");
+  };
   const [user, setUser] = useState("");
   const [collapsed, setCollapsed] = useState(true);
   const [hover, setHover] = useState(false);
@@ -42,6 +48,13 @@ const CustomLayout = ({ children }) => {
       },
     ];
   } else if (user == "admin") {
+    navBarItems = [];
+    sideBarItems = [{}];
+  }
+
+  //in seller navbar to have profile icon
+  //sidebar: product
+  else if (user == "seller") {
     navBarItems = [];
     sideBarItems = [{}];
   }
