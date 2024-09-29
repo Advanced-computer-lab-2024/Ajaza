@@ -15,6 +15,16 @@ import Profile from "./Components/Profile";
 import Itineraries from "./Components/Itineraries";
 import Activities from "./Components/Activities";
 
+
+
+
+import ManageAccounts from "./manageAccounts";
+import AddAccounts from "./addAccounts";
+
+import ManageActivityCategories from "./manageActivityCategories";
+import ManagePreferenceTags from "./managePreferenceTags";
+
+
 function App() {
   const [searchValue, setSearchValue] = useState("");
   const navigate = useNavigate(); // Use navigate for routing
@@ -26,6 +36,55 @@ function App() {
   return (
     <div className="App">
       <Routes>
+
+<Route
+        path="/manage-accounts"        
+        element={
+         
+            <ManageAccounts />
+         
+        }
+      />
+       <Route
+        path="/manage-accounts/action3"        
+        element={
+          
+        
+          <AddAccounts />
+      
+    
+        }
+      />
+
+       <Route
+          path="/manage-activity-categories" // New route
+          element={
+            //<CustomLayout>
+              <ManageActivityCategories />
+            //</CustomLayout>
+          }
+        />
+
+      <Route
+          path="/preference-tags" // New route
+          element={
+            
+              <ManagePreferenceTags />
+          
+          }
+        />
+
+
+
+
+
+
+
+
+
+
+
+
         <Route path="/profile" element={<Profile />} />
         <Route path="/itineraries" element={<Itineraries />} />
         <Route path="/activities" element={<Activities />} />
