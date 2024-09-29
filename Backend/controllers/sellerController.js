@@ -84,6 +84,35 @@ exports.deleteSeller = async (req, res) => {
 };
 
 
+          //              req5            //
+          // Geuest/Seller sign up
+exports.guestSellerCreateProfile = async (req, res) => {
+  // TODO: validation of the input data
+
+  // Allowed fields
+  const allowedFields = ['username', 'email', 'pass','id', 'taxationRegCard'];
+
+  // Filter the request body
+  const filteredBody = {};
+  allowedFields.forEach(field => { // Loop through the allowed fields
+    if (req.body[field] !== undefined) { // Check if the field exists in the request body
+      filteredBody[field] = req.body[field]; // Add the field to the filtered body
+    }
+  });
+
+  try {
+    const seller = new Seller(filteredBody);
+    const savedSeller = await seller.save();
+    res.status(201).json(savedSeller);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+
+
+
+
           //              req6            //
 
           // Seller sign up
@@ -91,8 +120,19 @@ exports.deleteSeller = async (req, res) => {
 exports.sellerCreateProfile = async (req, res) => {
   // TODO: validation of the input data
 
+  // Allowed fields
+  const allowedFields = ['username', 'email', 'pass', 'id', 'taxationRegCard', 'name', 'desc'];
+
+  // Filter the request body
+  const filteredBody = {};
+  allowedFields.forEach(field => {
+    if (req.body[field] !== undefined) {
+      filteredBody[field] = req.body[field];
+    }
+  });
+
   try {
-    const seller = new Seller(req.body);
+    const seller = new Seller(filteredBody);
     const savedSeller = await seller.save();
     res.status(201).json(savedSeller);
   } catch (error) {
