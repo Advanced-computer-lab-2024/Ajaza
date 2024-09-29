@@ -2,11 +2,16 @@ import logo from "./logo.svg";
 import "./App.css";
 import { Button, Search, CircularButton, CustomLayout } from "./Components";
 import { useState } from "react";
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useNavigate,
+} from "react-router-dom";
 import { BellFilled, UserOutlined } from "@ant-design/icons";
 import { IconButton, SideBar } from "./Components";
 import { Colors } from "./Components/Constants";
-import Profile from './Components/Profile';
+import Profile from "./Components/Profile";
 import Itineraries from "./Components/Itineraries";
 import Activities from "./Components/Activities";
 

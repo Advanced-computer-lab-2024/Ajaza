@@ -13,9 +13,15 @@ import { Button, Layout, Menu, theme } from "antd";
 import NavBar from './NavBar';
 import { useNavigate } from 'react-router-dom';
 
+import { IconButton } from "../Components";
+import { Colors } from "../Components/Constants";
+
 const { Header, Sider, Content } = Layout;
 
 const CustomLayout = ({ children }) => {
+  const testFunction = () => {
+    console.log("Test");
+  };
   const [user, setUser] = useState("");
   const [collapsed, setCollapsed] = useState(true);
   const [hover, setHover] = useState(false);
@@ -110,6 +116,13 @@ const CustomLayout = ({ children }) => {
         label: "Report",
       },
     ];
+  }
+
+  //in seller navbar to have profile icon
+  //sidebar: product
+  else if (user == "seller") {
+    navBarItems = [];
+    sideBarItems = [{}];
   }
 
   return (
