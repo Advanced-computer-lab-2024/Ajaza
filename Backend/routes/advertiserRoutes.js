@@ -10,7 +10,10 @@ router.get('/:id', advertiserController.getAdvertiserById);
 
 router.patch('/:id', advertiserController.updateAdvertiser);
 
-router.delete('/:id', advertiserController.deleteAdvertiser);
+router.delete('/deleteAgain/:id', advertiserController.deleteAdvertiser);
+
+// req 16 ng
+router.delete('/deleteAdvertisers', advertiserController.deleteAdvertisersRequestingDeletion);
 
 
 
