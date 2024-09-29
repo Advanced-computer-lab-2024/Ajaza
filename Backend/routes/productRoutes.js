@@ -15,4 +15,16 @@ router.delete('/:id', productController.deleteProduct);
 // req102 req 103
 router.post('/:touristId/products/:productId/feedback', productController.giveFeedback);
 
+
+
+//req86     // Admin/Seller add product
+router.post('/:sellerId/product/adminSellerAddProduct',productController.adminSellerAddProduct);  //Seller add product     
+
+router.post('/:adminId/product/adminSellerAddProduct', productController.adminSellerAddProduct); //Admin add product
+
+
+
+
+
+
 module.exports = router;
