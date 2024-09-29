@@ -12,4 +12,7 @@ router.patch('/:id', productController.updateProduct);
 
 router.delete('/:id', productController.deleteProduct);
 
+// req102 req 103
+router.post('/:touristId/products/:productId/feedback', productController.giveFeedback);
+
 module.exports = router;

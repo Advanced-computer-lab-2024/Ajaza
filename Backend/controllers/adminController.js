@@ -1,4 +1,10 @@
 const Admin = require('../models/Admin');
+const Advertiser = require('../models/Advertiser');
+const Governor = require('../models/Governor');
+const Seller = require('../models/Seller');
+const Tourist = require('../models/Tourist');
+const Guide = require('../models/Guide');
+
 
 // Create a new admin
 exports.createAdmin = async (req, res) => {
@@ -59,3 +65,6 @@ exports.deleteAdmin = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+

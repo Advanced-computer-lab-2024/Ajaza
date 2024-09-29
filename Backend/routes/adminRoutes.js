@@ -16,4 +16,6 @@ router.patch('/:id', adminController.updateAdmin);
 // this will probably be commented for security reasons
 router.delete('/:id', adminController.deleteAdmin);
 
+
+
 module.exports = router;

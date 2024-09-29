@@ -12,4 +12,8 @@ router.patch('/:id', guideController.updateGuide);
 
 router.delete('/:id', guideController.deleteGuide);
 
+// req52 & req53
+router.post('/:touristId/guide/:itineraryId/feedback', guideController.giveGuideFeedback);
+
+
 module.exports = router;

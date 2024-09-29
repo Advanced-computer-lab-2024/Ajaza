@@ -12,4 +12,10 @@ router.patch('/:id', sellerController.updateSeller);
 
 router.delete('/:id', sellerController.deleteSeller);
 
+// req6
+router.post('/sellerCreateProfile', sellerController.sellerCreateProfile);    // Seller sign up
+router.get('/sellerReadProfile/:id', sellerController.sellerReadProfile);    // Seller read profile
+router.patch('/sellerUpdateProfile/:id', sellerController.sellerUpdateProfile);  // Seller update profile
+
+
 module.exports = router;
