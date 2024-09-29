@@ -13,3 +13,7 @@ router.patch('/:id', advertiserController.updateAdvertiser);
 router.delete('/:id', advertiserController.deleteAdvertiser);
 
 module.exports = router;
+
+
+//req5  -- Tatos
+router.post('/guestAdvertiserCreateProfile', advertiserController.guestAdvertiserCreateProfile);    // Guest Advertiser sign up

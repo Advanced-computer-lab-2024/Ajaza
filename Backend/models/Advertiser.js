@@ -7,18 +7,18 @@ const advertiserSchema = new mongoose.Schema({
   id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Img'}, // serialized number for image beta2a
   taxationRegCard: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Img'}, // serialized number for taxation registration card
   pending: { type: Boolean, default: true }, // initially true until admin approves
-  link: { type: String, required: true },
-  hotline: { type: String, required: true },
+  link: { type: String, required: false },
+  hotline: { type: String, required: false },
   companyProfile: { //mainly a description
-    name: { type: String, required: true },
-    desc: { type: String, required: true },
-    location: { type: String, required: true },
+    name: { type: String, required: false },
+    desc: { type: String, required: false },
+    location: { type: String, required: false },
   },
   logo: { type: mongoose.Schema.Types.ObjectId, ref: 'Img'}, // serialized number for logo
   acceptedTerms: { type: Boolean, default: false }, // initially false until accepted
   notifications: [
     {
-      text: { type: String, required: true },
+      text: { type: String, required: false },
       seen: { type: Boolean, default: false },
     },
   ],
