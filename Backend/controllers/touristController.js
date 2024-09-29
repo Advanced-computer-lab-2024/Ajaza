@@ -531,6 +531,7 @@ exports.bookItinerary = async (req, res) => {
           // Geuest/Tourist sign up
 exports.guestTouristCreateProfile = async (req, res) => {
   // TODO: validation of the input data
+  // TODO: check the comment section for this requirement
 
   // Allowed fields
   const allowedFields = ['username', 'email', 'pass','mobile', 'nationality', 'dob', 'occupation'];
