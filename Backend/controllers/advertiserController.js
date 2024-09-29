@@ -86,3 +86,22 @@ exports.guestAdvertiserCreateProfile = async (req, res) => {
   }
 };
 
+
+// admin delete advertisers requesting deletion
+exports.deleteAdvertisersRequestingDeletion = async (req, res) => {
+  //middleware authentication
+  try {
+    const advertisers = await Advertiser.find({ requestingDeletion: true });
+    if (advertisers.length === 0) {
+      return res.status(404).json({ message: 'No advertisers found requesting deletion' });
+    }
+
+    for (const advertiser of advertisers) {
+      await Advertiser.findByIdAndDelete(advertiser._id);
+    }
+
+    res.status(200).json({ message: 'Advertisers deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
