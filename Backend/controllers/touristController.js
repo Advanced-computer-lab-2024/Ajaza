@@ -3,6 +3,24 @@ const Activity = require('../models/Activity');
 const Itinerary = require('../models/Itinerary');
 const nodemailer = require('nodemailer');
 
+function isAdult(dob) {
+  // Convert the dob string to a Date object
+  const birthDate = new Date(dob);
+  const today = new Date();
+
+  // Calculate the age
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDifference = today.getMonth() - birthDate.getMonth();
+
+  // Adjust age if the birth date hasn't occurred yet this year
+  if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+  }
+
+  // Return true if age is 18 or older, otherwise false
+  return age >= 18;
+}
+
 
 // Create a new tourist
 exports.createTourist = async (req, res) => {
@@ -163,39 +181,6 @@ exports.emailShare = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 
-};
-
-// req40
-exports.bookFlight = async (req, res) => {
-  const { origin, destination, departureDate, returnDate, cabinClass } = req.query;
-
-  const BASE_URL = process.env.BASE_URL;
-  const SKYSCANNER_API_KEY = process.env.SKYSCANNER_API_KEY;
-  
-  try {
-    const response = await axios.get(`${BASE_URL}/pricing/v1.0`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'x-rapidapi-key': SKYSCANNER_API_KEY, // API Key here
-        'x-rapidapi-host': 'skyscanner-skyscanner-flight-search-v1.p.rapidapi.com',
-      },
-      params: {
-        originPlace: origin, // e.g., "JFK-sky"
-        destinationPlace: destination, // e.g., "LHR-sky"
-        outboundDate: departureDate, // e.g., "2023-12-01"
-        inboundDate: returnDate, // e.g., "2023-12-15" (for round trip)
-        cabinClass: cabinClass || 'economy', // e.g., "economy", "business"
-        adults: 1,
-        country: 'US', // Adjust based on your user's country
-        currency: 'USD', // Adjust based on your user's preference
-        locale: 'en-US', // Locale for language and region
-      },
-    });
-    res.json(response.data);
-  } catch (error) {
-    console.error('Error fetching flights:', error);
-    res.status(500).json({ error: 'Error fetching flight data' });
-  }
 };
 
 // req61 TESTED
@@ -367,6 +352,10 @@ exports.bookActivity = async (req, res) => {
       return res.status(404).json({ message: 'Tourist not found' });
     }
 
+    if(!isAdult(tourist.dob)) {
+      return res.status(400).json({ message: 'Tourist is not an adult' });
+    }
+
     if(promoCode && tourist.usedPromoCodes.includes(promoCode)) {
       return res.status(404).json({ message: 'You already used this promo code' });
     }
@@ -443,6 +432,10 @@ exports.bookItinerary = async (req, res) => {
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
       return res.status(404).json({ message: 'Tourist not found' });
+    }
+
+    if(!isAdult(tourist.dob)) {
+      return res.status(400).json({ message: 'Tourist is not an adult' });
     }
 
     if(promoCode && tourist.usedPromoCodes.includes(promoCode)) {

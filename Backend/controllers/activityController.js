@@ -98,6 +98,10 @@ exports.giveActivityFeedback = async (req, res) => {
       return res.status(404).json({ message: 'Tourist not found' });
     }
 
+    if(tourist.gaveFeedback.includes(activityId)) {
+      return res.status(400).json({ message: 'Feedback already given' });
+    }
+
     const activityBooking = tourist.activityBookings.find(
       booking => booking.activityId.toString() === activityId
     );
@@ -116,6 +120,8 @@ exports.giveActivityFeedback = async (req, res) => {
 
     // append the feedback to the activity
     activity.feedback.push({ rating, comments});
+    tourist.gaveFeedback.push(activityId);
+    await tourist.save();
 
     await activity.save();
 

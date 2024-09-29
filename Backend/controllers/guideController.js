@@ -81,6 +81,7 @@ exports.giveGuideFeedback = async (req, res) => {
     if (!tourist) {
       return res.status(404).json({ message: 'Tourist not found' });
     }
+        
 
     // find the itinerary booking by itineraryId, to rate the guide once per every itinerary booking
     const itineraryBooking = tourist.itineraryBookings.find(
@@ -99,6 +100,10 @@ exports.giveGuideFeedback = async (req, res) => {
 
     const guideId = itinerary.guideId;
 
+    if(tourist.gaveFeedback.includes(guideId)) {
+      return res.status(400).json({ message: 'Feedback already given for this guide' });
+    }
+
     // Find the guide and append feedback
     const guide = await Guide.findById(guideId);
     if (!guide) {
@@ -106,6 +111,8 @@ exports.giveGuideFeedback = async (req, res) => {
     }
 
     guide.feedback.push({ rating, comments });
+    tourist.gaveFeedback.push(guideId);
+    await tourist.save();
 
     await guide.save();
 

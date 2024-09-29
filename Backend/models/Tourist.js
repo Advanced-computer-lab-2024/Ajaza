@@ -64,6 +64,7 @@ const touristSchema = new mongoose.Schema({
     },
   ],
   usedPromoCodes: [{ type: String }],
+  gaveFeedback: [{ type: mongoose.Schema.Types.ObjectId, required: false}],
 });
 
 // Create the model
