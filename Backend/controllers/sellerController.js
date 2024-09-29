@@ -123,54 +123,34 @@ exports.sellerUpdateProfile = async (req, res) => {
   try {
     const { pass, ...otherFields } = req.body;
 
-    // Log the request body
-    console.log('Request body:', req.body);
-
     // Retrieve the existing seller document
     const existingSeller = await Seller.findById(req.params.id);
     if (!existingSeller) {
-      console.log('Seller not found with ID:', req.params.id);
       return res.status(404).json({ message: 'Seller not found' });
     }
 
-    // Log the existing seller document
-    console.log('Existing seller:', existingSeller);
-
     // If a new password is provided, compare it with the existing hashed password
     if (pass) {
-      console.log('New password provided:', pass);
-      const isMatch = await bcrypt.compare(pass, existingSeller.pass);
-      console.log('Password match result:', isMatch);
-      if (isMatch) {
-        console.log('New password is the same as the old password');
-        return res.status(400).json({ message: 'New password cannot be the same as old password' });
-      }
+
+      // Check if the new password is the same as the old password
+      // const isMatch = await bcrypt.compare(pass, existingSeller.pass);
+      // if (isMatch) {
+      //   return res.status(400).json({ message: 'New password cannot be the same as old password' });
+      // }
 
       // Hash the new password before updating
       const salt = await bcrypt.genSalt(10);
       req.body.pass = await bcrypt.hash(pass, salt);
-      console.log('Hashed new password:', req.body.pass);
-    }
-
-    // Compare other fields
-    for (const [key, value] of Object.entries(otherFields)) {
-      console.log(`Comparing field ${key}: new value = ${value}, old value = ${existingSeller[key]}`);
-      if (existingSeller[key] === value) {
-        console.log(`New ${key} is the same as old ${key}`);
-        return res.status(400).json({ message: `New ${key} cannot be the same as old ${key}` });
-      }
     }
 
     // Proceed with the update
     const updatedSeller = await Seller.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    // runValidators: true is used to ensure that the updated document passes the schema validation rules
     if (!updatedSeller) {
-      console.log('Seller not found after update with ID:', req.params.id);
       return res.status(404).json({ message: 'Seller not found' });
     }
-    console.log('Updated seller:', updatedSeller);
     res.status(200).json(updatedSeller);
   } catch (error) {
-    console.error('Error updating seller:', error);
     res.status(500).json({ error: error.message });
   }
 };
