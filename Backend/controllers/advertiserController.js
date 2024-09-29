@@ -62,7 +62,7 @@ exports.deleteAdvertiser = async (req, res) => {
 
 
           //              req5 -- Tatos           //
-          // Geuest/Seller sign up
+          // Geuest/Advertiser sign up
 exports.guestAdvertiserCreateProfile = async (req, res) => {
   // TODO: validation of the input data
 

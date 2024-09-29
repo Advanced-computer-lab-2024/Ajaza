@@ -114,3 +114,32 @@ exports.giveGuideFeedback = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+
+          //              req5 -- Tatos           //
+          // Guest/Guide sign up
+exports.guestGuideCreateProfile = async (req, res) => {
+  // TODO: validation of the input data
+
+  // Allowed fields
+  const allowedFields = ['username', 'email', 'pass','id', 'certificates'];
+
+  // Filter the request body
+  const filteredBody = {};
+  allowedFields.forEach(field => { // Loop through the allowed fields
+    if (req.body[field] !== undefined) { // Check if the field exists in the request body
+      filteredBody[field] = req.body[field]; // Add the field to the filtered body
+    }
+  });
+
+  try {
+    const guide = new Guide(filteredBody);
+    const savedguide = await guide.save();
+    res.status(201).json(savedguide);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
