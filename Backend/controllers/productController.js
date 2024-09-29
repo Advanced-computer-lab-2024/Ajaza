@@ -1,5 +1,7 @@
 const Product = require('../models/Product');
 const Tourist = require('../models/Tourist');
+const Seller = require('../models/Seller');
+const Admin = require('../models/Admin');
 
 
 // Create a new product
@@ -118,9 +120,10 @@ exports.adminSellerAddProduct = async (req, res) => {
   
   // TODO: validation of the input data
 
-  // Allowed fields
-  const allowedFields = ['name', 'photo', 'price','desc', 'sellerName', 'quantity','sellerId','adminId'];
+  //TODO: Check if the user is an admin or a seller and add sellerId or adminId to the product + sellerName if applicable (username)
 
+  // Allowed fields
+  const allowedFields = ['name', 'photo', 'price','desc', 'quantity'];
   // Filter the request body
   const filteredBody = {};
   allowedFields.forEach(field => { // Loop through the allowed fields
@@ -128,7 +131,6 @@ exports.adminSellerAddProduct = async (req, res) => {
       filteredBody[field] = req.body[field]; // Add the field to the filtered body
     }
   });
-
   try {
     const product = new Product(filteredBody);
     const savedproduct = await product.save();
@@ -136,4 +138,34 @@ exports.adminSellerAddProduct = async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
+};
+
+
+
+
+        //req. 88
+// Admin/Seller Edit a product in the system
+
+exports.adminSellerEditProduct = async (req, res) => {
+
+  // Define allowed fields in the request body
+const allowedFields = ['name', 'photo', 'price', 'desc', 'quantity'];
+
+// Filter the request body
+const filteredBody = {};
+allowedFields.forEach(field => {
+  if (req.body[field] !== undefined) {
+    filteredBody[field] = req.body[field];
+  }
+});
+
+try {
+  const updatedProduct = await Product.findByIdAndUpdate(req.params.id, filteredBody, { new: true });
+  if (!updatedProduct) {
+    return res.status(404).json({ message: 'Product not found' });
+  }
+  res.status(200).json(updatedProduct);
+} catch (error) {
+  res.status(500).json({ error: error.message });
+}
 };
