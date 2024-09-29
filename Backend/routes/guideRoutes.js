@@ -16,4 +16,15 @@ router.delete('/:id', guideController.deleteGuide);
 router.post('/:touristId/guide/:itineraryId/feedback', guideController.giveGuideFeedback);
 
 
+
+
+//req5  -- Tatos
+router.post('/guestGuideCreateProfile', guideController.guestGuideCreateProfile);    // Guest Guide sign up
+
+
+
+
+
+
+
 module.exports = router;

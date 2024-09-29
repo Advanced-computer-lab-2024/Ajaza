@@ -7,21 +7,21 @@ const guideSchema = new mongoose.Schema({
   id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Img'}, // serialized number for beta2a
   certificates: [{ type: String }], // array of serialized certificate images
   pending: { type: Boolean, default: true }, // initially true until admin approves
-  mobile: { type: String, required: true },
+  mobile: { type: String, required: false },
   yearsOfExperience: { type: Number},
   previousWork: [{ type: String }], // array of previous job titles
-  photo: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Img'} , // serialized number for personal photo
+  photo: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Img'} , // serialized number for personal photo
   acceptedTerms: { type: Boolean, default: false }, // initially false until accepted
   notifications: [
     {
-      text: { type: String, required: true },
+      text: { type: String, required: false },
       seen: { type: Boolean, default: false },
     },
   ],
   feedback: [
     {
-      rating: { type: Number, min: 1, max: 5, required: true }, // rating between 1 and 5
-      comments: { type: String, required: true },
+      rating: { type: Number, min: 1, max: 5, required: false }, // rating between 1 and 5
+      comments: { type: String, required: false },
     },
   ],
   requestingDeletion: { type:Boolean, default: false}

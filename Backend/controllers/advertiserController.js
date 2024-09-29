@@ -59,3 +59,30 @@ exports.deleteAdvertiser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+          //              req5 -- Tatos           //
+          // Geuest/Advertiser sign up
+exports.guestAdvertiserCreateProfile = async (req, res) => {
+  // TODO: validation of the input data
+
+  // Allowed fields
+  const allowedFields = ['username', 'email', 'pass','id', 'taxationRegCard'];
+
+  // Filter the request body
+  const filteredBody = {};
+  allowedFields.forEach(field => { // Loop through the allowed fields
+    if (req.body[field] !== undefined) { // Check if the field exists in the request body
+      filteredBody[field] = req.body[field]; // Add the field to the filtered body
+    }
+  });
+
+  try {
+    const advertiser = new Advertiser(filteredBody);
+    const savedadvertiser = await advertiser.save();
+    res.status(201).json(savedadvertiser);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
