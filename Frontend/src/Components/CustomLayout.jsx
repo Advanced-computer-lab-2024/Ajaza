@@ -44,19 +44,21 @@ const CustomLayout = ({ children }) => {
       },
       {
         key: "2",
-        icon: <ContainerOutlined />,
-        label: "Report",
+        icon: <CalendarOutlined />,
+        label: "Actiivities",
+        onClick: () => navigate("/activities"),
       },
       {
         key: "3",
         icon: <CalendarOutlined />,
-        label: "Tourists's itineraries",
+        label: "Venues",
+        onClick: () => navigate("/venues"),
       },
-            // {
-      //   key: "4",
-      //   icon: <CalendarOutlined />,
-      //   label: "Actiivities",
-      // },
+      {
+        key: "4",
+        icon: <ContainerOutlined />,
+        label: "Report",
+      },
     ];
   } else if (user == "Tourism Governor") {
     navBarItems = [];
@@ -65,27 +67,26 @@ const CustomLayout = ({ children }) => {
         key: "1",
         icon: <CalendarOutlined />,
         label: "Itineraries",
+        onClick: () => navigate("/itineraries"),
       },
-      // {
-      //   key: "5",
-      //   icon: <CalendarOutlined />,
-      //   label: "Actiivities",
-      // },
       {
         key: "2",
-        icon: <HourglassFilled />,
-        label: "Museums",
+        icon: <CalendarOutlined />,
+        label: "Actiivities",
+        onClick: () => navigate("/activities"),
       },
       {
         key: "3",
-        icon: <HourglassFilled />,
-        label: "Historical places",
+        icon: <CalendarOutlined />,
+        label: "Venues",
+        onClick: () => navigate("/venues"),
       },
       {
         key: "4",
         icon: <HourglassFilled />,
-        label: "Tags or Historical locations",
-      }
+        label: "Tags",
+      },
+
     ];
   } else if (user == "Advertiser") {
     navBarItems = [];
@@ -94,24 +95,22 @@ const CustomLayout = ({ children }) => {
         key: "1",
         icon: <CalendarOutlined />,
         label: "Itineraries",
+        onClick: () => navigate("/itineraries"),
       },
       {
         key: "2",
         icon: <CalendarOutlined />,
         label: "Actiivities",
+        onClick: () => navigate("/activities"),
       },
       {
         key: "3",
-        icon: <HourglassFilled />,
-        label: "Museums",
+        icon: <CalendarOutlined />,
+        label: "Venues",
+        onClick: () => navigate("/venues"),
       },
       {
         key: "4",
-        icon: <HourglassFilled />,
-        label: "Historical places",
-      },
-      {
-        key: "5",
         icon: <ContainerOutlined />,
         label: "Report",
       },

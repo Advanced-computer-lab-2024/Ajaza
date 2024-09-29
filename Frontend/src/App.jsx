@@ -14,6 +14,7 @@ import { Colors } from "./Components/Constants";
 import Profile from "./Components/Profile";
 import Itineraries from "./Components/Itineraries";
 import Activities from "./Components/Activities";
+import Venues from "./Components/Venues";
 
 
 
@@ -88,6 +89,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/itineraries" element={<Itineraries />} />
         <Route path="/activities" element={<Activities />} />
+        <Route path="/venues" element={<Venues />} />
         <Route
           path="/"
           element={
