@@ -178,26 +178,77 @@ exports.adminSellerAddProduct = async (req, res) => {
 // Admin/Seller Edit a product in the system
 
 exports.adminSellerEditProduct = async (req, res) => {
-const id = req.params.id;
+  const id = req.params.id;
+  const productId = req.params.productId;
 
-  // Define allowed fields in the request body
-const allowedFields = ['name', 'photo', 'price', 'desc', 'quantity'];
+  // Log the IDs for debugging
+  console.log(`Received ID: ${id}`);
+  console.log(`Received Product ID: ${productId}`);
 
-// Filter the request body
-const filteredBody = {};
-allowedFields.forEach(field => {
-  if (req.body[field] !== undefined) {
-    filteredBody[field] = req.body[field];
+
+  // Initialize flags
+  let isSeller = false;
+  let isAdmin = false;
+ 
+
+  try {
+    // Check if the ID is a seller ID
+    const seller = await Seller.findById(id);
+    if (seller) {
+      isSeller = true;
+    } else {
+      // If not a seller, check if the ID is an admin ID
+      const admin = await Admin.findById(id);
+      if (admin) {
+        isAdmin = true;
+      }
+    }
+
+    // If the ID is neither a seller nor an admin, return an error
+    if (!isSeller && !isAdmin) {
+      return res.status(404).json({ error: 'ID entered is invalid' });
+    }
+
+    // Check if the product ID is valid
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    
+    // If the user is a seller, check if the product has a sellerId then check if it matches the provided sellerId
+    if (isSeller) {
+      if (product.sellerId) {
+        if (product.sellerId.toString() !== id) {
+          return res.status(403).json({ error: 'Seller ID entered cannot update this product (Product belongs to another Seller)' });
+        }
+      } else {
+        //product doesn't belong to a seller
+        return res.status(403).json({ error: 'Seller ID entered cannot update this product (Product belongs to the Admin)' });
+      }
+    }
+
+    // Define allowed fields in the request body
+    const allowedFields = ['name', 'photo', 'price', 'desc', 'quantity'];
+
+    // Filter the request body
+    const filteredBody = {};
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        filteredBody[field] = req.body[field];
+      }
+    });
+
+    // Update the product
+    try {
+      const updatedProduct = await Product.findByIdAndUpdate(productId, filteredBody, { new: true });
+      if (!updatedProduct) {
+        return res.status(404).json({ message: 'Product not found' });
+      }
+      res.status(200).json(updatedProduct);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-});
-
-try {
-  const updatedProduct = await Product.findByIdAndUpdate(req.params.id, filteredBody, { new: true });
-  if (!updatedProduct) {
-    return res.status(404).json({ message: 'Product not found' });
-  }
-  res.status(200).json(updatedProduct);
-} catch (error) {
-  res.status(500).json({ error: error.message });
-}
 };
