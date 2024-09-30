@@ -18,17 +18,13 @@ router.post('/:touristId/products/:productId/feedback', productController.giveFe
 
 
 //req86     // Admin/Seller add product     --Tatos
-router.post('/:Id/product/adminSellerAddProduct',productController.adminSellerAddProduct);  //AdminSeller add product     
+router.post('/:id/product/adminSellerAddProduct',productController.adminSellerAddProduct);  //AdminSeller add product     
 
-// router.post('/:adminId/product/adminSellerAddProduct', productController.adminSellerAddProduct); //Admin add product
 
 
 
 
 //req88     // Admin/Seller Edit product      --Tatos
-router.post('/:sellerId/product/:/productId/adminSellerEditProduct',productController.adminSellerEditProduct);  //Seller Edit product     
-
-router.post('/:adminId/product/:/productId/adminSellerEditProduct', productController.adminSellerEditProduct); //Admin Edit product
-
+router.patch('/:id/product/:productId/adminSellerEditProduct',productController.adminSellerEditProduct);  //AdminSeller Edit product     
 
 module.exports = router;
