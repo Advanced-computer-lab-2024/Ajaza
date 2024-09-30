@@ -64,7 +64,7 @@ exports.deleteGovernor = async (req, res) => {
 
 
 // admin create a new governor
-exports.adminCreateGovernor = async (req, res) => {
+exports.adminAddGovernor = async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {

@@ -14,7 +14,7 @@ router.patch('/:id', governorController.updateGovernor);
 router.delete('/:id', governorController.deleteGovernor);
 
 // req 17 ng
-router.post('/addGoverner', governorController.adminCreateGovernor);
+router.post('/addGoverner', governorController.adminAddGovernor);
 
 
 module.exports = router;
