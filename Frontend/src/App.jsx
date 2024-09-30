@@ -1,6 +1,11 @@
 import logo from "./logo.svg";
 import "./App.css";
-import { Button, Search, CircularButton, CustomLayout } from "./Components";
+import {
+  Button,
+  Search,
+  CircularButton,
+  CustomLayout,
+} from "./Components/Common";
 import { useState } from "react";
 import {
   BrowserRouter as Router,
@@ -9,22 +14,29 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { BellFilled, UserOutlined } from "@ant-design/icons";
-import { IconButton, SideBar } from "./Components";
-import { Colors } from "./Components/Constants";
-import Profile from "./Components/Profile";
+import { IconButton, SideBar } from "./Components/Common";
+import { Colors } from "./Components/Common/Constants";
+import Profile from "./Components/Common/Profile";
 import Itineraries from "./Components/Itineraries";
 import Activities from "./Components/Activities";
 import Venues from "./Components/Venues";
-
-
-
 
 import ManageAccounts from "./manageAccounts";
 import AddAccounts from "./addAccounts";
 
 import ManageActivityCategories from "./manageActivityCategories";
 import ManagePreferenceTags from "./managePreferenceTags";
-
+import LandingPage from "./Components/LandingPage";
+import SignIn from "./Components/Sign/SignIn";
+import SignUp from "./Components/Sign/SignUp";
+import AuthLayout from "./Components/Sign/AuthLayout";
+import Tourist from "./Components/Tourist/Tourist";
+import Seller from "./Components/Seller/Seller";
+import { Flex, Layout, theme } from "antd";
+import TourGuide from "./Components/TourGuide/TourGuide";
+import Advertiser from "./Components/Advertiser/Advertiser";
+import Admin from "./Components/Admin/Admin";
+const { Header, Footer, Sider, Content } = Layout;
 
 function App() {
   const [searchValue, setSearchValue] = useState("");
@@ -36,115 +48,37 @@ function App() {
 
   return (
     <div className="App">
-      <Routes>
+      <Layout>
+        <Content>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <AuthLayout>
+                  <LandingPage />
+                </AuthLayout>
+              }
+            />
+            <Route
+              path="auth/*"
+              element={
+                <AuthLayout>
+                  <Routes>
+                    <Route path="signin" element={<SignIn />} />
+                    <Route path="signup" element={<SignUp />} />
+                  </Routes>
+                </AuthLayout>
+              }
+            />
+            <Route path="/tourist/*" element={<Tourist />} />
+            <Route path="/tourGuide/*" element={<TourGuide />} />
 
-<Route
-        path="/manage-accounts"        
-        element={
-         
-            <ManageAccounts />
-         
-        }
-      />
-       <Route
-        path="/manage-accounts/action3"        
-        element={
-          
-        
-          <AddAccounts />
-      
-    
-        }
-      />
-
-       <Route
-          path="/manage-activity-categories" // New route
-          element={
-            //<CustomLayout>
-              <ManageActivityCategories />
-            //</CustomLayout>
-          }
-        />
-
-      <Route
-          path="/preference-tags" // New route
-          element={
-            
-              <ManagePreferenceTags />
-          
-          }
-        />
-
-
-
-
-
-
-
-
-
-
-
-
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/itineraries" element={<Itineraries />} />
-        <Route path="/activities" element={<Activities />} />
-        <Route path="/venues" element={<Venues />} />
-        <Route
-          path="/"
-          element={
-            <CustomLayout>
-              <div>
-                <Button size={"s"} value={"Button"} rounded={false} />
-                <Button
-                  size={"s"}
-                  value={"Button"}
-                  rounded={true}
-                  onClick={() => testFunction(1, 2)}
-                  style={{ marginLeft: "40px" }}
-                />
-
-                <Button size={"m"} value={"Button"} rounded={false} />
-                <Button size={"m"} value={"Button"} rounded={true} />
-
-                <Button size={"l"} value={"Button"} rounded={false} />
-                <Button size={"l"} value={"Button"} rounded={true} />
-
-                <Search
-                  searchValue={searchValue}
-                  setSearchValue={setSearchValue}
-                  size={"l"}
-                  style={{ marginLeft: "40px" }}
-                />
-
-                <Search
-                  searchValue={searchValue}
-                  setSearchValue={setSearchValue}
-                  size={"s"}
-                  activateHover={false}
-                  style={{ marginLeft: "40px" }}
-                />
-
-                <Search
-                  searchValue={searchValue}
-                  setSearchValue={setSearchValue}
-                  size={"m"}
-                  activateHover={false}
-                  style={{ marginLeft: "40px" }}
-                />
-
-                <Search
-                  searchValue={searchValue}
-                  setSearchValue={setSearchValue}
-                  size={"l"}
-                  activateHover={false}
-                  style={{ marginLeft: "40px" }}
-                />
-              </div>
-            </CustomLayout>
-          }
-        />
-      </Routes>
+            <Route path="/advertiser/*" element={<Advertiser />} />
+            <Route path="/admin/*" element={<Admin />} />
+            <Route path="/seller/*" element={<Seller />} />
+          </Routes>
+        </Content>
+      </Layout>
     </div>
   );
 }
