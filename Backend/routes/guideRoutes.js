@@ -10,7 +10,10 @@ router.get('/:id', guideController.getGuideById);
 
 router.patch('/:id', guideController.updateGuide);
 
-router.delete('/:id', guideController.deleteGuide);
+router.delete('/deleteAgain/:id', guideController.deleteGuide);
+
+//req 16 ng
+router.delete('/deleteGuides', guideController.deleteGuidesRequestingDeletion);
 
 // req52 & req53
 router.post('/:touristId/guide/:itineraryId/feedback', guideController.giveGuideFeedback);

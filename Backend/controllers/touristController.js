@@ -545,3 +545,23 @@ exports.guestTouristCreateProfile = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+// admin delete tourists requesting deletion
+exports.deleteTouristsRequestingDeletion = async (req, res) => {
+  try {
+    const tourists = await Tourist.find({ requestingDeletion: true });
+
+    if (tourists.length === 0) {
+      return res.status(404).json({ message: 'No tourists found requesting deletion' });
+    }
+
+    for (const tourist of tourists) {
+      await Tourist.findByIdAndDelete(tourist._id);
+    }
+
+    res.status(200).json({ message: 'Tourists deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting tourists:', error);
+    res.status(500).json({ error: error.message });
+  }
+};

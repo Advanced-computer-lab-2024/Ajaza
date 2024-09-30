@@ -10,7 +10,9 @@ router.get('/:id', sellerController.getSellerById);
 
 router.patch('/:id', sellerController.updateSeller);
 
-router.delete('/:id', sellerController.deleteSeller);
+router.delete('/deleteAgain/:id', sellerController.deleteSeller);
+//req 16 ng
+router.delete('/deleteSellers', sellerController.deleteSellersRequestingDeletion);
 
 //req5
 router.post('/guestSellerCreateProfile', sellerController.guestSellerCreateProfile);    // Guest Seller sign up
