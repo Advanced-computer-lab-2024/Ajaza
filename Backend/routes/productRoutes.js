@@ -18,9 +18,8 @@ router.post('/:touristId/products/:productId/feedback', productController.giveFe
 
 
 //req86     // Admin/Seller add product     --Tatos
-router.post('/:Id/product/adminSellerAddProduct',productController.adminSellerAddProduct);  //AdminSeller add product     
+router.post('/:id/product/adminSellerAddProduct',productController.adminSellerAddProduct);  //AdminSeller add product     
 
-// router.post('/:adminId/product/adminSellerAddProduct', productController.adminSellerAddProduct); //Admin add product
 
 
 
