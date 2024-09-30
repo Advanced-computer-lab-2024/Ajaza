@@ -178,6 +178,7 @@ exports.adminSellerAddProduct = async (req, res) => {
 // Admin/Seller Edit a product in the system
 
 exports.adminSellerEditProduct = async (req, res) => {
+  //TODO: input validations (check ta7t el awel ashan enta 3amel a8labhom)
   const id = req.params.id;
   const productId = req.params.productId;
 
