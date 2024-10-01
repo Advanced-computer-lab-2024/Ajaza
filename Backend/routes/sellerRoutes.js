@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const sellerController = require('../controllers/sellerController');
+const uploadIdImage = require('./middleware/uploadImage');
+const uploadTaxationRegCardImage = require('./middleware/uploadImage');
+const uploadLogoImage = require('./middleware/uploadImage');
+
 
 router.post('/', sellerController.createSeller);
 
