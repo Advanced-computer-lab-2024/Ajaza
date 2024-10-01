@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const advertiserController = require('../controllers/advertiserController');
+const uploadIdImage = require('../middleware/uploadImage');
+const uploadTaxationRegCardImage = require('../middleware/uploadImage');
+const uploadLogoImage = require('../middleware/uploadImage');
 
 router.post('/', advertiserController.createAdvertiser);
 

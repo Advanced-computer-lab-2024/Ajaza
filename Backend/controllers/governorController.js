@@ -1,6 +1,9 @@
 const Governor = require('../models/Governor');
 const Venue = require('../models/venue');
 
+const bcrypt = require('bcrypt');
+
+
 // Create a new governor
 exports.createGovernor = async (req, res) => {
   try {
@@ -141,3 +144,31 @@ exports.deleteGovernorVenue = async (req, res) => {
 };
 
 
+
+
+// admin create a new governor
+exports.adminAddGovernor = async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Username and password are required.' });
+  }
+
+  try {
+    const existingGovernor = await Governor.findOne({ username });
+    if (existingGovernor) {
+      return res.status(400).json({ message: 'Username is already taken.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newGovernor = new Governor({ username, pass: hashedPassword });
+
+    const savedGovernor = await newGovernor.save();
+    
+    res.status(201).json({ message: 'Governor created successfully', governor: savedGovernor });
+  } catch (error) {
+    console.error('Error while saving the Governor:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};

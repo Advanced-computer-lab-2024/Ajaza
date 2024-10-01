@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const governorController = require('../controllers/governorController');
-const venueController = require('../controllers/venueController');
 
+
+router.post('/createAgain' , governorController.createGovernor)
 
 router.post('/createGov', governorController.createGovernor);
 
@@ -26,5 +27,9 @@ router.post('/createGovernorVenue', governorController.createGovernorVenue);
 router.get('/readAllGovernorVenues', governorController.readAllGovernorVenues); 
 router.put('/updateGovernorVenue/:id', governorController.updateGovernorVenue);
 router.delete('/deleteGovernorVenue/:id', governorController.deleteGovernorVenue); 
+
+// req 17 ng
+router.post('/addGoverner', governorController.adminAddGovernor);
+
 
 module.exports = router;

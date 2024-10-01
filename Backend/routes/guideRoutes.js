@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const guideController = require('../controllers/guideController');
+const uploadPhotoImage = require('../middleware/uploadImage');
 
 router.post('/', guideController.createGuide);
 

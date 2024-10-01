@@ -1,0 +1,25 @@
+GET http://localhost:5000/tourist/
+Content-Type: application/json
+
+###
+
+POST http://api.example.com/data
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "email": "john.doe@example.com"
+}
+
+###
+PUT http://api.example.com/data/123
+Content-Type: application/json
+
+{
+    "name": "Jane Doe",
+    "email": "jane.doe@example.com"
+}
+
+###
+DELETE http://api.example.com/data/123
+Content-Type: application/json
