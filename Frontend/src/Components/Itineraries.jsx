@@ -1,20 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import {
-  Avatar,
-  Card,
-  Space,
-  Modal,
-  message,
-  Form,
-  Input,
-  Button as AntButton,
-  Select,
-} from "antd";
+import {Avatar,Card,Space,Modal,message,Form,Input,Button as AntButton, Select,} from "antd";
 import axios from "axios";
-import SideBar from "./SideBar";
-import { CustomLayout } from "./Common";
-
+import Button from "./Common/CustomButton";
 const { Option } = Select;
 
 const Itineraries = () => {
@@ -121,9 +109,8 @@ const Itineraries = () => {
 
   return (
     <div style={{ display: "flex" }}>
-      <CustomLayout>
         <div style={{ padding: "20px", flexGrow: 1 }}>
-          <h2>Itineraries</h2>
+          <h2>My Itineraries</h2>
           <div
             style={{
               marginBottom: "20px",
@@ -131,9 +118,7 @@ const Itineraries = () => {
               justifyContent: "flex-start",
             }}
           >
-            <AntButton type="primary" onClick={showModal}>
-              Create Itinerary
-            </AntButton>
+          <Button size={"s"} value={"Create Itinerary"} rounded={true} onClick={showModal} />
           </div>
 
           {loading ? (
@@ -246,7 +231,6 @@ const Itineraries = () => {
             </Form>
           </Modal>
         </div>
-      </CustomLayout>
     </div>
   );
 };

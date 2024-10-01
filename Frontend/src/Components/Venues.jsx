@@ -1,20 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import {
-  Avatar,
-  Card,
-  Space,
-  Modal,
-  message,
-  Form,
-  Input,
-  Button as AntButton,
-  Select,
-} from "antd";
+import {Avatar,Card,Space,Modal,message,Form,Input,Button as AntButton,Select,} from "antd";
 import axios from "axios";
-import SideBar from "./SideBar";
-import { CustomLayout } from "./Common";
-
+import Button from "./Common/CustomButton";
 const { Option } = Select;
 
 const Venues = () => {
@@ -112,9 +100,8 @@ const Venues = () => {
 
   return (
     <div style={{ display: "flex" }}>
-      <CustomLayout>
         <div style={{ padding: "20px", flexGrow: 1 }}>
-          <h2>Venues</h2>
+          <h2>My Venues</h2>
           <div
             style={{
               marginBottom: "20px",
@@ -122,9 +109,7 @@ const Venues = () => {
               justifyContent: "flex-start",
             }}
           >
-            <AntButton type="primary" onClick={showModal}>
-              Create Venue
-            </AntButton>
+          <Button size={"s"} value={"Create Activity"} rounded={true} onClick={showModal} />
           </div>
 
           {loading ? (
@@ -244,7 +229,6 @@ const Venues = () => {
             </Form>
           </Modal>
         </div>
-      </CustomLayout>
     </div>
   );
 };
