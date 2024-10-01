@@ -25,6 +25,7 @@ router.post('/guestSellerCreateProfile', sellerController.guestSellerCreateProfi
 router.post('/sellerCreateProfile', sellerController.sellerCreateProfile);    // Seller sign up
 router.get('/sellerReadProfile/:id', sellerController.sellerReadProfile);    // Seller read profile
 router.patch('/sellerUpdateProfile/:id', sellerController.sellerUpdateProfile);  // Seller update profile
+router.delete('/sellerDeleteHimself/:id',sellerController.sellerDeleteHimself);  // Seller delete himself
 
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const Seller = require('../models/Seller');
+const Seller = require('../models/Product');
 const bcrypt = require('bcrypt');
 
 
@@ -149,6 +150,9 @@ exports.sellerReadProfile = async (req, res) => {
     if (!seller) {
       return res.status(404).json({ message: 'Seller not found' });
     }
+    if(seller.pending === true || seller.acceptedTerms === false) {
+      return res.status(400).json({ message: 'Seller is pending approval' });
+    }
     res.status(200).json(seller);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -161,7 +165,7 @@ exports.sellerReadProfile = async (req, res) => {
 // Seller update profile
 exports.sellerUpdateProfile = async (req, res) => {
   // Allowed fields for update
-  const allowedFields = ['username', 'email', 'pass', 'id', 'taxationRegCard', 'name', 'desc'];
+  const allowedFields = ['email', 'name', 'desc'];
 
   // Filter the request body
   const filteredBody = {}; 
@@ -178,6 +182,10 @@ exports.sellerUpdateProfile = async (req, res) => {
     const existingSeller = await Seller.findById(req.params.id);
     if (!existingSeller) {
       return res.status(404).json({ message: 'Seller not found' });
+    }
+
+    if(existingSeller.pending === true || existingSeller.acceptedTerms === false) {
+      return res.status(400).json({ message: 'Seller is pending approval' });
     }
 
     // If a new password is provided, compare it with the existing hashed password
@@ -227,3 +235,27 @@ exports.deleteSellersRequestingDeletion = async (req, res) => {
   }
 };
 
+//seller requests to be deleted
+exports.sellerDeleteHimself = async (req, res) => {
+  try {
+    const seller = await Seller.findById(req.params.id);
+    if (!seller) {
+      return res.status(404).json({ message: 'Seller not found' });
+    }
+    if(seller.pending === true || seller.acceptedTerms === false) {
+      return res.status(400).json({ message: 'Seller is pending approval' });
+    }
+    if(seller.requestingDeletion === true) {
+      return res.status(400).json({ message: 'Seller has already requested to be deleted' });
+    }
+    seller.requestingDeletion = true;
+    await seller.save();
+    const result = await Product.updateMany(
+      { sellerId: req.params.id },
+      { $set: { hidden: true } }
+    );
+    res.status(200).json({ message: 'Request to be deleted successful' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}

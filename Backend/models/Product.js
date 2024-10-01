@@ -16,6 +16,7 @@ const productSchema = new mongoose.Schema({
       comments: { type: String,required: false },
     },
   ],
+  hidden: { type: Boolean, default: false }, // Indicates if the product is hidden
   archived: { type: Boolean, default: false }, // Indicates if the product is archived
 });
 

@@ -68,9 +68,7 @@ exports.deleteAdmin = async (req, res) => {
   }
 };
 
-
-
-
+// req 17 ng
 //admin adds another admin
 exports.adminAddAdmin = async (req, res) => {
   //mw auth
