@@ -9,8 +9,8 @@
   --grey-200: #cccccc;
   --grey-100: #e6e6e6;
   --grey-50: #f2f2f2;
-  --primary-color-light: #2781ff;
-  --primary-color: #1676fd;
+  --primary-color-light: #b441e5;
+  --primary-color: #a739d5;
 }
 
 * {
@@ -19,12 +19,13 @@
   box-sizing: border-box;
 }
 
-body {
-}
-
 input[type="search"]::-webkit-search-decoration,
 input[type="search"]::-webkit-search-cancel-button,
 input[type="search"]::-webkit-search-results-button,
 input[type="search"]::-webkit-search-results-decoration {
   display: none;
+}
+
+.hover:hover {
+  cursor: pointer;
 }

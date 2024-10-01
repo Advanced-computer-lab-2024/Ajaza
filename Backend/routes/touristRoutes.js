@@ -15,7 +15,11 @@ router.get('/:id', touristController.getTouristById);
 
 router.patch('/:id', touristController.updateTourist);
 
-router.delete('/:id', touristController.deleteTourist);
+router.delete('/deleteAgain/:id', touristController.deleteTourist);
+
+//req 16 ng
+router.delete('/deleteTourists', touristController.deleteTouristsRequestingDeletion);
+
 
 // req11
 router.patch('/touristUpdateProfile/:id', touristController.touristUpdateProfile); 
