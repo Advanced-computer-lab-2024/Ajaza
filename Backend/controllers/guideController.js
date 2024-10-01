@@ -1,4 +1,6 @@
 const Guide = require('../models/Guide');
+const Tourist = require('../models/Tourist');
+const Itinerary = require('../models/Itinerary');
 
 // Create a new guide
 exports.createGuide = async (req, res) => {
@@ -56,6 +58,116 @@ exports.deleteGuide = async (req, res) => {
     }
     res.status(200).json({ message: 'Guide deleted successfully' });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// req52 & req53
+exports.giveGuideFeedback = async (req, res) => {
+
+  // we are rating the guide who gave us the itinerary so passed is itineraryId
+  //authentication middleware
+  //validation middleware
+
+  try {
+    const { touristId, itineraryId } = req.params;
+    const { rating, comments } = req.body;
+
+    if(!rating || !comments) {
+      return res.status(400).json({ message: 'Bad request' });
+    }
+
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: 'Tourist not found' });
+    }
+        
+
+    // find the itinerary booking by itineraryId, to rate the guide once per every itinerary booking
+    const itineraryBooking = tourist.itineraryBookings.find(
+      booking => booking.itineraryId.toString() === itineraryId && booking.date < new Date()
+    );
+
+    if (!itineraryBooking) {
+      return res.status(400).json({ message: 'No valid past itinerary booking found' });
+    }
+
+    // find the itinerary to get the guideId
+    const itinerary = await Itinerary.findById(itineraryId);
+    if (!itinerary) {
+      return res.status(404).json({ message: 'Itinerary not found' });
+    }
+
+    const guideId = itinerary.guideId;
+
+    if(tourist.gaveFeedback.includes(guideId)) {
+      return res.status(400).json({ message: 'Feedback already given for this guide' });
+    }
+
+    // Find the guide and append feedback
+    const guide = await Guide.findById(guideId);
+    if (!guide) {
+      return res.status(404).json({ message: 'Guide not found' });
+    }
+
+    guide.feedback.push({ rating, comments });
+    tourist.gaveFeedback.push(guideId);
+    await tourist.save();
+
+    await guide.save();
+
+    res.status(200).json({ message: 'Feedback submitted successfully', feedback: guide.feedback });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+
+          //              req5 -- Tatos           //
+          // Guest/Guide sign up
+exports.guestGuideCreateProfile = async (req, res) => {
+  // TODO: validation of the input data
+
+  // Allowed fields
+  const allowedFields = ['username', 'email', 'pass','id', 'certificates'];
+
+  // Filter the request body
+  const filteredBody = {};
+  allowedFields.forEach(field => { // Loop through the allowed fields
+    if (req.body[field] !== undefined) { // Check if the field exists in the request body
+      filteredBody[field] = req.body[field]; // Add the field to the filtered body
+    }
+  });
+
+  try {
+    const guide = new Guide(filteredBody);
+    const savedguide = await guide.save();
+    res.status(201).json(savedguide);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// admin delete guides requesting deletion
+exports.deleteGuidesRequestingDeletion = async (req, res) => {
+  //middleware auth
+  try {
+
+    const guides = await Guide.find({ requestingDeletion: true });
+
+    if (guides.length === 0) {
+      return res.status(404).json({ message: 'No guides found requesting deletion' });
+    }
+
+    for (const guide of guides) {
+      await Guide.findByIdAndDelete(guide._id);
+    }
+
+    res.status(200).json({ message: 'Guides deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting guides:', error);
     res.status(500).json({ error: error.message });
   }
 };

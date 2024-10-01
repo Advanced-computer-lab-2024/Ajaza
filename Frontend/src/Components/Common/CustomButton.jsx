@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button as AntdButton } from "antd";
 import { Colors } from "./Constants";
 
-const Button = ({
+const CustomButton = ({
   size,
   style,
   rounded,
@@ -10,6 +10,7 @@ const Button = ({
   onClick,
   disabled = false,
   loading = false,
+  htmlType = "button",
 }) => {
   const [hover, setHover] = useState(false);
 
@@ -50,6 +51,7 @@ const Button = ({
       type="primary"
       disabled={disabled}
       loading={loading}
+      htmlType={htmlType}
       style={{
         backgroundColor: backgroundColor,
         width: width,
@@ -69,4 +71,4 @@ const Button = ({
   );
 };
 
-export default Button;
+export default CustomButton;

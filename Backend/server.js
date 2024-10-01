@@ -1,10 +1,15 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const nodemailer = require('nodemailer');
 require("dotenv").config();
 
 const app = express();
+
 const port = process.env.PORT || 5000;
+app.use(express.json());
+const axios = require('axios');
+const qs = require('qs');
 
 //const examplesRouter = require("./Routes/ExampleRoutes");
 //app.use("/examples", examplesRouter);
@@ -23,6 +28,10 @@ const sellerRouter = require('./routes/sellerRoutes');
 const tagRouter = require('./routes/tagRoutes');
 const touristRouter = require('./routes/touristRoutes');
 const venueRouter = require('./routes/venueRoutes');
+const guideProfileRouter = require('./routes/guideProfileRoutes')
+
+app.use(cors());
+app.use(express.json());
 
 app.use('/activity', activityRouter);
 app.use('/admin', adminRouter);
@@ -39,8 +48,10 @@ app.use('/tag', tagRouter);
 app.use('/tourist', touristRouter);
 app.use('/venue', venueRouter);
 
+app.use('/guideProfile',guideProfileRouter)
 app.use(cors());
 app.use(express.json());
+
 
 const uri = process.env.ATLAS_URI;
 if (!uri) {

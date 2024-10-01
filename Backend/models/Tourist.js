@@ -12,22 +12,22 @@ const touristSchema = new mongoose.Schema({
   wallet: { type: Number, default: 0 },
   activityBookings: [
     {
-      activityId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Activity'},
-      total: { type: Number, required: true },
+      activityId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Activity'},
+      total: { type: Number, required: false },
     },
   ],
   itineraryBookings: [
     {
-      itineraryId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Itinerary'},
-      date: { type: Date, required: true},
-      total: { type: Number, required: true },
+      itineraryId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Itinerary'},
+      date: { type: Date, required: false },
+      total: { type: Number, required: false },
     },
   ],
-  activityBookmarks: [{ type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Activity'}],
-  itineraryBookmarks: [{ type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Itinerary'}],
+  activityBookmarks: [{ type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Activity'}],
+  itineraryBookmarks: [{ type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Itinerary'}],
   notifications: [
     {
-      text: { type: String, required: true },
+      text: { type: String, required: false },
       seen: { type: Boolean, default: false },
       activityId: { type: Number },
       itineraryId: { type: Number },
@@ -36,34 +36,37 @@ const touristSchema = new mongoose.Schema({
   points: { type: Number, default: 0 }, //points updated after booking, if cancelled do not refund points from user
   totalPoints: { type: Number, default: 0 }, //determines badge whenever we increment points increment total points
   badge: { type: Number, default: 1 }, // level 1, 2, or 3
-  wishlist: [{ type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Product'}],
+  wishlist: [{ type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Product'}],
   cart: [
     {
-      productId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Itinerary'},
-      quantity: { type: Number, required: true, default: 1 },
+      productId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Itinerary'},
+      quantity: { type: Number, required: false, default: 1 },
     },
   ],
   orders: [
     {
-      products: [{ productId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Itinerary'}, quantity: { type: Number, required: true } }],
+      products: [{ productId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Itinerary'}, quantity: { type: Number, required: false } }],
       date: { type: Date, default: Date.now },
-      cod: { type: Boolean, required: true },
-      total: { type: Number, required: true },
-      status: { type: String, enum: ['Delivered', 'Cancelled', 'Processing'], required: true },
+      cod: { type: Boolean, required: false },
+      total: { type: Number, required: false },
+      status: { type: String, enum: ['Delivered', 'Cancelled', 'Processing'], required: false },
     },
   ],
   deliveryAddresses: [
     {
-      country: { type: String, required: true },
-      city: { type: String, required: true },
-      area: { type: String, required: true },
-      street: { type: String, required: true },
-      house: { type: Number, required: true },
+      country: { type: String, required: false },
+      city: { type: String, required: false },
+      area: { type: String, required: false },
+      street: { type: String, required: false },
+      house: { type: Number, required: false },
       app: { type: Number },
       desc: { type: String },
     },
   ],
   usedPromoCodes: [{ type: String }],
+  gaveFeedback: [{ type: mongoose.Schema.Types.ObjectId, required: false}],
+  requestingDeletion: { type: Boolean, default: false },//ng added for deletion
+
 });
 
 // Create the model

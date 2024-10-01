@@ -16,4 +16,9 @@ router.patch('/:id', adminController.updateAdmin);
 // this will probably be commented for security reasons
 router.delete('/:id', adminController.deleteAdmin);
 
+// req 17 ng, admin adds another admin
+router.post('/addAdmin', adminController.adminAddAdmin)
+
+
+
 module.exports = router;
