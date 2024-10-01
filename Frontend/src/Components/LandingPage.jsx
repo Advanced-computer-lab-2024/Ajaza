@@ -37,7 +37,7 @@ const Landing = () => {
           <CustomButton
             size="m"
             value={"Sign up"}
-            onClick={() => navigate("/auth/signup")}
+            onClick={() => navigate("/adminCustom")}
           />
           <CustomButton
             size="m"

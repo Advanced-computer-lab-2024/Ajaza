@@ -10,14 +10,14 @@ import {
   VideoCameraOutlined,
   DownOutlined,
 } from "@ant-design/icons";
-import { Button, Layout, Menu, theme/*, Dropdown*/ } from "antd";
-
+import { Button, Layout, Menu, theme /*, Dropdown*/ } from "antd";
+import ManageActivityCategories from "../manageActivityCategories";
 
 const { Header, Sider, Content } = Layout;
 
 const AdminCustomLayout = ({ children }) => {
   const navigate = useNavigate();
-//  const [user, setUser] = useState("");
+  //  const [user, setUser] = useState("");
   const [collapsed, setCollapsed] = useState(true);
   const [hover, setHover] = useState(false);
   const [showManageOptions, setShowManageOptions] = useState(false);
@@ -33,19 +33,14 @@ const AdminCustomLayout = ({ children }) => {
     } else if (key === "3") {
       navigate("/manage-accounts/action2");
     } else if (key === "4") {
-      navigate("/manage-accounts/action3");        
-    }
-   else if (key === "5") {
-    navigate("/manage-activity-categories"); // New navigation for activity categories
-  }
-    else if (key === "setting:1") {
       navigate("/manage-accounts/action3");
-    }
-    else if (key === "11") {
+    } else if (key === "5") {
+      navigate("/manage-activity-categories"); // New navigation for activity categories
+    } else if (key === "setting:1") {
+      navigate("/manage-accounts/action3");
+    } else if (key === "11") {
       navigate("/preference-tags");
     }
-
-
   };
 
   return (
@@ -64,8 +59,6 @@ const AdminCustomLayout = ({ children }) => {
           onClick={handleMenuClick}
           style={{ transition: "all 0.3s ease" }}
           items={[
-           
-            
             {
               key: "5",
               icon: <StarOutlined />,
@@ -75,18 +68,17 @@ const AdminCustomLayout = ({ children }) => {
               key: "6",
               icon: <UserOutlined />,
               label: "Accounts",
-              
+
               children: [
                 {
-                  label: 'Add Accounts',
-                  key: 'setting:1',
+                  label: "Add Accounts",
+                  key: "setting:1",
                 },
                 {
-                  label: 'Manage Accounts',
-                  key: 'setting:2',
+                  label: "Manage Accounts",
+                  key: "setting:2",
                 },
-              ]
-            
+              ],
             },
             {
               key: "11",
@@ -124,7 +116,9 @@ const AdminCustomLayout = ({ children }) => {
             borderRadius: borderRadiusLG,
           }}
         >
-          {children}
+          {/* {children} */}
+          adam
+          <ManageActivityCategories />
         </Content>
       </Layout>
     </Layout>

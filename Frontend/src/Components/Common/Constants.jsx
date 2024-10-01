@@ -16,3 +16,5 @@ export const Colors = {
     default: "#a739d5",
   },
 };
+
+export const apiUrl = "http://localhost:5000/";

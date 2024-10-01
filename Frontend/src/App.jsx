@@ -36,6 +36,9 @@ import { Flex, Layout, theme } from "antd";
 import TourGuide from "./Components/TourGuide/TourGuide";
 import Advertiser from "./Components/Advertiser/Advertiser";
 import Admin from "./Components/Admin/Admin";
+import { CardTemp } from "./Components/Tourist/CardTemp";
+import CustomCard from "./Components/Card";
+import AdminCustomLayout from "./Components/AdminCustomLayout";
 const { Header, Footer, Sider, Content } = Layout;
 
 function App() {
@@ -75,6 +78,7 @@ function App() {
 
             <Route path="/advertiser/*" element={<Advertiser />} />
             <Route path="/admin/*" element={<Admin />} />
+            <Route path="/adminCustom" element={<AdminCustomLayout />} />
             <Route path="/seller/*" element={<Seller />} />
           </Routes>
         </Content>
