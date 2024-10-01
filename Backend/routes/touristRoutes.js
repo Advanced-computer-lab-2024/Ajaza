@@ -19,7 +19,46 @@ router.delete('/:id', touristController.deleteTourist);
 
 // req11
 router.patch('/touristUpdateProfile/:id', touristController.touristUpdateProfile); 
+/*
+passed: id from params,
+{
+    email: String,
+    mobile: String,
+    occupation: String,
+    nationality: String,
+}
+
+returns:
+{
+    username: String,
+    email: String,
+    mobile: String,
+    points: Number,
+    wallet: Number,
+    badge: String,
+    occupation: String,
+    dob: Date,
+    nationality: String,
+}
+*/
+
 router.get('/touristReadProfile/:id', touristController.touristReadProfile);
+/*
+passed: id from params
+
+returns:
+{
+    username: String,
+    email: String,
+    mobile: String,
+    points: Number,
+    wallet: Number,
+    badge: String,
+    occupation: String,
+    dob: Date,
+    nationality: String,
+}
+*/
 
 // req50
 router.post('/emailShare/:id', touristController.emailShare)
