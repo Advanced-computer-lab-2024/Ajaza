@@ -1,24 +1,22 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const adminController = require('../controllers/adminController');
+const adminController = require("../controllers/adminController");
 
-router.post('/', adminController.createAdmin);
+router.post("/", adminController.createAdmin);
 
 // this will probably not be used
-router.get('/', adminController.getAllAdmins);
+router.get("/", adminController.getAllAdmins);
 
 // probably used when product is out of stock (to send notification to admin who posted product)
-router.get('/:id', adminController.getAdminById);
+router.get("/:id", adminController.getAdminById);
 
 // for update password
-router.patch('/:id', adminController.updateAdmin);
+router.patch("/:id", adminController.updateAdmin);
 
 // this will probably be commented for security reasons
-router.delete('/:id', adminController.deleteAdmin);
+router.delete("/:id", adminController.deleteAdmin);
 
 // req 17 ng, admin adds another admin
-router.post('/addAdmin', adminController.adminAddAdmin)
-
-
+router.post("/addAdmin", adminController.adminAddAdmin);
 
 module.exports = router;
