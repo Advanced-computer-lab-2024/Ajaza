@@ -30,7 +30,6 @@ export const CardTemp = ({ outerTitle, cardsData, onUpdate }) => {
             <Input
               defaultValue={card.content}
               onPressEnter={(e) => handleSave(index, e.target.value)}
-              onBlur={() => handleSave(index, card.content)} // Optional: save on blur
             />
           ) : (
             <span>{card.content}</span>
