@@ -17,7 +17,10 @@ router.delete('/deleteGuides', guideController.deleteGuidesRequestingDeletion);
 
 // req52 & req53
 router.post('/:touristId/guide/:itineraryId/feedback', guideController.giveGuideFeedback);
-
+//req 7 
+router.post('/addGuide', guideController.createGuideProfile);
+router.get('/getGuideProfile/:id', guideController.getGuideProfile);
+router.put('/updateGuideProfile/:id', guideController.updateGuideProfile);
 
 
 
