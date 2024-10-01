@@ -31,6 +31,7 @@ const Search = ({
   activateHover = true,
   textColor,
   style,
+  icon: IconComponent = SearchOutlined, // Passed as a prop
 }) => {
   // Use useState to create a state "searchValue" and state modifier "setSearchValue"
   // This is an example
@@ -122,7 +123,14 @@ const Search = ({
           style={inputStyle}
           placeholder="Search..."
         />
-        <SearchOutlined className={styles.fa} style={iconStyle} />
+        <IconComponent
+          className={styles.fa}
+          style={{
+            ...iconStyle,
+            fontSize: "25px",
+            paddingLeft: "8px",
+          }}
+        />
       </form>
     </div>
   );
