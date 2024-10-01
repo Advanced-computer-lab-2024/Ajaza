@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { Form, Input, Select, DatePicker, Typography } from "antd";
+import { Form, Input, Select, DatePicker, Typography, Upload, message } from "antd";
 import { CustomLayout, Button, IconButton } from "./Components"; // Adjust the import according to your project structure
-import { UserOutlined } from "@ant-design/icons";
+import { UserOutlined, UploadOutlined } from "@ant-design/icons";
 import { Colors } from "./Components/Constants";
 import CustomCard from './Components/Card';
 
@@ -82,15 +82,6 @@ const SellerPage = () => {
     <CustomLayout user="seller">
       <div style={{ textAlign: "center", marginTop: "20px" }}>
         <h1>Welcome to Seller Page!</h1>
-      </div>
-      <div>
-        <IconButton
-          icon={UserOutlined}
-          backgroundColor={Colors.primary.default}
-          onClick={() => testFunction(1, 2)}
-          shape="circle"
-          style={{ marginLeft: "50px" }}
-        />
       </div>
       <Button
         type="primary"
@@ -269,11 +260,11 @@ const Tourist = () => {
             <Button
               type="primary"
               htmlType="submit"
+              value="Register"
               size="s"
               rounded={true}
               loading={false}
             >
-              Register
             </Button>
           </Form.Item>
 
@@ -295,6 +286,13 @@ const TourGuide = () => {
 
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
+  };
+
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
   };
 
   return (
@@ -383,7 +381,37 @@ const TourGuide = () => {
           >
             <Input.Password />
           </Form.Item>
+          {/* Upload Document 1 */}
+          <Form.Item
+            label="ID"
+            name="document1"
+            valuePropName="fileList"
+            getValueFromEvent={normFile}
+            extra="Upload the ID."
+          >
+            <Upload name="doc1" action="/upload.do" listType="text">
+              <Button icon={<UploadOutlined />}
+                size="m"
+                value="Upload"
+              />
+            </Upload>
+          </Form.Item>
 
+          {/* Upload Document 2 */}
+          <Form.Item
+            label="Certificates"
+            name="document2"
+            valuePropName="fileList"
+            getValueFromEvent={normFile}
+            extra="Upload the certificates."
+          >
+            <Upload name="doc2" action="/upload.do" listType="text">
+              <Button icon={<UploadOutlined />}
+                size="m"
+                value="Upload"
+              />
+            </Upload>
+          </Form.Item>
           <Form.Item
             wrapperCol={{
               offset: 8,
@@ -411,13 +439,35 @@ const Seller = () => {
   const navigate = useNavigate(); // Initialize useNavigate
   const { role, setRole } = useRole(); // Get role and setRole from context
 
+  const { sellers, dispatch } = useSellersContext()
+
+  useEffect(() => {
+    const fetchSellers = async () => {
+      const response = await fetch('/seller', sellerRouter)
+      const json = await response.json()
+
+      if (response.ok) {
+        dispatch({ type: 'SET_SELLER', payload: json })
+      }
+    }
+
+    fetchSellers()
+  }, [dispatch])
+
+
   const onFinish = (values) => {
     console.log("Success:", values);
-    navigate("/seller"); // Redirect to the blank page after successful submission
+    navigate("/seller");
   };
 
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
+  };
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
   };
 
   return (
@@ -505,6 +555,37 @@ const Seller = () => {
             { min: 6, message: "Password must be at least 6 characters!" },]}
           >
             <Input.Password />
+          </Form.Item>
+          {/* Upload Document 1 */}
+          <Form.Item
+            label="ID"
+            name="document1"
+            valuePropName="fileList"
+            getValueFromEvent={normFile}
+            extra="Upload the ID."
+          >
+            <Upload name="doc1" action="/upload.do" listType="text">
+              <Button icon={<UploadOutlined />}
+                size="m"
+                value="Upload"
+              />
+            </Upload>
+          </Form.Item>
+
+          {/* Upload Document 2 */}
+          <Form.Item
+            label="Taxation Registery Card"
+            name="document2"
+            valuePropName="fileList"
+            getValueFromEvent={normFile}
+            extra="Upload the taxation registery card."
+          >
+            <Upload name="doc2" action="/upload.do" listType="text">
+              <Button icon={<UploadOutlined />}
+                size="m"
+                value="Upload"
+              />
+            </Upload>
           </Form.Item>
 
           <Form.Item
@@ -544,6 +625,12 @@ const Advertiser = () => {
     console.log("Failed:", errorInfo);
   };
 
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
   return (
     <CustomLayout>
       <div style={{ textAlign: "center", alignItems: "center", marginTop: "20px" }}>
@@ -630,6 +717,38 @@ const Advertiser = () => {
           >
             <Input.Password />
           </Form.Item>
+          {/* Upload Document 1 */}
+          <Form.Item
+            label="ID"
+            name="document1"
+            valuePropName="fileList"
+            getValueFromEvent={normFile}
+            extra="Upload the ID."
+          >
+            <Upload name="doc1" action="/upload.do" listType="text">
+              <Button icon={<UploadOutlined />}
+                size="m"
+                value="Upload"
+              />
+            </Upload>
+          </Form.Item>
+
+          {/* Upload Document 2 */}
+          <Form.Item
+            label="Taxation Registery Card"
+            name="document2"
+            valuePropName="fileList"
+            getValueFromEvent={normFile}
+            extra="Upload the taxation registery card."
+          >
+            <Upload name="doc2" action="/upload.do" listType="text">
+              <Button icon={<UploadOutlined />}
+                size="m"
+                value="Upload"
+              />
+            </Upload>
+          </Form.Item>
+
 
           <Form.Item
             wrapperCol={{

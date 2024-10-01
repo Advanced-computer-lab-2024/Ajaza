@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { DropboxOutlined } from '@ant-design/icons';
+import { DropboxOutlined, UploadOutlined } from '@ant-design/icons';
 import { Avatar, Card, Flex, Switch } from 'antd';
 const actions = [
     <DropboxOutlined key="archive" />,
+    <UploadOutlined key="upload" />,
 ];
+
 const CustomCard = ({ title, price, quantity, onClick }) => {
     return (
         <Flex gap="middle" align="start" vertical>
@@ -14,9 +16,14 @@ const CustomCard = ({ title, price, quantity, onClick }) => {
                     minWidth: 300,
                     cursor: 'pointer', // Change cursor to pointer for better UX
                 }}
+                cover={
+                    <img
+                        alt="example"
+                        src="https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg"
+                    />
+                }
             >
                 <Card.Meta
-                    avatar={<Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />}
                     title={
                         <p>Details:{title}</p>
                     } // Use passed title
@@ -31,5 +38,4 @@ const CustomCard = ({ title, price, quantity, onClick }) => {
         </Flex>
     );
 };
-
 export default CustomCard;
