@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
-const uploadPhotoImage = require('./middleware/uploadImage');
+const uploadPhotoImage = require('../middleware/uploadImage');
 
 router.post('/', productController.createProduct);
 

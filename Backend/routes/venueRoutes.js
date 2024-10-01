@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const venueController = require('../controllers/venueController');
-const uploadPhotoImage = require('./middleware/uploadImage');
+const uploadPhotoImage = require('../middleware/uploadImage');
 
 router.post('/', venueController.createVenue);
 
