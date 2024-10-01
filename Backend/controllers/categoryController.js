@@ -1,7 +1,10 @@
 const Category = require('../models/Category');
 
-// Create a new category
+// req23
 exports.createCategory = async (req, res) => {
+
+  // authentication middleware
+
   try {
     const category = new Category(req.body);
     const savedCategory = await category.save();
@@ -11,8 +14,11 @@ exports.createCategory = async (req, res) => {
   }
 };
 
-// Get all categories
+// req23
 exports.getAllCategories = async (req, res) => {
+
+  // authentication middleware
+
   try {
     const categories = await Category.find();
     res.status(200).json(categories);
@@ -21,8 +27,11 @@ exports.getAllCategories = async (req, res) => {
   }
 };
 
-// Get category by ID
+// not used
 exports.getCategoryById = async (req, res) => {
+
+  // authentication middleware
+
   try {
     const category = await Category.findById(req.params.id);
     if (!category) {
@@ -34,8 +43,11 @@ exports.getCategoryById = async (req, res) => {
   }
 };
 
-// Update category by ID
+// req23
 exports.updateCategory = async (req, res) => {
+
+  // authentication middleware
+
   try {
     const updatedCategory = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedCategory) {
@@ -47,8 +59,11 @@ exports.updateCategory = async (req, res) => {
   }
 };
 
-// Delete category by ID
+// req23
 exports.deleteCategory = async (req, res) => {
+
+  // authentication middleware
+  
   try {
     const deletedCategory = await Category.findByIdAndDelete(req.params.id);
     if (!deletedCategory) {

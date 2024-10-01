@@ -206,3 +206,24 @@ exports.sellerUpdateProfile = async (req, res) => {
   }
 };
 
+// admin delete seller requesting deletion
+exports.deleteSellersRequestingDeletion = async (req, res) => {
+  // middleware auth
+  try {
+    const sellers = await Seller.find({ requestingDeletion: true });
+
+    if (sellers.length === 0) {
+      return res.status(404).json({ message: 'No sellers found requesting deletion' });
+    }
+
+    for (const seller of sellers) {
+      await Seller.findByIdAndDelete(seller._id);
+    }
+
+    res.status(200).json({ message: 'Sellers deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting sellers:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+

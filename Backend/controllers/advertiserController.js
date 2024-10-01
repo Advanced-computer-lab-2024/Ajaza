@@ -1,4 +1,6 @@
 const Advertiser = require('../models/Advertiser');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 // Create a new advertiser
 exports.createAdvertiser = async (req, res) => {
@@ -86,3 +88,113 @@ exports.guestAdvertiserCreateProfile = async (req, res) => {
   }
 };
 
+
+
+//new
+exports.advertiserReadProfile = async (req, res) => {
+  try {
+    const advertiserProfile = await Advertiser.findById(req.params.id)
+      .select('-pass -taxationRegCard -pending -notifications -acceptedTerms');
+
+    if (!advertiserProfile) {
+      return res.status(404).json({ message: 'Advertiser not found' });
+    }
+    res.status(200).json(advertiserProfile);
+  }
+  catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// admin delete advertisers requesting deletion
+exports.deleteAdvertisersRequestingDeletion = async (req, res) => {
+  //middleware authentication
+  try {
+    const advertisers = await Advertiser.find({ requestingDeletion: true });
+    if (advertisers.length === 0) {
+      return res.status(404).json({ message: 'No advertisers found requesting deletion' });
+    }
+
+    for (const advertiser of advertisers) {
+      await Advertiser.findByIdAndDelete(advertiser._id);
+    }
+
+    res.status(200).json({ message: 'Advertisers deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//new
+exports.advertiserUpdateProfile = async (req, res) => {
+
+  const allowedFields = ['email', 'link', 'hotline', 'companyProfile'];
+
+  const filteredBody = Object.keys(req.body)
+    .filter(key => allowedFields.includes(key))
+    .reduce((obj, key) => {
+      obj[key] = req.body[key];
+      return obj;
+    }, {});
+
+  try {
+    const updatedAdvertiser = await Advertiser.findByIdAndUpdate(req.params.id, filteredBody, { new: true });
+    if (!updatedAdvertiser) {
+      return res.status(404).json({ message: 'Advertiser not found' });
+    }
+    res.status(200).json(updatedAdvertiser);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+
+
+
+
+// Get the profile of the authenticated advertiser (Profile Retrieval) OLD
+exports.getAdvertiserProfile = async (req, res) => {
+  try {
+      const advertiserId = req.user.userId; // Use userId from the JWT token
+
+      const advertiserProfile = await Advertiser.findById(advertiserId).select(
+          '-pass -pending -acceptedTerms -notifications -requestingDeletion'
+      );
+
+      if (!advertiserProfile) {
+          return res.status(404).json({ message: 'Advertiser not found' });
+      }
+
+      res.status(200).json(advertiserProfile);
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+};
+// Update profile (Profile Update) OLD
+exports.updateAdvertiserProfile = async (req, res) => {
+    try {
+        const advertiserId = req.user.userId;
+        if (req.body.pass) {
+            req.body.pass = await bcrypt.hash(req.body.pass, 10);
+        }
+        
+        // Update the guide's profile
+        await Advertiser.findByIdAndUpdate(advertiserId, req.body);
+
+        // Retrieve the updated guide's profile, filtering out sensitive fields
+        const updatedAdvertiser = await Advertiser.findById(advertiserId).select(
+            '-pass -pending -acceptedTerms -notifications -requestingDeletion'
+        );
+
+        if (!updatedAdvertiser) {
+            return res.status(404).json({ message: 'Advertiser not found' });
+        }
+
+        res.status(200).json(updatedAdvertiser);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+ 

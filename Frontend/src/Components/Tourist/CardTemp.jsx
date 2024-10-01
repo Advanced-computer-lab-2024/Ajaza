@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Card, Button, Input } from 'antd';
+import React, { useState } from "react";
+import { Card, Button, Input } from "antd";
 
 export const CardTemp = ({ outerTitle, cardsData, onUpdate }) => {
   const [cards, setCards] = useState(cardsData);
@@ -17,14 +17,14 @@ export const CardTemp = ({ outerTitle, cardsData, onUpdate }) => {
     newCards[index].isEditing = false;
 
     setCards(newCards);
-    
+
     // Call the update function passed as a prop
     await onUpdate(cardId, newContent);
   };
 
   return (
     <Card title={outerTitle}>
-      {cards.map((card, index) => (
+      {cards?.map((card, index) => (
         <Card key={index} type="inner" title={card.title}>
           {card.isEditing ? (
             <Input
@@ -34,11 +34,13 @@ export const CardTemp = ({ outerTitle, cardsData, onUpdate }) => {
           ) : (
             <span>{card.content}</span>
           )}
-          {card.title !== 'Username' && card.title !== 'Wallet' && !card.isEditing && (
-            <Button type="link" onClick={() => handleEdit(index)}>
-              Edit
-            </Button>
-          )}
+          {card.title !== "Username" &&
+            card.title !== "Wallet" &&
+            !card.isEditing && (
+              <Button type="link" onClick={() => handleEdit(index)}>
+                Edit
+              </Button>
+            )}
         </Card>
       ))}
     </Card>
