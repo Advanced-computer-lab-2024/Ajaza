@@ -22,16 +22,16 @@ const Landing = () => {
       >
         <h1 style={{ marginBottom: "3px", fontWeight: "900" }}>
           Welcome to{" "}
-          <span style={{ color: Colors.primary.default }}>Ajaza</span>
+          <span style={{ color: Colors.primary.default }}>Aچaza</span>
         </h1>
         <h2 style={{ marginBottom: "15px", fontWeight: "bold" }}>
           Your Ultimate Tourism Experience{" "}
         </h2>
         <h5 style={{ color: Colors.grey[700] }}>
-          Ajaza is a comprehensive tourism platform designed for tourists, tour
+          Aچaza is a comprehensive tourism platform designed for tourists, tour
           guides, advertisers, sellers, and tourism administrators. Whether
           you're planning your next vacation, promoting an event, or selling
-          products related to tourism, Ajaza has you covered.
+          products related to tourism, Aچaza has you covered.
         </h5>
         <Flex align="center" style={{ marginTop: "20px" }}>
           <CustomButton
