@@ -78,7 +78,6 @@ function App() {
 
             <Route path="/advertiser/*" element={<Advertiser />} />
             <Route path="/admin/*" element={<Admin />} />
-            <Route path="/adminCustom" element={<AdminCustomLayout />} />
             <Route path="/seller/*" element={<Seller />} />
           </Routes>
         </Content>

@@ -3,12 +3,12 @@ Content-Type: application/json
 
 ###
 
-POST http://api.example.com/data
+POST http://localhost:5000/api/auth/login
 Content-Type: application/json
 
 {
-    "name": "John Doe",
-    "email": "john.doe@example.com"
+    "username": "tourist1",
+    "password": "hashed_password_1"
 }
 
 ###
