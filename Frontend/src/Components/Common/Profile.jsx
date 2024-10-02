@@ -1,7 +1,11 @@
-import React from 'react';
-import { Card, Avatar, Typography, Space } from 'antd';
-import { UserOutlined, EditOutlined} from '@ant-design/icons';
-import './Profile.css';
+import React from "react";
+import { Card, Avatar, Typography, Space } from "antd";
+import { UserOutlined, EditOutlined } from "@ant-design/icons";
+import { useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+import { apiUrl } from "./Constants";
+import "./Profile.css";
 
 const { Title, Text } = Typography;
 
@@ -14,10 +18,48 @@ const Profile = () => {
     bio: "Software engineer with 5+ years of experience in web development, passionate about creating efficient and scalable solutions.",
     location: "San Francisco, CA",
   };
+  const [response, setResponse] = useState(null);
+  const actions = [<EditOutlined key="edit" />];
 
-  const actions = [
-    <EditOutlined key="edit" />,
-  ];
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    let decodedToken = null;
+    if (token) {
+      decodedToken = jwtDecode(token);
+    }
+
+    const urlExtension = `${decodedToken.type}/${decodedToken.id}`;
+
+    const fetchData = async () => {
+      const body = {
+        id: "123",
+        // Add more key-value pairs as needed
+      };
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json", // Example header, adjust as needed
+        },
+      };
+      try {
+        const apiResponse = await axios.get(
+          apiUrl + urlExtension,
+          body,
+          config
+        );
+        console.log(response);
+
+        if (apiResponse.status === 200) {
+          setResponse(apiResponse.data);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="profile-page">
@@ -35,13 +77,19 @@ const Profile = () => {
           <Avatar
             size={120}
             icon={<UserOutlined />}
-            style={{ backgroundColor: '#87d068' }}
+            style={{ backgroundColor: "#87d068" }}
           />
-          <Title level={2}>{userData.name}</Title>
+          {/* <Title level={2}>{userData.name}</Title>
+          {response.map}
           <Text type="secondary">{userData.email}</Text>
           <Text>Age: {userData.age}</Text>
           <Text>{userData.bio}</Text>
-          <Text>Location: {userData.location}</Text>
+          <Text>Location: {userData.location}</Text> */}
+          {Object.entries(userData).map(([key, value]) => (
+            <div key={key}>
+              <strong>{key}:</strong> {value}
+            </div>
+          ))}
         </Space>
       </Card>
     </div>
@@ -49,16 +97,6 @@ const Profile = () => {
 };
 
 export default Profile;
-
-
-
-
-
-
-
-
-
-
 
 // THIS IS USING API REQUESTS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // import React, { useEffect, useState } from 'react';
@@ -104,9 +142,9 @@ export default Profile;
 
 //   const handleEditClick = () => {
 //     if (userData.role === "Tourist") {
-//       navigate(`/tourist/${userData.id}/edit`); 
+//       navigate(`/tourist/${userData.id}/edit`);
 //     } else if (userData.role === "Tour Guide") {
-//       navigate(`/tour-guide/${userData.id}/edit`); 
+//       navigate(`/tour-guide/${userData.id}/edit`);
 //     }
 //   };
 
@@ -145,9 +183,6 @@ export default Profile;
 // };
 
 // export default Profile;
-
-
-
 
 // THIS IS USING THE GLOBAL CONTEXT VARIABLE DIRECTLY BUT HOW WILL I DISPLAY THE DIFFERENT ATTRTIUBES OF DIFFERENT USERS??
 // import React, { useContext } from 'react';
