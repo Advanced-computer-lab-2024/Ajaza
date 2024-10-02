@@ -1,6 +1,7 @@
 const Advertiser = require('../models/Advertiser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Activity = require('../models/Activity');
 
 // Create a new advertiser
 exports.createAdvertiser = async (req, res) => {
@@ -197,4 +198,19 @@ exports.updateAdvertiserProfile = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
- 
+
+//---req 26-----
+exports.getAdvertiserActivities = async (req, res) => {
+  try {
+    const { advertiserId } = req.params;
+    const activities = await Activity.find({ advertiserId });
+
+    if (!activities || activities.length === 0) {
+      return res.status(404).json({ message: 'No activities found for this advertiser' });
+    }
+
+    res.status(200).json(activities);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
