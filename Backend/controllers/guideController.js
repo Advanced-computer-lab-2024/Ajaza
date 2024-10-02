@@ -257,3 +257,19 @@ exports.updateGuideProfile = async (req, res) => {
 };
 
 
+//--req26---
+exports.getGuideItineraries = async (req, res) => {
+  try {
+    const { guideId } = req.params;
+
+    const itineraries = await Itinerary.find({ guideId });
+
+    if (!itineraries || itineraries.length === 0) {
+      return res.status(404).json({ message: 'No itineraries found for this tour guide' });
+    }
+
+    res.status(200).json(itineraries);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

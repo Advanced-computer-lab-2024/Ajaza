@@ -29,22 +29,6 @@ const sellerRouter = require('./routes/sellerRoutes');
 const tagRouter = require('./routes/tagRoutes');
 const touristRouter = require('./routes/touristRoutes');
 const venueRouter = require('./routes/venueRoutes');
-
-const activityRouter = require("./routes/activityRoutes");
-const adminRouter = require("./routes/adminRoutes");
-const advertiserRouter = require("./routes/advertiserRoutes");
-const categoryRouter = require("./routes/categoryRoutes");
-const complaintRouter = require("./routes/complaintRoutes");
-const governorRouter = require("./routes/governorRoutes");
-const guideRouter = require("./routes/guideRoutes");
-const itineraryRouter = require("./routes/itineraryRoutes");
-const productRouter = require("./routes/productRoutes");
-const promoCodeRouter = require("./routes/promoCodeRoutes");
-const sellerRouter = require("./routes/sellerRoutes");
-const tagRouter = require("./routes/tagRoutes");
-const touristRouter = require("./routes/touristRoutes");
-const venueRouter = require("./routes/venueRoutes");
-const guideProfileRouter = require("./routes/guideProfileRoutes");
 const authRouter = require("./routes/authRoutes");
 
 app.use(cors());
@@ -82,7 +66,6 @@ app.use("/seller", sellerRouter);
 app.use("/tag", tagRouter);
 app.use("/tourist", touristRouter);
 app.use("/venue", venueRouter);
-app.use("/guideProfile", guideProfileRouter);
 app.use("/api/auth", authRouter);
 
 app.use(cors());

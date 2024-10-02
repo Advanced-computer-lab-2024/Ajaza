@@ -30,6 +30,9 @@ router.delete('/deleteGovernorVenue/:id', governorController.deleteGovernorVenue
 
 // req 17 ng
 router.post('/addGoverner', governorController.adminAddGovernor);
+//--req26--
+router.get('/getMyVenues/:governorId', governorController.getGovernorVenues);
 
-
+//--req 22--- body: venue id w tag w preference tag (u can put empty array [])
+router.post('/createTagForVenue', governorController.createTagForVenue);
 module.exports = router;

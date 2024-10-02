@@ -1,6 +1,6 @@
 const Governor = require('../models/Governor');
 const Venue = require('../models/venue');
-
+const Tag = require('../models/Tag');
 const bcrypt = require('bcrypt');
 
 
@@ -170,5 +170,67 @@ exports.adminAddGovernor = async (req, res) => {
   } catch (error) {
     console.error('Error while saving the Governor:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+//--req 26---
+exports.getGovernorVenues = async (req, res) => {
+  try {
+    const { governorId } = req.params;
+
+    const venues = await Venue.find({ governorId });
+
+    if (!venues || venues.length === 0) {
+      return res.status(404).json({ message: 'No venues found for this governor' });
+    }
+
+    res.status(200).json(venues);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//--req 22---
+
+// create a new tag for a specific venue/'different historical locs'
+exports.createTagForVenue = async (req, res) => {
+  try {
+    const { venueId, tag, preferenceTags } = req.body;
+    const validTags = ['Monuments', 'Museums', 'Religious Sites', 'Palaces/Castles'];
+    if (!validTags.includes(tag)) {
+      return res.status(400).json({ message: 'Invalid tag. Valid tags are: Monuments, Museums, Religious Sites, Palaces/Castles.' });
+    }
+
+    // validate law preferenceTags an array of strings
+    if (preferenceTags && !Array.isArray(preferenceTags)) {
+      return res.status(400).json({ message: 'Invalid Preference tags.' });
+    }
+
+    let newTag = await Tag.findOne({ tag });
+    if (!newTag) {
+      newTag = new Tag({ tag, preferanceTags: preferenceTags });
+      await newTag.save();
+    } else {
+      // update el preference tags law tag already exists
+      newTag.preferanceTags = [...new Set([...newTag.preferanceTags, ...preferenceTags])];
+      await newTag.save();
+    }
+
+    const venue = await Venue.findById(venueId);
+    if (!venue) {
+      return res.status(404).json({ message: 'Venue not found' });
+    }
+
+    if (!venue.tags.includes(tag)) {
+      venue.tags.push(tag);
+    } else {
+      return res.status(400).json({ message: 'Tag already exists for this venue.' });
+    }
+
+    await venue.save();
+
+    res.status(200).json({ message: 'Tag and preference tags added to venue successfully', tag: newTag, venue });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

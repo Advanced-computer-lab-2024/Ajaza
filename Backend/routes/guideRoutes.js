@@ -28,6 +28,8 @@ router.put('/updateGuideProfile/:id', guideController.updateGuideProfile);
 //req5  -- Tatos
 router.post('/guestGuideCreateProfile', guideController.guestGuideCreateProfile);    // Guest Guide sign up
 
+//req 26
+router.get('/getMyItineraries/:guideId', guideController.getGuideItineraries);
 
 
 

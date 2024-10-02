@@ -34,3 +34,5 @@ router.patch('/advertiserUpdateProfile/:id',advertiserController.advertiserUpdat
 module.exports = router;
 
 
+//----req26---
+router.get('/getMyActivities/:advertiserId', advertiserController.getAdvertiserActivities);
