@@ -306,9 +306,13 @@ exports.getUpcomingActivities = async (req, res) => {
   try {
     const currentDate = new Date();
     console.log("Current Date:", currentDate); // Log the current date
+
+    // Find activities with dates greater than or equal to the current date and hidden is false
     const upcomingActivities = await Activity.find({
       date: { $gte: currentDate },
-    }); // Find activities with dates greater than or equal to current date
+      hidden: false,
+    });
+
     res.status(200).json(upcomingActivities);
   } catch (error) {
     console.error("Error in getUpcomingActivities:", error); // Log the error
