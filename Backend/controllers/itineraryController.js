@@ -151,16 +151,17 @@ exports.giveItineraryFeedback = async (req, res) => {
 exports.getUpcomingItineraries = async (req, res) => {
   try {
     const currentDate = new Date();
-    // Find itineraries with available dates greater than or equal to the current date
+    // Find itineraries with available dates greater than or equal to the current date and hidden is false
     const itineraries = await Itinerary.find({
       "availableDateTime.date": { $gte: currentDate },
+      hidden: false,
     })
       .populate("guideId")
       .populate("timeline.id");
 
     res.status(200).json(itineraries);
   } catch (error) {
-    console.error("Error in getAllItineraries:", error); // Log the error
+    console.error("Error in getUpcomingItineraries:", error); // Log the error
     res.status(500).json({ error: error.message });
   }
 };
