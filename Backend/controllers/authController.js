@@ -28,12 +28,12 @@ exports.verifyToken = (req, res, next) => {
 // Utility function to find a user across all models
 const findUserAcrossModels = async (username) => {
   const userTypes = [
-    { model: Tourist, role: "Tourist" },
-    { model: Advertiser, role: "Advertiser" },
-    { model: TourGuide, role: "TourGuide" },
-    { model: Seller, role: "Seller" },
-    { model: TourismGovernor, role: "TourismGovernor" },
-    { model: Admin, role: "Admin" },
+    { model: Tourist, role: "tourist" },
+    { model: Advertiser, role: "advertiser" },
+    { model: TourGuide, role: "guide" },
+    { model: Seller, role: "seller" },
+    { model: TourismGovernor, role: "governor" },
+    { model: Admin, role: "admin" },
   ];
 
   for (const { model, role } of userTypes) {
@@ -41,6 +41,17 @@ const findUserAcrossModels = async (username) => {
     if (user) return { user, role };
   }
   return null;
+};
+
+// Utility function to map user to detailed object with all fields
+const mapUserDetails = (user, schema) => {
+  const userDetails = {};
+  for (const key in schema.paths) {
+    if (schema.paths.hasOwnProperty(key) && key !== "__v" && key !== "pass") {
+      userDetails[key] = user[key] !== undefined ? user[key] : null;
+    }
+  }
+  return userDetails;
 };
 
 // Login user
@@ -68,8 +79,31 @@ exports.login = async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    // Send token and role to the frontend
-    res.status(200).json({ token, role, message: "Login successful" });
+    // Map user details
+    let userDetails = {};
+    if (role === "tourist") {
+      userDetails = mapUserDetails(user, Tourist.schema);
+    }
+    if (role === "advertiser") {
+      userDetails = mapUserDetails(user, Advertiser.schema);
+    }
+    if (role === "guide") {
+      userDetails = mapUserDetails(user, TourGuide.schema);
+    }
+    if (role === "seller") {
+      userDetails = mapUserDetails(user, Seller.schema);
+    }
+    if (role === "governor") {
+      userDetails = mapUserDetails(user, TourismGovernor.schema);
+    }
+    if (role === "admin") {
+      userDetails = mapUserDetails(user, Admin.schema);
+    }
+
+    // Send token, role, and user details to the frontend
+    res
+      .status(200)
+      .json({ token, role, userDetails, message: "Login successful" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

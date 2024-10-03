@@ -1,4 +1,4 @@
-const Venue = require('../models/Venue');
+const Venue = require('../models/venue');
 
 // Create a new venue
 exports.createVenue = async (req, res) => {

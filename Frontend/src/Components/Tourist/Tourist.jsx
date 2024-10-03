@@ -7,7 +7,9 @@ import { TouristProfile } from "./TouristProfile";
 import { apiUrl } from "../Common/Constants";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Card } from "antd";
+import { jwtDecode } from "jwt-decode";
+import SearchFilterSortContainer from "../Common/SearchFilterSortContainer";
+import Profile from "../Common/Profile";
 
 const Tourist = () => {
   const [response, setResponse] = useState([]);
@@ -42,8 +44,14 @@ const Tourist = () => {
   ];
 
   useEffect(() => {
-    const token = "authToken";
     const urlExtension = "tourist/";
+
+    const token = localStorage.getItem("token");
+    let decodedToken = null;
+    if (token) {
+      decodedToken = jwtDecode(token);
+    }
+
     const fetchData = async () => {
       const body = {
         id: "123",
@@ -78,8 +86,9 @@ const Tourist = () => {
   return (
     <CustomLayout sideBarItems={sideBarItems}>
       <Routes>
-        <Route path="/" element={<div>Tourist Default</div>} />
+        <Route path="/" element={<SearchFilterSortContainer />} />
         <Route path="itineraries" element={<div>Itineraries Page</div>} />
+        <Route path="account" element={<Profile />} />
         <Route path="profile" element={<TouristProfile />} />
       </Routes>
     </CustomLayout>

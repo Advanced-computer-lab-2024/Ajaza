@@ -1,5 +1,7 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { CustomLayout } from "../Common";
+import { Route, Routes, useNavigate } from "react-router-dom";
+import Itineraries from "../Itineraries";
 import { CalendarOutlined, ContainerOutlined } from "@ant-design/icons";
 
 const TourGuide = () => {
@@ -10,29 +12,36 @@ const TourGuide = () => {
       icon: <CalendarOutlined />,
       label: "Itineraries",
       onClick: () => {
-        console.log("ada");
         navigate("itineraries");
       },
     },
-    {
-      key: "2",
-      icon: <CalendarOutlined />,
-      label: "Actiivities",
-      onClick: () => navigate("/activities"),
-    },
-    {
-      key: "3",
-      icon: <CalendarOutlined />,
-      label: "Venues",
-      onClick: () => navigate("/venues"),
-    },
-    {
-      key: "4",
-      icon: <ContainerOutlined />,
-      label: "Report",
-    },
+    // {
+    //   key: "2",
+    //   icon: <CalendarOutlined />,
+    //   label: "Actiivities",
+    //   onClick: () => navigate("activities"),
+    // },
+    // {
+    //   key: "3",
+    //   icon: <CalendarOutlined />,
+    //   label: "Venues",
+    //   onClick: () => navigate("venues"),
+    // },
+    // {
+    //   key: "4",
+    //   icon: <ContainerOutlined />,
+    //   label: "Report",
+    // },
   ];
-  return <div>TourGuide</div>;
+  return(
+    <CustomLayout sideBarItems={sideBarItems}>
+      <Routes>
+        <Route path="/" element={<div>TourGuide Default</div>} />
+        <Route path="/itineraries" element={<Itineraries />} />
+        <Route path="Report" element={<div>Report</div>} />
+      </Routes>
+    </CustomLayout>
+  );
 };
 
 export default TourGuide;
