@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const advertiserController = require('../controllers/advertiserController');
+const uploadIdImage = require('../middleware/uploadImage');
+const uploadTaxationRegCardImage = require('../middleware/uploadImage');
+const uploadLogoImage = require('../middleware/uploadImage');
 
 router.post('/', advertiserController.createAdvertiser);
 
@@ -31,3 +34,5 @@ router.patch('/advertiserUpdateProfile/:id',advertiserController.advertiserUpdat
 module.exports = router;
 
 
+//----req26---
+router.get('/getMyActivities/:advertiserId', advertiserController.getAdvertiserActivities);

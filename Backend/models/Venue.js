@@ -33,12 +33,9 @@ const venueSchema = new mongoose.Schema({
     native: { type: Number, required: true }, // Price for natives
     student: { type: Number, required: true }, // Price for students
   },
-  tags: [
-    {
-      type: String,
-      enum: ["Monuments", "Museums", "Religious Sites", "Palaces/Castles"],
-    },
-  ], // Array of tags related to the venue, from the limited list given in description
+ // Array of tags related to the venue, from the limited list given in description
+  tags: [{ type: String, enum:['Monuments', 'Museums', 'Religious Sites', 'Palaces/Castles'] }], // Array of tags related to the venue, from the limited list given in description
+  isVisible:{ type: Boolean, default: true}
 });
 
 // Create the model

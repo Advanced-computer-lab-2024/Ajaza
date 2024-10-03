@@ -1,8 +1,87 @@
 import React from "react";
 import { CustomLayout } from "../Common";
+import { Route, Routes, useNavigate } from "react-router-dom";
+import Itineraries from "../Itineraries";
+import { CalendarOutlined, ContainerOutlined } from "@ant-design/icons";
+import { apiUrl } from "../Common/Constants";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Card } from "antd";
 
 const Admin = () => {
-  return <div>Admin</div>;
+  const [response, setResponse] = useState([]);
+  const navigate = useNavigate();
+
+  const sideBarItems = [
+    {
+      key: "1",
+      icon: <CalendarOutlined />,
+      label: "Itineraries",
+      onClick: () => {
+        navigate("itineraries");
+      },
+    },
+    {
+      key: "2",
+      icon: <CalendarOutlined />,
+      label: "Activities",
+      onClick: () => navigate("activities"),
+    },
+    {
+      key: "3",
+      icon: <CalendarOutlined />,
+      label: "Venues",
+      onClick: () => navigate("/venues"),
+    },
+    {
+      key: "4",
+      icon: <ContainerOutlined />,
+      label: "Report",
+    },
+  ];
+
+  useEffect(() => {
+    const token = "authToken";
+    const urlExtension = "tourist/";
+    const fetchData = async () => {
+      const body = {
+        id: "123",
+        // Add more key-value pairs as needed
+      };
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json", // Example header, adjust as needed
+        },
+      };
+      try {
+        const apiResponse = await axios.get(
+          apiUrl + urlExtension,
+          body,
+          config
+        );
+        console.log(response);
+
+        if (apiResponse.status === 200) {
+          setResponse(apiResponse.data);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  return (
+    <CustomLayout sideBarItems={sideBarItems}>
+      <Routes>
+        <Route path="/" element={<div>Tourist Default</div>} />
+        <Route path="itineraries" element={<div>Itineraries Page</div>} />
+      </Routes>
+    </CustomLayout>
+  );
 };
 
 export default Admin;

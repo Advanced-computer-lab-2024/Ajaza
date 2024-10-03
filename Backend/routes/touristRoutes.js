@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const touristController = require('../controllers/touristController');
-const amadeusController = require('../controllers/amadeusController');
+const apiController = require('../controllers/apiController');
 
 const axios = require('axios');
 const qs = require('qs');
@@ -23,7 +23,46 @@ router.delete('/deleteTourists', touristController.deleteTouristsRequestingDelet
 
 // req11
 router.patch('/touristUpdateProfile/:id', touristController.touristUpdateProfile); 
+/*
+passed: id from params,
+{
+    email: String,
+    mobile: String,
+    occupation: String,
+    nationality: String,
+}
+
+returns:
+{
+    username: String,
+    email: String,
+    mobile: String,
+    points: Number,
+    wallet: Number,
+    badge: String,
+    occupation: String,
+    dob: Date,
+    nationality: String,
+}
+*/
+
 router.get('/touristReadProfile/:id', touristController.touristReadProfile);
+/*
+passed: id from params
+
+returns:
+{
+    username: String,
+    email: String,
+    mobile: String,
+    points: Number,
+    wallet: Number,
+    badge: String,
+    occupation: String,
+    dob: Date,
+    nationality: String,
+}
+*/
 
 // req50
 router.post('/emailShare/:id', touristController.emailShare)
@@ -32,8 +71,11 @@ router.post('/emailShare/:id', touristController.emailShare)
 router.patch('/redeemPoints/:id', touristController.redeemPoints);
 
 // req40
-//router.get('/flights', touristController.bookFlight);
-router.get('/hotels/searchHotel', amadeusController.searchHotels);
+router.get('/flights/searchFlights', apiController.searchFlights);
+//router.post('/flights/bookFlight', apiController.bookFlight);
+// req41
+//router.get('/hotels/searchHotels', apiController.searchHotels);
+//router.post('/hotels/bookHotel', apiController.bookHotel);
 
 // req61
 router.delete('/:touristId/activity/:activityId/cancel', touristController.cancelActivityBooking);
