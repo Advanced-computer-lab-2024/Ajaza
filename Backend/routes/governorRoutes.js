@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const governorController = require('../controllers/governorController');
+const uniqueUsername = require("../middleware/uniqueUsername");
+
 
 
 router.post('/createAgain' , governorController.createGovernor)
@@ -29,7 +31,7 @@ router.put('/updateGovernorVenue/:id', governorController.updateGovernorVenue);
 router.delete('/deleteGovernorVenue/:id', governorController.deleteGovernorVenue); 
 
 // req 17 ng
-router.post('/addGoverner', governorController.adminAddGovernor);
+router.post('/addGovernor', uniqueUsername, governorController.adminAddGovernor);
 //--req26--
 router.get('/getMyVenues/:governorId', governorController.getGovernorVenues);
 

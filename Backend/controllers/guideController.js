@@ -144,8 +144,15 @@ exports.guestGuideCreateProfile = async (req, res) => {
   });
 
   try {
+
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(filteredBody.pass, saltRounds);
+
+    filteredBody.pass = hashedPassword;
+
     const guide = new Guide(filteredBody);
     const savedguide = await guide.save();
+    savedguide.pass = undefined;
     res.status(201).json(savedguide);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -271,5 +278,21 @@ exports.getGuideItineraries = async (req, res) => {
     res.status(200).json(itineraries);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+exports.adminDeletesGuides = async (req, res) => {
+  const guideIds = req.body.guideIds;
+  if(!guideIds || !guideIds.length) {
+    return res.status(400).json({ error: 'Guide IDs are required' });
+  }
+  try {
+    const result = await Guide.deleteMany({ _id: { $in: guideIds }, requestingDeletion: true});
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: 'Guides selected were not requesting deletion' });
+    }
+    res.status(200).json({ message: 'Guides deleted successfully', result });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 };

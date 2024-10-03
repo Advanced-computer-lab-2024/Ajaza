@@ -71,26 +71,22 @@ exports.deleteAdmin = async (req, res) => {
 // req 17 ng
 //admin adds another admin
 exports.adminAddAdmin = async (req, res) => {
-  //mw auth
-  const { username, password } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Username and password are required.' });
+  const { username, pass } = req.body;
+
+  if (!username || !pass) {
+    return res.status(400).json({ message: 'Username and pass are required.' });
   }
 
+  const saltRounds = 10;
+  const hashedPass = await bcrypt.hash(pass, saltRounds);
+
   try {
-    const existingAdmin = await Admin.findOne({ username });
-    if (existingAdmin) {
-      return res.status(400).json({ message: 'Username is already taken.' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newAdmin = new Admin({ username, pass: hashedPassword });
-
-    const savedAdmin = await newAdmin.save();
-    res.status(201).json({ message: 'Admin created successfully', admin: savedAdmin });
+    const newadmin = new Admin({ username, pass: hashedPass });
+    const savedadmin = await newadmin.save();
+    savedadmin.pass = undefined;
+    res.status(201).json(savedadmin);
   } catch (error) {
-    console.error('Error while saving the Admin:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(400).json({error: error.message });
   }
 };
