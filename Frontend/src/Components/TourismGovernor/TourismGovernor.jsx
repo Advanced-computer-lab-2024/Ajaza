@@ -2,9 +2,9 @@ import React from "react";
 import { CustomLayout } from "../Common";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Venues from "../Venues";
-import { CalendarOutlined, ContainerOutlined,ContainerOutlined } from "@ant-design/icons";
+import { CalendarOutlined, ContainerOutlined} from "@ant-design/icons";
 
-const TouristGovernor = () => {
+const TourismGovernor = () => {
   const navigate = useNavigate();
   const sideBarItems = [
     // {
@@ -35,11 +35,11 @@ const TouristGovernor = () => {
   return(
     <CustomLayout sideBarItems={sideBarItems}>
       <Routes>
-        <Route path="/" element={<div>TouristGovernor Default</div>} />
+        <Route path="/" element={<div>TourismGovernor Default</div>} />
         <Route path="venues" element={<Venues />}/>
         <Route path="Report" element={<div>Report</div>} />
       </Routes>
     </CustomLayout>
   );};
 
-export default TouristGovernor;
+export default TourismGovernor;
