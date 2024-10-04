@@ -1,7 +1,10 @@
 const Tag = require('../models/Tag');
 
-// Create a new tag
+// req24 TESTED
 exports.createTag = async (req, res) => {
+
+  // authentication middleware
+
   try {
     const tag = new Tag(req.body);
     const savedTag = await tag.save();
@@ -11,8 +14,11 @@ exports.createTag = async (req, res) => {
   }
 };
 
-// Get all tags
+// req24 TESTED
 exports.getAllTags = async (req, res) => {
+
+  // authentication middleware
+
   try {
     const tags = await Tag.find();
     res.status(200).json(tags);
@@ -21,8 +27,11 @@ exports.getAllTags = async (req, res) => {
   }
 };
 
-// Get tag by ID
+// not used
 exports.getTagById = async (req, res) => {
+
+  // authentication middleware
+
   try {
     const tag = await Tag.findById(req.params.id);
     if (!tag) {
@@ -34,9 +43,12 @@ exports.getTagById = async (req, res) => {
   }
 };
 
-// Update tag by ID
+// req24 TESTED
 exports.updateTag = async (req, res) => {
   try {
+
+    // authentication middleware
+
     const updatedTag = await Tag.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedTag) {
       return res.status(404).json({ message: 'Tag not found' });
@@ -47,9 +59,12 @@ exports.updateTag = async (req, res) => {
   }
 };
 
-// Delete tag by ID
+// req24 TESTED
 exports.deleteTag = async (req, res) => {
   try {
+
+    // authentication middleware
+
     const deletedTag = await Tag.findByIdAndDelete(req.params.id);
     if (!deletedTag) {
       return res.status(404).json({ message: 'Tag not found' });

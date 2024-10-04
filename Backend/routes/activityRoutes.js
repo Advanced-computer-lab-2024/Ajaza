@@ -23,4 +23,11 @@ router.get('/transportation/transportationAgain', activityController.getTranspor
 router.post('/transportation/createTransportation/:id', activityController.createTransportation);
 
 
+// req19
+router.post('/createSpecifiedActivity', activityController.createSpecifiedActivity);
+router.get('/readActivities/:advertiserId', activityController.readActivitiesOfAdvertiser);
+router.delete('/deleteSpecificActivity/:id', activityController.deleteSpecificActivity);
+
+
+
 module.exports = router;

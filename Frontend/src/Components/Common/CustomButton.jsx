@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button as AntdButton } from "antd";
 import { Colors } from "./Constants";
 
-const Button = ({
+const CustomButton = ({
   size,
   style,
   rounded,
@@ -73,4 +73,4 @@ const Button = ({
   );
 };
 
-export default Button;
+export default CustomButton;

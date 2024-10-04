@@ -81,6 +81,7 @@ exports.giveGuideFeedback = async (req, res) => {
     if (!tourist) {
       return res.status(404).json({ message: 'Tourist not found' });
     }
+        
 
     // find the itinerary booking by itineraryId, to rate the guide once per every itinerary booking
     const itineraryBooking = tourist.itineraryBookings.find(
@@ -99,6 +100,10 @@ exports.giveGuideFeedback = async (req, res) => {
 
     const guideId = itinerary.guideId;
 
+    if(tourist.gaveFeedback.includes(guideId)) {
+      return res.status(400).json({ message: 'Feedback already given for this guide' });
+    }
+
     // Find the guide and append feedback
     const guide = await Guide.findById(guideId);
     if (!guide) {
@@ -106,6 +111,8 @@ exports.giveGuideFeedback = async (req, res) => {
     }
 
     guide.feedback.push({ rating, comments });
+    tourist.gaveFeedback.push(guideId);
+    await tourist.save();
 
     await guide.save();
 
@@ -143,3 +150,24 @@ exports.guestGuideCreateProfile = async (req, res) => {
   }
 };
 
+// admin delete guides requesting deletion
+exports.deleteGuidesRequestingDeletion = async (req, res) => {
+  //middleware auth
+  try {
+
+    const guides = await Guide.find({ requestingDeletion: true });
+
+    if (guides.length === 0) {
+      return res.status(404).json({ message: 'No guides found requesting deletion' });
+    }
+
+    for (const guide of guides) {
+      await Guide.findByIdAndDelete(guide._id);
+    }
+
+    res.status(200).json({ message: 'Guides deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting guides:', error);
+    res.status(500).json({ error: error.message });
+  }
+};

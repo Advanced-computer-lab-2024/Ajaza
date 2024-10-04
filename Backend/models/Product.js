@@ -12,8 +12,8 @@ const productSchema = new mongoose.Schema({
   sales: { type: Number, default: 0 }, // Total sales count
   feedback: [
     {
-      rating: { type: Number, min: 1, max: 5,required: true }, // Rating between 1 and 5
-      comments: { type: String,required: true },
+      rating: { type: Number, min: 1, max: 5,required: false }, // Rating between 1 and 5
+      comments: { type: String,required: false },
     },
   ],
   archived: { type: Boolean, default: false }, // Indicates if the product is archived

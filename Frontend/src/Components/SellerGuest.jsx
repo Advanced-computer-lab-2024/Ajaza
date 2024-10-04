@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Form, Input, Select, DatePicker, Typography, Upload, message } from "antd";
-import { CustomLayout, Button, IconButton } from "./Components"; // Adjust the import according to your project structure
+// import CustomButton from './Components/Common/CustomButton';
+// import CustomLayout from './Components/Common/CustomLayout';
+import CustomButton from "./Common/CustomButton";
+import { CustomLayout } from "./Common";
 import { UserOutlined, UploadOutlined } from "@ant-design/icons";
-import { Colors } from "./Components/Constants";
-import CustomCard from './Components/Card';
+import CustomCard from './Card';
 
 
 
@@ -46,7 +48,7 @@ const RoleFormPage = () => {
   return (
     <div style={{ textAlign: "center", marginTop: "20px" }}>
 
-      {/* Render the selected role's form directly below the buttons */}
+      {/* Render the selected role's form directly below the CustomButtons */}
       <div style={{ marginTop: "20px" }}>{renderForm()}</div>
     </div>
   );
@@ -68,11 +70,11 @@ const SellerPage = () => {
     console.log("Function called with:", a, b);
   };
 
-  const handleButtonClick = () => {
+  const handleCustomButtonClick = () => {
     navigate("/createform");
   };
 
-  const handleButtonClick2 = () => {
+  const handleCustomButtonClick2 = () => {
     navigate("/product");
   };
 
@@ -83,27 +85,27 @@ const SellerPage = () => {
       <div style={{ textAlign: "center", marginTop: "20px" }}>
         <h1>Welcome to Seller Page!</h1>
       </div>
-      <Button
+      <CustomButton
         type="primary"
         htmlType="submit"
         size="m"
         value="Create Seller"
         rounded={true}
         loading={false}
-        onClick={handleButtonClick} // Set the onClick handler for the button
+        onClick={handleCustomButtonClick} // Set the onClick handler for the CustomButton
       >
-      </Button>
+      </CustomButton>
 
-      <Button
+      <CustomButton
         type="primary"
         htmlType="submit"
         size="m"
         value="Add Product"
         rounded={true}
         loading={false}
-        onClick={handleButtonClick2} // Set the onClick handler for the button
+        onClick={handleCustomButtonClick2} // Set the onClick handler for the CustomButton
       >
-      </Button>
+      </CustomButton>
     </CustomLayout>
   );
 };
@@ -129,40 +131,40 @@ const Tourist = () => {
         </h1>
       </div>
 
-      {/* Role Selection Buttons */}
+      {/* Role Selection CustomButtons */}
       <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <Button
+        <CustomButton
           type={role === "Tourist" ? "primary" : "default"}
           onClick={() => setRole("Tourist")}
           value="Tourist"
           size="m"
           style={{ margin: "10px" }}
         >
-        </Button>
-        <Button
+        </CustomButton>
+        <CustomButton
           type={role === "Tour Guide" ? "primary" : "default"}
           onClick={() => setRole("Tour Guide")}
           value="Tour Guide"
           size="m"
           style={{ margin: "10px" }}
         >
-        </Button>
-        <Button
+        </CustomButton>
+        <CustomButton
           type={role === "Seller" ? "primary" : "default"}
           onClick={() => setRole("Seller")}
           value="Seller"
           size="m"
           style={{ margin: "10px" }}
         >
-        </Button>
-        <Button
+        </CustomButton>
+        <CustomButton
           type={role === "Advertiser" ? "primary" : "default"}
           onClick={() => setRole("Advertiser")}
           value="Advertiser"
           size="m"
           style={{ margin: "10px" }}
         >
-        </Button>
+        </CustomButton>
       </div>
 
       <div
@@ -257,7 +259,7 @@ const Tourist = () => {
               span: 16,
             }}
           >
-            <Button
+            <CustomButton
               type="primary"
               htmlType="submit"
               value="Register"
@@ -265,7 +267,7 @@ const Tourist = () => {
               rounded={true}
               loading={false}
             >
-            </Button>
+            </CustomButton>
           </Form.Item>
 
         </Form>
@@ -303,40 +305,40 @@ const TourGuide = () => {
         </h1>
       </div>
 
-      {/* Role Selection Buttons */}
+      {/* Role Selection CustomButtons */}
       <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <Button
+        <CustomButton
           type={role === "Tourist" ? "primary" : "default"}
           onClick={() => setRole("Tourist")}
           value="Tourist"
           size="m"
           style={{ margin: "10px" }}
         >
-        </Button>
-        <Button
+        </CustomButton>
+        <CustomButton
           type={role === "Tour Guide" ? "primary" : "default"}
           onClick={() => setRole("Tour Guide")}
           value="Tour Guide"
           size="m"
           style={{ margin: "10px" }}
         >
-        </Button>
-        <Button
+        </CustomButton>
+        <CustomButton
           type={role === "Seller" ? "primary" : "default"}
           onClick={() => setRole("Seller")}
           value="Seller"
           size="m"
           style={{ margin: "10px" }}
         >
-        </Button>
-        <Button
+        </CustomButton>
+        <CustomButton
           type={role === "Advertiser" ? "primary" : "default"}
           onClick={() => setRole("Advertiser")}
           value="Advertiser"
           size="m"
           style={{ margin: "10px" }}
         >
-        </Button>
+        </CustomButton>
       </div>
 
       <div
@@ -390,7 +392,7 @@ const TourGuide = () => {
             extra="Upload the ID."
           >
             <Upload name="doc1" action="/upload.do" listType="text">
-              <Button icon={<UploadOutlined />}
+              <CustomButton icon={<UploadOutlined />}
                 size="m"
                 value="Upload"
               />
@@ -406,7 +408,7 @@ const TourGuide = () => {
             extra="Upload the certificates."
           >
             <Upload name="doc2" action="/upload.do" listType="text">
-              <Button icon={<UploadOutlined />}
+              <CustomButton icon={<UploadOutlined />}
                 size="m"
                 value="Upload"
               />
@@ -418,15 +420,15 @@ const TourGuide = () => {
               span: 16,
             }}
           >
-            <Button
+            <CustomButton
               type="primary" // Optionally, you can set this as needed
-              htmlType="submit" // Set the button type to submit
+              htmlType="submit" // Set the CustomButton type to submit
               size="s" // Use size 's' for small
-              value="Register" // Set the button text
+              value="Register" // Set the CustomButton text
               rounded={true} // Enable rounding
               loading={false} // Set loading state if necessary
             >
-            </Button>
+            </CustomButton>
           </Form.Item>
 
         </Form>
@@ -438,22 +440,6 @@ const TourGuide = () => {
 const Seller = () => {
   const navigate = useNavigate(); // Initialize useNavigate
   const { role, setRole } = useRole(); // Get role and setRole from context
-
-  const { sellers, dispatch } = useSellersContext()
-
-  useEffect(() => {
-    const fetchSellers = async () => {
-      const response = await fetch('/seller', sellerRouter)
-      const json = await response.json()
-
-      if (response.ok) {
-        dispatch({ type: 'SET_SELLER', payload: json })
-      }
-    }
-
-    fetchSellers()
-  }, [dispatch])
-
 
   const onFinish = (values) => {
     console.log("Success:", values);
@@ -478,40 +464,40 @@ const Seller = () => {
         </h1>
       </div>
 
-      {/* Role Selection Buttons */}
+      {/* Role Selection CustomButtons */}
       <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <Button
+        <CustomButton
           type={role === "Tourist" ? "primary" : "default"}
           onClick={() => setRole("Tourist")}
           value="Tourist"
           size="m"
           style={{ margin: "10px" }}
         >
-        </Button>
-        <Button
+        </CustomButton>
+        <CustomButton
           type={role === "Tour Guide" ? "primary" : "default"}
           onClick={() => setRole("Tour Guide")}
           value="Tour Guide"
           size="m"
           style={{ margin: "10px" }}
         >
-        </Button>
-        <Button
+        </CustomButton>
+        <CustomButton
           type={role === "Seller" ? "primary" : "default"}
           onClick={() => setRole("Seller")}
           value="Seller"
           size="m"
           style={{ margin: "10px" }}
         >
-        </Button>
-        <Button
+        </CustomButton>
+        <CustomButton
           type={role === "Advertiser" ? "primary" : "default"}
           onClick={() => setRole("Advertiser")}
           value="Advertiser"
           size="m"
           style={{ margin: "10px" }}
         >
-        </Button>
+        </CustomButton>
       </div>
 
       <div
@@ -565,7 +551,7 @@ const Seller = () => {
             extra="Upload the ID."
           >
             <Upload name="doc1" action="/upload.do" listType="text">
-              <Button icon={<UploadOutlined />}
+              <CustomButton icon={<UploadOutlined />}
                 size="m"
                 value="Upload"
               />
@@ -581,7 +567,7 @@ const Seller = () => {
             extra="Upload the taxation registery card."
           >
             <Upload name="doc2" action="/upload.do" listType="text">
-              <Button icon={<UploadOutlined />}
+              <CustomButton icon={<UploadOutlined />}
                 size="m"
                 value="Upload"
               />
@@ -594,16 +580,16 @@ const Seller = () => {
               span: 16,
             }}
           >
-            <Button
+            <CustomButton
               type="primary" // Optionally, you can set this as needed
-              htmlType="submit" // Set the button type to submit
+              htmlType="submit" // Set the CustomButton type to submit
               size="s" // Use size 's' for small
-              value="Register" // Set the button text
+              value="Register" // Set the CustomButton text
               rounded={true} // Enable rounding
               loading={false} // Set loading state if necessary
             >
 
-            </Button>
+            </CustomButton>
           </Form.Item>
 
         </Form>
@@ -639,40 +625,40 @@ const Advertiser = () => {
         </h1>
       </div>
 
-      {/* Role Selection Buttons */}
+      {/* Role Selection CustomButtons */}
       <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <Button
+        <CustomButton
           type={role === "Tourist" ? "primary" : "default"}
           onClick={() => setRole("Tourist")}
           value="Tourist"
           size="m"
           style={{ margin: "10px" }}
         >
-        </Button>
-        <Button
+        </CustomButton>
+        <CustomButton
           type={role === "Tour Guide" ? "primary" : "default"}
           onClick={() => setRole("Tour Guide")}
           value="Tour Guide"
           size="m"
           style={{ margin: "10px" }}
         >
-        </Button>
-        <Button
+        </CustomButton>
+        <CustomButton
           type={role === "Seller" ? "primary" : "default"}
           onClick={() => setRole("Seller")}
           value="Seller"
           size="m"
           style={{ margin: "10px" }}
         >
-        </Button>
-        <Button
+        </CustomButton>
+        <CustomButton
           type={role === "Advertiser" ? "primary" : "default"}
           onClick={() => setRole("Advertiser")}
           value="Advertiser"
           size="m"
           style={{ margin: "10px" }}
         >
-        </Button>
+        </CustomButton>
       </div>
 
       <div
@@ -726,7 +712,7 @@ const Advertiser = () => {
             extra="Upload the ID."
           >
             <Upload name="doc1" action="/upload.do" listType="text">
-              <Button icon={<UploadOutlined />}
+              <CustomButton icon={<UploadOutlined />}
                 size="m"
                 value="Upload"
               />
@@ -742,7 +728,7 @@ const Advertiser = () => {
             extra="Upload the taxation registery card."
           >
             <Upload name="doc2" action="/upload.do" listType="text">
-              <Button icon={<UploadOutlined />}
+              <CustomButton icon={<UploadOutlined />}
                 size="m"
                 value="Upload"
               />
@@ -756,15 +742,15 @@ const Advertiser = () => {
               span: 16,
             }}
           >
-            <Button
+            <CustomButton
               type="primary" // Optionally, you can set this as needed
-              htmlType="submit" // Set the button type to submit
+              htmlType="submit" // Set the CustomButton type to submit
               size="s" // Use size 's' for small
-              value="Register" // Set the button text
+              value="Register" // Set the CustomButton text
               rounded={true} // Enable rounding
               loading={false} // Set loading state if necessary
             >
-            </Button>
+            </CustomButton>
           </Form.Item>
 
         </Form>
@@ -857,8 +843,8 @@ const Product = () => {
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button type="default" htmlType="submit" value="Save" size={"m"}>
-            </Button>
+            <CustomButton type="default" htmlType="submit" value="Save" size={"m"}>
+            </CustomButton>
           </Form.Item>
         </Form>
       </div>
@@ -918,8 +904,8 @@ const DisplayForm = () => {
       />
 
       {isEditing && (
-        <Button type="primary" size="m" value="Update" onClick={handleSaveClick}>
-        </Button>
+        <CustomButton type="primary" size="m" value="Update" onClick={handleSaveClick}>
+        </CustomButton>
       )}
     </div>
   );
@@ -996,8 +982,8 @@ const CreateFormPage = () => {
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <Button type="default" htmlType="submit" value="Save" size={"m"}>
-            </Button>
+            <CustomButton type="default" htmlType="submit" value="Save" size={"m"}>
+            </CustomButton>
           </Form.Item>
         </Form>
       </div>
@@ -1057,17 +1043,17 @@ const SellerForm = () => {
                   />
                 </Form.Item>
               </Form>
-              <Button type="primary" value="Save" size="m" onClick={handleSaveClick}>
+              <CustomButton type="primary" value="Save" size="m" onClick={handleSaveClick}>
 
-              </Button>
+              </CustomButton>
             </div>
           ) : (
             <div>
               <p><strong>Name:</strong> {name}</p>
               <p><strong>Description:</strong> {description}</p>
-              <Button type="default" value="Update" size="m" onClick={handleUpdateClick}>
+              <CustomButton type="default" value="Update" size="m" onClick={handleUpdateClick}>
 
-              </Button>
+              </CustomButton>
             </div>
           )}
         </div>
@@ -1080,7 +1066,7 @@ const SellerForm = () => {
 
 
 // Replace RoleSelection with RoleFormPage
-const AppWrapper = () => (
+const AppWrapper2 = () => (
   <RoleProvider>
     <Router>
       <Routes>
@@ -1099,6 +1085,3 @@ const AppWrapper = () => (
     </Router>
   </RoleProvider>
 );
-
-
-export default AppWrapper;

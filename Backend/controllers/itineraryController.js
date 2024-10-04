@@ -102,6 +102,10 @@ exports.giveItineraryFeedback = async (req, res) => {
       return res.status(404).json({ message: 'Tourist not found' });
     }
 
+    if(tourist.gaveFeedback.includes(itineraryId)) {
+      return res.status(400).json({ message: 'Feedback already given' });
+    }
+
     //TODO if tourist booked itinerary on multiple occassions what will happen
     const itineraryBooking = tourist.itineraryBookings.find(
       booking => booking.itineraryId.toString() === itineraryId && booking.date < new Date()
@@ -118,6 +122,8 @@ exports.giveItineraryFeedback = async (req, res) => {
 
     // append the feedback to the itinerary
     itinerary.feedback.push({ rating, comments});
+    tourist.gaveFeedback.push(itineraryId);
+    await tourist.save();
 
     await itinerary.save();
 

@@ -1,97 +1,107 @@
 import logo from "./logo.svg";
 import "./App.css";
-import { Button, Search, CircularButton, CustomLayout } from "./Components";
 import { useState } from "react";
 import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  useNavigate,
+    BrowserRouter as Router,
+    Route,
+    Routes,
+    useNavigate,
 } from "react-router-dom";
+import CustomButton from "./Components/Common/CustomButton";
+import CustomLayout from "./Components/Common";
 import { BellFilled, UserOutlined } from "@ant-design/icons";
-import { IconButton, SideBar } from "./Components";
-import { Colors } from "./Components/Constants";
-import Profile from "./Components/Profile";
+import { IconButton, SideBar } from "./Components/Common";
+import { Colors } from "./Components/Common/Constants";
+import Profile from "./Components/Common/Profile";
 import Itineraries from "./Components/Itineraries";
 import Activities from "./Components/Activities";
+import Venues from "./Components/Venues";
+import BlankPage from "./Components/Blank"
+import SellerPage from "./Components/Seller/SellerPage";
+import CreateFormPage from "./Components/Seller/CreateSeller";
+import SellerForm from "./Components/Seller/SellerForm";
+import Product from "./Components/Seller/SellerProduct";
+import DisplayForm from "./Components/Seller/DisplayProduct";
+
+import ManageAccounts from "./manageAccounts";
+import AddAccounts from "./addAccounts";
+
+import ManageActivityCategories from "./manageActivityCategories";
+import ManagePreferenceTags from "./managePreferenceTags";
+import LandingPage from "./Components/LandingPage";
+import SignIn from "./Components/Sign/SignIn";
+import SignUp from "./Components/Sign/SignUp";
+import AuthLayout from "./Components/Sign/AuthLayout";
+import Tourist from "./Components/Tourist/Tourist";
+import Seller from "./Components/Seller/Seller";
+import { Flex, Layout, theme } from "antd";
+import TourGuide from "./Components/TourGuide/TourGuide";
+import Advertiser from "./Components/Advertiser/Advertiser";
+import Admin from "./Components/Admin/Admin";
+import { CardTemp } from "./Components/Tourist/CardTemp";
+import CustomCard from "./Components/Card";
+import AdminCustomLayout from "./Components/AdminCustomLayout";
+const { Header, Footer, Sider, Content } = Layout;
 
 function App() {
-  const [searchValue, setSearchValue] = useState("");
-  const navigate = useNavigate(); // Use navigate for routing
+    const [searchValue, setSearchValue] = useState("");
+    const navigate = useNavigate(); // Use navigate for routing
 
-  const testFunction = (param1, param2) => {
-    console.log(param1, param2);
-  };
+    const testFunction = (param1, param2) => {
+        console.log(param1, param2);
+    };
 
-  return (
-    <div className="App">
-      <Routes>
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/itineraries" element={<Itineraries />} />
-        <Route path="/activities" element={<Activities />} />
-        <Route
-          path="/"
-          element={
-            <CustomLayout>
-              <div>
-                <Button size={"s"} value={"Button"} rounded={false} />
-                <Button
-                  size={"s"}
-                  value={"Button"}
-                  rounded={true}
-                  onClick={() => testFunction(1, 2)}
-                  style={{ marginLeft: "40px" }}
-                />
-
-                <Button size={"m"} value={"Button"} rounded={false} />
-                <Button size={"m"} value={"Button"} rounded={true} />
-
-                <Button size={"l"} value={"Button"} rounded={false} />
-                <Button size={"l"} value={"Button"} rounded={true} />
-
-                <Search
-                  searchValue={searchValue}
-                  setSearchValue={setSearchValue}
-                  size={"l"}
-                  style={{ marginLeft: "40px" }}
-                />
-
-                <Search
-                  searchValue={searchValue}
-                  setSearchValue={setSearchValue}
-                  size={"s"}
-                  activateHover={false}
-                  style={{ marginLeft: "40px" }}
-                />
-
-                <Search
-                  searchValue={searchValue}
-                  setSearchValue={setSearchValue}
-                  size={"m"}
-                  activateHover={false}
-                  style={{ marginLeft: "40px" }}
-                />
-
-                <Search
-                  searchValue={searchValue}
-                  setSearchValue={setSearchValue}
-                  size={"l"}
-                  activateHover={false}
-                  style={{ marginLeft: "40px" }}
-                />
-              </div>
-            </CustomLayout>
-          }
-        />
-      </Routes>
-    </div>
-  );
+    return (
+        <div className="App">
+            <Layout>
+                <Content>
+                    <Routes>
+                        <Route
+                            path="/"
+                            element={
+                                <AuthLayout>
+                                    <LandingPage />
+                                </AuthLayout>
+                            }
+                        />
+                        <Route
+                            path="auth/*"
+                            element={
+                                <AuthLayout>
+                                    <Routes>
+                                        <Route path="signin" element={<SignIn />} />
+                                        <Route path="signup" element={<SignUp />} />
+                                    </Routes>
+                                </AuthLayout>
+                            }
+                        />
+                        <Route path="/tourist/*" element={<Tourist />} />
+                        <Route path="/tourGuide/*" element={<TourGuide />} />
+                        <Route path="/advertiser/*" element={<Advertiser />} />
+                        <Route path="/admin/*" element={<Admin />} />
+                        <Route path="/adminCustom" element={<SignUp />} /> {/* Signup page with RoleFormPage */}
+                        <Route path="/seller/*" element={<Seller />} />
+                        <Route path="/register-tourist" element={<Tourist />} /> {/* Tourist registration page */}
+                        <Route path="/blank" element={<BlankPage />} />
+                        <Route path="/seller" element={<SellerPage />} />
+                        <Route path="/createform" element={<CreateFormPage />} />
+                        <Route path="/seller-form" element={<SellerForm />} />
+                        <Route path="/product" element={<Product />} />
+                        <Route path="/display" element={<DisplayForm />} />
+                        <Route path="/register-guide" element={<TourGuide />} /> {/* TourGuide registration page */}
+                        <Route path="/register-seller" element={<Seller />} /> {/* Seller registration page */}
+                        <Route path="/register-advertiser" element={<Advertiser />} /> {/* Advertiser registration page */}
+                    </Routes>
+                </Content>
+            </Layout>
+        </div>
+    );
 }
 
 export default function AppWrapper() {
-  return (
-    <Router>
-      <App />
-    </Router>
-  );
+    return (
+        <Router>
+            <App />
+        </Router>
+    );
 }
