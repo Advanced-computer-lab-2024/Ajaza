@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Button, Typography, Modal, Input, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons'; // Importing the Plus icon
-import AdminCustomLayout from './Components/AdminCustomLayout';
+import AdminCustomLayout from './AdminCustomLayout';
 const { Title } = Typography;
 
 const ManagePreferenceTags = () => {
@@ -75,7 +75,7 @@ const ManagePreferenceTags = () => {
     message.success('Preference Tag added successfully!');
   };
 
-  return (<AdminCustomLayout>
+  return (
     <div>
       <Title level={2} style={{ display: 'inline-block' }}>Preference Tags</Title>
 
@@ -134,7 +134,7 @@ const ManagePreferenceTags = () => {
         />
       </Modal>
     </div>
- </AdminCustomLayout> );
+  );
 };
 
 export default ManagePreferenceTags;
