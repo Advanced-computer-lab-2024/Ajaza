@@ -96,16 +96,54 @@ exports.guestAdvertiserCreateProfile = async (req, res) => {
   }
 };
 
+//new req 8
+
+exports.createAdvertiserProfile = async (req, res) => {
+  try {
+    const { advertiserId } = req.params; 
+    const { link, hotline, companyProfile} = req.body;
+   
+  
+    const advertiser = await Advertiser.findById(advertiserId);
+    if (!advertiser) {
+      return res.status(404).json({ message: 'Advertiser not found.' });
+    }
+    if(advertiser.pending){
+      return res.status(400).json({ message: 'Waiting for admin approval.' });
+    }
+    if(!advertiser.acceptedTerms){
+      return res.status(400).json({ message: 'Terms and Conditions must be accepted.' });
+
+    }
+
+    advertiser.link = link;
+    advertiser.hotline = hotline;
+    advertiser.companyProfile = companyProfile;
+
+    const updatedAdvertiser = await advertiser.save();
+
+    res.status(200).json(updatedAdvertiser);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
 
 
-//new
+//--req8
 exports.advertiserReadProfile = async (req, res) => {
   try {
     const advertiserProfile = await Advertiser.findById(req.params.id)
       .select('-pass -taxationRegCard -pending -notifications -acceptedTerms');
+      const advertiser = await Advertiser.findById(req.params.id);
 
     if (!advertiserProfile) {
       return res.status(404).json({ message: 'Advertiser not found' });
+    }
+    if (!advertiser.acceptedTerms) {
+      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+    }
+    if ( advertiser.pending) {
+      return res.status(400).json({ message: 'The profile is still pending approval.' });
     }
     res.status(200).json(advertiserProfile);
   }
@@ -113,6 +151,7 @@ exports.advertiserReadProfile = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // admin delete advertisers requesting deletion
 exports.deleteAdvertisersRequestingDeletion = async (req, res) => {
@@ -133,7 +172,7 @@ exports.deleteAdvertisersRequestingDeletion = async (req, res) => {
   }
 };
 
-//new
+//new req 8
 exports.advertiserUpdateProfile = async (req, res) => {
 
   const allowedFields = ['email', 'link', 'hotline', 'companyProfile'];
@@ -147,9 +186,18 @@ exports.advertiserUpdateProfile = async (req, res) => {
 
   try {
     const updatedAdvertiser = await Advertiser.findByIdAndUpdate(req.params.id, filteredBody, { new: true });
+    const advertiser = await Advertiser.findById(req.params.id);
+
     if (!updatedAdvertiser) {
       return res.status(404).json({ message: 'Advertiser not found' });
     }
+    if (!advertiser.acceptedTerms) {
+      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+    }
+    if ( advertiser.pending) {
+      return res.status(400).json({ message: 'The profile is still pending approval.' });
+    }
+
     res.status(200).json(updatedAdvertiser);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -162,56 +210,20 @@ exports.advertiserUpdateProfile = async (req, res) => {
 
 
 
-// Get the profile of the authenticated advertiser (Profile Retrieval) OLD
-exports.getAdvertiserProfile = async (req, res) => {
-  try {
-      const advertiserId = req.user.userId; // Use userId from the JWT token
 
-      const advertiserProfile = await Advertiser.findById(advertiserId).select(
-          '-pass -pending -acceptedTerms -notifications -requestingDeletion'
-      );
-
-      if (!advertiserProfile) {
-          return res.status(404).json({ message: 'Advertiser not found' });
-      }
-
-      res.status(200).json(advertiserProfile);
-  } catch (error) {
-      res.status(500).json({ error: error.message });
-  }
-};
-// Update profile (Profile Update) OLD
-exports.updateAdvertiserProfile = async (req, res) => {
-    try {
-        const advertiserId = req.user.userId;
-        if (req.body.pass) {
-            req.body.pass = await bcrypt.hash(req.body.pass, 10);
-        }
-        
-        // Update the guide's profile
-        await Advertiser.findByIdAndUpdate(advertiserId, req.body);
-
-        // Retrieve the updated guide's profile, filtering out sensitive fields
-        const updatedAdvertiser = await Advertiser.findById(advertiserId).select(
-            '-pass -pending -acceptedTerms -notifications -requestingDeletion'
-        );
-
-        if (!updatedAdvertiser) {
-            return res.status(404).json({ message: 'Advertiser not found' });
-        }
-
-        res.status(200).json(updatedAdvertiser);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
 
 //---req 26-----
 exports.getAdvertiserActivities = async (req, res) => {
   try {
     const { advertiserId } = req.params;
     const activities = await Activity.find({ advertiserId });
-
+    const advertiser = await Advertiser.findById(advertiserId);
+    if (!advertiser.acceptedTerms) {
+      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+    }
+    if ( advertiser.pending) {
+      return res.status(400).json({ message: 'The profile is still pending approval.' });
+    }
     if (!activities || activities.length === 0) {
       return res.status(404).json({ message: 'No activities found for this advertiser' });
     }

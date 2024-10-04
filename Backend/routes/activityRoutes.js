@@ -40,17 +40,9 @@ router.post(
 );
 
 // req19
-router.post(
-  "/createSpecifiedActivity",
-  activityController.createSpecifiedActivity
-);
-router.get(
-  "/readActivities/:advertiserId",
-  activityController.readActivitiesOfAdvertiser
-);
-router.delete(
-  "/deleteSpecificActivity/:id",
-  activityController.deleteSpecificActivity
-);
+router.post('/createSpecifiedActivity/:advertiserId', activityController.createSpecifiedActivity);
+router.get('/readActivities/:advertiserId', activityController.readActivitiesOfAdvertiser);
+router.delete('/deleteSpecificActivity/:advertiserId/:activityId', activityController.deleteSpecificActivity);
+router.put('/updateActivityFilteredFields/:advertiser/:activityId', activityController.updateActivityFilteredFields);
 
 module.exports = router;
