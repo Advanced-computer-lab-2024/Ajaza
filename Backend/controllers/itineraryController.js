@@ -157,7 +157,16 @@ exports.getUpcomingItineraries = async (req, res) => {
       hidden: false,
     })
       .populate("guideId")
-      .populate("timeline.id");
+      .populate({
+        path: "timeline.id",
+        model: function (doc) {
+          return doc.type === "Activity" ? "Activity" : "Venue";
+        },
+      });
+
+    if(!itineraries || itineraries.length === 0) {
+      return res.status(404).json({ message: "No upcoming itineraries found" });
+    }
 
     res.status(200).json(itineraries);
   } catch (error) {

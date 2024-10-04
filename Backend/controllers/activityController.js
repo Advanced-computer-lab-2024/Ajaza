@@ -289,16 +289,18 @@ exports.deleteSpecificActivity = async (req, res) => {
     // Fetch all tourists
     const tourists = await Tourist.find();
 
+    if(activity.date > new Date()) {
     // Check if any tourist has a booking for this activity
-    for (const tourist of tourists) {
-      const hasBooking = tourist.activityBookings.some(
-        (booking) => booking.activityId.toString() === activityId
-      );
+      for (const tourist of tourists) {
+        const hasBooking = tourist.activityBookings.some(
+          (booking) => booking.activityId.toString() === activityId
+        );
 
-      if (hasBooking) {
-        return res.status(400).json({
-          message: "Cannot delete activity; there are existing bookings.",
-        });
+        if (hasBooking) {
+          return res.status(400).json({
+            message: "Cannot delete activity; there are existing bookings.",
+          });
+        }
       }
     }
 
@@ -323,6 +325,10 @@ exports.getUpcomingActivities = async (req, res) => {
       date: { $gte: currentDate },
       hidden: false,
     });
+
+    if(!upcomingActivities || upcomingActivities.length === 0){
+      return res.status(404).json({ message: "No upcoming activities found" });
+    }
 
     res.status(200).json(upcomingActivities);
   } catch (error) {

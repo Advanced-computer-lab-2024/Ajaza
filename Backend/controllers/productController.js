@@ -14,10 +14,13 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-// Get all products
+// Get all products req81
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find({hidden: { $ne: true }/*, archived: { $ne: true },*/});
+    if(!products || products.length === 0){
+      return res.status(404).json({ message: "No products found" });
+    }
     res.status(200).json(products);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -290,6 +293,8 @@ exports.searchProduct = async (req, res) => {
   try {
     const products = await Product.find({
       name: { $regex: req.query.name, $options: "i" },
+      hidden: { $ne: true },
+      /*archived: { $ne: true },*/
     });
     if (products.length === 0) {
       return res.status(404).json({ message: "No products found" });
