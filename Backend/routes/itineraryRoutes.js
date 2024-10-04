@@ -23,4 +23,19 @@ router.post(
   itineraryController.giveItineraryFeedback
 );
 
+/*--req20--- 
+params:name,
+      timeline,
+      language,
+      price,
+      availableDateTime,
+      accessibility,
+      pickUp,
+      dropOff,
+      maxTourists*/
+router.post('/createSpecifiedItinerary/:guideId', itineraryController.createSpecifiedItinerary);
+router.get('/readItinerariesOfGuide/:guideId', itineraryController.readItinerariesOfGuide);
+router.patch('/updateItineraryFilteredFields/:guideId/:itineraryId', itineraryController.updateItineraryFilteredFields);
+router.delete('/deleteSpecificItinerary/:guideId/:itineraryId', itineraryController.deleteSpecificItinerary);
+
 module.exports = router;
