@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Typography, Modal, Input, message } from "antd";
 import { PlusOutlined } from "@ant-design/icons"; // Importing the Plus icon
-import AdminCustomLayout from "./Components/AdminCustomLayout";
-import { Search } from "./Components/Common";
+import AdminCustomLayout from "./AdminCustomLayout";
+import { Search } from "../Common";
 
 const { Title } = Typography;
 
@@ -84,7 +84,8 @@ const ManageActivityCategories = () => {
   };
 
   return (
-    // <AdminCustomLayout>
+     
+      <div>
     <div>
       <Title level={2} style={{ display: "inline-block" }}>
         Activity Categories
@@ -173,8 +174,8 @@ const ManageActivityCategories = () => {
       </Modal>
       <Search />
     </div>
-    // </AdminCustomLayout>);
-  );
+    </div>);
+  
 };
 
 export default ManageActivityCategories;

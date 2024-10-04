@@ -24,12 +24,13 @@ export const TouristProfile = () => {
   };
 
   return (
-    <div className={styles.cardContainer}>
+     <div className={styles.cardContainer}>
       <CardTemp
         outerTitle="Profile Details"
         cardsData={cards}
         onUpdate={updateTouristProfile}
       />
     </div>
+    
   );
 };
