@@ -374,4 +374,28 @@ exports.deleteSpecificActivity = async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   };
+
+  //requirement 44
+
+  exports.getUpcomingActivities = async (req, res) => {
+    try {
+      const currentDate = new Date();
+      console.log("Current Date:", currentDate); // Log the current date
+  
+      // Find activities with dates greater than or equal to the current date and hidden is false
+      const upcomingActivities = await Activity.find({
+        date: { $gte: currentDate },
+        hidden: false,
+      });
+  
+      if(!upcomingActivities || upcomingActivities.length === 0){
+        return res.status(404).json({ message: "No upcoming activities found" });
+      }
+  
+      res.status(200).json(upcomingActivities);
+    } catch (error) {
+      console.error("Error in getUpcomingActivities:", error); // Log the error
+      res.status(500).json({ error: error.message });
+    }
+  };
   
