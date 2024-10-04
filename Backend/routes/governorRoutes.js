@@ -25,10 +25,10 @@ router.delete('/deleteGov/:id', governorController.deleteGovernor);
  update: in the url write the id of the venue and in the body give the governor id + the fields u want to update
  delete: in the url write the id of the venue and in the body provide the governor id 
 */
-router.post('/createGovernorVenue', governorController.createGovernorVenue); 
-router.get('/readAllGovernorVenues', governorController.readAllGovernorVenues); 
-router.put('/updateGovernorVenue/:id', governorController.updateGovernorVenue);
-router.delete('/deleteGovernorVenue/:id', governorController.deleteGovernorVenue); 
+router.post('/createGovernorVenue/:governorId', governorController.createGovernorVenue); 
+router.get('/readAllGovernorVenues/:governorId', governorController.readAllGovernorVenues); 
+router.put('/updateGovernorVenue/:governorId/:venueId', governorController.updateGovernorVenue);
+router.delete('/deleteGovernorVenue/:governorId/:venueId', governorController.deleteGovernorVenue); 
 
 // req 17 ng
 router.post('/addGovernor', uniqueUsername, governorController.adminAddGovernor);
@@ -44,4 +44,5 @@ router.delete('/deleteGovernorFromSystem/:id', governorController.adminDeletesGo
 router.patch('/acceptTerms/:id', governorController.acceptTerms);
 
 
+router.post('/createTagForVenue/:governorId/:venueId', governorController.createTagForVenue);
 module.exports = router;

@@ -35,7 +35,7 @@ router.get('/advertiserReadProfile/:id', advertiserController.advertiserReadProf
 
 // Update the profile of the authenticated advertiser
 router.patch('/advertiserUpdateProfile/:id',advertiserController.advertiserUpdateProfile);
-
+router.post('/createAdvertiserProfile/:advertiserId',advertiserController.createAdvertiserProfile);
 
 //----req26---
 router.get('/getMyActivities/:advertiserId', advertiserController.getAdvertiserActivities);
