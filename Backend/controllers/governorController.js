@@ -249,3 +249,18 @@ exports.adminDeletesGovernorFromSystem = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+exports.acceptTerms = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await Governor.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    user.acceptedTerms = true;
+    await user.save();
+    res.status(200).json({ message: 'Terms accepted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

@@ -35,6 +35,17 @@ exports.getActivityById = async (req, res) => {
   }
 };
 
+// Get group of activities by ID
+exports.getActivitiesByIds = async (req, res) => {
+  try {
+    const { activityIds } = req.body;
+    const activities = await Activity.find({ _id: { $in: activityIds } });
+    res.status(200).json(activities);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Update activity by ID
 exports.updateActivity = async (req, res) => {
   try {

@@ -41,6 +41,9 @@ router.delete('/deleteSomeGuides', guideController.adminDeletesGuides);
 //delete off system
 router.delete('/deleteGuideFromSystem/:id', guideController.adminDeletesGuideFromSystem);
 
+router.patch('/acceptTerms/:id', guideController.acceptTerms);
+
+
 
 
 module.exports = router;

@@ -41,4 +41,7 @@ router.post('/createTagForVenue', governorController.createTagForVenue);
 //delete from system
 router.delete('/deleteGovernorFromSystem/:id', governorController.adminDeletesGovernorFromSystem);
 
+router.patch('/acceptTerms/:id', governorController.acceptTerms);
+
+
 module.exports = router;

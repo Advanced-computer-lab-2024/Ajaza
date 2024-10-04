@@ -37,4 +37,7 @@ router.delete('/deleteSomeSellers', sellerController.adminDeletesSellers);
 //delete off system
 router.delete('/deleteSellerFromSystem/:id', sellerController.adminDeletesSellerFromSystem);
 
+router.patch('/acceptTerms/:id', sellerController.acceptTerms);
+
+
 module.exports = router;

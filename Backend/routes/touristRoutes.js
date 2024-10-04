@@ -101,5 +101,8 @@ router.delete('/deleteSomeTourists', touristController.adminDeletesTourists);
 //delete off system
 router.delete('/deleteTouristFromSystem/:id', touristController.adminDeletesTouristFromSystem);
 
+router.patch('/acceptTerms/:id', touristController.acceptTerms);
+
+
 
 module.exports = router;

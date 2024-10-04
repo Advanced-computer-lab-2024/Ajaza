@@ -47,4 +47,6 @@ router.delete('/deleteSomeAdvertisers', advertiserController.adminDeletesAdverti
 //delete off system
 router.delete('/deleteAdvertiserFromSystem/:id', advertiserController.adminDeletesAdvertiserFromSystem);
 
+router.patch('/acceptTerms/:id', advertiserController.acceptTerms);
+
 module.exports = router;
