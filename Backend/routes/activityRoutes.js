@@ -43,6 +43,6 @@ router.post(
 router.post('/createSpecifiedActivity/:advertiserId', activityController.createSpecifiedActivity);
 router.get('/readActivities/:advertiserId', activityController.readActivitiesOfAdvertiser);
 router.delete('/deleteSpecificActivity/:advertiserId/:activityId', activityController.deleteSpecificActivity);
-router.put('/updateActivityFilteredFields/:advertiser/:activityId', activityController.updateActivityFilteredFields);
+router.put('/updateActivityFilteredFields/:advertiserId/:activityId', activityController.updateActivityFilteredFields);
 
 module.exports = router;
