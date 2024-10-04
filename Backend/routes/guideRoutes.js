@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const guideController = require('../controllers/guideController');
+const uploadPhotoImage = require('../middleware/uploadImage');
+const validateEmail = require('../middleware/validateEmail');
+const uniqueUsername = require("../middleware/uniqueUsername");
+
 
 router.post('/', guideController.createGuide);
 
@@ -17,15 +21,27 @@ router.delete('/deleteGuides', guideController.deleteGuidesRequestingDeletion);
 
 // req52 & req53
 router.post('/:touristId/guide/:itineraryId/feedback', guideController.giveGuideFeedback);
-
+//req 7 
+router.post('/addGuide',guideController.createGuideProfile);
+router.get('/getGuideProfile/:id', guideController.getGuideProfile);
+router.put('/updateGuideProfile/:id', guideController.updateGuideProfile);
 
 
 
 //req5  -- Tatos
-router.post('/guestGuideCreateProfile', guideController.guestGuideCreateProfile);    // Guest Guide sign up
+router.post('/guestGuideCreateProfile',validateEmail,uniqueUsername, guideController.guestGuideCreateProfile);    // Guest Guide sign up
+
+//req 26
+router.get('/getMyItineraries/:guideId', guideController.getGuideItineraries);
 
 
+router.delete('/deleteSomeGuides', guideController.adminDeletesGuides);
 
+
+//delete off system
+router.delete('/deleteGuideFromSystem/:id', guideController.adminDeletesGuideFromSystem);
+
+router.patch('/acceptTerms/:id', guideController.acceptTerms);
 
 
 

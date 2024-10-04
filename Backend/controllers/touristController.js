@@ -2,6 +2,7 @@ const Tourist = require('../models/Tourist');
 const Activity = require('../models/Activity');
 const Itinerary = require('../models/Itinerary');
 const nodemailer = require('nodemailer');
+const bcrypt = require('bcrypt');
 
 function isAdult(dob) {
   // Convert the dob string to a Date object
@@ -85,9 +86,6 @@ exports.deleteTourist = async (req, res) => {
 // tourist updates his profile req11 TESTED
 exports.touristUpdateProfile = async (req, res) => {
 
-  //authentication middleware
-  //validation middleware
-
   const allowedFields = ['email', 'mobile', 'nationality', 'occupation'];
 
   const filteredBody = Object.keys(req.body)
@@ -98,31 +96,30 @@ exports.touristUpdateProfile = async (req, res) => {
     }, {});
 
   try {
-    const updatedTourist = await Tourist.findByIdAndUpdate(req.params.id, filteredBody, { new: true });
+    const updatedTourist = await Tourist.findByIdAndUpdate(req.params.id, filteredBody, { new: true, runValidators: true });
     if (!updatedTourist) {
       return res.status(404).json({ message: 'Tourist not found' });
     }
-    res.status(200).json(updatedTourist);
+    updatedTourist.pass = undefined;
+    res.status(201).json(updatedTourist);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
 //tourist read profile req11 TESTED
 exports.touristReadProfile = async (req, res) => {
 
-  //authentication middleware
-
   try {
     const touristProfile = await Tourist.findById(req.params.id)
-      .select('-pass -activityBookings -itineraryBookings -activityBookmarks -itineraryBookmarks -notifications -totalPoints -wishlist -cart -orders -deliveryAddresses -usedPromoCodes');
+      .select('-pass');
 
     if (!touristProfile) {
       return res.status(404).json({ message: 'Tourist not found' });
     }
-    res.status(200).json(touristProfile);
+    res.status(201).json(touristProfile);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -531,16 +528,22 @@ exports.guestTouristCreateProfile = async (req, res) => {
 
   // Filter the request body
   const filteredBody = {};
-  allowedFields.forEach(field => { // Loop through the allowed fields
-    if (req.body[field] !== undefined) { // Check if the field exists in the request body
-      filteredBody[field] = req.body[field]; // Add the field to the filtered body
+  allowedFields.forEach(field => {
+    if (req.body[field] !== undefined) {
+      filteredBody[field] = req.body[field];
     }
   });
 
   try {
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(filteredBody.pass, saltRounds);
+
+    filteredBody.pass = hashedPassword;
+
     const tourist = new Tourist(filteredBody);
-    const savedtourist = await tourist.save();
-    res.status(201).json(savedtourist);
+    const savedTourist = await tourist.save();
+    savedTourist.pass = undefined;
+    res.status(201).json(savedTourist);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -562,6 +565,53 @@ exports.deleteTouristsRequestingDeletion = async (req, res) => {
     res.status(200).json({ message: 'Tourists deleted successfully' });
   } catch (error) {
     console.error('Error deleting tourists:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.adminDeletesTourists = async (req, res) => {
+  const touristIds = req.body.touristIds;
+  if(!touristIds || !touristIds.length) {
+    return res.status(400).json({ error: 'Tourist IDs are required' });
+  }
+  try {
+    const result = await Tourist.deleteMany({ _id: { $in: touristIds }, requestingDeletion: true});
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: 'Tourists selected were not requesting deletion' });
+    }
+    res.status(200).json({ message: 'Tourists deleted successfully', result });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.adminDeletesTouristFromSystem = async (req, res) => {
+  const touristId = req.params.id;
+  if(!touristId) {
+    return res.status(400).json({ error: 'Tourist ID is required' });
+  }
+  try {
+    const deletedtourist = await Tourist.findByIdAndDelete(touristId);
+    if (!deletedtourist) {
+      return res.status(404).json({ message: 'Tourist not found' });
+    }
+    res.status(200).json({ message: 'Tourist deleted successfully' });
+  } catch(error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.acceptTerms = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await Tourist.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    user.acceptedTerms = true;
+    await user.save();
+    res.status(200).json({ message: 'Terms accepted successfully' });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };

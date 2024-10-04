@@ -4,6 +4,8 @@ const Governor = require('../models/Governor');
 const Seller = require('../models/Seller');
 const Tourist = require('../models/Tourist');
 const Guide = require('../models/Guide');
+const bcrypt = require('bcrypt');
+
 
 
 // Create a new admin
@@ -66,5 +68,25 @@ exports.deleteAdmin = async (req, res) => {
   }
 };
 
+// req 17 ng
+//admin adds another admin
+exports.adminAddAdmin = async (req, res) => {
 
+  const { username, pass } = req.body;
 
+  if (!username || !pass) {
+    return res.status(400).json({ message: 'Username and pass are required.' });
+  }
+
+  const saltRounds = 10;
+  const hashedPass = await bcrypt.hash(pass, saltRounds);
+
+  try {
+    const newadmin = new Admin({ username, pass: hashedPass });
+    const savedadmin = await newadmin.save();
+    savedadmin.pass = undefined;
+    res.status(201).json(savedadmin);
+  } catch (error) {
+    res.status(400).json({error: error.message });
+  }
+};

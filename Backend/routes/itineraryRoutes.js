@@ -1,22 +1,26 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const itineraryController = require('../controllers/itineraryController');
+const itineraryController = require("../controllers/itineraryController");
 
-router.post('/', itineraryController.createItinerary);
+router.post("/", itineraryController.createItinerary);
 
-router.get('/', itineraryController.getAllItineraries);
+router.get("/", itineraryController.getAllItineraries);
+//req44
+router.get("/upcomingItineraries", itineraryController.getUpcomingItineraries);
 
-router.get('/:id', itineraryController.getItineraryById);
+router.get("/:id", itineraryController.getItineraryById);
 
-router.patch('/:id', itineraryController.updateItinerary);
+router.patch("/:id", itineraryController.updateItinerary);
 
-router.delete('/:id', itineraryController.deleteItinerary);
+router.delete("/:id", itineraryController.deleteItinerary);
 
 // req37
-router.get('/searchForThis/searchAgain', itineraryController.searchByName); 
+router.get("/searchForThis/searchAgain", itineraryController.searchByName);
 
 // req54 & req55
-router.post('/:touristId/itinerary/:itineraryId/feedback', itineraryController.giveItineraryFeedback);
-
+router.post(
+  "/:touristId/itinerary/:itineraryId/feedback",
+  itineraryController.giveItineraryFeedback
+);
 
 module.exports = router;
