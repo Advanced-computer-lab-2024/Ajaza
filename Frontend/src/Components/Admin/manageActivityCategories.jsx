@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"; 
+import axios from "axios";
 import { Card, Button, Typography, Modal, Input, message } from "antd";
-import { PlusOutlined } from "@ant-design/icons"; // Importing the Plus icon
-import AdminCustomLayout from "./AdminCustomLayout";
-import { Search } from "../Common";
+import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
@@ -12,95 +11,110 @@ const ManageActivityCategories = () => {
   const [currentCategory, setCurrentCategory] = useState(null);
   const [updatedName, setUpdatedName] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
-  const [addingCategory, setAddingCategory] = useState(false); // State to control adding category
+  const [addingCategory, setAddingCategory] = useState(false);
 
-  // Dummy data for demonstration
-  const dummyData = [
-    { id: 1, name: "Outdoor Activities" },
-    { id: 2, name: "Indoor Activities" },
-    { id: 3, name: "Water Sports" },
-  ];
-
+  // Fetch categories from the server
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch(
-          "https://api.example.com/activity-categories"
-        );
-        if (!response.ok) throw new Error("Failed to fetch categories");
-
-        const data = await response.json();
-        setCategories(data);
+        const response = await axios.get("http://localhost:5000/category");
+        setCategories(response.data);
       } catch (error) {
         console.error(error);
-        setCategories(dummyData);
+        message.error("Failed to load categories.");
       }
     };
 
     fetchCategories();
   }, []);
 
+  // Show update modal and set the selected category
   const showUpdateModal = (category) => {
     setCurrentCategory(category);
-    setUpdatedName(category.name);
+    setUpdatedName(category.category);
     setIsModalVisible(true);
   };
 
-  const handleUpdate = () => {
+  // Handle update category
+  const handleUpdate = async () => {
     if (!updatedName) {
       message.error("Please provide a name for the category.");
       return;
     }
 
-    const updatedCategories = categories.map((category) =>
-      category.id === currentCategory.id
-        ? { ...category, name: updatedName }
-        : category
-    );
-    setCategories(updatedCategories);
-    setIsModalVisible(false);
-    message.success("Category updated successfully!");
+    try {
+      await axios.patch(`http://localhost:5000/category/${currentCategory._id}`, {
+        category: updatedName,
+      });
+
+      const updatedCategories = categories.map((category) =>
+        category._id === currentCategory._id
+          ? { ...category, category: updatedName }
+          : category
+      );
+      setCategories(updatedCategories);
+      setIsModalVisible(false);
+      message.success("Category updated successfully!");
+    } catch (error) {
+      console.error(error);
+      message.error("Failed to update category.");
+    }
   };
 
-  const handleDelete = (categoryId) => {
-    const updatedCategories = categories.filter(
-      (category) => category.id !== categoryId
-    );
-    setCategories(updatedCategories);
-    message.success("Category deleted successfully!");
+  // Handle delete category
+  const handleDelete = async (categoryId) => {
+    try {
+      await axios.delete(`http://localhost:5000/category/${categoryId}`);
+      const updatedCategories = categories.filter(
+        (category) => category._id !== categoryId
+      );
+      setCategories(updatedCategories);
+      message.success("Category deleted successfully!");
+    } catch (error) {
+      console.error(error);
+      message.error("Failed to delete category.");
+    }
   };
 
-  const handleAddCategory = () => {
+  // Handle add new category
+  const handleAddCategory = async () => {
     if (!newCategoryName) {
       message.error("Please provide a name for the new category.");
       return;
     }
 
-    const newCategory = { id: Date.now(), name: newCategoryName }; // Temporary ID for demonstration
-    setCategories([...categories, newCategory]);
-    setNewCategoryName("");
-    setAddingCategory(false); // Close the input field
-    message.success("Category added successfully!");
+    try {
+      const response = await axios.post("http://localhost:5000/category", {
+        category: newCategoryName,
+      });
+
+      if (response.status === 201) {
+        setCategories([...categories, response.data]);
+        setNewCategoryName("");
+        setAddingCategory(false);
+        message.success("Category added successfully!");
+      }
+    } catch (error) {
+      console.error(error);
+      message.error("Failed to add category.");
+    }
   };
 
   return (
-     
-      <div>
     <div>
       <Title level={2} style={{ display: "inline-block" }}>
         Activity Categories
       </Title>
 
+      {/* Updated Add Category Functionality Positioned Below Title */}
       <div
         style={{
-          position: "absolute",
-          top: "16px",
-          right: "16px",
+          marginTop: "16px",
+          marginBottom: "24px",
           display: "flex",
           alignItems: "center",
         }}
       >
-        {/* Input field for adding a new category */}
         {addingCategory && (
           <div
             style={{
@@ -113,7 +127,7 @@ const ManageActivityCategories = () => {
               value={newCategoryName}
               onChange={(e) => setNewCategoryName(e.target.value)}
               placeholder="Enter new category name"
-              style={{ width: "200px", marginRight: "8px" }} // Set a width for the input
+              style={{ width: "200px", marginRight: "8px" }}
             />
             <Button type="primary" onClick={handleAddCategory}>
               Add
@@ -121,11 +135,10 @@ const ManageActivityCategories = () => {
           </div>
         )}
 
-        {/* Button for adding a new category */}
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={() => setAddingCategory(!addingCategory)} // Toggle input on click
+          onClick={() => setAddingCategory(!addingCategory)}
         >
           Add Category
         </Button>
@@ -136,30 +149,28 @@ const ManageActivityCategories = () => {
           display: "flex",
           flexWrap: "wrap",
           gap: "16px",
-          marginTop: "80px",
         }}
       >
         {categories.map((category) => (
-          <Card key={category.id} title={category.name} style={{ width: 300 }}>
-            <Button type="primary" onClick={() => showUpdateModal(category)}>
-              Update
-            </Button>
+          <Card key={category._id} title={category.category} style={{ width: 300 }}>
             <Button
-              type="default"
-              onClick={() => handleDelete(category.id)}
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => showUpdateModal(category)}
+            />
+            <Button
+              type="text"
+              icon={<DeleteOutlined />}
+              onClick={() => handleDelete(category._id)}
               style={{
                 marginLeft: "8px",
-                backgroundColor: "blue",
-                color: "white",
-              }} // Set the background color to blue
-            >
-              Delete
-            </Button>
+                color: "red",
+              }}
+            />
           </Card>
         ))}
       </div>
 
-      {/* Modal for updating category */}
       <Modal
         title="Update Category"
         visible={isModalVisible}
@@ -172,10 +183,8 @@ const ManageActivityCategories = () => {
           placeholder="Enter new category name"
         />
       </Modal>
-      <Search />
     </div>
-    </div>);
-  
+  );
 };
 
 export default ManageActivityCategories;

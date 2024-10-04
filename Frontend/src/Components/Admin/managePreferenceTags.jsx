@@ -1,126 +1,172 @@
-import React, { useEffect, useState } from 'react';
-import { Card, Button, Typography, Modal, Input, message } from 'antd';
-import { PlusOutlined } from '@ant-design/icons'; // Importing the Plus icon
-import AdminCustomLayout from './AdminCustomLayout';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Card, Button, Typography, Modal, Input, message } from "antd";
+import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+
 const { Title } = Typography;
 
 const ManagePreferenceTags = () => {
   const [categories, setCategories] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [currentCategory, setCurrentCategory] = useState(null);
-  const [updatedName, setUpdatedName] = useState('');
-  const [newCategoryName, setNewCategoryName] = useState('');
-  const [addingCategory, setAddingCategory] = useState(false); // State to control adding category
+  const [currenttag, setCurrenttag] = useState(null);
+  const [updatedName, setUpdatedName] = useState("");
+  const [newtagName, setNewtagName] = useState("");
+  const [addingtag, setAddingtag] = useState(false);
 
-  // Dummy data for demonstration
-  const dummyData = [
-    { id: 1, name: 'Outdoor Activities' },
-    { id: 2, name: 'Indoor Activities' },
-    { id: 3, name: 'Water Sports' },
-  ];
-
+  // Fetch categories from the server
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('https://api.example.com/activity-categories');
-        if (!response.ok) throw new Error('Failed to fetch tags');
-
-        const data = await response.json();
-        setCategories(data);
+        const response = await axios.get("http://localhost:5000/tag");
+        setCategories(response.data);
       } catch (error) {
         console.error(error);
-        setCategories(dummyData);
+        message.error("Failed to load preference tags.");
       }
     };
 
     fetchCategories();
   }, []);
 
-  const showUpdateModal = (category) => {
-    setCurrentCategory(category);
-    setUpdatedName(category.name);
+  // Show update modal and set the selected tag
+  const showUpdateModal = (tag) => {
+    setCurrenttag(tag);
+    setUpdatedName(tag.tag);
     setIsModalVisible(true);
   };
 
-  const handleUpdate = () => {
+  // Handle update tag
+  const handleUpdate = async () => {
     if (!updatedName) {
-      message.error('Please provide a name for the preference Tag.');
+      message.error("Please provide a name for the Preference Tag.");
       return;
     }
 
-    const updatedCategories = categories.map(category =>
-      category.id === currentCategory.id ? { ...category, name: updatedName } : category
-    );
-    setCategories(updatedCategories);
-    setIsModalVisible(false);
-    message.success('Preference Tag updated successfully!');
+    try {
+      await axios.patch(`http://localhost:5000/tag/${currenttag._id}`, {
+        tag: updatedName,
+      });
+
+      const updatedCategories = categories.map((tag) =>
+        tag._id === currenttag._id ? { ...tag, tag: updatedName } : tag
+      );
+      setCategories(updatedCategories);
+      setIsModalVisible(false);
+      message.success("Preference Tag updated successfully!");
+    } catch (error) {
+      console.error(error);
+      message.error("Failed to update Preference Tag.");
+    }
   };
 
-  const handleDelete = (categoryId) => {
-    const updatedCategories = categories.filter(category => category.id !== categoryId);
-    setCategories(updatedCategories);
-    message.success('Preference Tag deleted successfully!');
+  // Handle delete tag
+  const handleDelete = async (tagId) => {
+    try {
+      await axios.delete(`http://localhost:5000/tag/${tagId}`);
+      const updatedCategories = categories.filter((tag) => tag._id !== tagId);
+      setCategories(updatedCategories);
+      message.success("Preference Tag deleted successfully!");
+    } catch (error) {
+      console.error(error);
+      message.error("Failed to delete preference tag.");
+    }
   };
 
-  const handleAddCategory = () => {
-    if (!newCategoryName) {
-      message.error('Please provide a name for the new preference tag.');
+  // Handle add new tag
+  const handleAddtag = async () => {
+    if (!newtagName) {
+      message.error("Please provide a name for the new preference tag.");
       return;
     }
 
-    const newCategory = { id: Date.now(), name: newCategoryName }; // Temporary ID for demonstration
-    setCategories([...categories, newCategory]);
-    setNewCategoryName('');
-    setAddingCategory(false); // Close the input field
-    message.success('Preference Tag added successfully!');
+    try {
+      const response = await axios.post("http://localhost:5000/tag", {
+        tag: newtagName,
+      });
+
+      if (response.status === 201) {
+        setCategories([...categories, response.data]);
+        setNewtagName("");
+        setAddingtag(false);
+        message.success("Preference Tag added successfully!");
+      }
+    } catch (error) {
+      console.error(error);
+      message.error("Failed to add tag.");
+    }
   };
 
   return (
     <div>
-      <Title level={2} style={{ display: 'inline-block' }}>Preference Tags</Title>
+      <Title level={2} style={{ display: "inline-block" }}>
+        Preference Tags
+      </Title>
 
-      <div style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', alignItems: 'center' }}>
-        {/* Input field for adding a new category */}
-        {addingCategory && (
-          <div style={{ marginRight: '8px', display: 'flex', alignItems: 'center' }}>
+      {/* Updated Add Tag Functionality Positioned Below Title */}
+      <div
+        style={{
+          marginTop: "16px",
+          marginBottom: "24px",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        {addingtag && (
+          <div
+            style={{
+              marginRight: "8px",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
             <Input
-              value={newCategoryName}
-              onChange={(e) => setNewCategoryName(e.target.value)}
-              placeholder="Enter new Preference Tag"
-              style={{ width: '200px', marginRight: '8px' }} // Set a width for the input
+              value={newtagName}
+              onChange={(e) => setNewtagName(e.target.value)}
+              placeholder="Enter new tag name"
+              style={{ width: "200px", marginRight: "8px" }}
             />
-            <Button type="primary" onClick={handleAddCategory}>
+            <Button type="primary" onClick={handleAddtag}>
               Add
             </Button>
           </div>
         )}
 
-        {/* Button for adding a new category */}
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={() => setAddingCategory(!addingCategory)} // Toggle input on click
+          onClick={() => setAddingtag(!addingtag)}
         >
-          Add Preference Tag
+          Add Tag
         </Button>
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '80px' }}>
-        {categories.map(category => (
-          <Card key={category.id} title={category.name} style={{ width: 300 }}>
-            <Button type="primary" onClick={() => showUpdateModal(category)}>Update</Button>
-            <Button 
-              type="default" 
-              onClick={() => handleDelete(category.id)} 
-              style={{ marginLeft: '8px', backgroundColor: 'blue', color: 'white' }} // Set the background color to blue
-            >
-              Delete
-            </Button>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "16px",
+        }}
+      >
+        {categories.map((tag) => (
+          <Card key={tag._id} title={tag.tag} style={{ width: 300 }}>
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => showUpdateModal(tag)}
+            />
+            <Button
+              type="text"
+              icon={<DeleteOutlined />}
+              onClick={() => handleDelete(tag._id)}
+              style={{
+                marginLeft: "8px",
+                color: "red",
+              }}
+            />
           </Card>
         ))}
       </div>
 
-      {/* Modal for updating category */}
       <Modal
         title="Update Preference Tag"
         visible={isModalVisible}
@@ -130,7 +176,7 @@ const ManagePreferenceTags = () => {
         <Input
           value={updatedName}
           onChange={(e) => setUpdatedName(e.target.value)}
-          placeholder="Enter new Preference Tag"
+          placeholder="Enter new preference tag name"
         />
       </Modal>
     </div>
