@@ -275,3 +275,23 @@ exports.adminDeletesSellers = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+exports.adminDeletesSellerFromSystem = async (req, res) => {
+  const sellerId = req.params.id;
+  if(!sellerId) {
+    return res.status(400).json({ error: 'Seller ID is required' });
+  }
+  try {
+    const result = await Product.updateMany(
+      { sellerId: sellerId }, // Find all activities with this sellerId
+      { $set: { hidden: true } }      // Set hidden field to true
+    );
+    const deletedseller = await Seller.findByIdAndDelete(sellerId);
+    if (!deletedseller) {
+      return res.status(404).json({ message: 'Seller not found' });
+    }
+    res.status(200).json({ message: 'Seller deleted successfully', result });
+  } catch(error) {
+    res.status(400).json({ error: error.message });
+  }
+};

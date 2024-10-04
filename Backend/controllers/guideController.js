@@ -296,3 +296,23 @@ exports.adminDeletesGuides = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+exports.adminDeletesGuideFromSystem = async (req, res) => {
+  const guideId = req.params.id;
+  if(!guideId) {
+    return res.status(400).json({ error: 'Guide ID is required' });
+  }
+  try {
+    const result = await Itinerary.updateMany(
+      { guideId: guideId }, // Find all activities with this guideId
+      { $set: { hidden: true } }      // Set hidden field to true
+    );
+    const deletedguide = await Guide.findByIdAndDelete(guideId);
+    if (!deletedguide) {
+      return res.status(404).json({ message: 'Guide not found' });
+    }
+    res.status(200).json({ message: 'Guide deleted successfully', result });
+  } catch(error) {
+    res.status(400).json({ error: error.message });
+  }
+};

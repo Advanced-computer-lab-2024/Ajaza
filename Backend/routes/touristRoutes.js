@@ -98,4 +98,8 @@ router.post('/guestTouristCreateProfile', validateEmail, validateMobile, uniqueU
 router.delete('/deleteSomeTourists', touristController.adminDeletesTourists);
 
 
+//delete off system
+router.delete('/deleteTouristFromSystem/:id', touristController.adminDeletesTouristFromSystem);
+
+
 module.exports = router;

@@ -585,3 +585,19 @@ exports.adminDeletesTourists = async (req, res) => {
   }
 };
 
+exports.adminDeletesTouristFromSystem = async (req, res) => {
+  const touristId = req.params.id;
+  if(!touristId) {
+    return res.status(400).json({ error: 'Tourist ID is required' });
+  }
+  try {
+    const deletedtourist = await Tourist.findByIdAndDelete(touristId);
+    if (!deletedtourist) {
+      return res.status(404).json({ message: 'Tourist not found' });
+    }
+    res.status(200).json({ message: 'Tourist deleted successfully' });
+  } catch(error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+

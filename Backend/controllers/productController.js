@@ -149,6 +149,16 @@ exports.adminSellerAddProduct = async (req, res) => {
     // Check if the ID is a seller ID
     const seller = await Seller.findById(id);
     if (seller) {
+      if(seller.requestingDeletion){
+        return res.status(403).json({ error: "Seller is requesting deletion" });
+      }
+      if(seller.pending){
+        return res.status(403).json({ error: "Seller is pending approval" });
+      }
+      if(seller.acceptedTerms === false){
+        return res.status(403).json({ error: "Seller has not accepted the terms" });
+      }
+
       isSeller = true;
       // If the ID is a seller ID, add the sellerId and sellerName to the product
       filteredBody.sellerId = id;
@@ -202,6 +212,12 @@ exports.adminSellerEditProduct = async (req, res) => {
     const seller = await Seller.findById(id);
     if (seller) {
       isSeller = true;
+      if(seller.pending){
+        return res.status(403).json({ error: "Seller is pending approval" });
+      }
+      if(seller.acceptedTerms === false){
+        return res.status(403).json({ error: "Seller has not accepted the terms" });
+      }
     } else {
       // If not a seller, check if the ID is an admin ID
       const admin = await Admin.findById(id);

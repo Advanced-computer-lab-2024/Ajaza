@@ -38,5 +38,9 @@ router.get('/getMyItineraries/:guideId', guideController.getGuideItineraries);
 router.delete('/deleteSomeGuides', guideController.adminDeletesGuides);
 
 
+//delete off system
+router.delete('/deleteGuideFromSystem/:id', guideController.adminDeletesGuideFromSystem);
+
+
 
 module.exports = router;

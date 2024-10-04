@@ -43,4 +43,8 @@ router.get('/getMyActivities/:advertiserId', advertiserController.getAdvertiserA
 
 router.delete('/deleteSomeAdvertisers', advertiserController.adminDeletesAdvertisers)
 
+
+//delete off system
+router.delete('/deleteAdvertiserFromSystem/:id', advertiserController.adminDeletesAdvertiserFromSystem);
+
 module.exports = router;

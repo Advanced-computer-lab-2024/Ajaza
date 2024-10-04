@@ -33,4 +33,8 @@ router.delete('/sellerDeleteHimself/:id',sellerController.sellerDeleteHimself); 
 
 router.delete('/deleteSomeSellers', sellerController.adminDeletesSellers);
 
+
+//delete off system
+router.delete('/deleteSellerFromSystem/:id', sellerController.adminDeletesSellerFromSystem);
+
 module.exports = router;

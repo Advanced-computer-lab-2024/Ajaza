@@ -237,3 +237,23 @@ exports.adminDeletesAdvertisers = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+exports.adminDeletesAdvertiserFromSystem = async (req, res) => {
+  const advertiserId = req.params.id;
+  if(!advertiserId) {
+    return res.status(400).json({ error: 'Advertiser ID is required' });
+  }
+  try {
+    const result = await Activity.updateMany(
+      { advertiserId: advertiserId }, // Find all activities with this advertiserId
+      { $set: { hidden: true } }      // Set hidden field to true
+    );
+    const deletedAdvertiser = await Advertiser.findByIdAndDelete(advertiserId);
+    if (!deletedAdvertiser) {
+      return res.status(404).json({ message: 'Advertiser not found' });
+    }
+    res.status(200).json({ message: 'Advertiser deleted successfully', result });
+  } catch(error) {
+    res.status(400).json({ error: error.message });
+  }
+};
