@@ -1,6 +1,8 @@
-const Activity = require("../models/Activity");
-const Advertiser = require("../models/Advertiser");
-const Tourist = require("../models/Tourist");
+const Activity = require('../models/Activity');
+const Advertiser = require('../models/Advertiser');
+const Tourist = require('../models/Tourist');
+const mongoose = require("mongoose");
+
 // Create a new activity
 exports.createActivity = async (req, res) => {
   try {
@@ -226,39 +228,39 @@ exports.createTransportation = async (req, res) => {
   }
 };
 // -- req 19 ---
-exports.createSpecifiedActivity = async (req, res) => {
-  try {
-    const {
-      advertiserId,
-      name,
-      date,
-      upper,
-      lower,
-      location,
-      price,
-      category,
-      tags,
-      discounts,
-      isOpen,
-      spots,
-    } = req.body;
-
-    // Create a new activity
-    const newActivity = new Activity({
-      advertiserId,
-      name,
-      date,
-      location,
-      upper,
-      lower,
-      price,
-      category,
-      tags,
-      discounts,
-      isOpen,
-      spots,
-      hidden: false,
-    });
+  exports.createSpecifiedActivity = async (req, res) => {
+    try {
+        const {advertiserId} =req.params;
+        const { name, date,upper,lower, location, price, category, tags, discounts, isOpen,spots } = req.body;
+       /* const advertiser = await Advertiser.findById(advertiserId);
+        if (!advertiser) {
+          return res.status(404).json({ message: 'Advertiser not found' });
+        }
+        if (advertiser.requestingDeletion) {
+          return res.status(400).json({ message: 'There is a deletion request. Cant Create Activity' });
+        }
+        if (advertiser.acceptedTerms== false) {
+          return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+        }
+        if ( advertiser.pending==true) {
+          return res.status(400).json({ message: 'The profile is still pending approval.' });
+        }
+          */
+        const newActivity = new Activity({
+            advertiserId,
+            name,
+            date,
+            location,
+            upper,
+            lower,
+            price,
+            category,
+            tags,
+            discounts,
+            isOpen,
+            spots,
+            hidden: false
+        });
 
     const savedActivity = await newActivity.save();
     res.status(201).json(savedActivity);
@@ -267,66 +269,133 @@ exports.createSpecifiedActivity = async (req, res) => {
   }
 };
 exports.readActivitiesOfAdvertiser = async (req, res) => {
-  try {
-    const { advertiserId } = req.params; // Get advertiserId from the URL
-
-    const activities = await Activity.find({ advertiserId, hidden: false });
-    res.status(200).json(activities);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    try {
+        const { advertiserId } = req.params; 
+        /*const advertiser = await Advertiser.findById(advertiserId);
+        if (!advertiser) {
+          return res.status(404).json({ message: 'Advertiser not found' });
+        }
+        if (!advertiser.acceptedTerms) {
+          return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+        }
+        if ( advertiser.pending) {
+          return res.status(400).json({ message: 'The profile is still pending approval.' });
+        }*/
+        const activities = await Activity.find({ advertiserId, hidden: false });
+        
+        if (!activities || activities.length === 0) {
+          return res.status(404).json({ message: 'No activities found for this advertiser.' });
+        }
+        res.status(200).json(activities);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 };
 exports.deleteSpecificActivity = async (req, res) => {
   try {
-    const activityId = req.params.id;
-
-    // Check if the activity exists
-    const activity = await Activity.findById(activityId);
-    if (!activity) {
-      return res.status(404).json({ message: "Activity not found" });
+    const { advertiserId, activityId } = req.params; 
+    /*const advertiser = await Advertiser.findById(advertiserId);
+    if (!advertiser) {
+      return res.status(404).json({ message: 'Advertiser not found' });
     }
-
-    // Fetch all tourists
+    if (!advertiser.acceptedTerms) {
+      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+    }
+    if ( advertiser.pending) {
+      return res.status(400).json({ message: 'The profile is still pending approval.' });
+    }*/
+      const activity = await Activity.findOne({ _id: activityId, advertiserId: advertiserId });
+      if (!activity) {
+      return res.status(404).json({ message: 'Activity not found or you are not authorized to delete it.' });
+    }
     const tourists = await Tourist.find();
-
-    // Check if any tourist has a booking for this activity
     for (const tourist of tourists) {
       const hasBooking = tourist.activityBookings.some(
         (booking) => booking.activityId.toString() === activityId
       );
 
       if (hasBooking) {
-        return res.status(400).json({
-          message: "Cannot delete activity; there are existing bookings.",
-        });
+        return res.status(400).json({ message: 'Cannot delete activity; there are existing bookings.' });
       }
     }
 
-    // If no bookings exist, hide the activity
     activity.hidden = true;
     await activity.save();
 
-    res.status(200).json({ message: "Activity is now removed." });
+    res.status(200).json({ message: 'Activity is now marked as hidden.' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-//req 44
-exports.getUpcomingActivities = async (req, res) => {
-  try {
-    const currentDate = new Date();
-    console.log("Current Date:", currentDate); // Log the current date
+  
+  exports.updateActivityFilteredFields = async (req, res) => {
+    try {
+      const { advertiserId, activityId } = req.params; 
+      const {
+        date,
+        time,
+        location,
+        price,
+        category,
+        tags,
+        discounts
+      } = req.body; 
+      /*const advertiser = await Advertiser.findById(advertiserId);
+      if (!advertiser) {
+        return res.status(404).json({ message: 'Advertiser not found' });
+      }
+      if (!advertiser.acceptedTerms) {
+        return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+      }
+      if (advertiser.pending) {
+        return res.status(400).json({ message: 'The profile is still pending approval.' });
+      }*/
+       // Log IDs for debugging
+   
+       const activity = await Activity.findOne({_id: activityId, advertiserId: advertiserId});
+       if (!activity) {
+        return res.status(404).json({ message: 'Activity not found or you are not authorized to update it.' });
+      }
+  
+      // updating only the allowed fields
+      if (date) activity.date = date;
+      if (time) activity.time = time; 
+      if (location) activity.location = location;
+      if (price) activity.price = price;
+      if (category) activity.category = category;
+      if (tags) activity.tags = tags;
+      if (discounts) activity.discounts = discounts;
+  
+      const updatedActivity = await activity.save();
+  
+      res.status(200).json(updatedActivity);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
 
-    // Find activities with dates greater than or equal to the current date and hidden is false
-    const upcomingActivities = await Activity.find({
-      date: { $gte: currentDate },
-      hidden: false,
-    });
+  //requirement 44
 
-    res.status(200).json(upcomingActivities);
-  } catch (error) {
-    console.error("Error in getUpcomingActivities:", error); // Log the error
-    res.status(500).json({ error: error.message });
-  }
-};
+  exports.getUpcomingActivities = async (req, res) => {
+    try {
+      const currentDate = new Date();
+      console.log("Current Date:", currentDate); // Log the current date
+  
+      // Find activities with dates greater than or equal to the current date and hidden is false
+      const upcomingActivities = await Activity.find({
+        date: { $gte: currentDate },
+        hidden: false,
+      });
+  
+      if(!upcomingActivities || upcomingActivities.length === 0){
+        return res.status(404).json({ message: "No upcoming activities found" });
+      }
+  
+      res.status(200).json(upcomingActivities);
+    } catch (error) {
+      console.error("Error in getUpcomingActivities:", error); // Log the error
+      res.status(500).json({ error: error.message });
+    }
+  };
+  

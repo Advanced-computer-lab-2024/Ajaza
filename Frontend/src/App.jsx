@@ -38,8 +38,7 @@ import Advertiser from "./Components/Advertiser/Advertiser";
 import TourismGovernor from "./Components/TourismGovernor/TourismGovernor";
 import Admin from "./Components/Admin/Admin";
 import AddAccounts from "./Components/Admin/addAccounts";
-// import { CardTemp } from "../Components/Tourist/CardTemp";
-// import CustomCard from "./Components/Card";
+
 //import AdminCustomLayout from "./Components/Admin/AdminCustomLayout";
 const { Header, Footer, Sider, Content } = Layout;
 
