@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const activityController = require("../controllers/activityController");
+const mongoose = require("mongoose");
 
 router.post("/", activityController.createActivity);
 
