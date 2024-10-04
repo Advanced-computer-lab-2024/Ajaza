@@ -32,5 +32,6 @@ export const TouristProfile = () => {
       />
     </div>
     
+    
   );
 };
