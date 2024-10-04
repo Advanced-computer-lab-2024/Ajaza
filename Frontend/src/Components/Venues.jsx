@@ -56,7 +56,7 @@ const Venues = () => {
     const createVenue = async (values) => {
         try {
             const newVenue = {
-                governorId: userid,
+                // governorId: userid,
                 name: values.name,
                 desc: values.desc,
                 location: values.location,
@@ -84,7 +84,7 @@ const Venues = () => {
                 pictures: fileList.map(file => file.originFileObj),
             };
 
-            const response = await apiClient.post("governor/createGovernorVenue", newVenue);
+            const response = await apiClient.post(`governor/createGovernorVenue/${userid}`, newVenue);
             setVenuesData([...venuesData, response.data]);
             message.success("Venue created successfully!");
             setIsModalVisible(false);
@@ -152,7 +152,7 @@ const Venues = () => {
         updatedData.governorId = userid; // Include governorId
 
         try {
-            const response = await apiClient.put(`governor/updateGovernorVenue/${editingVenueId}`, updatedData);
+            const response = await apiClient.put(`governor/updateGovernorVenue/${userid}/${editingVenueId}`, updatedData);
             setVenuesData(
                 venuesData.map((venue) => (venue._id === editingVenueId ? response.data : venue))
             );
@@ -174,7 +174,7 @@ const Venues = () => {
             onOk: async () => {
                 try {
                     const governorId = userid;
-                    await apiClient.delete(`governor/deleteGovernorVenue/${id}`, { data: { governorId } });
+                    await apiClient.delete(`governor/deleteGovernorVenue/${userid}/${id}`);
                     setVenuesData(venuesData.filter((venue) => venue._id !== id));
                     message.success("Venue deleted successfully!");
                 } catch (error) {
@@ -223,7 +223,7 @@ const Venues = () => {
                 return;
             }
     
-            const response = await apiClient.post("governor/createTagForVenue", {
+            const response = await apiClient.post(`governor/createTagForVenue/${userid}/${venueId}`, {
                 venueId,
                 tag: newTag, // Ensure this is a valid tag from validTags in the backend
                 preferenceTags: preferenceTagsArray, // This should be an array
@@ -278,7 +278,7 @@ const Venues = () => {
                                     <p>Opening Hours:</p>
                                         <ul>
                                             <li>Sunday: {venue.openingHours.suno} - {venue.openingHours.sunc}</li>
-                                            <li>Monday: {venue.openingHours.mono} - {venue.openingHours.mnc}</li>
+                                            <li>Monday: {venue.openingHours.mono} - {venue.openingHours.monc}</li>
                                             <li>Tuesday: {venue.openingHours.tueo} - {venue.openingHours.tuec}</li>
                                             <li>Wednesday: {venue.openingHours.wedo} - {venue.openingHours.wedc}</li>
                                             <li>Thursday: {venue.openingHours.thuo} - {venue.openingHours.thuc}</li>
