@@ -21,11 +21,11 @@ import Itineraries from "./Components/Itineraries";
 import Activities from "./Components/Activities";
 import Venues from "./Components/Venues";
 
-import ManageAccounts from "./manageAccounts";
-import AddAccounts from "./addAccounts";
+//import ManageAccounts from "./manageAccounts";
+//import AddAccounts from "./addAccounts";
 
-import ManageActivityCategories from "./manageActivityCategories";
-import ManagePreferenceTags from "./managePreferenceTags";
+//import ManageActivityCategories from "./Components/Admin/manageActivityCategories";
+//import ManagePreferenceTags from "./Components/Admin/managePreferenceTags";
 import LandingPage from "./Components/LandingPage";
 import SignIn from "./Components/Sign/SignIn";
 import SignUp from "./Components/Sign/SignUp";
@@ -37,9 +37,9 @@ import TourGuide from "./Components/TourGuide/TourGuide";
 import Advertiser from "./Components/Advertiser/Advertiser";
 import TourismGovernor from "./Components/TourismGovernor/TourismGovernor";
 import Admin from "./Components/Admin/Admin";
-import { CardTemp } from "./Components/Tourist/CardTemp";
-import CustomCard from "./Components/Card";
-import AdminCustomLayout from "./Components/AdminCustomLayout";
+import AddAccounts from "./Components/Admin/addAccounts";
+
+//import AdminCustomLayout from "./Components/Admin/AdminCustomLayout";
 const { Header, Footer, Sider, Content } = Layout;
 
 function App() {
@@ -77,7 +77,8 @@ function App() {
             <Route path="/tourist/*" element={<Tourist />} />
             <Route path="/tourGuide/*" element={<TourGuide />} />
             <Route path="/advertiser/*" element={<Advertiser />} />
-            <Route path="/admin/*" element={<Admin />} />
+             <Route path="/admin/*" element={<Admin />} /> 
+
             <Route path="/seller/*" element={<Seller />} />
             <Route path="/tourismGovernor/*" element={<TourismGovernor />} />
 

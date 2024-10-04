@@ -148,28 +148,23 @@ exports.deleteGovernorVenue = async (req, res) => {
 
 // admin create a new governor
 exports.adminAddGovernor = async (req, res) => {
-  const { username, password } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Username and password are required.' });
+  const { username, pass } = req.body;
+
+  if (!username || !pass) {
+    return res.status(400).json({ message: 'Username and pass are required.' });
   }
 
+  const saltRounds = 10;
+  const hashedPass = await bcrypt.hash(pass, saltRounds);
+
   try {
-    const existingGovernor = await Governor.findOne({ username });
-    if (existingGovernor) {
-      return res.status(400).json({ message: 'Username is already taken.' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newGovernor = new Governor({ username, pass: hashedPassword });
-
+    const newGovernor = new Governor({ username, pass: hashedPass });
     const savedGovernor = await newGovernor.save();
-    
-    res.status(201).json({ message: 'Governor created successfully', governor: savedGovernor });
+    savedGovernor.pass = undefined;
+    res.status(201).json(savedGovernor);
   } catch (error) {
-    console.error('Error while saving the Governor:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(400).json({error: error.message });
   }
 };
 
@@ -230,6 +225,41 @@ exports.createTagForVenue = async (req, res) => {
     await venue.save();
 
     res.status(200).json({ message: 'Tag and preference tags added to venue successfully', tag: newTag, venue });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.adminDeletesGovernorFromSystem = async (req, res) => {
+  const governorId = req.params.id;
+  if(!governorId) {
+    return res.status(400).json({ error: 'Governor ID is required' });
+  }
+  try {
+    const result = await Venue.updateMany(
+      { governorId: governorId }, // Find all activities with this governorId
+      { $set: { isVisible: false } }      // Set hidden field to true
+    );
+    const deletedgovernor = await Governor.findByIdAndDelete(governorId);
+    if (!deletedgovernor) {
+      return res.status(404).json({ message: 'Governor not found' });
+    }
+    res.status(200).json({ message: 'Governor deleted successfully', result });
+  } catch(error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.acceptTerms = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await Governor.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    user.acceptedTerms = true;
+    await user.save();
+    res.status(200).json({ message: 'Terms accepted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

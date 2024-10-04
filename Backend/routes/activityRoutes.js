@@ -6,6 +6,8 @@ router.post("/", activityController.createActivity);
 
 router.get("/", activityController.getAllActivities);
 
+router.get("/group/byIds", activityController.getActivitiesByIds);
+
 //req44
 router.get("/upcomingActivities", activityController.getUpcomingActivities);
 
