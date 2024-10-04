@@ -46,7 +46,4 @@ router.get('/readActivities/:advertiserId', activityController.readActivitiesOfA
 router.delete('/deleteSpecificActivity/:advertiserId/:activityId', activityController.deleteSpecificActivity);
 router.put('/updateActivityFilteredFields/:advertiser/:activityId', activityController.updateActivityFilteredFields);
 
-
-
-
 module.exports = router;

@@ -36,7 +36,7 @@ router.post('/addGovernor', uniqueUsername, governorController.adminAddGovernor)
 router.get('/getMyVenues/:governorId', governorController.getGovernorVenues);
 
 //--req 22--- body: venue id w tag w preference tag (u can put empty array [])
-router.post('/createTagForVenue', governorController.createTagForVenue);
+router.post('/createTagForVenue/:governorId/:venueId', governorController.createTagForVenue);
 
 //delete from system
 router.delete('/deleteGovernorFromSystem/:id', governorController.adminDeletesGovernorFromSystem);

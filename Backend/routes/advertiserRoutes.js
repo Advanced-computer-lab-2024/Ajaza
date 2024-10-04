@@ -37,6 +37,7 @@ router.get('/advertiserReadProfile/:id', advertiserController.advertiserReadProf
 router.patch('/advertiserUpdateProfile/:id',advertiserController.advertiserUpdateProfile);
 router.post('/createAdvertiserProfile/:advertiserId',advertiserController.createAdvertiserProfile);
 
+
 //----req26---
 router.get('/getMyActivities/:advertiserId', advertiserController.getAdvertiserActivities);
 

@@ -239,6 +239,7 @@ exports.getGuideProfile = async (req, res) => {
 };
 
 
+
 // Update profile by ID (Profile Update)
 exports.updateGuideProfile = async (req, res) => {
   try {
@@ -268,7 +269,6 @@ exports.updateGuideProfile = async (req, res) => {
   }
 };
 
-
 //--req26---
 exports.getGuideItineraries = async (req, res) => {
   try {
@@ -296,6 +296,7 @@ exports.getGuideItineraries = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 exports.adminDeletesGuides = async (req, res) => {
   const guideIds = req.body.guideIds;

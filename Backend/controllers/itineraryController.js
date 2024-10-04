@@ -1,5 +1,5 @@
-const Itinerary = require('../models/Itinerary');
-const Tourist = require('../models/Tourist');
+const Itinerary = require("../models/Itinerary");
+const Tourist = require("../models/Tourist");
 const Guide = require('../models/Guide');
 
 // Create a new itinerary
@@ -148,6 +148,7 @@ exports.giveItineraryFeedback = async (req, res) => {
   }
 };
 
+
 //--req 20---
 exports.createSpecifiedItinerary = async (req, res) => {
   try {
@@ -197,8 +198,6 @@ exports.createSpecifiedItinerary = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
-
 exports.readItinerariesOfGuide = async (req, res) => {
   try {
     const { guideId } = req.params; // Get guideId from the URL
@@ -223,7 +222,6 @@ exports.readItinerariesOfGuide = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 exports.updateItineraryFilteredFields = async (req, res) => {
   try {
@@ -268,7 +266,6 @@ exports.updateItineraryFilteredFields = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 exports.deleteSpecificItinerary = async (req, res) => {
   try {

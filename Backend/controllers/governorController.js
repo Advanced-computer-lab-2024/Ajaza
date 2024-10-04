@@ -65,6 +65,7 @@ exports.deleteGovernor = async (req, res) => {
   }
 };
 
+
 // Create a new venue --- req 21------
 
 exports.createGovernorVenue = async (req, res) => {
@@ -93,6 +94,7 @@ exports.createGovernorVenue = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Read all visible venues with specific details
 exports.readAllGovernorVenues = async (req, res) => {
@@ -244,7 +246,6 @@ exports.createTagForVenue = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 exports.adminDeletesGovernorFromSystem = async (req, res) => {
   const governorId = req.params.id;
   if(!governorId) {

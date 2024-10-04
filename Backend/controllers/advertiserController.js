@@ -96,8 +96,6 @@ exports.guestAdvertiserCreateProfile = async (req, res) => {
   }
 };
 
-
-
 //new req 8
 
 exports.createAdvertiserProfile = async (req, res) => {
@@ -129,6 +127,8 @@ exports.createAdvertiserProfile = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+
 //--req8
 exports.advertiserReadProfile = async (req, res) => {
   try {
@@ -151,6 +151,7 @@ exports.advertiserReadProfile = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // admin delete advertisers requesting deletion
 exports.deleteAdvertisersRequestingDeletion = async (req, res) => {
@@ -202,6 +203,12 @@ exports.advertiserUpdateProfile = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+
+
+
 
 
 

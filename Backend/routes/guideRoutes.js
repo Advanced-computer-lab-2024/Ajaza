@@ -28,6 +28,7 @@ router.put('/updateGuideProfile/:id', guideController.updateGuideProfile);
 
 
 
+
 //req5  -- Tatos
 router.post('/guestGuideCreateProfile',validateEmail,uniqueUsername, guideController.guestGuideCreateProfile);    // Guest Guide sign up
 

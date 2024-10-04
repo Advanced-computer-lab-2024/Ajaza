@@ -16,6 +16,7 @@
 
 //   const [cards, setCards] = useState(initialCards);
 
+
 //   const updateTouristProfile = (cardId, newContent) => {
 //     const updatedCards = cards.map((card) =>
 //       card._id === cardId ? { ...card, content: newContent } : card
@@ -32,3 +33,4 @@
 //     </div>
 //   );
 // };
+
