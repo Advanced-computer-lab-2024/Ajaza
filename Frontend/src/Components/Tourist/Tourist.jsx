@@ -8,7 +8,7 @@ import CustomLayout from "../Common/CustomLayout";
 import { Form, Input } from "antd";
 import { DatePicker, Select, message } from "antd";
 import { useRole } from "../Sign/SignUp"; // Adjust path if needed
-import { TouristProfile } from "./TouristProfile";
+import TouristProfile from "./TouristProfile";
 import Profile from "../Common/Profile";
 import Plans from "./Plans";
 import { jwtDecode } from "jwt-decode";
