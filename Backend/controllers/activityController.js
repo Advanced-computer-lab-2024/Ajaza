@@ -1,6 +1,7 @@
 const Activity = require("../models/Activity");
 const Advertiser = require("../models/Advertiser");
 const Tourist = require("../models/Tourist");
+const Tag = require("../models/Tag");
 // Create a new activity
 exports.createActivity = async (req, res) => {
   try {
@@ -254,6 +255,10 @@ exports.createSpecifiedActivity = async (req, res) => {
         return res.status(400).json({ message: 'The profile is still pending approval.' });
       }
         */
+
+      const tagObjects = await Tag.find({ _id: { $in: tags } });
+      const tagNames = tagObjects.map(tag => tag.tag);
+
       const newActivity = new Activity({
           advertiserId,
           name,
@@ -263,7 +268,7 @@ exports.createSpecifiedActivity = async (req, res) => {
           lower,
           price,
           category,
-          tags,
+          tags: tagNames,
           discounts,
           isOpen,
           spots,
@@ -372,7 +377,7 @@ exports.updateActivityFilteredFields = async (req, res) => {
     if (location) activity.location = location;
     if (price) activity.price = price;
     if (category) activity.category = category;
-    if (tags) activity.tags = tags;
+    if (tags) {const tagNames = await Tag.find({ _id: { $in: tags } }, 'tag').lean(); const tagNamesArray = tagNames.map(tag => tag.tag); activity.tags = tagNamesArray; }
     if (discounts) activity.discounts = discounts;
 
     const updatedActivity = await activity.save();

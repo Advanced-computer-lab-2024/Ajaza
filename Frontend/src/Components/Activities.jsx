@@ -20,6 +20,7 @@ const Activities = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingActivityId, setEditingActivityId] = useState(null);
     const [categories, setCategories] = useState([]);
+    const [tags, setTags] = useState([]);
     const [form] = Form.useForm();
     
     let decodedToken = null;
@@ -51,9 +52,21 @@ const Activities = () => {
         }
     };
 
+    const fetchTags = async () => {
+        try {
+            const response = await apiClient.get("tag");
+            setTags(response.data);
+            console.log(response.data)
+    } catch (error) {
+            console.error("Error fetching tags:", error);
+            setTags([]);
+        }
+    };
+
     useEffect(() => {
         fetchActivities();
         fetchCategories();
+        fetchTags();
     }, []);
 
     const createActivity = async (values) => {
@@ -66,7 +79,7 @@ const Activities = () => {
                 upper: values.upper,
                 lower: values.lower,
                 category: values.category,
-                tags: values.tags.split(",").map((tag) => tag.trim()),
+                tags: values.tags,
                 discounts: values.discounts,
                 spots: values.spots,
                 isOpen: values.isOpen,
@@ -128,6 +141,7 @@ const Activities = () => {
     };
 
     const showModal = () => {
+        setEditingActivityId(null);
         setIsModalVisible(true);
         form.resetFields();
     };
@@ -141,7 +155,7 @@ const Activities = () => {
             upper: activity.upper,
             lower: activity.lower,
             category: activity.category,
-            tags: activity.tags.join(", "),
+            tags: activity.tags,
             discounts: activity.discounts,
             spots: activity.spots,
             isOpen: activity.isOpen,
@@ -183,8 +197,8 @@ const Activities = () => {
                                         <p><strong>Date:</strong> {new Date(activity.date).toLocaleDateString()}</p>
                                         <p><strong>Upper Limit:</strong> {activity.upper}</p>
                                         <p><strong>Lower Limit:</strong> {activity.lower}</p>
-                                        <p><strong>Category:</strong> {categories.find(cat => cat._id.toString() === activity.category.toString())?.category || 'None'}</p>                                     <p><strong>Tags:</strong> {activity.tags.join(", ")}</p>
-                                        <p><strong>Available Spots:</strong> {activity.spots}</p>
+                                        <p><strong>Categories:</strong> {categories.find(cat => cat._id.toString() === activity.category.toString())?.category || 'None'}</p>                                     
+                                        <p><strong>Tags:</strong> {activity.tags.map((tagId) => tags.find(tag => tag._id === tagId)?.tag || tagId).join(", ")}</p>                                        <p><strong>Available Spots:</strong> {activity.spots}</p>
                                         <p><strong>Discounts:</strong> {activity.discounts}</p>
                                     </div>
                                 }
@@ -227,7 +241,17 @@ const Activities = () => {
                     </Form.Item>
 
                     <Form.Item name="tags" label="Tags">
-                        <Input placeholder="Comma-separated tags" />
+                        <Select
+                            mode="multiple"
+                            placeholder="Select Tags"
+                            allowClear
+                        >
+                            {tags.map((tag) => (
+                                <Select.Option key={tag._id} value={tag._id}>
+                                    {tag.tag}
+                                </Select.Option>
+                            ))}
+                        </Select>
                     </Form.Item>
 
                     <Form.Item name="spots" label="Available Spots" rules={[{ required: true, message: "Please input the number of available spots!" }]}>
