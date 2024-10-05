@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true }, // Name of the product
-  photo: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Img'}, // Path or URL of the product image
+  photo: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Img'}, // Path or URL of the product image
   price: { type: Number, required: true }, // Price of the product
   desc: { type: String, required: true }, // Description of the product
   sellerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Seller' }, // Reference to the seller
