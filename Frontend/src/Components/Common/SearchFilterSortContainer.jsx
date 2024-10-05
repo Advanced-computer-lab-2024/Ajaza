@@ -12,24 +12,8 @@ const SearchFilterSortContainer = ({
   search = true,
   filter = true,
   sort = true,
-  elements, // array of objects
-  // Objects will be
-  // This is for antd Card
-  //   {...all fields and their values,
-  //     cardTitle:"field to use for cardTitle",
-  //     coverImage:"field for img url",
-  //     actions = [
-  //     <SettingOutlined key="setting" onClick={() => console.log("1st")} />,
-  //     <EditOutlined key="edit" onClick={() => console.log("2nd")} />,
-  //     <EllipsisOutlined key="ellipsis" onClick={() => console.log("3rd")} />,
-  //   ],
-  //     meta:{
-  //              avatarImage:"url for avatar image",
-  //              title:"field to use for meta title",
-  //              description:"field to use for meta description"
-  //          }
-  // }
-
+  elements, // array of objects to be displayed
+  propMapping,
   // This is for your own Card Component !!!!!!!!!!!!!!!!!!!! (IF PASSED A CARD COMPONENT)
   // Objects will be
   //   {...all fields and their values,
@@ -37,17 +21,22 @@ const SearchFilterSortContainer = ({
   //     propName2: field name to use
   //     propName3: field name to use
   //     propName4: field name to use
-  // }
-  setElements,
+  // } eg:
+  // const propsMapping = {
+  //   size: 'btnSize',
+  //   style: 'btnStyle',
+  //   rounded: 'roundShape',
+  //   value: 'label',
+  //   onClick: 'action',
+  //   disabled: 'isDisabled',
+  //   loading: 'isLoading',
+  //   htmlType: 'type'
+  // };
+  constProps, // props that are consistent throughout the components
   cardsPerRow = 3,
   horizontalGap = 30,
   verticalGap = 30,
   loading,
-  actions = [
-    <SettingOutlined key="setting" onClick={() => console.log("1st")} />,
-    <EditOutlined key="edit" onClick={() => console.log("2nd")} />,
-    <EllipsisOutlined key="ellipsis" onClick={() => console.log("3rd")} />,
-  ],
 }) => {
   const span = 24 / cardsPerRow;
   elements = [
@@ -83,7 +72,7 @@ const SearchFilterSortContainer = ({
           <div style={{ backgroundColor: "red" }}>mohamed</div>
         </Col>
       </Row> */}
-      <Row gutter={[horizontalGap, 10]}>
+      <Row gutter={[horizontalGap, verticalGap]}>
         <Col span={span}>
           <CardComponent
           // title="Card Title"

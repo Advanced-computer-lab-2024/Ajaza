@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import CustomButton from "../Common/CustomButton";
 import axios from "axios";
 import { apiUrl } from "../Common/Constants";
+import { jwtDecode } from "jwt-decode";
 
 const SignIn = () => {
   const [response, setResponse] = useState(null);
@@ -38,6 +39,9 @@ const SignIn = () => {
         if (apiResponse.status === 200) {
           setResponse(apiResponse.data);
           localStorage.setItem("token", apiResponse.data.token);
+
+          const decodedToken = jwtDecode(apiResponse.data.token);
+          navigate(`/${decodedToken.role}`);
         }
 
         if (apiResponse?.data?.message) {
