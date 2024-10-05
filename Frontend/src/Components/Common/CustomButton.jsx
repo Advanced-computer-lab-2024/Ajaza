@@ -11,6 +11,7 @@ const CustomButton = ({
   disabled = false,
   loading = false,
   htmlType = "button",
+  icon = null,
 }) => {
   const [hover, setHover] = useState(false);
 
@@ -52,6 +53,7 @@ const CustomButton = ({
       disabled={disabled}
       loading={loading}
       htmlType={htmlType}
+      icon={icon}
       style={{
         backgroundColor: backgroundColor,
         width: width,

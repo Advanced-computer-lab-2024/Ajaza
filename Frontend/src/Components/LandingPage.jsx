@@ -85,25 +85,25 @@ const Landing = () => {
   return (
     <div
       style={{
-        height: "100vh", 
-        backgroundImage: `url(${image})`, 
-        backgroundSize: "cover", 
-        backgroundPosition: "center", 
-        backgroundRepeat: "no-repeat", 
+        height: "100vh",
+        backgroundImage: `url(${image})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
         display: "flex",
-        alignItems: "flex-start", 
-        justifyContent: "flex-start", 
-        paddingLeft: "50px", 
-        paddingTop: "290px", 
+        alignItems: "flex-start",
+        justifyContent: "flex-start",
+        paddingLeft: "50px",
+        paddingTop: "290px",
       }}
     >
       <div
         style={{
           padding: "30px",
           borderRadius: "10px",
-          maxWidth: "600px", 
-          textAlign: "left", 
-         
+          maxWidth: "600px",
+          textAlign: "left",
+
         }}
       >
         <div>
@@ -120,7 +120,7 @@ const Landing = () => {
             style={{ marginRight: "10px" }}
           />
         </div>
-        <div style={{ marginTop: "10px" , marginLeft:"110px" }}> 
+        <div style={{ marginTop: "10px", marginLeft: "110px" }}>
           <a
             style={{ textDecoration: "underline", cursor: "pointer", color: "white" }}
             onClick={() => navigate("/guest")}

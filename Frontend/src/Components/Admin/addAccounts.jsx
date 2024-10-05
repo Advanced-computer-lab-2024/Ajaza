@@ -15,7 +15,7 @@ const AddAccounts = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
-  
+
   const [selectedKey, setSelectedKey] = useState('1');
   const [form] = Form.useForm();
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -33,9 +33,9 @@ const AddAccounts = () => {
   const handleFirstFormSubmit = async (values) => {
     console.log('Form submitted:', values);
     try {
-      const response = await axios.post( apiUrl + 'admin/addAdmin', { 
+      const response = await axios.post(apiUrl + 'admin/addAdmin', {
         username: values.username,
-        pass: values.password, 
+        pass: values.password,
       });
 
       if (response.status === 201) {
@@ -44,20 +44,20 @@ const AddAccounts = () => {
         setErrorMessage('');
         setSuccessMessage('Admin Account Added successfully!'); // Set success message
         message.success('Admin Account Added successfully!');
-        
+
         // Hide success message after 2 seconds
         setTimeout(() => {
           setSuccessMessage('');
         }, 2000);
       }
     } catch (error) {
-      
-     
+
+
       // Handle error response
       if (error.response) {
         // Request made and server responded
         setErrorMessage(error.response.data.error || 'Something went wrong');
-         message.error(error.response.data.error || 'Submission failed');
+        message.error(error.response.data.error || 'Submission failed');
       } else {
         // The request was made but no response was received
         setErrorMessage('Network error, please try again later');
@@ -70,7 +70,7 @@ const AddAccounts = () => {
     console.log('Form submitted:', values);
     try {
 
-      const response = await axios.post( apiUrl + 'governor/addGovernor', { // Update URL here
+      const response = await axios.post(apiUrl + 'governor/addGovernor', { // Update URL here
         username: values.username,
         pass: values.password, // Ensure the password field matches your API
       });
@@ -80,7 +80,7 @@ const AddAccounts = () => {
 
 
 
-     
+
       if (response.status === 201) {
 
         form.resetFields();
@@ -88,22 +88,22 @@ const AddAccounts = () => {
         setErrorMessage('');
         setSuccessMessage('Tourism Governor Account Added successfully!'); // Set success message
         message.success('Tourism Governor Account Added successfully!');
-        
+
         // Hide success message after 2 seconds
         setTimeout(() => {
           setSuccessMessage('');
         }, 2000);
-      }else {
+      } else {
         const errorData = await response.json();
         setErrorMessage(errorData.message || 'Something went wrong');
         message.error(errorData.message || 'Submission failed');
       }
     } catch (error) {
 
-       if (error.response) {
+      if (error.response) {
         // Request made and server responded
         setErrorMessage(error.response.data.error || 'Something went wrong');
-         message.error(error.response.data.error || 'Submission failed');
+        message.error(error.response.data.error || 'Submission failed');
       } else {
         // The request was made but no response was received
         setErrorMessage('Network error, please try again later');
