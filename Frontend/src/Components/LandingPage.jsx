@@ -110,7 +110,7 @@ const Landing = () => {
           <CustomButton
             size="m"
             value={"Sign up"}
-            onClick={() => navigate("/adminCustom")}
+            onClick={() => navigate("/auth/signup")}
             style={{ marginRight: "10px" }}
           />
           <CustomButton
