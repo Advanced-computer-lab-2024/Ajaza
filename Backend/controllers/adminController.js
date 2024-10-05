@@ -5,6 +5,8 @@ const Seller = require('../models/Seller');
 const Tourist = require('../models/Tourist');
 const Guide = require('../models/Guide');
 const bcrypt = require('bcrypt');
+const Product = require('../models/Product');
+
 
 
 
@@ -88,5 +90,25 @@ exports.adminAddAdmin = async (req, res) => {
     res.status(201).json(savedadmin);
   } catch (error) {
     res.status(400).json({error: error.message });
+  }
+};
+
+exports.adminDeletesAdminFromSystem = async (req, res) => {
+  const adminId = req.params.id;
+  if(!adminId) {
+    return res.status(400).json({ error: 'Admin ID is required' });
+  }
+  try {
+    const result = await Product.updateMany(
+      { adminId: adminId },
+      { $set: { hidden: true } }
+    );
+    const deletedAdmin = await Admin.findByIdAndDelete(adminId);
+    if (!deletedAdmin) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+    res.status(200).json({ message: 'Admin deleted successfully', result });
+  } catch(error) {
+    res.status(400).json({ error: error.message });
   }
 };

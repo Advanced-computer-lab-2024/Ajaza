@@ -75,12 +75,18 @@ const AllAccounts = () => {
 
        
         let sellers =  await axios.get(apiUrl + 'seller');
-        sellers = sellers.data.map((admin) => ({
-          ...admin,
+        sellers = sellers.data.map((seller) => ({
+          ...seller,
           type: "seller",
         }));
+
+        let admins =  await axios.get(apiUrl + 'admin');
+        admins = admins.data.map((admin) => ({
+          ...admin,
+          type: "admin",
+        }));
          
-         const combinedArray = [...tourists, ...sellers, ...guides, ...advertisers, ...governors];
+         const combinedArray = [...admins, ...tourists, ...sellers, ...guides, ...advertisers, ...governors];
         setAccounts(combinedArray);
     
     }
@@ -151,6 +157,9 @@ const AllAccounts = () => {
           }
           else if (accountType === 'governor') {
             deleteUrl = `${apiUrl}governor/deleteGovernorFromSystem/${accountId}`;
+          }
+          else if (accountType === 'admin') {
+            deleteUrl = `${apiUrl}admin/deleteAdminFromSystem/${accountId}`;
           }
          else {
           throw new Error("Unknown account type");
