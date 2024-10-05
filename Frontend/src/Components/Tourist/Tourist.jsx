@@ -11,6 +11,7 @@ import { useRole } from "../Sign/SignUp"; // Adjust path if needed
 import { TouristProfile } from "./TouristProfile";
 import Profile from "../Common/Profile";
 import Plans from "./Plans";
+import { jwtDecode } from "jwt-decode";
 
 const Tourist = () => {
   const [touristData, setTouristData] = useState([]);
