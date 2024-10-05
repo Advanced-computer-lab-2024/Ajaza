@@ -1,41 +1,69 @@
 import React, { createContext, useContext, useState } from "react";
 import CustomButton from "../Common/CustomButton";
-import Tourist from "../Tourist/Tourist";
-import TourGuide from "../TourGuide/TourGuide";
-import Advertiser from "../Advertiser/Advertiser";
-import Seller from "../Seller/Seller";
+import CreateTourist from "./CreateTourist";
+import CreateTourGuide from "./CreateTourGuide";
+import CreateSeller from "./CreateSeller";
+import CreateAdvertiser from "./CreateAdvertiser";
 
-// Create a RoleContext
-const RoleContext = createContext();
-
-// Custom hook to use the RoleContext
-export const useRole = () => {
-  return useContext(RoleContext);
-};
+import { Route, Routes, useNavigate } from "react-router-dom";
 
 const SignUp = () => {
-  const [role, setRole] = useState("Tourist"); // Default role
-
-  const renderForm = () => {
-    switch (role) {
-      case "Tourist":
-        return <Tourist />;
-      case "Tour Guide":
-        return <TourGuide />;
-      case "Seller":
-        return <Seller />;
-      case "Advertiser":
-        return <Advertiser />;
-      default:
-        return <Tourist />; // Default to Tourist if no role is selected
-    }
-  };
-
+  const [role, setRole] = useState("tourist");
+  const navigate = useNavigate();
   return (
-    <RoleContext.Provider value={{ role, setRole }}>
-      {/* Render the selected role's form */}
-      <div style={{ marginTop: "20px" }}>{renderForm()}</div>
-    </RoleContext.Provider>
+    <>
+      <div
+        style={{ textAlign: "center", alignItems: "center", marginTop: "20px" }}
+      >
+        <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>
+          Register as a {role} {/* Display the current role */}
+        </h1>
+      </div>
+      <div style={{ textAlign: "center", marginBottom: "20px" }}>
+        <CustomButton
+          onClick={() => {
+            navigate("/auth/signup");
+            setRole("tourist");
+          }}
+          value="Tourist"
+          size="m"
+          style={{ margin: "10px" }}
+        ></CustomButton>
+        <CustomButton
+          onClick={() => {
+            navigate("guide");
+            setRole("guide");
+          }}
+          value="Tour Guide"
+          size="m"
+          style={{ margin: "10px" }}
+        ></CustomButton>
+        <CustomButton
+          onClick={() => {
+            navigate("seller");
+            setRole("seller");
+          }}
+          value="Seller"
+          size="m"
+          style={{ margin: "10px" }}
+        ></CustomButton>
+        <CustomButton
+          onClick={() => {
+            navigate("advertiser");
+            setRole("advertiser");
+          }}
+          value="Advertiser"
+          size="m"
+          style={{ margin: "10px" }}
+        ></CustomButton>
+      </div>
+      <Routes>
+        <Route path="/" element={<CreateTourist />} />
+        <Route path="/guide" element={<CreateTourGuide />} />
+        <Route path="/seller" element={<CreateSeller />} />
+        <Route path="/advertiser" element={<CreateAdvertiser />} />
+      </Routes>
+    </>
   );
 };
 
