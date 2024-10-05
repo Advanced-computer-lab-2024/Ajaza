@@ -3,7 +3,6 @@ import { CustomLayout } from "../Common";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Itineraries from "../Itineraries";
 import { CalendarOutlined, ContainerOutlined } from "@ant-design/icons";
-import { TouristProfile } from "./TouristProfile";
 import { apiUrl } from "../Common/Constants";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -90,7 +89,7 @@ const Tourist = () => {
         <Route path="/" element={<Plans />} />
         <Route path="itineraries" element={<div>Itineraries Page</div>} />
         <Route path="account" element={<Profile />} />
-        <Route path="profile" element={<TouristProfile />} />
+        {/* <Route path="profile" element={<TouristProfile />} /> */}
       </Routes>
     </CustomLayout>
   );

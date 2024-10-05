@@ -37,9 +37,9 @@ import TourGuide from "./Components/TourGuide/TourGuide";
 import Advertiser from "./Components/Advertiser/Advertiser";
 import TourismGovernor from "./Components/TourismGovernor/TourismGovernor";
 import Admin from "./Components/Admin/Admin";
-import AddAccounts from "./Components/Admin/addAccounts";
-
-//import AdminCustomLayout from "./Components/Admin/AdminCustomLayout";
+import CustomCard from "./Components/Card";
+import AdminCustomLayout from "./Components/AdminCustomLayout";
+import TouristProfile from "./Components/Tourist/TouristProfile";
 const { Header, Footer, Sider, Content } = Layout;
 
 function App() {
