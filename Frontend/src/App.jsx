@@ -81,6 +81,8 @@ function App() {
             <Route path="/guide/*" element={<TourGuide />} />
             <Route path="/advertiser/*" element={<Advertiser />} />
             <Route path="/admin/*" element={<Admin />} />
+            <Route path="/profile" element={<Profile />} />
+
             <Route path="/governor/*" element={<TourismGovernor />} />
             <Route path="/seller/*" element={<Seller />} />
             {/* here */}
