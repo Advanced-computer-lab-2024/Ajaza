@@ -1,0 +1,16 @@
+.input-style {
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .button-style {
+    border-radius: 10px;
+  }
+
+
+  /* AllAccounts.css */
+.card-dark-blue {
+    background-color: #001f3f; /* Replace with your specific dark blue color */
+    color: white; /* Optional: Change text color for better contrast */
+  }
+  
