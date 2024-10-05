@@ -254,7 +254,8 @@ exports.updateItineraryFilteredFields = async (req, res) => {
       availableDateTime,
       accessibility,
       pickUp,
-      dropOff
+      dropOff,
+      maxTourists
     } = req.body; 
     const guide = await Guide.findById(guideId);
     if (!guide) {
@@ -279,6 +280,7 @@ exports.updateItineraryFilteredFields = async (req, res) => {
     if (accessibility) itinerary.accessibility = accessibility;
     if (pickUp) itinerary.pickUp = pickUp;
     if (dropOff) itinerary.dropOff = dropOff;
+    if (maxTourists) itinerary.maxTourists = maxTourists;
 
     const updatedItinerary = await itinerary.save();
 
