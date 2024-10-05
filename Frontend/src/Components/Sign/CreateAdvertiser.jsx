@@ -44,22 +44,20 @@ const Advertiser = () => {
           pass: values.password,
         }
       );
-      console.log("ENGY");
-      setAdvertiserData(response.data);
       message.success("Advertiser created successfully!");
+      if (response.status == 201) {
+        navigate("/auth/signin");
+      }
+
+      setAdvertiserData(response.data);
     } catch (error) {
       console.error("Error creating advertiser:", error);
       message.error("Failed to create advertiser.");
     }
   };
 
-  useEffect(() => {
-    //createSeller();
-  }, []);
-
   const onFinish = async (values) => {
     await createAdvertiser(values);
-    navigate("/blank");
   };
 
   const onFinishFailed = (errorInfo) => {

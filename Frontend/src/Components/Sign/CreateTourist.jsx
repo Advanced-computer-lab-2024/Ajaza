@@ -47,6 +47,9 @@ const CreateTourist = () => {
       );
       setTouristData(response.data);
       message.success("Tourist created successfully!");
+      if (response.status == 201) {
+        navigate("/auth/signin");
+      }
     } catch (error) {
       console.error("Error creating tourist:", error);
       message.error("Failed to create tourist.");
@@ -55,7 +58,6 @@ const CreateTourist = () => {
 
   const onFinish = async (values) => {
     await createTourist(values);
-    navigate("/blank");
   };
 
   const onFinishFailed = (errorInfo) => {

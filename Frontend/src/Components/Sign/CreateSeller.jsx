@@ -17,23 +17,6 @@ const CreateSeller = () => {
   }
   const userid = decodedToken ? decodedToken.userId : null;
 
-  // const fetchSeller = async () => {
-  //     setLoading(true);
-  //     try {
-  //         const response = await apiClient.get('/guestSellerCreateProfile');
-  //         setSellerData(response.data);
-  //     } catch (error) {
-  //         console.error("Error fetching sellers:", error);
-  //         message.error("Failed to fetch sellers.");
-  //     } finally {
-  //         setLoading(false);
-  //     }
-  // };
-
-  // useEffect(() => {
-  //     fetchSeller(); // Fetch sellers on component mount
-  // }, []);
-
   const createSeller = async (values) => {
     try {
       console.log("Values:", values);
@@ -50,9 +33,13 @@ const CreateSeller = () => {
         }
       );
       const newSellerId = response.data._id;
-      console.log("New seller ID:", newSellerId);
-      setSellerData(response.data);
+
       message.success("Seller created successfully!");
+      if (response.status == 201) {
+        navigate("/auth/signin");
+      }
+      setSellerData(response.data);
+
       return newSellerId;
     } catch (error) {
       console.error("Error creating seller:", error);
@@ -60,16 +47,8 @@ const CreateSeller = () => {
     }
   };
 
-  useEffect(() => {
-    //createSeller();
-  }, []);
-
   const onFinish = async (values) => {
-    const newSellerId = await createSeller(values);
-    if (newSellerId) {
-      navigate("/seller", { state: { newSellerId } });
-      // Pass the actual newSellerId here
-    }
+    await createSeller(values);
   };
 
   const onFinishFailed = (errorInfo) => {
