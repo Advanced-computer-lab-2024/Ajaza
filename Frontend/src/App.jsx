@@ -77,7 +77,7 @@ function App() {
             <Route path="/guide/*" element={<TourGuide />} />
             <Route path="/advertiser/*" element={<Advertiser />} />
             <Route path="/admin/*" element={<Admin />} />
-
+            <Route path="/profile" element={<Profile />} />
             <Route path="/seller/*" element={<Seller />} />
             <Route path="/governor/*" element={<TourismGovernor />} />
           </Routes>
