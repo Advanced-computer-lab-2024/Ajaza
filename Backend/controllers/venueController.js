@@ -21,6 +21,16 @@ exports.getAllVenues = async (req, res) => {
   }
 };
 
+exports.getVenuesByIds = async (req, res) => {
+  try {
+    const { venueIds } = req.body;
+    const venues = await Venue.find({ _id: { $in: venueIds } });
+    res.status(200).json(venues);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get venue by ID
 exports.getVenueById = async (req, res) => {
   try {

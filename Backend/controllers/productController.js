@@ -27,6 +27,16 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
+exports.getProductsByIds = async (req, res) => {
+  try {
+    const { productIds } = req.body;
+    const products = await Product.find({ _id: { $in: productIds } });
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get product by ID
 exports.getProductById = async (req, res) => {
   try {

@@ -1,6 +1,10 @@
 const Itinerary = require("../models/Itinerary");
 const Tourist = require("../models/Tourist");
 const Guide = require('../models/Guide');
+const Activity = require('../models/Activity');
+const Venue = require('../models/venue');
+
+
 
 // Create a new itinerary
 exports.createItinerary = async (req, res) => {
@@ -16,23 +20,30 @@ exports.createItinerary = async (req, res) => {
 // Get all itineraries
 exports.getAllItineraries = async (req, res) => {
   try {
-    const itineraries = await Itinerary.find()
-      .populate("guideId")
-      .populate("activities.id")
-      .populate("venues");
+    const itineraries = await Itinerary.find().populate("guideId");14
     res.status(200).json(itineraries);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+exports.getItinerariesByIds = async (req, res) => {
+  try {
+    const { itineraryIds } = req.body;
+    const itineraries = await Itinerary.find({ _id: { $in: itineraryIds } }).populate("guideId");
+    res.status(200).json(itineraries);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
 // Get itinerary by ID
 exports.getItineraryById = async (req, res) => {
   try {
     const itinerary = await Itinerary.findById(req.params.id)
       .populate("guideId")
-      .populate("activities.id")
-      .populate("venues");
     if (!itinerary) {
       return res.status(404).json({ message: "Itinerary not found" });
     }
