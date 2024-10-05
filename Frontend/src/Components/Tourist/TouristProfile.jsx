@@ -9,14 +9,14 @@
 //   const [touristData, setTouristData] = useState(null); 
 //   const { id } = useParams();
 
-  
+
 //   useEffect(() => {
 //     const fetchProfile = async () => {
 //       console.log(id);
-      
+
 //       try {
 //         const response = await axios.get(`http://localhost:5000/tourist/touristReadProfile/${id}`);
-        
+
 //         const { username, email, mobile , points , wallet , badge , occupation , dob , nationality} = response.data; // Only select fields you want to display
 //         setTouristData({ username, email, mobile, points , wallet , badge , occupation ,dob , nationality}); // Pass selected fields to state
 
@@ -28,7 +28,7 @@
 //     fetchProfile(); 
 //   }, [id]); 
 
- 
+
 
 //   return (
 //     <div>
@@ -45,7 +45,7 @@
 
 
 import React, { useEffect, useState } from "react";
-import Profile from "../Common/Profile"; 
+import Profile from "../Common/Profile";
 import axios from "axios";
 import { message } from "antd";
 import { useParams } from "react-router-dom";
@@ -65,8 +65,8 @@ const TouristProfile = () => {
       }
     };
 
-    fetchProfile(); 
-  }, [id]); 
+    fetchProfile();
+  }, [id]);
 
   // Handle saving profile changes
   // const handleUpdate = async (values) => {
@@ -84,7 +84,7 @@ const TouristProfile = () => {
   return (
     <div>
       {touristData ? (
-        <Profile touristData={touristData}  />  
+        <Profile touristData={touristData} />
       ) : (
         <div>No tourist data available</div>
       )}
