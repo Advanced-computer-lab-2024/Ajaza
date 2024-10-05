@@ -1,8 +1,6 @@
 import React from "react";
 import { Layout } from "antd";
 
-
-
 import {
   BrowserRouter as Router,
   Route,
@@ -34,3 +32,4 @@ const Admin = () => {
 };
 
 export default Admin;
+

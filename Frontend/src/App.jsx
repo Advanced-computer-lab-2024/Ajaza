@@ -41,7 +41,7 @@ import TourismGovernor from "./Components/TourismGovernor/TourismGovernor";
 import Admin from "./Components/Admin/Admin";
 import AddAccounts from "./Components/Admin/addAccounts";
 import CustomCard from "./Components/Card";
-//import AdminCustomLayout from "./Components/Admin/AdminCustomLayout";
+import TouristProfile from "./Components/Tourist/TouristProfile";
 const { Header, Footer, Sider, Content } = Layout;
 
 function App() {
@@ -77,11 +77,10 @@ function App() {
               }
             />
             <Route path="/tourist/*" element={<Tourist />} />
-            <Route path="/tourGuide/*" element={<TourGuide />} />
-
+            <Route path="/guide/*" element={<TourGuide />} />
             <Route path="/advertiser/*" element={<Advertiser />} />
             <Route path="/admin/*" element={<Admin />} />
-            {/* <Route path="/adminCustom" element={<AdminCustomLayout />} /> */}
+
             <Route path="/seller/*" element={<Seller />} />
             <Route path="/register-tourist" element={<Tourist />} /> {/* Tourist registration page */}
             <Route path="/blank" element={<BlankPage />} />

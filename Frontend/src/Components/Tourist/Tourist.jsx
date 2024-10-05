@@ -10,7 +10,7 @@ import { DatePicker, Select, message } from "antd";
 import { useRole } from "../Sign/SignUp"; // Adjust path if needed
 import { TouristProfile } from "./TouristProfile";
 import Profile from "../Common/Profile";
-import { jwtDecode } from "jwt-decode";
+import Plans from "./Plans";
 
 const Tourist = () => {
   const [touristData, setTouristData] = useState([]);
@@ -229,9 +229,10 @@ const Tourist = () => {
       </div>
 
       <Routes>
+        <Route path="/" element={<Plans />} />
         <Route path="itineraries" element={<div>Itineraries Page</div>} />
         <Route path="account" element={<Profile />} />
-        <Route path="profile" element={<TouristProfile />} />
+        {/* <Route path="profile" element={<TouristProfile />} /> */}
       </Routes>
     </CustomLayout>
   );
