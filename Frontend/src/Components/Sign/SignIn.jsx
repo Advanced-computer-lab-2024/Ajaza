@@ -325,9 +325,8 @@ const SignIn = () => {
     }
   };
 
-  const onFinish = async (values) => {
+  const onFinish = (values) => {
     console.log("Success:", values);
-    await signIn(); // Call signIn function on form submission
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -335,19 +334,19 @@ const SignIn = () => {
   };
 
   const signIn = async () => {
-    const token = "authToken";
     const fetchData = async () => {
       const body = {
         username: form.getFieldValue("username"),
         password: form.getFieldValue("password"),
       };
 
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      };
+      // const config = {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`,
+      //     "Content-Type": "application/json",
+      //   },
+      // };
+
       try {
         const apiResponse = await axios.post(
           "http://localhost:5000/api/auth/login",
@@ -443,7 +442,7 @@ const SignIn = () => {
                 size="s"
                 value={"Submit"}
                 style={{ marginLeft: "-8px", width: 370 }}
-                onClick={form.submit}
+                onClick={() => signIn()}
               />
             </Form.Item>
           </Form>
