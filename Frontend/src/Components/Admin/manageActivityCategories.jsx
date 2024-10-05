@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Card, Button, Typography, Modal, Input, message } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { apiUrl } from "../Common/Constants";
 
 const { Title } = Typography;
 
@@ -17,7 +18,7 @@ const ManageActivityCategories = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/category");
+        const response = await axios.get( apiUrl + "category");
         setCategories(response.data);
       } catch (error) {
         console.error(error);
@@ -43,7 +44,7 @@ const ManageActivityCategories = () => {
     }
 
     try {
-      await axios.patch(`http://localhost:5000/category/${currentCategory._id}`, {
+      await axios.patch(apiUrl + `category/${currentCategory._id}`, {
         category: updatedName,
       });
 
@@ -64,7 +65,7 @@ const ManageActivityCategories = () => {
   // Handle delete category
   const handleDelete = async (categoryId) => {
     try {
-      await axios.delete(`http://localhost:5000/category/${categoryId}`);
+      await axios.delete(apiUrl + `category/${categoryId}`);
       const updatedCategories = categories.filter(
         (category) => category._id !== categoryId
       );
@@ -84,7 +85,7 @@ const ManageActivityCategories = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/category", {
+      const response = await axios.post( apiUrl + "category", {
         category: newCategoryName,
       });
 

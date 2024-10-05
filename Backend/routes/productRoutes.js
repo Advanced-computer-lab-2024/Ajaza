@@ -4,7 +4,7 @@ const productController = require('../controllers/productController');
 const uploadPhotoImage = require('../middleware/uploadImage');
 
 router.post("/", productController.createProduct);
-
+//req81
 router.get("/", productController.getAllProducts);
 //req83
 router.get("/search", productController.searchProduct);

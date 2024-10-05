@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Card, Button, Typography, Modal, Input, message } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { apiUrl } from "../Common/Constants";
 
 const { Title } = Typography;
 
@@ -17,7 +18,7 @@ const ManagePreferenceTags = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/tag");
+        const response = await axios.get(apiUrl + "tag");
         setCategories(response.data);
       } catch (error) {
         console.error(error);
@@ -43,7 +44,7 @@ const ManagePreferenceTags = () => {
     }
 
     try {
-      await axios.patch(`http://localhost:5000/tag/${currenttag._id}`, {
+      await axios.patch(apiUrl + `tag/${currenttag._id}`, {
         tag: updatedName,
       });
 
@@ -62,7 +63,7 @@ const ManagePreferenceTags = () => {
   // Handle delete tag
   const handleDelete = async (tagId) => {
     try {
-      await axios.delete(`http://localhost:5000/tag/${tagId}`);
+      await axios.delete( apiUrl + `tag/${tagId}`);
       const updatedCategories = categories.filter((tag) => tag._id !== tagId);
       setCategories(updatedCategories);
       message.success("Preference Tag deleted successfully!");
@@ -80,7 +81,7 @@ const ManagePreferenceTags = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/tag", {
+      const response = await axios.post( apiUrl + "tag", {
         tag: newtagName,
       });
 
@@ -184,3 +185,4 @@ const ManagePreferenceTags = () => {
 };
 
 export default ManagePreferenceTags;
+

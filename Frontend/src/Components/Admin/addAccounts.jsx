@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Breadcrumb, Layout, Menu, theme, Button, Input, Form, message } from 'antd';
 import axios from 'axios'; // Import axios
 import AdminCustomLayout from './AdminCustomLayout';
+import { apiUrl } from '../Common/Constants';
 
 const { Header, Content } = Layout;
 
@@ -19,10 +20,12 @@ const AddAccounts = () => {
   const [form] = Form.useForm();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleMenuClick = (e) => {
     setSelectedKey(e.key);
     setIsSubmitted(false);
+    setSuccessMessage('');
     setErrorMessage('');
     form.resetFields();
   };
@@ -30,16 +33,22 @@ const AddAccounts = () => {
   const handleFirstFormSubmit = async (values) => {
     console.log('Form submitted:', values);
     try {
-      const response = await axios.post('http://localhost:5000/admin/addAdmin', { // Update URL here
+      const response = await axios.post( apiUrl + 'admin/addAdmin', { 
         username: values.username,
-        pass: values.password, // Ensure the password field matches your API
+        pass: values.password, 
       });
 
       if (response.status === 201) {
         form.resetFields();
         setIsSubmitted(true);
         setErrorMessage('');
+        setSuccessMessage('Admin Account Added successfully!'); // Set success message
         message.success('Admin Account Added successfully!');
+        
+        // Hide success message after 2 seconds
+        setTimeout(() => {
+          setSuccessMessage('');
+        }, 2000);
       }
     } catch (error) {
       
@@ -61,7 +70,7 @@ const AddAccounts = () => {
     console.log('Form submitted:', values);
     try {
 
-      const response = await axios.post('http://localhost:5000/governor/addGovernor', { // Update URL here
+      const response = await axios.post( apiUrl + 'governor/addGovernor', { // Update URL here
         username: values.username,
         pass: values.password, // Ensure the password field matches your API
       });
@@ -73,10 +82,17 @@ const AddAccounts = () => {
 
      
       if (response.status === 201) {
+
         form.resetFields();
         setIsSubmitted(true);
         setErrorMessage('');
+        setSuccessMessage('Tourism Governor Account Added successfully!'); // Set success message
         message.success('Tourism Governor Account Added successfully!');
+        
+        // Hide success message after 2 seconds
+        setTimeout(() => {
+          setSuccessMessage('');
+        }, 2000);
       }else {
         const errorData = await response.json();
         setErrorMessage(errorData.message || 'Something went wrong');
@@ -116,14 +132,15 @@ const AddAccounts = () => {
               >
                 <Input placeholder="Enter Admin Password" type="password" />
               </Form.Item>
+
               <Form.Item>
                 <Button type="primary" htmlType="submit">
                   Add Admin Account
                 </Button>
               </Form.Item>
             </Form>
-            {isSubmitted && (
-              <div style={{ marginTop: '20px', color: 'green' }}>Admin Account Added successfully!</div>
+            {successMessage && (
+              <div style={{ marginTop: '20px', color: 'green' }}>{successMessage}</div> // Display success message
             )}
             {errorMessage && (
               <div style={{ marginTop: '20px', color: 'red' }}>{errorMessage}</div>
@@ -154,8 +171,8 @@ const AddAccounts = () => {
                 </Button>
               </Form.Item>
             </Form>
-            {isSubmitted && (
-              <div style={{ marginTop: '20px', color: 'green' }}>Tourism Governor Account Added successfully!</div>
+            {successMessage && (
+              <div style={{ marginTop: '20px', color: 'green' }}>{successMessage}</div> // Display success message
             )}
             {errorMessage && (
               <div style={{ marginTop: '20px', color: 'red' }}>{errorMessage}</div>
