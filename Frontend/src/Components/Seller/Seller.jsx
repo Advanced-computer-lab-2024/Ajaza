@@ -215,10 +215,6 @@ const Seller = () => {
                     </Form.Item>
                 </Form>
             </div>
-
-            <div style={{ padding: "20px" }}>
-                <Table loading={loading} columns={columns} dataSource={sellerData} />
-            </div>
         </CustomLayout>
     );
 };
