@@ -21,6 +21,16 @@ exports.getAllVenues = async (req, res) => {
   }
 };
 
+// Get all venues not hidden
+exports.getAllVenuesNH = async (req, res) => {
+  try {
+    const venues = await Venue.find({isVisible: { $ne: false }});
+    res.status(200).json(venues);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 exports.getVenuesByIds = async (req, res) => {
   try {
     const { venueIds } = req.body;
