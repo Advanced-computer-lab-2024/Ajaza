@@ -89,8 +89,6 @@ const Tourist = () => {
       <Routes>
         <Route path="/" element={<Plans />} />
         <Route path="itineraries" element={<div>Itineraries Page</div>} />
-        <Route path="account" element={<Profile />} />
-        <Route path="profile" element={<TouristProfile />} />
       </Routes>
     </CustomLayout>
   );
