@@ -252,6 +252,7 @@ exports.getGuideProfile = async (req, res) => {
 };
 
 // Update profile by ID (Profile Update)
+// Update profile by ID (Profile Update)
 exports.updateGuideProfile = async (req, res) => {
   try {
     const guideId = req.params.id; // Get guideId from URL parameter
