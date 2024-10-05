@@ -1,35 +1,95 @@
-import React, { useState } from "react";
-import { CardTemp } from "./CardTemp";
-import styles from "./CardTemp.module.css";
+// import React, { useEffect, useState } from "react";
+// import Profile from "../Common/Profile"; 
+// import axios from "axios";
+// import { message } from "antd";
+// import { apiUrl } from "../Common/Constants";
+// import { useParams } from "react-router-dom";
 
-export const TouristProfile = () => {
-  const initialCards = [
-    { _id: "1", title: "Username", content: "mariemmobarak", isEditing: false },
-    { _id: "2", title: "Wallet", content: "$500", isEditing: false },
-    {
-      _id: "3",
-      title: "Email",
-      content: "johndoe@example.com",
-      isEditing: false,
-    },
-  ];
+// const TouristProfile = () => {
+//   const [touristData, setTouristData] = useState(null); 
+//   const { id } = useParams();
 
-  const [cards, setCards] = useState(initialCards);
+  
+//   useEffect(() => {
+//     const fetchProfile = async () => {
+//       console.log(id);
+      
+//       try {
+//         const response = await axios.get(`http://localhost:5000/tourist/touristReadProfile/${id}`);
+        
+//         const { username, email, mobile , points , wallet , badge , occupation , dob , nationality} = response.data; // Only select fields you want to display
+//         setTouristData({ username, email, mobile, points , wallet , badge , occupation ,dob , nationality}); // Pass selected fields to state
 
-  const updateTouristProfile = (cardId, newContent) => {
-    const updatedCards = cards.map((card) =>
-      card._id === cardId ? { ...card, content: newContent } : card
-    );
-    setCards(updatedCards);
-  };
+//       } catch (error) {
+//         console.error('Error fetching tourist profile:', error);
+//       }
+//     };
+
+//     fetchProfile(); 
+//   }, [id]); 
+
+ 
+
+//   return (
+//     <div>
+//       {touristData ? (
+//         <Profile touristData={touristData} />  
+//       ) : (
+//         <div>No tourist data available</div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default TouristProfile;
+
+
+import React, { useEffect, useState } from "react";
+import Profile from "../Common/Profile"; 
+import axios from "axios";
+import { message } from "antd";
+import { useParams } from "react-router-dom";
+
+const TouristProfile = () => {
+  const [touristData, setTouristData] = useState(null);
+  const { id } = useParams();
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/tourist/touristReadProfile/${id}`);
+        const { username, email, mobile, points, wallet, badge, occupation, dob, nationality } = response.data;
+        setTouristData({ username, email, mobile, points, wallet, badge, occupation, dob, nationality });
+      } catch (error) {
+        console.error('Error fetching tourist profile:', error);
+      }
+    };
+
+    fetchProfile(); 
+  }, [id]); 
+
+  // Handle saving profile changes
+  // const handleUpdate = async (values) => {
+  //   try {
+  //     console.log('didnt update db');
+  //     const response = await axios.patch(`http://localhost:5000/tourist/touristUpdateProfile/${id}`, values);
+  //     message.success('Profile updated successfully!');
+  //     setTouristData(response.data); // Update local state with new values
+  //   } catch (error) {
+  //     console.error('Error updating profile:', error);
+  //     message.error('Failed to update profile.');
+  //   }
+  // };
 
   return (
-    <div className={styles.cardContainer}>
-      <CardTemp
-        outerTitle="Profile Details"
-        cardsData={cards}
-        onUpdate={updateTouristProfile}
-      />
+    <div>
+      {touristData ? (
+        <Profile touristData={touristData}  />  
+      ) : (
+        <div>No tourist data available</div>
+      )}
     </div>
   );
 };
+
+export default TouristProfile;
