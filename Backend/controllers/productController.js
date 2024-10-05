@@ -28,7 +28,7 @@ exports.getAllProducts = async (req, res) => {
 };
 
 // Get all products including hidden
-exports.getAllProducts = async (req, res) => {
+exports.getAllProductsEH = async (req, res) => {
   try {
     const products = await Product.find();
     if(!products || products.length === 0){

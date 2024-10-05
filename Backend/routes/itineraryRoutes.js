@@ -5,6 +5,8 @@ const itineraryController = require("../controllers/itineraryController");
 router.post("/", itineraryController.createItinerary);
 
 router.get("/", itineraryController.getAllItineraries);
+//not hidden
+router.get("/notHidden", itineraryController.getAllItinerariesNH);
 //req44
 router.get("/upcomingItineraries", itineraryController.getUpcomingItineraries);
 
