@@ -6,6 +6,10 @@ const uploadPhotoImage = require('../middleware/uploadImage');
 router.post("/", productController.createProduct);
 //req81
 router.get("/", productController.getAllProducts);
+
+
+//all
+router.get("/all", productController.getAllProductsEH);
 //req83
 router.get("/search", productController.searchProduct);
 

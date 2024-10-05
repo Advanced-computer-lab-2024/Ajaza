@@ -184,20 +184,21 @@ exports.deleteGuidesRequestingDeletion = async (req, res) => {
 //-- by zeina: create profile for guide req 7 
 exports.createGuideProfile = async (req, res) => {
   try {
-    const { guideId } = req.params; 
+    const { id } = req.params; 
     const { mobile, yearsOfExperience, previousWork} = req.body;
-   
   
-    const guide = await Guide.findById(guideId);
+    const guide = await Guide.findById(id).select('-pass');
     if (!guide) {
       return res.status(404).json({ message: 'Guide not found.' });
     }
     if(guide.pending){
-      return res.status(400).json({ message: 'Waiting for admin approval.' });
+      return res.status(401).json({ message: 'Waiting for admin approval.' });
     }
     if(!guide.acceptedTerms){
-      return res.status(400).json({ message: 'Terms and Conditions must be accepted.' });
-
+      return res.status(401).json({ message: 'Terms and Conditions must be accepted.' });
+    }
+    if(guide.mobile || guide.yearsOfExperience || guide.previousWork){
+      return res.status(400).json({ message: 'Profile already created.' });
     }
 
     guide.mobile = mobile;
@@ -205,7 +206,7 @@ exports.createGuideProfile = async (req, res) => {
     guide.previousWork = previousWork;
 
     const updatedGuide = await guide.save();
-
+    updatedGuide.pass = undefined;
     res.status(200).json(updatedGuide);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -216,25 +217,21 @@ exports.createGuideProfile = async (req, res) => {
 exports.getGuideProfile = async (req, res) => {
   try {
     const guideId = req.params.id; // Get guideId from URL parameter
-    const guide = await Guide.findById(guideId);
-
-    const guideProfile = await Guide.findById(guideId).select(
-      '-pass -pending -acceptedTerms -notifications -requestingDeletion'
-    );
+    const guide = await Guide.findById(guideId).select('-pass');
   
-    if (!guideProfile) {
+    if (!guide) {
       return res.status(404).json({ message: 'Guide not found' });
     }
-    if (!guide.acceptedTerms) {
-      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
-    }
     if ( guide.pending) {
-      return res.status(400).json({ message: 'The profile is still pending approval.' });
+      return res.status(401).json({ message: 'The profile is still pending approval.' });
+    }
+    if (!guide.acceptedTerms) {
+      return res.status(401).json({ message: 'Terms and conditions must be accepted' });
     }
 
-    res.status(200).json(guideProfile);
+    res.status(200).json(guide);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -244,28 +241,23 @@ exports.getGuideProfile = async (req, res) => {
 exports.updateGuideProfile = async (req, res) => {
   try {
     const guideId = req.params.id; // Get guideId from URL parameter
-    const guide = await Guide.findById(guideId);
-    // Update the guide's profile
-    await Guide.findByIdAndUpdate(guideId, req.body);
-
-    // Retrieve the updated guide's profile, filtering out sensitive fields
-    const updatedGuide = await Guide.findById(guideId).select(
-      '-pass -pending -acceptedTerms -notifications -requestingDeletion'
-    );
-
-    if (!updatedGuide) {
+    const {mobile, yearsOfExperience, previousWork} = req.body;
+    const guide = await Guide.findById(guideId).select('-pass');
+    if (!guide) {
       return res.status(404).json({ message: 'Guide not found' });
     }
+    if (guide.pending) {
+      return res.status(401).json({ message: 'The profile is still pending approval.' });
+    }
     if (!guide.acceptedTerms) {
-      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+      return res.status(401).json({ message: 'Terms and conditions must be accepted' });
     }
-    if ( guide.pending) {
-      return res.status(400).json({ message: 'The profile is still pending approval.' });
-    }
-
+    
+    const updatedGuide = await Guide.findByIdAndUpdate(guideId, {mobile,yearsOfExperience,previousWork}, { new: true , runValidators: true });
+    updatedGuide.pass = undefined;
     res.status(200).json(updatedGuide);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 };
 

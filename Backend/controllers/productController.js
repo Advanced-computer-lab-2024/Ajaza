@@ -27,6 +27,29 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
+// Get all products including hidden
+exports.getAllProductsEH = async (req, res) => {
+  try {
+    const products = await Product.find();
+    if(!products || products.length === 0){
+      return res.status(404).json({ message: "No products found" });
+    }
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getProductsByIds = async (req, res) => {
+  try {
+    const { productIds } = req.body;
+    const products = await Product.find({ _id: { $in: productIds } });
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get product by ID
 exports.getProductById = async (req, res) => {
   try {

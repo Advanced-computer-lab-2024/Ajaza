@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Breadcrumb, Layout, Menu, theme, Button, Input, Form, message } from 'antd';
-//import CustomLayout from './tempCustomLayout';
+import axios from 'axios'; // Import axios
 import AdminCustomLayout from './AdminCustomLayout';
-const { Header, Content, Footer } = Layout;
+import { apiUrl } from '../Common/Constants';
+
+const { Header, Content } = Layout;
 
 const items = [
   { key: '1', label: 'Add Admin' },
@@ -13,14 +15,17 @@ const AddAccounts = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
   const [selectedKey, setSelectedKey] = useState('1');
   const [form] = Form.useForm();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleMenuClick = (e) => {
     setSelectedKey(e.key);
     setIsSubmitted(false);
+    setSuccessMessage('');
     setErrorMessage('');
     form.resetFields();
   };
@@ -28,77 +33,84 @@ const AddAccounts = () => {
   const handleFirstFormSubmit = async (values) => {
     console.log('Form submitted:', values);
     try {
-      const response = await fetch('https://api.example.com/submit-form', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
+      const response = await axios.post(apiUrl + 'admin/addAdmin', {
+        username: values.username,
+        pass: values.password,
       });
 
-      if (response.ok) {
+      if (response.status === 201) {
         form.resetFields();
         setIsSubmitted(true);
         setErrorMessage('');
+        setSuccessMessage('Admin Account Added successfully!'); // Set success message
         message.success('Admin Account Added successfully!');
-      } else {
 
-       
-
-        const errorData = await response.json();
-        setErrorMessage(errorData.message || 'Something went wrong');
-        message.error(errorData.message || 'Submission failed');
+        // Hide success message after 2 seconds
+        setTimeout(() => {
+          setSuccessMessage('');
+        }, 2000);
       }
     } catch (error) {
-    
 
-      setErrorMessage('Network error, please try again later');
-      message.error('Network error, please try again later');
+
+      // Handle error response
+      if (error.response) {
+        // Request made and server responded
+        setErrorMessage(error.response.data.error || 'Something went wrong');
+        message.error(error.response.data.error || 'Submission failed');
+      } else {
+        // The request was made but no response was received
+        setErrorMessage('Network error, please try again later');
+        message.error('Network error, please try again later');
+      }
     }
   };
-
-
-
 
   const handleSecondFormSubmit = async (values) => {
     console.log('Form submitted:', values);
     try {
-      const response = await fetch('https://api.example.com/submit-form', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
+
+      const response = await axios.post(apiUrl + 'governor/addGovernor', { // Update URL here
+        username: values.username,
+        pass: values.password, // Ensure the password field matches your API
       });
 
-      if (response.ok) {
+
+
+
+
+
+
+      if (response.status === 201) {
+
         form.resetFields();
         setIsSubmitted(true);
         setErrorMessage('');
+        setSuccessMessage('Tourism Governor Account Added successfully!'); // Set success message
         message.success('Tourism Governor Account Added successfully!');
+
+        // Hide success message after 2 seconds
+        setTimeout(() => {
+          setSuccessMessage('');
+        }, 2000);
       } else {
-
-       
-
         const errorData = await response.json();
         setErrorMessage(errorData.message || 'Something went wrong');
         message.error(errorData.message || 'Submission failed');
       }
     } catch (error) {
-    
 
-      setErrorMessage('Network error, please try again later');
-      message.error('Network error, please try again later');
+      if (error.response) {
+        // Request made and server responded
+        setErrorMessage(error.response.data.error || 'Something went wrong');
+        message.error(error.response.data.error || 'Submission failed');
+      } else {
+        // The request was made but no response was received
+        setErrorMessage('Network error, please try again later');
+        message.error('Network error, please try again later');
+      }
     }
   };
-
-
-
-
-
-
-
-  
 
   const renderContent = () => {
     switch (selectedKey) {
@@ -118,16 +130,17 @@ const AddAccounts = () => {
                 label="Admin Password"
                 rules={[{ required: true, message: 'Please input Admin Password!' }]}
               >
-                <Input placeholder="Enter Admin Password" />
+                <Input placeholder="Enter Admin Password" type="password" />
               </Form.Item>
+
               <Form.Item>
                 <Button type="primary" htmlType="submit">
                   Add Admin Account
                 </Button>
               </Form.Item>
             </Form>
-            {isSubmitted && (
-              <div style={{ marginTop: '20px', color: 'green' }}>Admin Account Added successfully!</div>
+            {successMessage && (
+              <div style={{ marginTop: '20px', color: 'green' }}>{successMessage}</div> // Display success message
             )}
             {errorMessage && (
               <div style={{ marginTop: '20px', color: 'red' }}>{errorMessage}</div>
@@ -136,43 +149,42 @@ const AddAccounts = () => {
         );
       case '2':
         return (
-            <div>
-              <Form form={form} layout="vertical" onFinish={handleSecondFormSubmit}>
-                <Form.Item
-                 name="username"
-                 label="Tourism Governor Username"
-                 rules={[{ required: true, message: 'Please input Tourism Governor Username!' }]}
-                >
-                   <Input placeholder="Enter Toursim Governor Username" />
-                </Form.Item>
-                <Form.Item
-                  name="password"
-                  label="Tourism Governor Password"
-                  rules={[{ required: true, message: 'Please input Tourism Governor Password!' }]}
-                >
-                 <Input placeholder="Enter Toursim Governor Password" />
-                </Form.Item>
-                <Form.Item>
-                  <Button type="primary" htmlType="submit">
-                    Add Tourism Governor Account
-                  </Button>
-                </Form.Item>
-              </Form>
-              {isSubmitted && (
-                <div style={{ marginTop: '20px', color: 'green' }}>Tourism Govenor Account Added successfully!</div>
-              )}
-              {errorMessage && (
-                <div style={{ marginTop: '20px', color: 'red' }}>{errorMessage}</div>
-              )}
-            </div>
-          );
+          <div>
+            <Form form={form} layout="vertical" onFinish={handleSecondFormSubmit}>
+              <Form.Item
+                name="username"
+                label="Tourism Governor Username"
+                rules={[{ required: true, message: 'Please input Tourism Governor Username!' }]}
+              >
+                <Input placeholder="Enter Tourism Governor Username" />
+              </Form.Item>
+              <Form.Item
+                name="password"
+                label="Tourism Governor Password"
+                rules={[{ required: true, message: 'Please input Tourism Governor Password!' }]}
+              >
+                <Input placeholder="Enter Tourism Governor Password" type="password" />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit">
+                  Add Tourism Governor Account
+                </Button>
+              </Form.Item>
+            </Form>
+            {successMessage && (
+              <div style={{ marginTop: '20px', color: 'green' }}>{successMessage}</div> // Display success message
+            )}
+            {errorMessage && (
+              <div style={{ marginTop: '20px', color: 'red' }}>{errorMessage}</div>
+            )}
+          </div>
+        );
       default:
         return <div>Default Content</div>;
     }
   };
 
   return (
-    
     <Layout>
       <Header
         style={{
@@ -205,7 +217,6 @@ const AddAccounts = () => {
           padding: '0 48px',
         }}
       >
-        
         <div
           style={{
             padding: 24,
@@ -217,7 +228,6 @@ const AddAccounts = () => {
           {renderContent()}
         </div>
       </Content>
-      
     </Layout>
   );
 };

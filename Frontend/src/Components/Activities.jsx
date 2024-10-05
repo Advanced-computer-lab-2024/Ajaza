@@ -44,6 +44,7 @@ const Activities = () => {
         try {
             const response = await apiClient.get("category");
             setCategories(response.data);
+            console.log(response.data)
         } catch (error) {
             console.error("Error fetching categories:", error);
             setCategories([]);
@@ -58,7 +59,7 @@ const Activities = () => {
     const createActivity = async (values) => {
         try {
             const newActivity = {
-                advertiserId: userid,
+                // advertiserId: userid,
                 name: values.name,
                 date: values.date,
                 location: values.location,
@@ -73,7 +74,7 @@ const Activities = () => {
                 transportation: values.transportation,
             };
 
-            const response = await apiClient.post("activity/createSpecifiedActivity/", newActivity);
+            const response = await apiClient.post(`activity/createSpecifiedActivity/${userid}`, newActivity);
             setActivitiesData([...activitiesData, response.data]);
             message.success("Activity created successfully!");
             setIsModalVisible(false);
@@ -85,23 +86,22 @@ const Activities = () => {
 
     const editActivity = async (values) => {
         try {
-            const updatedActivity = {
-                name: values.name,
-                date: values.date,
-                location: values.location,
-                upper: values.upper,
-                lower: values.lower,
-                category: values.category,
-                tags: values.tags.split(",").map((tag) => tag.trim()),
-                discounts: values.discounts,
-                spots: values.spots,
-                isOpen: values.isOpen,
-            };
-
-            const response = await apiClient.patch(`activity/editActivity/${editingActivityId}`, updatedActivity);
-            setActivitiesData(activitiesData.map(activity => 
-                activity._id === editingActivityId ? response.data : activity
-            ));
+            const originalActivity = activitiesData.find((activity) => activity._id === editingActivityId);
+            const updatedFields = {};
+            
+            Object.keys(values).forEach((key) => {
+                if (values[key] !== originalActivity[key]) {
+                    updatedFields[key] = values[key];
+                }
+            });
+    
+            const response = await apiClient.put(`activity/updateActivityFilteredFields/${userid}/${editingActivityId}`,updatedFields);
+            setActivitiesData(
+                activitiesData.map((activity) => 
+                    activity._id === editingActivityId ? response.data : activity
+                )
+            );
+            
             message.success("Activity updated successfully!");
             setIsModalVisible(false);
             form.resetFields();
@@ -117,7 +117,7 @@ const Activities = () => {
             content: "Do you want to delete this activity?",
             onOk: async () => {
                 try {
-                    await apiClient.delete(`activity/deleteSpecificActivity/${id}`);
+                    await apiClient.delete(`activity/deleteSpecificActivity/${userid}/${id}`);
                     setActivitiesData(activitiesData.filter((activity) => activity._id !== id));
                     message.success("Activity deleted successfully!");
                 } catch (error) {
@@ -152,6 +152,7 @@ const Activities = () => {
     const handleCancel = () => {
         setIsModalVisible(false);
         setEditingActivityId(null);
+        form.resetFields();
     };
 
     return (
@@ -182,8 +183,7 @@ const Activities = () => {
                                         <p><strong>Date:</strong> {new Date(activity.date).toLocaleDateString()}</p>
                                         <p><strong>Upper Limit:</strong> {activity.upper}</p>
                                         <p><strong>Lower Limit:</strong> {activity.lower}</p>
-                                        <p><strong>Category:</strong> {activity.category.join(", ")}</p>
-                                        <p><strong>Tags:</strong> {activity.tags.join(", ")}</p>
+                                        <p><strong>Category:</strong> {categories.find(cat => cat._id.toString() === activity.category.toString())?.category || 'None'}</p>                                     <p><strong>Tags:</strong> {activity.tags.join(", ")}</p>
                                         <p><strong>Available Spots:</strong> {activity.spots}</p>
                                         <p><strong>Discounts:</strong> {activity.discounts}</p>
                                     </div>
@@ -220,7 +220,7 @@ const Activities = () => {
                         <Select placeholder="Select a category" allowClear>
                             {categories.map((category) => (
                                 <Select.Option key={category._id} value={category._id}>
-                                    {category.name}
+                                    {category.category}
                                 </Select.Option>
                             ))}
                         </Select>
