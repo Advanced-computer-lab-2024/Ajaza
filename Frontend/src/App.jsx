@@ -80,8 +80,9 @@ function App() {
             <Route path="/guide/*" element={<TourGuide />} />
             <Route path="/advertiser/*" element={<Advertiser />} />
             <Route path="/admin/*" element={<Admin />} />
-            <Route path="/governor/*" element={<TourismGovernor />} />
+            <Route path="/profile" element={<Profile />} />
 
+            <Route path="/governor/*" element={<TourismGovernor />} />
             <Route path="/seller/*" element={<Seller />} />
             <Route path="/register-tourist" element={<Tourist />} /> {/* Tourist registration page */}
             <Route path="/blank" element={<BlankPage />} />
