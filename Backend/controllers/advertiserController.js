@@ -104,16 +104,18 @@ exports.createAdvertiserProfile = async (req, res) => {
     const { link, hotline, companyProfile} = req.body;
    
   
-    const advertiser = await Advertiser.findById(advertiserId);
+    const advertiser = await Advertiser.findById(advertiserId).select('-pass');
     if (!advertiser) {
       return res.status(404).json({ message: 'Advertiser not found.' });
     }
     if(advertiser.pending){
-      return res.status(400).json({ message: 'Waiting for admin approval.' });
+      return res.status(401).json({ message: 'Waiting for admin approval.' });
     }
     if(!advertiser.acceptedTerms){
-      return res.status(400).json({ message: 'Terms and Conditions must be accepted.' });
-
+      return res.status(401).json({ message: 'Terms and Conditions must be accepted.' });
+    }
+    if(advertiser.companyProfile || advertiser.link || advertiser.hotline){
+      return res.status(401).json({ message: 'Profile already exists.' });
     }
 
     advertiser.link = link;
@@ -121,7 +123,7 @@ exports.createAdvertiserProfile = async (req, res) => {
     advertiser.companyProfile = companyProfile;
 
     const updatedAdvertiser = await advertiser.save();
-
+    updatedAdvertiser.pass = undefined;
     res.status(200).json(updatedAdvertiser);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -132,20 +134,17 @@ exports.createAdvertiserProfile = async (req, res) => {
 //--req8
 exports.advertiserReadProfile = async (req, res) => {
   try {
-    const advertiserProfile = await Advertiser.findById(req.params.id)
-      .select('-pass -taxationRegCard -pending -notifications -acceptedTerms');
-      const advertiser = await Advertiser.findById(req.params.id);
-
-    if (!advertiserProfile) {
+    const advertiser = await Advertiser.findById(req.params.id).select('-pass');
+    if (!advertiser) {
       return res.status(404).json({ message: 'Advertiser not found' });
     }
+    if (advertiser.pending) {
+      return res.status(401).json({ message: 'The profile is still pending approval.' });
+    }
     if (!advertiser.acceptedTerms) {
-      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+      return res.status(401).json({ message: 'Terms and conditions must be accepted' });
     }
-    if ( advertiser.pending) {
-      return res.status(400).json({ message: 'The profile is still pending approval.' });
-    }
-    res.status(200).json(advertiserProfile);
+    res.status(200).json(advertiser);
   }
   catch (error) {
     res.status(500).json({ error: error.message });
