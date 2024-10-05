@@ -4,6 +4,9 @@ const sellerController = require('../controllers/sellerController');
 const uploadIdImage = require('../middleware/uploadImage');
 const uploadTaxationRegCardImage = require('../middleware/uploadImage');
 const uploadLogoImage = require('../middleware/uploadImage');
+const validateEmail = require('../middleware/validateEmail');
+const uniqueUsername = require("../middleware/uniqueUsername");
+
 
 
 router.post('/', sellerController.createSeller);
@@ -19,12 +22,22 @@ router.delete('/deleteAgain/:id', sellerController.deleteSeller);
 router.delete('/deleteSellers', sellerController.deleteSellersRequestingDeletion);
 
 //req5
-router.post('/guestSellerCreateProfile', sellerController.guestSellerCreateProfile);    // Guest Seller sign up
+router.post('/guestSellerCreateProfile', validateEmail, uniqueUsername, sellerController.guestSellerCreateProfile);    // Guest Seller sign up
 
 // req9
-router.post('/sellerCreateProfile', sellerController.sellerCreateProfile);    // Seller sign up
+router.post('/sellerCreateProfile/:id', sellerController.sellerCreateProfile);    // Seller sign up
 router.get('/sellerReadProfile/:id', sellerController.sellerReadProfile);    // Seller read profile
-router.patch('/sellerUpdateProfile/:id', sellerController.sellerUpdateProfile);  // Seller update profile
+router.patch('/sellerUpdateProfile/:id', validateEmail, sellerController.sellerUpdateProfile);  // Seller update profile
+router.delete('/sellerDeleteHimself/:id',sellerController.sellerDeleteHimself);  // Seller delete himself
+
+
+router.delete('/deleteSomeSellers', sellerController.adminDeletesSellers);
+
+
+//delete off system
+router.delete('/deleteSellerFromSystem/:id', sellerController.adminDeletesSellerFromSystem);
+
+router.patch('/acceptTerms/:id', sellerController.acceptTerms);
 
 
 module.exports = router;

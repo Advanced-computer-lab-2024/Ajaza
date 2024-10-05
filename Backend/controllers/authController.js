@@ -72,13 +72,6 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: user._id, role }, // Include user data in the token
-      process.env.JWT_SECRET, // Use the environment variable
-      { expiresIn: "1h" }
-    );
-
     // Map user details
     let userDetails = {};
     if (role === "tourist") {
@@ -100,10 +93,15 @@ exports.login = async (req, res) => {
       userDetails = mapUserDetails(user, Admin.schema);
     }
 
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id, role, userDetails }, // Include user data in the token
+      process.env.JWT_SECRET, // Use the environment variable
+      { expiresIn: "1h" }
+    );
+
     // Send token, role, and user details to the frontend
-    res
-      .status(200)
-      .json({ token, role, userDetails, message: "Login successful" });
+    res.status(200).json({ token, message: "Login successful" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

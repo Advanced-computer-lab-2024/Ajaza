@@ -4,6 +4,10 @@ const advertiserController = require('../controllers/advertiserController');
 const uploadIdImage = require('../middleware/uploadImage');
 const uploadTaxationRegCardImage = require('../middleware/uploadImage');
 const uploadLogoImage = require('../middleware/uploadImage');
+const validateEmail = require('../middleware/validateEmail');
+const uniqueUsername = require("../middleware/uniqueUsername");
+
+
 
 router.post('/', advertiserController.createAdvertiser);
 
@@ -21,7 +25,7 @@ router.delete('/deleteAdvertisers', advertiserController.deleteAdvertisersReques
 
 
 //req5  -- Tatos
-router.post('/guestAdvertiserCreateProfile', advertiserController.guestAdvertiserCreateProfile);    // Guest Advertiser sign up
+router.post('/guestAdvertiserCreateProfile',validateEmail, uniqueUsername, advertiserController.guestAdvertiserCreateProfile);    // Guest Advertiser sign up
 
 // Create advertiser (sign-up)
 //router.post('/addAdvertiserProfile', advertiserController.createAdvertiserProfile);
@@ -31,8 +35,19 @@ router.get('/advertiserReadProfile/:id', advertiserController.advertiserReadProf
 
 // Update the profile of the authenticated advertiser
 router.patch('/advertiserUpdateProfile/:id',advertiserController.advertiserUpdateProfile);
-module.exports = router;
+router.post('/createAdvertiserProfile/:advertiserId',advertiserController.createAdvertiserProfile);
 
 
 //----req26---
 router.get('/getMyActivities/:advertiserId', advertiserController.getAdvertiserActivities);
+
+
+router.delete('/deleteSomeAdvertisers', advertiserController.adminDeletesAdvertisers)
+
+
+//delete off system
+router.delete('/deleteAdvertiserFromSystem/:id', advertiserController.adminDeletesAdvertiserFromSystem);
+
+router.patch('/acceptTerms/:id', advertiserController.acceptTerms);
+
+module.exports = router;

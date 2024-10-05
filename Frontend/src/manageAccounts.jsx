@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Col, Row, Button, message, Layout, Typography } from 'antd';
-import AdminCustomLayout from './Components/AdminCustomLayout';
+import AdminCustomLayout from './Components/Admin/AdminCustomLayout';
 const { Content } = Layout;
 const { Title } = Typography;
 

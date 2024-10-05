@@ -21,11 +21,11 @@ import Itineraries from "./Components/Itineraries";
 import Activities from "./Components/Activities";
 import Venues from "./Components/Venues";
 
-import ManageAccounts from "./manageAccounts";
-import AddAccounts from "./addAccounts";
+//import ManageAccounts from "./manageAccounts";
+//import AddAccounts from "./addAccounts";
 
-import ManageActivityCategories from "./manageActivityCategories";
-import ManagePreferenceTags from "./managePreferenceTags";
+//import ManageActivityCategories from "./Components/Admin/manageActivityCategories";
+//import ManagePreferenceTags from "./Components/Admin/managePreferenceTags";
 import LandingPage from "./Components/LandingPage";
 import SignIn from "./Components/Sign/SignIn";
 import SignUp from "./Components/Sign/SignUp";
@@ -75,13 +75,12 @@ function App() {
               }
             />
             <Route path="/tourist/*" element={<Tourist />} />
-            <Route path = "/tourist/touristProfile/:id" element={<TouristProfile />} />
-            <Route path="/tourGuide/*" element={<TourGuide />} />
+            <Route path="/guide/*" element={<TourGuide />} />
             <Route path="/advertiser/*" element={<Advertiser />} />
             <Route path="/admin/*" element={<Admin />} />
-            <Route path="/seller/*" element={<Seller />} />
-            <Route path="/tourismGovernor/*" element={<TourismGovernor />} />
 
+            <Route path="/seller/*" element={<Seller />} />
+            <Route path="/governor/*" element={<TourismGovernor />} />
           </Routes>
         </Content>
       </Layout>

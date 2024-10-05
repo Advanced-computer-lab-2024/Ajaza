@@ -144,8 +144,15 @@ exports.guestGuideCreateProfile = async (req, res) => {
   });
 
   try {
+
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(filteredBody.pass, saltRounds);
+
+    filteredBody.pass = hashedPassword;
+
     const guide = new Guide(filteredBody);
     const savedguide = await guide.save();
+    savedguide.pass = undefined;
     res.status(201).json(savedguide);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -174,42 +181,34 @@ exports.deleteGuidesRequestingDeletion = async (req, res) => {
   }
 };
 
-//-- by zeina: create profile for guide req7 repeated, found out its already done by tatos
+//-- by zeina: create profile for guide req 7 
 exports.createGuideProfile = async (req, res) => {
   try {
-      const { username, email, pass, mobile, yearsOfExperience, previousWork, acceptedTerms } = req.body;
+    const { guideId } = req.params; 
+    const { mobile, yearsOfExperience, previousWork} = req.body;
+   
+  
+    const guide = await Guide.findById(guideId);
+    if (!guide) {
+      return res.status(404).json({ message: 'Guide not found.' });
+    }
+    if(guide.pending){
+      return res.status(400).json({ message: 'Waiting for admin approval.' });
+    }
+    if(!guide.acceptedTerms){
+      return res.status(400).json({ message: 'Terms and Conditions must be accepted.' });
 
-      // Check if the user with the same username exists
-      const existingGuide = await Guide.findOne({ username });
-      if (existingGuide) {
-          return res.status(400).json({ message: 'Username or Email already exists.' });
-      }
+    }
 
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(pass, 10);
+    guide.mobile = mobile;
+    guide.yearsOfExperience = yearsOfExperience;
+    guide.previousWork = previousWork;
 
-      // Create a new guide
-      const guide = new Guide({
-          username,
-          email,
-          pass: hashedPassword,
-          mobile,
-          yearsOfExperience,
-          previousWork,
-          acceptedTerms,
-          pending: true, // Default to true until approved by admin
-      });
+    const updatedGuide = await guide.save();
 
-      // Save the guide to the database
-      const savedGuide = await guide.save();
-
-      // Generate JWT token for the new guide
-      const token = jwt.sign({ userId: savedGuide._id }, 'security_key', { expiresIn: '1h' });
-
-      // Return the saved guide and token
-      res.status(201).json({ guide: savedGuide, token });
+    res.status(200).json(updatedGuide);
   } catch (error) {
-      res.status(400).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -217,13 +216,20 @@ exports.createGuideProfile = async (req, res) => {
 exports.getGuideProfile = async (req, res) => {
   try {
     const guideId = req.params.id; // Get guideId from URL parameter
+    const guide = await Guide.findById(guideId);
 
     const guideProfile = await Guide.findById(guideId).select(
       '-pass -pending -acceptedTerms -notifications -requestingDeletion'
     );
-
+  
     if (!guideProfile) {
       return res.status(404).json({ message: 'Guide not found' });
+    }
+    if (!guide.acceptedTerms) {
+      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+    }
+    if ( guide.pending) {
+      return res.status(400).json({ message: 'The profile is still pending approval.' });
     }
 
     res.status(200).json(guideProfile);
@@ -233,11 +239,12 @@ exports.getGuideProfile = async (req, res) => {
 };
 
 
+
 // Update profile by ID (Profile Update)
 exports.updateGuideProfile = async (req, res) => {
   try {
     const guideId = req.params.id; // Get guideId from URL parameter
-
+    const guide = await Guide.findById(guideId);
     // Update the guide's profile
     await Guide.findByIdAndUpdate(guideId, req.body);
 
@@ -249,13 +256,18 @@ exports.updateGuideProfile = async (req, res) => {
     if (!updatedGuide) {
       return res.status(404).json({ message: 'Guide not found' });
     }
+    if (!guide.acceptedTerms) {
+      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+    }
+    if ( guide.pending) {
+      return res.status(400).json({ message: 'The profile is still pending approval.' });
+    }
 
     res.status(200).json(updatedGuide);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 //--req26---
 exports.getGuideItineraries = async (req, res) => {
@@ -264,11 +276,74 @@ exports.getGuideItineraries = async (req, res) => {
 
     const itineraries = await Itinerary.find({ guideId });
 
+    const guide = await Guide.findById(guideId);
+    if (!guide) {
+      return res.status(404).json({ message: 'Guide not found' });
+    }
+
+    if (!guide.acceptedTerms) {
+      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+    }
+    if ( guide.pending) {
+      return res.status(400).json({ message: 'The profile is still pending approval.' });
+    }
     if (!itineraries || itineraries.length === 0) {
       return res.status(404).json({ message: 'No itineraries found for this tour guide' });
     }
 
     res.status(200).json(itineraries);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+exports.adminDeletesGuides = async (req, res) => {
+  const guideIds = req.body.guideIds;
+  if(!guideIds || !guideIds.length) {
+    return res.status(400).json({ error: 'Guide IDs are required' });
+  }
+  try {
+    const result = await Guide.deleteMany({ _id: { $in: guideIds }, requestingDeletion: true});
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: 'Guides selected were not requesting deletion' });
+    }
+    res.status(200).json({ message: 'Guides deleted successfully', result });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.adminDeletesGuideFromSystem = async (req, res) => {
+  const guideId = req.params.id;
+  if(!guideId) {
+    return res.status(400).json({ error: 'Guide ID is required' });
+  }
+  try {
+    const result = await Itinerary.updateMany(
+      { guideId: guideId }, // Find all activities with this guideId
+      { $set: { hidden: true } }      // Set hidden field to true
+    );
+    const deletedguide = await Guide.findByIdAndDelete(guideId);
+    if (!deletedguide) {
+      return res.status(404).json({ message: 'Guide not found' });
+    }
+    res.status(200).json({ message: 'Guide deleted successfully', result });
+  } catch(error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.acceptTerms = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await Guide.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    user.acceptedTerms = true;
+    await user.save();
+    res.status(200).json({ message: 'Terms accepted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

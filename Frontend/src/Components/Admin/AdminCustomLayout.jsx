@@ -11,7 +11,7 @@ import {
   DownOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme /*, Dropdown*/ } from "antd";
-import ManageActivityCategories from "../manageActivityCategories";
+//import ManageActivityCategories from "./manageActivityCategories";
 
 const { Header, Sider, Content } = Layout;
 
@@ -26,20 +26,14 @@ const AdminCustomLayout = ({ children }) => {
   } = theme.useToken();
 
   const handleMenuClick = ({ key }) => {
-    if (key === "1") {
-      setShowManageOptions(!showManageOptions);
-    } else if (key === "setting:2") {
-      navigate("/manage-accounts");
-    } else if (key === "3") {
-      navigate("/manage-accounts/action2");
-    } else if (key === "4") {
-      navigate("/manage-accounts/action3");
-    } else if (key === "5") {
-      navigate("/manage-activity-categories"); // New navigation for activity categories
+     if (key === "setting:2") {
+      navigate("/admin");
+    }  else if (key === "5") {
+      navigate("/Admin/manage-activity-categories"); // New navigation for activity categories
     } else if (key === "setting:1") {
-      navigate("/manage-accounts/action3");
+      navigate("/Admin/add-Accounts");
     } else if (key === "11") {
-      navigate("/preference-tags");
+      navigate("/Admin/preference-tags");
     }
   };
 
@@ -116,9 +110,9 @@ const AdminCustomLayout = ({ children }) => {
             borderRadius: borderRadiusLG,
           }}
         >
-          {/* {children} */}
-          adam
-          <ManageActivityCategories />
+           {children} 
+          
+          
         </Content>
       </Layout>
     </Layout>
@@ -126,3 +120,4 @@ const AdminCustomLayout = ({ children }) => {
 };
 
 export default AdminCustomLayout;
+

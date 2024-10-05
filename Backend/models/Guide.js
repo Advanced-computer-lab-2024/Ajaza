@@ -4,7 +4,7 @@ const guideSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   pass: { type: String, required: true }, // hashed password
-  id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Img'}, // serialized number for beta2a
+  id: { type: mongoose.Schema.Types.ObjectId, ref: 'Img'}, // serialized number for beta2a //make this required after ensuring uploading image is working
   certificates: [{ type: String }], // array of serialized certificate images
   pending: { type: Boolean, default: true }, // initially true until admin approves
   mobile: { type: String, required: false },

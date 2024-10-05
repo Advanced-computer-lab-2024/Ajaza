@@ -14,10 +14,13 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-// Get all products
+// Get all products req81
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find({hidden: { $ne: true }/*, archived: { $ne: true },*/});
+    if(!products || products.length === 0){
+      return res.status(404).json({ message: "No products found" });
+    }
     res.status(200).json(products);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -149,6 +152,16 @@ exports.adminSellerAddProduct = async (req, res) => {
     // Check if the ID is a seller ID
     const seller = await Seller.findById(id);
     if (seller) {
+      if(seller.requestingDeletion){
+        return res.status(403).json({ error: "Seller is requesting deletion" });
+      }
+      if(seller.pending){
+        return res.status(403).json({ error: "Seller is pending approval" });
+      }
+      if(seller.acceptedTerms === false){
+        return res.status(403).json({ error: "Seller has not accepted the terms" });
+      }
+
       isSeller = true;
       // If the ID is a seller ID, add the sellerId and sellerName to the product
       filteredBody.sellerId = id;
@@ -202,6 +215,12 @@ exports.adminSellerEditProduct = async (req, res) => {
     const seller = await Seller.findById(id);
     if (seller) {
       isSeller = true;
+      if(seller.pending){
+        return res.status(403).json({ error: "Seller is pending approval" });
+      }
+      if(seller.acceptedTerms === false){
+        return res.status(403).json({ error: "Seller has not accepted the terms" });
+      }
     } else {
       // If not a seller, check if the ID is an admin ID
       const admin = await Admin.findById(id);
@@ -274,6 +293,8 @@ exports.searchProduct = async (req, res) => {
   try {
     const products = await Product.find({
       name: { $regex: req.query.name, $options: "i" },
+      hidden: { $ne: true },
+      /*archived: { $ne: true },*/
     });
     if (products.length === 0) {
       return res.status(404).json({ message: "No products found" });

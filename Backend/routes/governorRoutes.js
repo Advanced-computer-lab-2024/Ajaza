@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const governorController = require('../controllers/governorController');
+const uniqueUsername = require("../middleware/uniqueUsername");
+
 
 
 router.post('/createAgain' , governorController.createGovernor)
@@ -23,16 +25,23 @@ router.delete('/deleteGov/:id', governorController.deleteGovernor);
  update: in the url write the id of the venue and in the body give the governor id + the fields u want to update
  delete: in the url write the id of the venue and in the body provide the governor id 
 */
-router.post('/createGovernorVenue', governorController.createGovernorVenue); 
-router.get('/readAllGovernorVenues', governorController.readAllGovernorVenues); 
-router.put('/updateGovernorVenue/:id', governorController.updateGovernorVenue);
-router.delete('/deleteGovernorVenue/:id', governorController.deleteGovernorVenue); 
+router.post('/createGovernorVenue/:governorId', governorController.createGovernorVenue); 
+router.get('/readAllGovernorVenues/:governorId', governorController.readAllGovernorVenues); 
+router.put('/updateGovernorVenue/:governorId/:venueId', governorController.updateGovernorVenue);
+router.delete('/deleteGovernorVenue/:governorId/:venueId', governorController.deleteGovernorVenue); 
 
 // req 17 ng
-router.post('/addGoverner', governorController.adminAddGovernor);
+router.post('/addGovernor', uniqueUsername, governorController.adminAddGovernor);
 //--req26--
 router.get('/getMyVenues/:governorId', governorController.getGovernorVenues);
 
 //--req 22--- body: venue id w tag w preference tag (u can put empty array [])
-router.post('/createTagForVenue', governorController.createTagForVenue);
+router.post('/createTagForVenue/:governorId/:venueId', governorController.createTagForVenue);
+
+//delete from system
+router.delete('/deleteGovernorFromSystem/:id', governorController.adminDeletesGovernorFromSystem);
+
+router.patch('/acceptTerms/:id', governorController.acceptTerms);
+
+
 module.exports = router;

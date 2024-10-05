@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const adminController = require("../controllers/adminController");
+const uniqueUsername = require("../middleware/uniqueUsername");
 
 router.post("/", adminController.createAdmin);
 
@@ -17,6 +18,6 @@ router.patch("/:id", adminController.updateAdmin);
 router.delete("/:id", adminController.deleteAdmin);
 
 // req 17 ng, admin adds another admin
-router.post("/addAdmin", adminController.adminAddAdmin);
+router.post("/addAdmin", uniqueUsername, adminController.adminAddAdmin);
 
 module.exports = router;

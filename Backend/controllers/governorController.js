@@ -65,11 +65,17 @@ exports.deleteGovernor = async (req, res) => {
   }
 };
 
+
 // Create a new venue --- req 21------
 
 exports.createGovernorVenue = async (req, res) => {
   try {
-    const { name, desc, pictures, location, openingHours, price, tags, governorId } = req.body;
+    const { governorId } = req.params; 
+    const { name, desc, pictures, location, openingHours, price, tags } = req.body;
+    const governor = await Governor.findById(governorId);
+    if (!governor) {
+      return res.status(404).json({ message: 'Governor not found' });
+    }
 
     const newVenue = new Venue({
       governorId, 
@@ -89,31 +95,37 @@ exports.createGovernorVenue = async (req, res) => {
   }
 };
 
+
 // Read all visible venues with specific details
 exports.readAllGovernorVenues = async (req, res) => {
   try {
-    const venues = await Venue.find().select(
-      'desc pictures location openingHours price'
-    );
+    const { governorId } = req.params; 
+    
+    const venues = await Venue.find({ governorId, isVisible: true });
+
+    if (!venues || venues.length === 0) {
+      return res.status(404).json({ message: 'No venues found for this governor.' });
+    }
+
     res.status(200).json(venues);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
 // Update a venue (only if the provided governorId matches the creator's)
 exports.updateGovernorVenue = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { governorId, ...updateData } = req.body; // Extract governorId from the request body
+    const { governorId, venueId } = req.params; 
+    const updateData = req.body; // Use the whole request body for update
 
     // Find the venue and check if the governorId matches the creator's
-    const venue = await Venue.findOne({ _id: id, governorId: governorId });
+    const venue = await Venue.findOne({ _id: venueId, governorId: governorId });
     if (!venue) {
       return res.status(404).json({ message: 'Venue not found or not authorized to update' });
     }
 
-    Object.assign(venue, updateData);
+    Object.assign(venue, updateData); // Merge the updates into the existing venue
     await venue.save();
 
     res.status(200).json(venue);
@@ -125,11 +137,10 @@ exports.updateGovernorVenue = async (req, res) => {
 // Hide a venue (only if the provided governorId matches the creator's)
 exports.deleteGovernorVenue = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { governorId } = req.body; // Extract governorId from the request body
+    const { governorId,venueId } = req.params;
 
     // Find the venue and check if the governorId matches the creator's
-    const venue = await Venue.findOne({ _id: id, governorId: governorId });
+    const venue = await Venue.findOne({ _id: venueId, governorId: governorId });
     if (!venue) {
       return res.status(404).json({ message: 'Venue not found or not authorized to hide' });
     }
@@ -148,28 +159,23 @@ exports.deleteGovernorVenue = async (req, res) => {
 
 // admin create a new governor
 exports.adminAddGovernor = async (req, res) => {
-  const { username, password } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Username and password are required.' });
+  const { username, pass } = req.body;
+
+  if (!username || !pass) {
+    return res.status(400).json({ message: 'Username and pass are required.' });
   }
 
+  const saltRounds = 10;
+  const hashedPass = await bcrypt.hash(pass, saltRounds);
+
   try {
-    const existingGovernor = await Governor.findOne({ username });
-    if (existingGovernor) {
-      return res.status(400).json({ message: 'Username is already taken.' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newGovernor = new Governor({ username, pass: hashedPassword });
-
+    const newGovernor = new Governor({ username, pass: hashedPass });
     const savedGovernor = await newGovernor.save();
-    
-    res.status(201).json({ message: 'Governor created successfully', governor: savedGovernor });
+    savedGovernor.pass = undefined;
+    res.status(201).json(savedGovernor);
   } catch (error) {
-    console.error('Error while saving the Governor:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(400).json({error: error.message });
   }
 };
 
@@ -195,32 +201,36 @@ exports.getGovernorVenues = async (req, res) => {
 // create a new tag for a specific venue/'different historical locs'
 exports.createTagForVenue = async (req, res) => {
   try {
-    const { venueId, tag, preferenceTags } = req.body;
+    const { governorId, venueId } = req.params; 
+    const { tag, preferenceTags } = req.body;
+
     const validTags = ['Monuments', 'Museums', 'Religious Sites', 'Palaces/Castles'];
     if (!validTags.includes(tag)) {
       return res.status(400).json({ message: 'Invalid tag. Valid tags are: Monuments, Museums, Religious Sites, Palaces/Castles.' });
     }
 
-    // validate law preferenceTags an array of strings
+    // validate el preferenceTags to be an array of strings bs hya optional
     if (preferenceTags && !Array.isArray(preferenceTags)) {
-      return res.status(400).json({ message: 'Invalid Preference tags.' });
+      return res.status(400).json({ message: 'Invalid preference tags.' });
     }
 
     let newTag = await Tag.findOne({ tag });
     if (!newTag) {
+      // create a new tag if it doesn't exist
       newTag = new Tag({ tag, preferanceTags: preferenceTags });
       await newTag.save();
     } else {
-      // update el preference tags law tag already exists
-      newTag.preferanceTags = [...new Set([...newTag.preferanceTags, ...preferenceTags])];
+      // update el preferenceTags if the tag already exists
+      newTag.preferanceTags = [...new Set([...newTag.preferanceTags, ...(preferenceTags || [])])];
       await newTag.save();
     }
 
-    const venue = await Venue.findById(venueId);
+    const venue = await Venue.findOne({ _id: venueId, governorId });
     if (!venue) {
-      return res.status(404).json({ message: 'Venue not found' });
+      return res.status(404).json({ message: 'Venue not found or you are not authorized to update this venue.' });
     }
 
+    // add the new tag to the venue's tags array (ensure no duplicate tags)
     if (!venue.tags.includes(tag)) {
       venue.tags.push(tag);
     } else {
@@ -230,6 +240,40 @@ exports.createTagForVenue = async (req, res) => {
     await venue.save();
 
     res.status(200).json({ message: 'Tag and preference tags added to venue successfully', tag: newTag, venue });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+exports.adminDeletesGovernorFromSystem = async (req, res) => {
+  const governorId = req.params.id;
+  if(!governorId) {
+    return res.status(400).json({ error: 'Governor ID is required' });
+  }
+  try {
+    const result = await Venue.updateMany(
+      { governorId: governorId }, // Find all activities with this governorId
+      { $set: { isVisible: false } }      // Set hidden field to true
+    );
+    const deletedgovernor = await Governor.findByIdAndDelete(governorId);
+    if (!deletedgovernor) {
+      return res.status(404).json({ message: 'Governor not found' });
+    }
+    res.status(200).json({ message: 'Governor deleted successfully', result });
+  } catch(error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.acceptTerms = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await Governor.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    user.acceptedTerms = true;
+    await user.save();
+    res.status(200).json({ message: 'Terms accepted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
