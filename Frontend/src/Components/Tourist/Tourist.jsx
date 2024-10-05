@@ -53,32 +53,32 @@ const Tourist = () => {
   ];
 
   const createTourist = async (values) => {
-
     try {
       console.log("Values:", values);
-      console.log(values.email)
-      console.log(values.username)
-      console.log(values.password)
-      console.log(values.mobile_number)
-      console.log(values.nationality)
-      console.log(values.dob)
-      console.log(values.occupation)
+      console.log(values.email);
+      console.log(values.username);
+      console.log(values.password);
+      console.log(values.mobile_number);
+      console.log(values.nationality);
+      console.log(values.dob);
+      console.log(values.occupation);
 
+      const response = await axios.post(
+        "http://localhost:5000/tourist/guestTouristCreateProfile",
+        {
+          username: values.username,
+          email: values.email,
+          pass: values.password,
+          mobile: values.mobile_number,
+          nationality: values.nationality,
+          dob: values.dob,
+          occupation: values.occupation,
+        }
+      );
 
-      const response = await axios.post("http://localhost:5000/tourist/guestTouristCreateProfile", {
-        username: values.username,
-        email: values.email,
-        pass: values.password,
-        mobile: values.mobile_number,
-        nationality: values.nationality,
-        dob: values.dob,
-        occupation: values.occupation,
-      })
-
-      console.log("ENGY")
+      console.log("ENGY");
       setTouristData(response.data);
       message.success("Tourist created successfully!");
-
     } catch (error) {
       console.error("Error creating tourist:", error);
       message.error("Failed to create tourist.");
@@ -100,7 +100,9 @@ const Tourist = () => {
 
   return (
     <CustomLayout sideBarItems={sideBarItems}>
-      <div style={{ textAlign: "center", alignItems: "center", marginTop: "20px" }}>
+      <div
+        style={{ textAlign: "center", alignItems: "center", marginTop: "20px" }}
+      >
         <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>
           Register as a {role} {/* Display the current role */}
         </h1>
@@ -138,7 +140,14 @@ const Tourist = () => {
         ></CustomButton>
       </div>
 
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
+      >
         <Form
           name="basic"
           labelCol={{ span: 8 }}
@@ -192,7 +201,9 @@ const Tourist = () => {
           <Form.Item
             label="Nationality"
             name="nationality"
-            rules={[{ required: true, message: "Please input your nationality!" }]}
+            rules={[
+              { required: true, message: "Please input your nationality!" },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -208,7 +219,9 @@ const Tourist = () => {
           <Form.Item
             label="Occupation"
             name="occupation"
-            rules={[{ required: true, message: "Please select your occupation!" }]}
+            rules={[
+              { required: true, message: "Please select your occupation!" },
+            ]}
           >
             <Select placeholder="Select your occupation">
               <Select.Option value="job">Job</Select.Option>
@@ -233,7 +246,7 @@ const Tourist = () => {
         <Route path="/" element={<Plans />} />
         <Route path="itineraries" element={<div>Itineraries Page</div>} />
         <Route path="account" element={<Profile />} />
-        {/* <Route path="profile" element={<TouristProfile />} /> */}
+        <Route path="profile" element={<TouristProfile />} />
       </Routes>
     </CustomLayout>
   );
