@@ -1,84 +1,113 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { Form, Input, Select, DatePicker, Typography, Upload, message } from "antd";
-// import CustomButton from './Components/Common/CustomButton';
-// import CustomLayout from './Components/Common/CustomLayout';
+import React, { useState, useEffect } from "react";
+import { Input, message } from "antd";
 import CustomButton from "../Common/CustomButton";
 import { CustomLayout } from "../Common";
-import { UserOutlined, UploadOutlined } from "@ant-design/icons";
-import CustomCard from '../Card';
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
+
 
 const SellerForm = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { name: initialName, description: initialDescription } = location.state || {};
+    const newSellerId = location.state?.newSellerId;
 
-    // Editable state for seller info
-    const [name, setName] = useState(initialName || "");
-    const [description, setDescription] = useState(initialDescription || "");
+    console.log("ID in SellerForm page:", newSellerId);
+    // State for holding seller information
+    const [name, setName] = useState("");
+    const [desc, setDesc] = useState("");
     const [isEditing, setIsEditing] = useState(false);
 
-    // Toggle edit mode
+    const handleAddProductClick = () => {
+        navigate("/product", { state: { newSellerId } });
+    };
     const handleUpdateClick = () => {
         setIsEditing(true);
     };
 
-    // Save the updated values
-    const handleSaveClick = () => {
-        setIsEditing(false); // Exit editing mode
-        console.log("Updated values:", { name, description });
+    // Sidebar items including the "Add Product" button
+    const sideBarItems = [
+        {
+            key: "addProduct",
+            label: "Add Product",
+            onClick: handleAddProductClick,
+        },
+        // You can add more items here if needed
+    ];
+
+    // Fetch seller data when component mounts or sellerId changes
+    useEffect(() => {
+        const fetchSeller = async () => {
+            if (!newSellerId) return; // If there's no sellerId, exit early
+            try {
+                console.log("Seller ID:", newSellerId);
+                const response = await axios.get(`http://localhost:5000/seller/sellerReadProfile/${newSellerId}`);
+                // Set the name and description with the fetched data
+                setName(response.data.name || ""); // Ensure it defaults to an empty string if undefined
+                setDesc(response.data.desc || ""); // Ensure it defaults to an empty string if undefined
+            } catch (error) {
+                console.error("Error fetching seller data:", error);
+                message.error("Failed to load seller data.");
+            }
+        };
+        fetchSeller();
+    }, [newSellerId]);
+
+    // Handle save updates to seller data
+    const handleSaveClick = async () => {
+        if (!name || !desc) {
+            message.error("Please provide a name and description for the seller.");
+            return;
+        }
+
+        try {
+            await axios.patch(`http://localhost:5000/seller/sellerUpdateProfile/${newSellerId}`, {
+                name,
+                desc,
+            });
+
+            message.success("Seller updated successfully!");
+
+        } catch (error) {
+            console.error("Error updating seller:", error);
+            message.error("Failed to update seller.");
+        }
     };
 
     return (
-        <div style={{ textAlign: "center", marginTop: "20px" }}>
-            <h1>Seller Details</h1>
-            {location.state ? (
-                <div>
-                    {isEditing ? (
-                        <div>
-                            <Form
-                                name="sellerForm"
-                                labelCol={{ span: 8 }}
-                                wrapperCol={{ span: 16 }}
-                                style={{ maxWidth: 600, width: "100%" }}
-                                autoComplete="off"
-                            >
-                                <Form.Item label="Name">
-                                    <Input.TextArea
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        rows={2}
-                                        placeholder="Enter seller name"
-                                    />
-                                </Form.Item>
-                                <Form.Item label="Description">
-                                    <Input.TextArea
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
-                                        rows={4}
-                                        placeholder="Enter seller description"
-                                    />
-                                </Form.Item>
-                            </Form>
-                            <CustomButton type="primary" value="Save" size="m" onClick={handleSaveClick}>
-
-                            </CustomButton>
-                        </div>
-                    ) : (
-                        <div>
-                            <p><strong>Name:</strong> {name}</p>
-                            <p><strong>Description:</strong> {description}</p>
-                            <CustomButton type="default" value="Update" size="m" onClick={handleUpdateClick}>
-
-                            </CustomButton>
-                        </div>
-                    )}
-                </div>
-            ) : (
-                <p>No seller data available. Please go back and fill the form.</p>
-            )}
-        </div>
+        <CustomLayout sideBarItems={sideBarItems}>
+            <div style={{ textAlign: "center", marginTop: "20px" }}>
+                <Input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter seller name"
+                    disabled={!isEditing} // Disable input if not editing
+                />
+                <Input
+                    type="text"
+                    value={desc}
+                    onChange={(e) => setDesc(e.target.value)}
+                    placeholder="Enter seller description"
+                    style={{ marginTop: "10px" }}
+                    disabled={!isEditing} // Disable input if not editing
+                />
+                <CustomButton
+                    type="primary"
+                    size="m"
+                    value={isEditing ? "Update" : "Edit"}
+                    onClick={() => {
+                        if (isEditing) {
+                            handleSaveClick();
+                        } else {
+                            setIsEditing(true); // Enable editing mode
+                        }
+                    }}
+                >
+                    {isEditing ? "Update" : "Edit"}
+                </CustomButton>
+            </div>
+        </CustomLayout>
     );
 };
 
-export default SellerForm
+export default SellerForm;

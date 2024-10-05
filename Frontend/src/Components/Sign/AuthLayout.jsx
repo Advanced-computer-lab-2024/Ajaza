@@ -25,7 +25,7 @@ const AuthLayout = ({ children }) => {
         }}
       >
         <div id="logo" style={{}}>
-          Ajaza
+          Aچaza
         </div>
         <div style={{ marginLeft: "auto" }}>
           <CustomButton

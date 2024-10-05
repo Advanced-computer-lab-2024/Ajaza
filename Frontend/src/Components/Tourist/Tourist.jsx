@@ -1,39 +1,36 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { CalendarOutlined, ContainerOutlined } from "@ant-design/icons";
 import { apiUrl } from "../Common/Constants";
-import { useEffect, useState } from "react";
 import axios from "axios";
 import CustomButton from "../Common/CustomButton";
 import CustomLayout from "../Common/CustomLayout";
 import { Form, Input } from "antd";
-import { DatePicker, Select } from "antd";
+import { DatePicker, Select, message } from "antd";
 import { useRole } from "../Sign/SignUp"; // Adjust path if needed
 import { TouristProfile } from "./TouristProfile";
 import Profile from "../Common/Profile";
-
+import { jwtDecode } from "jwt-decode";
 
 const Tourist = () => {
-  const [response, setResponse] = useState([]);
+  const [touristData, setTouristData] = useState([]);
+  const { role, setRole } = useRole();
   const navigate = useNavigate();
-  const { role, setRole } = useRole(); // Get role and setRole from context
+  const [loading, setLoading] = useState(true);
 
-  const onFinish = (values) => {
-    console.log("Success:", values);
-    navigate("/blank"); // Redirect to the blank page after successful submission
-  };
+  let decodedToken = null;
+  const token = localStorage.getItem("token");
+  if (token) {
+    decodedToken = jwtDecode(token);
+  }
+  const userid = decodedToken ? decodedToken.userId : null;
 
-  const onFinishFailed = (errorInfo) => {
-    console.log("Failed:", errorInfo);
-  };
   const sideBarItems = [
     {
       key: "1",
       icon: <CalendarOutlined />,
       label: "Itineraries",
-      onClick: () => {
-        navigate("itineraries");
-      },
+      onClick: () => navigate("itineraries"),
     },
     {
       key: "2",
@@ -54,45 +51,52 @@ const Tourist = () => {
     },
   ];
 
-  useEffect(() => {
-    const urlExtension = "tourist/";
+  const createTourist = async (values) => {
 
-    const token = localStorage.getItem("token");
-    let decodedToken = null;
-    if (token) {
-      //decodedToken = jwtDecode(token);
+    try {
+      console.log("Values:", values);
+      console.log(values.email)
+      console.log(values.username)
+      console.log(values.password)
+      console.log(values.mobile_number)
+      console.log(values.nationality)
+      console.log(values.dob)
+      console.log(values.occupation)
+
+
+      const response = await axios.post("http://localhost:5000/tourist/guestTouristCreateProfile", {
+        username: values.username,
+        email: values.email,
+        pass: values.password,
+        mobile: values.mobile_number,
+        nationality: values.nationality,
+        dob: values.dob,
+        occupation: values.occupation,
+      })
+
+      console.log("ENGY")
+      setTouristData(response.data);
+      message.success("Tourist created successfully!");
+
+    } catch (error) {
+      console.error("Error creating tourist:", error);
+      message.error("Failed to create tourist.");
     }
+  };
 
-    const fetchData = async () => {
-      const body = {
-        id: "123",
-        // Add more key-value pairs as needed
-      };
-
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json", // Example header, adjust as needed
-        },
-      };
-      try {
-        const apiResponse = await axios.get(
-          apiUrl + urlExtension,
-          body,
-          config
-        );
-        console.log(response);
-
-        if (apiResponse.status === 200) {
-          setResponse(apiResponse.data);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
+  useEffect(() => {
+    //createSeller();
   }, []);
+
+  const onFinish = async (values) => {
+    await createTourist(values);
+    navigate("/blank");
+  };
+
+  const onFinishFailed = (errorInfo) => {
+    console.log("Failed:", errorInfo);
+  };
+
   return (
     <CustomLayout sideBarItems={sideBarItems}>
       <div style={{ textAlign: "center", alignItems: "center", marginTop: "20px" }}>
@@ -109,42 +113,31 @@ const Tourist = () => {
           value="Tourist"
           size="m"
           style={{ margin: "10px" }}
-        >
-        </CustomButton>
+        ></CustomButton>
         <CustomButton
           type={role === "Tour Guide" ? "primary" : "default"}
           onClick={() => setRole("Tour Guide")}
           value="Tour Guide"
           size="m"
           style={{ margin: "10px" }}
-        >
-        </CustomButton>
+        ></CustomButton>
         <CustomButton
           type={role === "Seller" ? "primary" : "default"}
           onClick={() => setRole("Seller")}
           value="Seller"
           size="m"
           style={{ margin: "10px" }}
-        >
-        </CustomButton>
+        ></CustomButton>
         <CustomButton
           type={role === "Advertiser" ? "primary" : "default"}
           onClick={() => setRole("Advertiser")}
           value="Advertiser"
           size="m"
           style={{ margin: "10px" }}
-        >
-        </CustomButton>
+        ></CustomButton>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-        }}
-      >
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
         <Form
           name="basic"
           labelCol={{ span: 8 }}
@@ -186,11 +179,10 @@ const Tourist = () => {
 
           <Form.Item
             label="Mobile number"
-            name="mobile number"
+            name="mobile_number" // Adjust the name to follow snake_case
             rules={[
               { required: true, message: "Please input your mobile number!" },
-              { len: 11, message: "Mobile number must be 11 digits!" },
-              { pattern: /^[0-9]+$/, message: "Mobile number must contain only numbers!" },
+              { len: 13, message: "Mobile number must be 13 digits!" },
             ]}
           >
             <Input />
@@ -223,12 +215,7 @@ const Tourist = () => {
             </Select>
           </Form.Item>
 
-          <Form.Item
-            wrapperCol={{
-              offset: 8,
-              span: 16,
-            }}
-          >
+          <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
             <CustomButton
               type="primary"
               htmlType="submit"
@@ -236,12 +223,11 @@ const Tourist = () => {
               size="s"
               rounded={true}
               loading={false}
-            >
-            </CustomButton>
+            ></CustomButton>
           </Form.Item>
-
         </Form>
       </div>
+
       <Routes>
         <Route path="itineraries" element={<div>Itineraries Page</div>} />
         <Route path="account" element={<Profile />} />

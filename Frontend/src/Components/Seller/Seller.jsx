@@ -1,19 +1,77 @@
-import React from "react";
-import { Form, Input, Upload } from "antd";
+import React, { useState, useEffect } from "react";
+import { Form, Input, Upload, message, Table } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import CustomButton from "../Common/CustomButton";
 import CustomLayout from "../Common/CustomLayout";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-import { useRole } from "../Sign/SignUp"; // Adjust path if needed
-
+import { useRole } from "../Sign/SignUp";
 
 const Seller = () => {
-    const { role, setRole } = useRole(); // Get role and setRole from context
+    const [sellerData, setSellerData] = useState([]);
+    const { role, setRole } = useRole();
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
 
-    const onFinish = (values) => {
-        console.log("Success:", values);
-        navigate("/seller");
+    let decodedToken = null;
+    const token = localStorage.getItem("token");
+    if (token) {
+        decodedToken = jwtDecode(token);
+    }
+    const userid = decodedToken ? decodedToken.userId : null;
+
+    // const fetchSeller = async () => {
+    //     setLoading(true);
+    //     try {
+    //         const response = await apiClient.get('/guestSellerCreateProfile');
+    //         setSellerData(response.data);
+    //     } catch (error) {
+    //         console.error("Error fetching sellers:", error);
+    //         message.error("Failed to fetch sellers.");
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
+    // useEffect(() => {
+    //     fetchSeller(); // Fetch sellers on component mount
+    // }, []);
+
+    const createSeller = async (values) => {
+
+        try {
+            console.log("Values:", values);
+            console.log(values.email)
+            console.log(values.username)
+            console.log(values.password)
+
+            const response = await axios.post("http://localhost:5000/seller/guestSellerCreateProfile", {
+                username: values.username,
+                email: values.email,
+                pass: values.password,
+            })
+            const newSellerId = response.data._id;
+            console.log("New seller ID:", newSellerId);
+            setSellerData(response.data);
+            message.success("Seller created successfully!");
+            return newSellerId
+        } catch (error) {
+            console.error("Error creating seller:", error);
+            message.error("Failed to create seller.");
+        }
+    };
+
+    useEffect(() => {
+        //createSeller();
+    }, []);
+
+    const onFinish = async (values) => {
+        const newSellerId = await createSeller(values);
+        if (newSellerId) {
+            navigate("/seller", { state: { newSellerId } });
+            // Pass the actual newSellerId here
+        }
     };
 
     const onFinishFailed = (errorInfo) => {
@@ -27,12 +85,34 @@ const Seller = () => {
         return e?.fileList;
     };
 
+    const columns = [
+        {
+            title: "Email",
+            dataIndex: "email",
+            key: "email",
+        },
+        {
+            title: "Username",
+            dataIndex: "username",
+            key: "username",
+        },
+        {
+            title: "Actions",
+            key: "actions",
+            render: (text, record) => (
+                <CustomButton
+                    type="primary"
+                    value="Edit"
+                />
+            ),
+        },
+    ];
+
     return (
         <CustomLayout>
-            {/* sideBarItems={sideBarItems} */}
             <div style={{ textAlign: "center", alignItems: "center", marginTop: "20px" }}>
                 <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>
-                    Register as a {role} {/* Display the current role */}
+                    Register as a {role}
                 </h1>
             </div>
             <div style={{ textAlign: "center", marginBottom: "20px" }}>
@@ -42,42 +122,31 @@ const Seller = () => {
                     value="Tourist"
                     size="m"
                     style={{ margin: "10px" }}
-                >
-                </CustomButton>
+                />
                 <CustomButton
                     type={role === "Tour Guide" ? "primary" : "default"}
                     onClick={() => setRole("Tour Guide")}
                     value="Tour Guide"
                     size="m"
                     style={{ margin: "10px" }}
-                >
-                </CustomButton>
+                />
                 <CustomButton
                     type={role === "Seller" ? "primary" : "default"}
                     onClick={() => setRole("Seller")}
                     value="Seller"
                     size="m"
                     style={{ margin: "10px" }}
-                >
-                </CustomButton>
+                />
                 <CustomButton
                     type={role === "Advertiser" ? "primary" : "default"}
                     onClick={() => setRole("Advertiser")}
                     value="Advertiser"
                     size="m"
                     style={{ margin: "10px" }}
-                >
-                </CustomButton>
+                />
             </div>
 
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    minHeight: "100vh",
-                }}
-            >
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
                 <Form
                     name="basic"
                     labelCol={{ span: 8 }}
@@ -87,7 +156,6 @@ const Seller = () => {
                     onFinishFailed={onFinishFailed}
                     autoComplete="off"
                 >
-
                     <Form.Item
                         label="Email"
                         name="email"
@@ -125,7 +193,7 @@ const Seller = () => {
                         getValueFromEvent={normFile}
                         extra="Upload the ID."
                     >
-                        <Upload name="doc1" action="/upload.do" listType="text">
+                        <Upload name="doc1" listType="text">
                             <CustomButton size="m" icon={<UploadOutlined />} value="Upload" />
                         </Upload>
                     </Form.Item>
@@ -137,7 +205,7 @@ const Seller = () => {
                         getValueFromEvent={normFile}
                         extra="Upload the taxation registery card."
                     >
-                        <Upload name="doc2" action="/upload.do" listType="text">
+                        <Upload name="doc2" listType="text">
                             <CustomButton size="m" icon={<UploadOutlined />} value="Upload" />
                         </Upload>
                     </Form.Item>
@@ -146,6 +214,10 @@ const Seller = () => {
                         <CustomButton type="primary" htmlType="submit" value="Register" />
                     </Form.Item>
                 </Form>
+            </div>
+
+            <div style={{ padding: "20px" }}>
+                <Table loading={loading} columns={columns} dataSource={sellerData} />
             </div>
         </CustomLayout>
     );

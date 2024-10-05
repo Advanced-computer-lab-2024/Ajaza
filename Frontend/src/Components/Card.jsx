@@ -6,7 +6,7 @@ const actions = [
     <UploadOutlined key="upload" />,
 ];
 
-const CustomCard = ({ title, price, quantity, onClick }) => {
+const CustomCard = ({ name, desc, price, quantity, onClick }) => {
     return (
         <Flex gap="middle" align="start" vertical>
             <Card
@@ -24,13 +24,12 @@ const CustomCard = ({ title, price, quantity, onClick }) => {
                 }
             >
                 <Card.Meta
-                    title={
-                        <p>Details:{title}</p>
-                    } // Use passed title
                     description={
                         <>
-                            <p><strong>Price:</strong> ${price}</p>
-                            <p><strong>Quantity:</strong> {quantity}</p>
+                            <p><strong>Name: </strong> {name}</p>
+                            <p><strong>Description: </strong> {desc}</p>
+                            <p><strong>Price: </strong> ${price}</p>
+                            <p><strong>Quantity: </strong> {quantity}</p>
                         </>
                     }
                 />

@@ -4,8 +4,8 @@ const advertiserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   pass: { type: String, required: true }, // hashed password
-  id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Img'}, // serialized number for image beta2a
-  taxationRegCard: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Img'}, // serialized number for taxation registration card
+  id: { type: mongoose.Schema.Types.ObjectId, ref: 'Img'}, // serialized number for image beta2a //make this required after ensuring uploading image is working
+  taxationRegCard: { type: mongoose.Schema.Types.ObjectId, ref: 'Img'}, // serialized number for taxation registration card //make this required after ensuring uploading image is working
   pending: { type: Boolean, default: true }, // initially true until admin approves
   link: { type: String, required: false },
   hotline: { type: String, required: false },

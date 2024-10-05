@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Breadcrumb, Layout, Menu, theme, Button, Input, Form, message } from 'antd';
 //import CustomLayout from './tempCustomLayout';
-import AdminCustomLayout from './Components/AdminCustomLayout';
+import AdminCustomLayout from './AdminCustomLayout';
 const { Header, Content, Footer } = Layout;
 
 const items = [
@@ -43,14 +43,14 @@ const AddAccounts = () => {
         message.success('Admin Account Added successfully!');
       } else {
 
-       
+
 
         const errorData = await response.json();
         setErrorMessage(errorData.message || 'Something went wrong');
         message.error(errorData.message || 'Submission failed');
       }
     } catch (error) {
-    
+
 
       setErrorMessage('Network error, please try again later');
       message.error('Network error, please try again later');
@@ -78,27 +78,20 @@ const AddAccounts = () => {
         message.success('Tourism Governor Account Added successfully!');
       } else {
 
-       
+
 
         const errorData = await response.json();
         setErrorMessage(errorData.message || 'Something went wrong');
         message.error(errorData.message || 'Submission failed');
       }
     } catch (error) {
-    
+
 
       setErrorMessage('Network error, please try again later');
       message.error('Network error, please try again later');
     }
   };
 
-
-
-
-
-
-
-  
 
   const renderContent = () => {
     switch (selectedKey) {
@@ -136,43 +129,43 @@ const AddAccounts = () => {
         );
       case '2':
         return (
-            <div>
-              <Form form={form} layout="vertical" onFinish={handleSecondFormSubmit}>
-                <Form.Item
-                 name="username"
-                 label="Tourism Governor Username"
-                 rules={[{ required: true, message: 'Please input Tourism Governor Username!' }]}
-                >
-                   <Input placeholder="Enter Toursim Governor Username" />
-                </Form.Item>
-                <Form.Item
-                  name="password"
-                  label="Tourism Governor Password"
-                  rules={[{ required: true, message: 'Please input Tourism Governor Password!' }]}
-                >
-                 <Input placeholder="Enter Toursim Governor Password" />
-                </Form.Item>
-                <Form.Item>
-                  <Button type="primary" htmlType="submit">
-                    Add Tourism Governor Account
-                  </Button>
-                </Form.Item>
-              </Form>
-              {isSubmitted && (
-                <div style={{ marginTop: '20px', color: 'green' }}>Tourism Govenor Account Added successfully!</div>
-              )}
-              {errorMessage && (
-                <div style={{ marginTop: '20px', color: 'red' }}>{errorMessage}</div>
-              )}
-            </div>
-          );
+          <div>
+            <Form form={form} layout="vertical" onFinish={handleSecondFormSubmit}>
+              <Form.Item
+                name="username"
+                label="Tourism Governor Username"
+                rules={[{ required: true, message: 'Please input Tourism Governor Username!' }]}
+              >
+                <Input placeholder="Enter Toursim Governor Username" />
+              </Form.Item>
+              <Form.Item
+                name="password"
+                label="Tourism Governor Password"
+                rules={[{ required: true, message: 'Please input Tourism Governor Password!' }]}
+              >
+                <Input placeholder="Enter Toursim Governor Password" />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit">
+                  Add Tourism Governor Account
+                </Button>
+              </Form.Item>
+            </Form>
+            {isSubmitted && (
+              <div style={{ marginTop: '20px', color: 'green' }}>Tourism Govenor Account Added successfully!</div>
+            )}
+            {errorMessage && (
+              <div style={{ marginTop: '20px', color: 'red' }}>{errorMessage}</div>
+            )}
+          </div>
+        );
       default:
         return <div>Default Content</div>;
     }
   };
 
   return (
-    <AdminCustomLayout>
+
     <Layout>
       <Header
         style={{
@@ -205,7 +198,7 @@ const AddAccounts = () => {
           padding: '0 48px',
         }}
       >
-        
+
         <div
           style={{
             padding: 24,
@@ -217,9 +210,9 @@ const AddAccounts = () => {
           {renderContent()}
         </div>
       </Content>
-      
+
     </Layout>
- </AdminCustomLayout> );
+  );
 };
 
 export default AddAccounts;

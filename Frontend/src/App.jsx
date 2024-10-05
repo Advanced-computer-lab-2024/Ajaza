@@ -2,10 +2,10 @@ import logo from "./logo.svg";
 import "./App.css";
 import { useState } from "react";
 import {
-    BrowserRouter as Router,
-    Route,
-    Routes,
-    useNavigate,
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useNavigate,
 } from "react-router-dom";
 import CustomButton from "./Components/Common/CustomButton";
 import CustomLayout from "./Components/Common";
@@ -23,11 +23,11 @@ import SellerForm from "./Components/Seller/SellerForm";
 import Product from "./Components/Seller/SellerProduct";
 import DisplayForm from "./Components/Seller/DisplayProduct";
 
-import ManageAccounts from "./manageAccounts";
-import AddAccounts from "./addAccounts";
+//import ManageAccounts from "./manageAccounts";
+//import AddAccounts from "./addAccounts";
 
-import ManageActivityCategories from "./manageActivityCategories";
-import ManagePreferenceTags from "./managePreferenceTags";
+//import ManageActivityCategories from "./Components/Admin/manageActivityCategories";
+//import ManagePreferenceTags from "./Components/Admin/managePreferenceTags";
 import LandingPage from "./Components/LandingPage";
 import SignIn from "./Components/Sign/SignIn";
 import SignUp from "./Components/Sign/SignUp";
@@ -37,71 +37,73 @@ import Seller from "./Components/Seller/Seller";
 import { Flex, Layout, theme } from "antd";
 import TourGuide from "./Components/TourGuide/TourGuide";
 import Advertiser from "./Components/Advertiser/Advertiser";
+import TourismGovernor from "./Components/TourismGovernor/TourismGovernor";
 import Admin from "./Components/Admin/Admin";
-import { CardTemp } from "./Components/Tourist/CardTemp";
+import AddAccounts from "./Components/Admin/addAccounts";
 import CustomCard from "./Components/Card";
-import AdminCustomLayout from "./Components/AdminCustomLayout";
+//import AdminCustomLayout from "./Components/Admin/AdminCustomLayout";
 const { Header, Footer, Sider, Content } = Layout;
 
 function App() {
-    const [searchValue, setSearchValue] = useState("");
-    const navigate = useNavigate(); // Use navigate for routing
+  const [searchValue, setSearchValue] = useState("");
+  const navigate = useNavigate(); // Use navigate for routing
 
-    const testFunction = (param1, param2) => {
-        console.log(param1, param2);
-    };
+  const testFunction = (param1, param2) => {
+    console.log(param1, param2);
+  };
 
-    return (
-        <div className="App">
-            <Layout>
-                <Content>
-                    <Routes>
-                        <Route
-                            path="/"
-                            element={
-                                <AuthLayout>
-                                    <LandingPage />
-                                </AuthLayout>
-                            }
-                        />
-                        <Route
-                            path="auth/*"
-                            element={
-                                <AuthLayout>
-                                    <Routes>
-                                        <Route path="signin" element={<SignIn />} />
-                                        <Route path="signup" element={<SignUp />} />
-                                    </Routes>
-                                </AuthLayout>
-                            }
-                        />
-                        <Route path="/tourist/*" element={<Tourist />} />
-                        <Route path="/tourGuide/*" element={<TourGuide />} />
-                        <Route path="/advertiser/*" element={<Advertiser />} />
-                        <Route path="/admin/*" element={<Admin />} />
-                        <Route path="/adminCustom" element={<SignUp />} /> {/* Signup page with RoleFormPage */}
-                        <Route path="/seller/*" element={<Seller />} />
-                        <Route path="/register-tourist" element={<Tourist />} /> {/* Tourist registration page */}
-                        <Route path="/blank" element={<BlankPage />} />
-                        <Route path="/seller" element={<SellerPage />} />
-                        <Route path="/createform" element={<CreateFormPage />} />
-                        <Route path="/seller-form" element={<SellerForm />} />
-                        <Route path="/product" element={<Product />} />
-                        <Route path="/display" element={<DisplayForm />} />
-                        <Route path="/register-guide" element={<TourGuide />} /> {/* TourGuide registration page */}
-                        <Route path="/register-seller" element={<Seller />} /> {/* Seller registration page */}
-                        <Route path="/register-advertiser" element={<Advertiser />} /> {/* Advertiser registration page */}
-                    </Routes>
-                </Content>
-            </Layout>
-        </div>
-    );
+  return (
+    <div className="App">
+      <Layout>
+        <Content>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <AuthLayout>
+                  <LandingPage />
+                </AuthLayout>
+              }
+            />
+            <Route
+              path="auth/*"
+              element={
+                <AuthLayout>
+                  <Routes>
+                    <Route path="signin" element={<SignIn />} />
+                    <Route path="signup" element={<SignUp />} />
+                  </Routes>
+                </AuthLayout>
+              }
+            />
+            <Route path="/tourist/*" element={<Tourist />} />
+            <Route path="/tourGuide/*" element={<TourGuide />} />
+
+            <Route path="/advertiser/*" element={<Advertiser />} />
+            <Route path="/admin/*" element={<Admin />} />
+            {/* <Route path="/adminCustom" element={<AdminCustomLayout />} /> */}
+            <Route path="/seller/*" element={<Seller />} />
+            <Route path="/register-tourist" element={<Tourist />} /> {/* Tourist registration page */}
+            <Route path="/blank" element={<BlankPage />} />
+            <Route path="/seller" element={<SellerPage />} />
+            <Route path="/createform" element={<CreateFormPage />} />
+            <Route path="/seller-form" element={<SellerForm />} />
+            <Route path="/product" element={<Product />} />
+            <Route path="/display" element={<DisplayForm />} />
+            <Route path="/register-guide" element={<TourGuide />} /> {/* TourGuide registration page */}
+            <Route path="/register-seller" element={<Seller />} /> {/* Seller registration page */}
+            <Route path="/register-advertiser" element={<Advertiser />} /> {/* Advertiser registration page */}
+          </Routes>
+        </Content>
+      </Layout>
+    </div>
+  );
 }
 
 export default function AppWrapper() {
-    return (
-        <Router>
-            <App />
-        </Router>
-    );
+  return (
+    <Router>
+      <App />
+    </Router>
+  );
 }

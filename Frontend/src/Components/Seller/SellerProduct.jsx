@@ -1,30 +1,60 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { Form, Input, Select, DatePicker, Typography, Upload, message } from "antd";
-// import CustomButton from './Components/Common/CustomButton';
-// import CustomLayout from './Components/Common/CustomLayout';
+import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
+import { Form, Input, message } from "antd";
+import { useNavigate } from "react-router-dom";
 import CustomButton from "../Common/CustomButton";
 import { CustomLayout } from "../Common";
-import { UserOutlined, UploadOutlined } from "@ant-design/icons";
-import CustomCard from '../Card';
+import axios from "axios";
+
 
 const Product = () => {
+    const [productData, setProductData] = useState([]);
     const [quantity, setQuantity] = useState("");
-    const [details, setDetails] = useState("");
+    const [desc, setDesc] = useState("");
     const [price, setPrice] = useState("");
+    const [name, setName] = useState("");
+    const location = useLocation();
     const navigate = useNavigate();
+    console.log("NOURRRRR")
 
-    const onFinish = (values) => {
-        console.log("Saved values:", values);
-        const { quantity, details, price } = values;
-        // Redirect to the new page and pass the form data using 'state'
-        navigate("/display", {
-            state: {
-                quantity,
-                details,
-                price,
-            },
-        });
+    const newSellerId = location.state?.newSellerId;  // Access the passed state
+    console.log("ID in prod2 page:", newSellerId);
+
+    // Function to handle form submission
+    const onFinish = async (values) => {
+        console.log(values)
+        const { quantity, desc, price, name } = values;
+        try {
+            console.log("in prod", newSellerId)
+            console.log("Values:", values);
+
+            const response = await axios.post(`http://localhost:5000/product/${newSellerId}/product/adminSellerAddProduct`, {
+                name: values.name,
+                price: values.price,
+                desc: values.desc,
+                quantity: values.quantity,
+            })
+            const prodId = response.data._id;
+            console.log("prod ID:", prodId);
+
+            setProductData(response.data);
+            message.success("Product added successfully!");
+
+            navigate("/display", {
+                state: {
+                    name,
+                    desc,
+                    price,
+                    quantity,
+                    newSellerId,
+                    prodId
+                },
+            });
+
+        } catch (error) {
+            message.error("Failed to add product. Please try again.");
+            console.error("Fetch error:", error);
+        }
     };
 
     const onFinishFailed = (errorInfo) => {
@@ -34,9 +64,7 @@ const Product = () => {
     return (
         <CustomLayout>
             <div style={{ textAlign: "center", alignItems: "center", marginTop: "20px" }}>
-                <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>
-                    Add Product
-                </h1>
+                <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>Add Product</h1>
             </div>
             <div
                 style={{
@@ -56,13 +84,25 @@ const Product = () => {
                     autoComplete="off"
                 >
                     <Form.Item
-                        label="Details"
-                        name="details"
-                        rules={[{ required: true, message: "Please input the details!" }]}
+                        label="Name"
+                        name="name"
+                        rules={[{ required: true, message: "Please input the name!" }]}
                     >
                         <Input.TextArea
-                            value={details}
-                            onChange={(e) => setDetails(e.target.value)}
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            rows={2}
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Description"
+                        name="desc"
+                        rules={[{ required: true, message: "Please input the description!" }]}
+                    >
+                        <Input.TextArea
+                            value={desc}
+                            onChange={(e) => setDesc(e.target.value)}
                             rows={2}
                         />
                     </Form.Item>
@@ -92,8 +132,7 @@ const Product = () => {
                     </Form.Item>
 
                     <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                        <CustomButton type="default" htmlType="submit" value="Save" size={"m"}>
-                        </CustomButton>
+                        <CustomButton type="default" htmlType="submit" value="Save" size={"m"} />
                     </Form.Item>
                 </Form>
             </div>
@@ -101,4 +140,4 @@ const Product = () => {
     );
 };
 
-export default Product
+export default Product;

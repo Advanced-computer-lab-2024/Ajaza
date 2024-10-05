@@ -1,54 +1,73 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Activities from "../Activities";
-import { CalendarOutlined, ContainerOutlined } from "@ant-design/icons";
+import { CalendarOutlined } from "@ant-design/icons";
 import CustomButton from "../Common/CustomButton";
 import CustomLayout from "../Common/CustomLayout";
 import { useRole } from "../Sign/SignUp"; // Adjust path if needed
-import { Form, Input, Upload } from "antd";
+import { Form, Input, Upload, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-
+import axios from "axios"; // Import axios
+import { jwtDecode } from "jwt-decode";
 
 const Advertiser = () => {
+  const [advertiserData, setAdvertiserData] = useState([]);
+  const { role, setRole } = useRole();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
+  let decodedToken = null;
+  const token = localStorage.getItem("token");
+  if (token) {
+    decodedToken = jwtDecode(token);
+  }
+  const userid = decodedToken ? decodedToken.userId : null;
 
   const sideBarItems = [
-    // {
-    //   key: "1",
-    //   icon: <CalendarOutlined />,
-    //   label: "Itineraries",
-    //   onClick: () => {
-    //     navigate("itineraries");
-    //   },
-    // },
     {
       key: "2",
       icon: <CalendarOutlined />,
       label: "Activities",
       onClick: () => navigate("activities"),
     },
-    // {
-    //   key: "3",
-    //   icon: <CalendarOutlined />,
-    //   label: "Venues",
-    //   onClick: () => navigate("venues"),
-    // },
-    // {
-    //   key: "4",
-    //   icon: <ContainerOutlined />,
-    //   label: "Report",
-    // },
   ];
-  const { role, setRole } = useRole(); // Get role and setRole from context
 
-  const onFinish = (values) => {
-    console.log("Success:", values);
-    navigate("/blank"); // Redirect to the blank page after successful submission
+  const createAdvertiser = async (values) => {
+
+    try {
+      console.log("Values:", values);
+      console.log(values.email)
+      console.log(values.username)
+      console.log(values.password)
+
+      const response = await axios.post("http://localhost:5000/advertiser/guestAdvertiserCreateProfile", {
+        username: values.username,
+        email: values.email,
+        pass: values.password,
+      })
+      console.log("ENGY")
+      setAdvertiserData(response.data);
+      message.success("Advertiser created successfully!");
+
+    } catch (error) {
+      console.error("Error creating advertiser:", error);
+      message.error("Failed to create advertiser.");
+    }
+  };
+
+  useEffect(() => {
+    //createSeller();
+  }, []);
+
+  const onFinish = async (values) => {
+    await createAdvertiser(values);
+    navigate("/blank");
   };
 
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
+
   const normFile = (e) => {
     if (Array.isArray(e)) {
       return e;
@@ -63,6 +82,8 @@ const Advertiser = () => {
           Register as a {role} {/* Display the current role */}
         </h1>
       </div>
+
+      {/* Role Selection Buttons */}
       <div style={{ textAlign: "center", marginBottom: "20px" }}>
         <CustomButton
           type={role === "Tourist" ? "primary" : "default"}
@@ -70,33 +91,31 @@ const Advertiser = () => {
           value="Tourist"
           size="m"
           style={{ margin: "10px" }}
-        >
-        </CustomButton>
+        />
         <CustomButton
           type={role === "Tour Guide" ? "primary" : "default"}
           onClick={() => setRole("Tour Guide")}
           value="Tour Guide"
           size="m"
           style={{ margin: "10px" }}
-        >
-        </CustomButton>
+        />
         <CustomButton
           type={role === "Seller" ? "primary" : "default"}
           onClick={() => setRole("Seller")}
           value="Seller"
           size="m"
           style={{ margin: "10px" }}
-        >
-        </CustomButton>
+        />
         <CustomButton
           type={role === "Advertiser" ? "primary" : "default"}
           onClick={() => setRole("Advertiser")}
           value="Advertiser"
           size="m"
           style={{ margin: "10px" }}
-        >
-        </CustomButton>
+        />
       </div>
+
+      {/* Form */}
       <div
         style={{
           display: "flex",
@@ -114,15 +133,19 @@ const Advertiser = () => {
           onFinishFailed={onFinishFailed}
           autoComplete="off"
         >
+          {/* Email */}
           <Form.Item
             label="Email"
             name="email"
-            rules={[{ required: true, message: "Please input your email!" },
-            { type: "email", message: "Please enter a valid email!" },]}
+            rules={[
+              { required: true, message: "Please input your email!" },
+              { type: "email", message: "Please enter a valid email!" },
+            ]}
           >
             <Input />
           </Form.Item>
 
+          {/* Username */}
           <Form.Item
             label="Username"
             name="username"
@@ -131,64 +154,55 @@ const Advertiser = () => {
             <Input />
           </Form.Item>
 
+          {/* Password */}
           <Form.Item
             label="Password"
             name="password"
-            rules={[{ required: true, message: "Please input your password!" },
-            { min: 6, message: "Password must be at least 6 characters!" },]}
+            rules={[
+              { required: true, message: "Please input your password!" },
+              { min: 6, message: "Password must be at least 6 characters!" },
+            ]}
           >
             <Input.Password />
           </Form.Item>
+
           {/* Upload Document 1 */}
           <Form.Item
             label="ID"
             name="document1"
             valuePropName="fileList"
             getValueFromEvent={normFile}
-            extra="Upload the ID."
+            extra="Upload your ID."
           >
-            <Upload name="doc1" action="/upload.do" listType="text">
-              <CustomButton icon={<UploadOutlined />}
-                size="m"
-                value="Upload"
-              />
+            <Upload name="doc1" listType="text">
+              <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
             </Upload>
           </Form.Item>
 
           {/* Upload Document 2 */}
           <Form.Item
-            label="Taxation Registery Card"
+            label="Taxation Registry Card"
             name="document2"
             valuePropName="fileList"
             getValueFromEvent={normFile}
-            extra="Upload the taxation registery card."
+            extra="Upload the taxation registry card."
           >
-            <Upload name="doc2" action="/upload.do" listType="text">
-              <CustomButton icon={<UploadOutlined />}
-                size="m"
-                value="Upload"
-              />
+            <Upload name="doc2" listType="text">
+              <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
             </Upload>
           </Form.Item>
 
-
-          <Form.Item
-            wrapperCol={{
-              offset: 8,
-              span: 16,
-            }}
-          >
+          {/* Submit Button */}
+          <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
             <CustomButton
-              type="primary" // Optionally, you can set this as needed
-              htmlType="submit" // Set the CustomButton type to submit
-              size="s" // Use size 's' for small
-              value="Register" // Set the CustomButton text
-              rounded={true} // Enable rounding
-              loading={false} // Set loading state if necessary
-            >
-            </CustomButton>
+              type="primary"
+              htmlType="submit"
+              size="s"
+              value="Register"
+              rounded={true}
+              loading={false}
+            />
           </Form.Item>
-
         </Form>
       </div>
 

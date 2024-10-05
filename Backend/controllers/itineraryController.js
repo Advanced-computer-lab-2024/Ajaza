@@ -1,6 +1,5 @@
-const Itinerary = require('../models/Itinerary');
-const Tourist = require('../models/Tourist');
-
+const Itinerary = require("../models/Itinerary");
+const Tourist = require("../models/Tourist");
 
 // Create a new itinerary
 exports.createItinerary = async (req, res) => {
@@ -16,7 +15,10 @@ exports.createItinerary = async (req, res) => {
 // Get all itineraries
 exports.getAllItineraries = async (req, res) => {
   try {
-    const itineraries = await Itinerary.find().populate('guideId').populate('activities.id').populate('venues');
+    const itineraries = await Itinerary.find()
+      .populate("guideId")
+      .populate("activities.id")
+      .populate("venues");
     res.status(200).json(itineraries);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -26,9 +28,12 @@ exports.getAllItineraries = async (req, res) => {
 // Get itinerary by ID
 exports.getItineraryById = async (req, res) => {
   try {
-    const itinerary = await Itinerary.findById(req.params.id).populate('guideId').populate('activities.id').populate('venues');
+    const itinerary = await Itinerary.findById(req.params.id)
+      .populate("guideId")
+      .populate("activities.id")
+      .populate("venues");
     if (!itinerary) {
-      return res.status(404).json({ message: 'Itinerary not found' });
+      return res.status(404).json({ message: "Itinerary not found" });
     }
     res.status(200).json(itinerary);
   } catch (error) {
@@ -39,9 +44,13 @@ exports.getItineraryById = async (req, res) => {
 // Update itinerary by ID
 exports.updateItinerary = async (req, res) => {
   try {
-    const updatedItinerary = await Itinerary.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedItinerary = await Itinerary.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
     if (!updatedItinerary) {
-      return res.status(404).json({ message: 'Itinerary not found' });
+      return res.status(404).json({ message: "Itinerary not found" });
     }
     res.status(200).json(updatedItinerary);
   } catch (error) {
@@ -54,9 +63,9 @@ exports.deleteItinerary = async (req, res) => {
   try {
     const deletedItinerary = await Itinerary.findByIdAndDelete(req.params.id);
     if (!deletedItinerary) {
-      return res.status(404).json({ message: 'Itinerary not found' });
+      return res.status(404).json({ message: "Itinerary not found" });
     }
-    res.status(200).json({ message: 'Itinerary deleted successfully' });
+    res.status(200).json({ message: "Itinerary deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -64,18 +73,17 @@ exports.deleteItinerary = async (req, res) => {
 
 // req37 TESTED
 exports.searchByName = async (req, res) => {
-
   //authentication middleware
 
-  const searchString  = req.body.searchString || '';
+  const searchString = req.body.searchString || "";
 
   if (!searchString) {
-    return res.status(400).json({ message: 'Search string is required' });
+    return res.status(400).json({ message: "Search string is required" });
   }
 
   try {
     const itineraries = await Itinerary.find({
-      name: { $regex: searchString, $options: 'i' }
+      name: { $regex: searchString, $options: "i" },
     });
     res.status(200).json(itineraries);
   } catch (error) {
@@ -85,7 +93,6 @@ exports.searchByName = async (req, res) => {
 
 // req54 & req55 TESTED
 exports.giveItineraryFeedback = async (req, res) => {
-
   //authentication middleware
   //validation middleware
 
@@ -93,42 +100,77 @@ exports.giveItineraryFeedback = async (req, res) => {
     const { touristId, itineraryId } = req.params;
     const { rating, comments } = req.body;
 
-    if(!rating || !comments) {
-      return res.status(400).json({ message: 'Bad request' });
+    if (!rating || !comments) {
+      return res.status(400).json({ message: "Bad request" });
     }
 
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
-      return res.status(404).json({ message: 'Tourist not found' });
+      return res.status(404).json({ message: "Tourist not found" });
     }
 
-    if(tourist.gaveFeedback.includes(itineraryId)) {
-      return res.status(400).json({ message: 'Feedback already given' });
+    if (tourist.gaveFeedback.includes(itineraryId)) {
+      return res.status(400).json({ message: "Feedback already given" });
     }
 
     //TODO if tourist booked itinerary on multiple occassions what will happen
     const itineraryBooking = tourist.itineraryBookings.find(
-      booking => booking.itineraryId.toString() === itineraryId && booking.date < new Date()
+      (booking) =>
+        booking.itineraryId.toString() === itineraryId &&
+        booking.date < new Date()
     );
 
     if (!itineraryBooking) {
-      return res.status(400).json({ message: 'No valid past itinerary booking found' });
+      return res
+        .status(400)
+        .json({ message: "No valid past itinerary booking found" });
     }
 
     const itinerary = await Itinerary.findById(itineraryId);
     if (!itinerary) {
-      return res.status(404).json({ message: 'Itinerary not found' });
+      return res.status(404).json({ message: "Itinerary not found" });
     }
 
     // append the feedback to the itinerary
-    itinerary.feedback.push({ rating, comments});
+    itinerary.feedback.push({ rating, comments });
     tourist.gaveFeedback.push(itineraryId);
     await tourist.save();
 
     await itinerary.save();
 
-    res.status(200).json({ message: 'Feedback submitted successfully', feedback: itinerary.feedback });
+    res.status(200).json({
+      message: "Feedback submitted successfully",
+      feedback: itinerary.feedback,
+    });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//req44
+exports.getUpcomingItineraries = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    // Find itineraries with available dates greater than or equal to the current date and hidden is false
+    const itineraries = await Itinerary.find({
+      "availableDateTime.date": { $gte: currentDate },
+      hidden: false,
+    })
+      .populate("guideId")
+      .populate({
+        path: "timeline.id",
+        model: function (doc) {
+          return doc.type === "Activity" ? "Activity" : "Venue";
+        },
+      });
+
+    if(!itineraries || itineraries.length === 0) {
+      return res.status(404).json({ message: "No upcoming itineraries found" });
+    }
+
+    res.status(200).json(itineraries);
+  } catch (error) {
+    console.error("Error in getUpcomingItineraries:", error); // Log the error
     res.status(500).json({ error: error.message });
   }
 };

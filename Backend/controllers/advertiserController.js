@@ -1,6 +1,7 @@
 const Advertiser = require('../models/Advertiser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Activity = require('../models/Activity');
 
 // Create a new advertiser
 exports.createAdvertiser = async (req, res) => {
@@ -80,8 +81,15 @@ exports.guestAdvertiserCreateProfile = async (req, res) => {
   });
 
   try {
+
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(filteredBody.pass, saltRounds);
+
+    filteredBody.pass = hashedPassword;
+
     const advertiser = new Advertiser(filteredBody);
     const savedadvertiser = await advertiser.save();
+    savedadvertiser.pass = undefined;
     res.status(201).json(savedadvertiser);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -197,4 +205,70 @@ exports.updateAdvertiserProfile = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
- 
+
+//---req 26-----
+exports.getAdvertiserActivities = async (req, res) => {
+  try {
+    const { advertiserId } = req.params;
+    const activities = await Activity.find({ advertiserId });
+
+    if (!activities || activities.length === 0) {
+      return res.status(404).json({ message: 'No activities found for this advertiser' });
+    }
+
+    res.status(200).json(activities);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.adminDeletesAdvertisers = async (req, res) => {
+  const advertiserIds = req.body.advertiserIds;
+  if(!advertiserIds || !advertiserIds.length) {
+    return res.status(400).json({ error: 'Advertiser IDs are required' });
+  }
+  try {
+    const result = await Advertiser.deleteMany({ _id: { $in: advertiserIds }, requestingDeletion: true});
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: 'Advertisers selected were not requesting deletion' });
+    }
+    res.status(200).json({ message: 'Advertisers deleted successfully', result });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.adminDeletesAdvertiserFromSystem = async (req, res) => {
+  const advertiserId = req.params.id;
+  if(!advertiserId) {
+    return res.status(400).json({ error: 'Advertiser ID is required' });
+  }
+  try {
+    const result = await Activity.updateMany(
+      { advertiserId: advertiserId }, // Find all activities with this advertiserId
+      { $set: { hidden: true } }      // Set hidden field to true
+    );
+    const deletedAdvertiser = await Advertiser.findByIdAndDelete(advertiserId);
+    if (!deletedAdvertiser) {
+      return res.status(404).json({ message: 'Advertiser not found' });
+    }
+    res.status(200).json({ message: 'Advertiser deleted successfully', result });
+  } catch(error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.acceptTerms = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await Advertiser.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    user.acceptedTerms = true;
+    await user.save();
+    res.status(200).json({ message: 'Terms accepted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
