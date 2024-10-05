@@ -38,7 +38,6 @@ import Advertiser from "./Components/Advertiser/Advertiser";
 import TourismGovernor from "./Components/TourismGovernor/TourismGovernor";
 import Admin from "./Components/Admin/Admin";
 import CustomCard from "./Components/Card";
-import AdminCustomLayout from "./Components/AdminCustomLayout";
 import TouristProfile from "./Components/Tourist/TouristProfile";
 const { Header, Footer, Sider, Content } = Layout;
 
