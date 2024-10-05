@@ -12,8 +12,8 @@ export const Colors = {
     50: "#f2f2f2",
   },
   primary: {
-    light: "#b441e5",
-    default: "#a739d5",
+    light: "#1b696a",
+    default: "#9fcfbb",
   },
 };
 

@@ -6,6 +6,9 @@ router.post("/", activityController.createActivity);
 
 router.get("/", activityController.getAllActivities);
 
+//not hidden
+router.get("/notHidden", activityController.getAllActivitiesNH);
+
 router.get("/group/byIds", activityController.getActivitiesByIds);
 
 //req44
