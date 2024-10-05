@@ -16,7 +16,7 @@ import Profile from "./Components/Common/Profile";
 import Itineraries from "./Components/Itineraries";
 import Activities from "./Components/Activities";
 import Venues from "./Components/Venues";
-import BlankPage from "./Components/Blank"
+import BlankPage from "./Components/Blank";
 import SellerPage from "./Components/Seller/SellerPage";
 import CreateFormPage from "./Components/Seller/CreateSeller";
 import SellerForm from "./Components/Seller/SellerForm";
@@ -42,6 +42,7 @@ import Admin from "./Components/Admin/Admin";
 import AddAccounts from "./Components/Admin/addAccounts";
 import CustomCard from "./Components/Card";
 import TouristProfile from "./Components/Tourist/TouristProfile";
+import CreateTourist from "./Components/Sign/CreateTourist";
 const { Header, Footer, Sider, Content } = Layout;
 
 function App() {
@@ -71,7 +72,7 @@ function App() {
                 <AuthLayout>
                   <Routes>
                     <Route path="signin" element={<SignIn />} />
-                    <Route path="signup" element={<SignUp />} />
+                    <Route path="signup/*" element={<SignUp />} />
                   </Routes>
                 </AuthLayout>
               }
@@ -81,18 +82,17 @@ function App() {
             <Route path="/advertiser/*" element={<Advertiser />} />
             <Route path="/admin/*" element={<Admin />} />
             <Route path="/governor/*" element={<TourismGovernor />} />
-
             <Route path="/seller/*" element={<Seller />} />
-            <Route path="/register-tourist" element={<Tourist />} /> {/* Tourist registration page */}
+            {/* here */}
+            {/* Tourist registration page */}
             <Route path="/blank" element={<BlankPage />} />
             <Route path="/seller" element={<SellerPage />} />
             <Route path="/createform" element={<CreateFormPage />} />
             <Route path="/seller-form" element={<SellerForm />} />
             <Route path="/product" element={<Product />} />
             <Route path="/display" element={<DisplayForm />} />
-            <Route path="/register-guide" element={<TourGuide />} /> {/* TourGuide registration page */}
-            <Route path="/register-seller" element={<Seller />} /> {/* Seller registration page */}
-            <Route path="/register-advertiser" element={<Advertiser />} /> {/* Advertiser registration page */}
+
+            {/* Advertiser registration page */}
           </Routes>
         </Content>
       </Layout>

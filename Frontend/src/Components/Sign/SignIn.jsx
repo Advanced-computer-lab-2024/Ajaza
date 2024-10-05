@@ -1,5 +1,3 @@
-
-
 // import { Input } from "antd";
 // import React, { useState } from "react";
 // import { useNavigate } from "react-router-dom";
@@ -19,9 +17,9 @@
 //     e.preventDefault();
 //     // Check if the username is empty
 //     if (!username.trim()) {
-//       message.error('Please enter your username first!'); 
+//       message.error('Please enter your username first!');
 //     } else {
-//       message.info('Check your email or OTP sent!'); 
+//       message.info('Check your email or OTP sent!');
 //     }
 //   };
 
@@ -92,7 +90,7 @@
 //         >
 //           <Form
 //             name="basic"
-//             layout="vertical"  
+//             layout="vertical"
 //             initialValues={{
 //               remember: true,
 //             }}
@@ -155,24 +153,22 @@
 // import image from '../../Assets/landingPage.png';
 // import { Colors } from "../Common/Constants";
 
-
 // const SignIn = () => {
 //   const [response, setResponse] = useState(null);
 //   const [feedbackMessage, setFeedbackMessage] = useState("");
-//   const [form] = Form.useForm(); 
+//   const [form] = Form.useForm();
 
 //   const info = (e) => {
 //     e.preventDefault();
-//     const username = form.getFieldValue('username'); 
+//     const username = form.getFieldValue('username');
 //     console.log("Username value:", username); // Debug log
 
 //     if (username && username.trim()) {
-//         message.info('Check your email or OTP sent!'); 
+//         message.info('Check your email or OTP sent!');
 //     } else {
-//         message.error('Please enter your username first!'); 
+//         message.error('Please enter your username first!');
 //     }
 //   };
-
 
 //   const onFinish = (values) => {
 //     console.log('Success:', values);
@@ -225,10 +221,10 @@
 //     <>
 //       <Box
 //         display="flex"
-//         justifyContent="space-between" 
+//         justifyContent="space-between"
 //         alignItems="center"
 //         height="100vh"
-//         paddingX={10} 
+//         paddingX={10}
 //       >
 //         <Card
 //           title="User Login"
@@ -237,13 +233,13 @@
 //             width: 500,
 //             height: 450 ,
 //             left : 85
-            
+
 //           }}
 //         >
 
 //           <Form
 //            form={form}
-//             name="basic"  
+//             name="basic"
 //             initialValues={{ remember: true }}
 //             onFinish={onFinish}
 //             onFinishFailed={onFinishFailed}
@@ -281,10 +277,10 @@
 
 //         <img
 //           style={{
-            
-//             height: "680px", 
-//             width: "auto", 
-//             maxWidth: "100%", 
+
+//             height: "680px",
+//             width: "auto",
+//             maxWidth: "100%",
 //             maxHeight: "100%",
 //             objectFit: "cover",
 //             position: "relative",
@@ -300,15 +296,13 @@
 
 // export default SignIn;
 
-
-
 import { Input } from "antd";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Button, Form, Typography, message, Card } from 'antd';
-import { Box } from '@mui/material';
-import image from '../../Assets/login.svg';
+import { Button, Form, Typography, message, Card } from "antd";
+import { Box } from "@mui/material";
+import image from "../../Assets/login.svg";
 import { Colors } from "../Common/Constants";
 import CustomButton from "../Common/CustomButton";
 import { apiUrl } from "../Common/Constants";
@@ -322,37 +316,37 @@ const SignIn = () => {
 
   const info = (e) => {
     e.preventDefault();
-    const username = form.getFieldValue('username'); 
+    const username = form.getFieldValue("username");
 
     if (username && username.trim()) {
-        message.info('Check your email or OTP sent!'); 
+      message.info("Check your email or OTP sent!");
     } else {
-        message.error('Please enter your username first!'); 
+      message.error("Please enter your username first!");
     }
   };
 
   const onFinish = (values) => {
-    console.log('Success:', values);
+    console.log("Success:", values);
   };
 
   const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo);
+    console.log("Failed:", errorInfo);
   };
 
   const signIn = async () => {
-    const token = "authToken";
     const fetchData = async () => {
       const body = {
-        username: form.getFieldValue('username'),
-        password: form.getFieldValue('password'),
+        username: form.getFieldValue("username"),
+        password: form.getFieldValue("password"),
       };
 
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      };
+      // const config = {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`,
+      //     "Content-Type": "application/json",
+      //   },
+      // };
+
       try {
         const apiResponse = await axios.post(
           "http://localhost:5000/api/auth/login",
@@ -388,10 +382,10 @@ const SignIn = () => {
         alignItems="center"
         height="100vh"
         style={{
-          backgroundImage: `url(${image})`,  // Set the background image
-          backgroundSize: 'cover',           // Cover the entire screen
-          backgroundPosition: 'center',      // Center the background image
-          paddingLeft: '20px',               // Add some padding on the left for spacing
+          backgroundImage: `url(${image})`, // Set the background image
+          backgroundSize: "cover", // Cover the entire screen
+          backgroundPosition: "center", // Center the background image
+          paddingLeft: "20px", // Add some padding on the left for spacing
         }}
       >
         <Card
@@ -399,18 +393,17 @@ const SignIn = () => {
           bordered={false}
           style={{
             width: 450,
-            padding: '20px',  // Padding inside the box
-            backgroundColor: 'rgba(255, 255, 255, 0.55)', // Slight transparency
-            textAlign: 'left',  
-            marginLeft: '550px',
-            marginTop: '100px'
-
+            padding: "20px", // Padding inside the box
+            backgroundColor: "rgba(255, 255, 255, 0.55)", // Slight transparency
+            textAlign: "left",
+            marginLeft: "550px",
+            marginTop: "100px",
           }}
         >
           <Form
             form={form}
             name="basic"
-            layout="vertical"  // Ensures the form fields stack vertically
+            layout="vertical" // Ensures the form fields stack vertically
             initialValues={{ remember: true }}
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
@@ -418,27 +411,39 @@ const SignIn = () => {
           >
             <Form.Item
               name="username"
-              rules={[{ required: true, message: 'Please input your username!' }]}
+              rules={[
+                { required: true, message: "Please input your username!" },
+              ]}
             >
-              <Input placeholder="Username"/>
+              <Input placeholder="Username" />
             </Form.Item>
 
             <Form.Item
               name="password"
-              rules={[{ required: true, message: 'Please input your password!' }]}
+              rules={[
+                { required: true, message: "Please input your password!" },
+              ]}
             >
-              <Input.Password placeholder="Password"/>
+              <Input.Password placeholder="Password" />
             </Form.Item>
 
             <Form.Item>
-              <Typography.Link href="/forgot-password" onClick={info} style={{color: Colors.primary.light}}>
+              <Typography.Link
+                href="/forgot-password"
+                onClick={info}
+                style={{ color: Colors.primary.light }}
+              >
                 Forgot password?
               </Typography.Link>
             </Form.Item>
 
             <Form.Item>
-              <CustomButton size="s" value={"Submit"} 
-              style={{ marginLeft:"-8px" , width:370 }}/>
+              <CustomButton
+                size="s"
+                value={"Submit"}
+                style={{ marginLeft: "-8px", width: 370 }}
+                onClick={() => signIn()}
+              />
             </Form.Item>
           </Form>
         </Card>
