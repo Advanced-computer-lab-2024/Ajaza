@@ -5,6 +5,7 @@ import axios from "axios";
 import Button from "./Common/CustomButton";
 import { jwtDecode } from "jwt-decode";
 import { apiUrl } from "./Common/Constants";
+import MapComponent from "./Common/Map";
 
 const { Option } = Select;
 const { Dragger } = Upload;
@@ -28,6 +29,7 @@ const Venues = () => {
     const [newTag, setNewTag] = useState(""); 
     const [preferenceTag, setPreferenceTag] = useState("");
     const allowedTagNames = ['Monuments', 'Museums', 'Religious Sites', 'Palaces/Castles'];
+    const [selectedLocation, setSelectedLocation] = useState(null);
 
 
     const token = localStorage.getItem("token");
@@ -59,7 +61,7 @@ const Venues = () => {
                 // governorId: userid,
                 name: values.name,
                 desc: values.desc,
-                location: values.location,
+                location: selectedLocation,
                 openingHours: {
                     suno: values.openingHours.suno,
                     sunc: values.openingHours.sunc,
@@ -90,6 +92,7 @@ const Venues = () => {
             setIsModalVisible(false);
             form.resetFields();
             setFileList([]);
+            setSelectedLocation("");
         } catch (error) {
             console.error("Error creating venue:", error.response ? error.response.data : error);
             message.error("Failed to create venue.");
@@ -101,7 +104,7 @@ const Venues = () => {
             form.setFieldsValue({
                 name: venueToEdit.name,
                 desc: venueToEdit.desc,
-                location: venueToEdit.location,
+                // location: venueToEdit.location,
                 openingHours: {
                     suno: venueToEdit.openingHours.suno,
                     sunc: venueToEdit.openingHours.sunc,
@@ -124,6 +127,7 @@ const Venues = () => {
                     student: venueToEdit.price.student,
                 },
             });
+            setSelectedLocation(venueToEdit.location);
             setIsModalVisible(true);
             setEditingVenueId(id);
         }
@@ -136,7 +140,9 @@ const Venues = () => {
         // Check each field and add it to updatedData if it has changed
         if (values.name !== venueToEdit.name) updatedData.name = values.name;
         if (values.desc !== venueToEdit.desc) updatedData.desc = values.desc;
-        if (values.location !== venueToEdit.location) updatedData.location = values.location;
+        if (selectedLocation !== venueToEdit.location) { 
+            updatedData.location = selectedLocation;
+        }
         if (JSON.stringify(values.openingHours) !== JSON.stringify(venueToEdit.openingHours)) {
             updatedData.openingHours = values.openingHours;
         }
@@ -161,10 +167,18 @@ const Venues = () => {
             form.resetFields();
             setFileList([]);
             setEditingVenueId(null); // Reset editing ID
+            setSelectedLocation("");
         } catch (error) {
             console.error("Error updating venue:", error.response ? error.response.data : error);
             message.error("Failed to update venue.");
         }
+    };
+
+    const handleLocationSelect = (location) => {
+        const { lat, lng } = location; // Destructure latitude and longitude
+        console.log("Latitude:", lat, "Longitude:", lng); // This should log numbers
+        const locationLink = `https://www.google.com/maps?q=${lat},${lng}`;
+        setSelectedLocation(locationLink);
     };
 
     const deleteVenue = async (id) => {
@@ -190,6 +204,7 @@ const Venues = () => {
     const showModal = () => {
         setIsModalVisible(true);
         setEditingVenueId(null);
+        setSelectedLocation(null);
     };
 
     const handleCancel = () => {
@@ -266,7 +281,7 @@ const Venues = () => {
                                     <EditOutlined key="edit" onClick={() => editVenue(venue._id)} />,
                                     <DeleteOutlined key="delete" onClick={() => deleteVenue(venue._id)} />
                                 ]}
-                                style={{ width: 300, margin: "10px" }}
+                                style={{ width: 350, margin: "10px" }}
                             >
                                 <Card.Meta title={venue.name} />
                                 <div style={{ marginTop: 10 }}>
@@ -322,11 +337,29 @@ const Venues = () => {
                     </Form.Item>
                     <Form.Item
                         label="Location"
-                        name="location"
-                        rules={[{ required: true, message: "Please input the venue location!" }]}
+                        required
+                        validateStatus={!selectedLocation ? "error" : ""}
+                        help={!selectedLocation ? "Please select a location." : ""}
                     >
-                        <Input />
+                        <div>
+                            <MapComponent onLocationSelect={handleLocationSelect} />
+                            <p>
+                                Selected Location:{" "}
+                                {selectedLocation ? (
+                                    <a 
+                                        href={selectedLocation} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                    >
+                                        {selectedLocation}
+                                    </a>
+                                ) : (
+                                    "None"
+                                )}
+                            </p>
+                        </div>
                     </Form.Item>
+
                     <Form.Item label="Opening Hours" name="openingHours" rules={[{ required: true, message: "Please input the opening hours!" }]}>
                         <Input.Group compact>
                             {["suno", "sunc", "mono", "monc", "tueo", "tuec", "wedo", "wedc", "thuo", "thuc", "frio", "fric", "sato", "satc"].map(day => (
@@ -431,3 +464,5 @@ const Venues = () => {
 };
 
 export default Venues;
+
+

@@ -201,41 +201,35 @@ exports.createTagForVenue = async (req, res) => {
       return res.status(400).json({ message: 'Invalid tag. Valid tags are: Monuments, Museums, Religious Sites, Palaces/Castles.' });
     }
 
-    // validate el preferenceTags to be an array of strings bs hya optional
+    // Validate that preferenceTags is an array of strings, if provided
     if (preferenceTags && !Array.isArray(preferenceTags)) {
       return res.status(400).json({ message: 'Invalid preference tags.' });
     }
 
-    let newTag = await Tag.findOne({ tag });
-    if (!newTag) {
-      // create a new tag if it doesn't exist
-      newTag = new Tag({ tag, preferanceTags: preferenceTags });
-      await newTag.save();
-    } else {
-      // update el preferenceTags if the tag already exists
-      newTag.preferanceTags = [...new Set([...newTag.preferanceTags, ...(preferenceTags || [])])];
-      await newTag.save();
-    }
-
+    // Find the venue and check if the governor owns it
     const venue = await Venue.findOne({ _id: venueId, governorId });
     if (!venue) {
       return res.status(404).json({ message: 'Venue not found or you are not authorized to update this venue.' });
     }
 
-    // add the new tag to the venue's tags array (ensure no duplicate tags)
+    // Add the provided tag to the venue's tags array (ensure no duplicate tags)
     if (!venue.tags.includes(tag)) {
       venue.tags.push(tag);
     } else {
       return res.status(400).json({ message: 'Tag already exists for this venue.' });
     }
 
+    // Save the updated venue
     await venue.save();
 
-    res.status(200).json({ message: 'Tag and preference tags added to venue successfully', tag: newTag, venue });
+    res.status(200).json({ message: 'Tag assigned to venue successfully', tag, venue });
   } catch (error) {
+    // Handle any error that occurs and return it in the response
     res.status(500).json({ error: error.message });
   }
 };
+
+
 exports.adminDeletesGovernorFromSystem = async (req, res) => {
   const governorId = req.params.id;
   if(!governorId) {
