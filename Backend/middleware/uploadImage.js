@@ -6,7 +6,7 @@ const Img = require('../models/Img'); // Adjust the path if necessary
 // Configure Multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // The folder where images will be temporarily saved
+    cb(null, '../Frontend/src/uploads/'); // The folder where images will be temporarily saved
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}_${file.originalname}`); // Temporary filename
@@ -29,7 +29,7 @@ const uploadImage = async (req, res, next) => {
 
       // Update the filename and path to include the new ID
       const newFilename = `${savedImg._id}.jpg`;
-      const newPath = path.join('uploads', newFilename);
+      const newPath = path.join('../Frontend/src/uploads', newFilename);
 
       // Rename the file
       fs.rename(req.file.path, newPath, async (renameErr) => {
@@ -65,7 +65,7 @@ const uploadTaxationRegCardImage = async (req, res, next) => {
 
       // Update the filename and path to include the new ID
       const newFilename = `${savedImg._id}.jpg`;
-      const newPath = path.join('uploads', newFilename);
+      const newPath = path.join('../Frontend/src/uploads', newFilename);
 
       // Rename the file
       fs.rename(req.file.path, newPath, async (renameErr) => {
@@ -101,7 +101,7 @@ const uploadPhotoImage = async (req, res, next) => {
 
       // Update the filename and path to include the new ID
       const newFilename = `${savedImg._id}.jpg`;
-      const newPath = path.join('uploads', newFilename);
+      const newPath = path.join('../Frontend/src/uploads', newFilename);
 
       // Rename the file
       fs.rename(req.file.path, newPath, async (renameErr) => {
@@ -137,7 +137,7 @@ const uploadLogoImage = async (req, res, next) => {
 
       // Update the filename and path to include the new ID
       const newFilename = `${savedImg._id}.jpg`;
-      const newPath = path.join('uploads', newFilename);
+      const newPath = path.join('../Frontend/src/uploads', newFilename);
 
       // Rename the file
       fs.rename(req.file.path, newPath, async (renameErr) => {
@@ -173,7 +173,7 @@ const uploadIdImage = async (req, res, next) => {
 
       // Update the filename and path to include the new ID
       const newFilename = `${savedImg._id}.jpg`;
-      const newPath = path.join('uploads', newFilename);
+      const newPath = path.join('../Frontend/src/uploads', newFilename);
 
       // Rename the file
       fs.rename(req.file.path, newPath, async (renameErr) => {
