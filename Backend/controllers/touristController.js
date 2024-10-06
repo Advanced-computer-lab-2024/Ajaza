@@ -3,6 +3,7 @@ const Activity = require("../models/Activity");
 const Itinerary = require("../models/Itinerary");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 function isAdult(dob) {
   // Convert the dob string to a Date object
@@ -100,8 +101,22 @@ exports.touristUpdateProfile = async (req, res) => {
     if (!updatedTourist) {
       return res.status(404).json({ message: "Tourist not found" });
     }
+
+    // Exclude the pass field
     updatedTourist.pass = undefined;
-    res.status(201).json(updatedTourist);
+
+    // Generate a new JWT token
+    const token = jwt.sign(
+      {
+        userId: updatedTourist._id,
+        role: "tourist",
+        userDetails: updatedTourist,
+      }, // Include user data in the token
+      process.env.JWT_SECRET, // Use the environment variable
+      { expiresIn: "1h" }
+    );
+
+    res.status(201).json({ updatedTourist, token });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
