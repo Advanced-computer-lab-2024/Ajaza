@@ -47,3 +47,29 @@ export const getAvgRating = (feedback) => {
 
   return sum / count;
 };
+
+export const getUniqueTags = (data) => {
+  // Flatten all tags from each element and create a set to ensure uniqueness
+  const uniqueTags = new Set(data.flatMap((item) => item.tags));
+  // Convert the set back to an array
+  return Array.from(uniqueTags);
+};
+
+export const comparePriceRange = (filterCriteria, element) => {
+  if (!element.price) {
+    return false;
+  }
+  // filterCriteria is one of the values that we can filter with
+  const [num1, num2] = filterCriteria;
+  const min = Math.min(num1, num2);
+  const max = Math.max(num1, num2);
+
+  if (!typeof element["price"] == Number) {
+    if (element.upper < max && element.lower > min) {
+      return true;
+    }
+    return false;
+  }
+
+  return element?.price >= min && element.price <= max; // inclusive range
+};

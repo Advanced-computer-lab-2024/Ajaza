@@ -29,32 +29,76 @@ const Advertiser = () => {
     },
   ];
 
+  // const createAdvertiser = async (values) => {
+  //   try {
+  //     console.log("Values:", values);
+  //     console.log(values.email);
+  //     console.log(values.username);
+  //     console.log(values.password);
+
+  //     const headers = {
+  //       'Content-Type': 'multipart/form-data',
+  //     }
+
+  //     const response = await axios.post(
+  //       "http://localhost:5000/advertiser/guestAdvertiserCreateProfile",
+  //       {
+  //         id: values.document1,
+  //         username: values.username,
+  //         email: values.email,
+  //         pass: values.password,
+  //         taxationRegCard: values.document2,
+  //       }, headers
+  //     );
+  //     message.success("Advertiser created successfully!");
+  //     if (response.status == 201) {
+  //       navigate("/auth/signin");
+  //     }
+
+  //     setAdvertiserData(response.data);
+  //   } catch (error) {
+  //     console.error("Error creating advertiser:", error);
+  //     message.error("Failed to create advertiser.");
+  //   }
+  // };
+
   const createAdvertiser = async (values) => {
     try {
-      console.log("Values:", values);
-      console.log(values.email);
-      console.log(values.username);
-      console.log(values.password);
+      const formData = new FormData();
 
+      formData.append('username', values.username);
+      formData.append('pass', values.password);
+      formData.append('email', values.email);
+
+      if (values.document1) {
+        formData.append('id', values.document1[0].originFileObj);
+      }
+
+      if (values.document2) {
+        formData.append('taxationRegCard', values.document2[0].originFileObj);
+      }
       const response = await axios.post(
         "http://localhost:5000/advertiser/guestAdvertiserCreateProfile",
+        formData,
         {
-          username: values.username,
-          email: values.email,
-          pass: values.password,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
         }
       );
       message.success("Advertiser created successfully!");
       if (response.status == 201) {
         navigate("/auth/signin");
       }
-
       setAdvertiserData(response.data);
+      return response.data._id;
+
     } catch (error) {
       console.error("Error creating advertiser:", error);
       message.error("Failed to create advertiser.");
     }
   };
+
 
   const onFinish = async (values) => {
     await createAdvertiser(values);
@@ -132,7 +176,7 @@ const Advertiser = () => {
             getValueFromEvent={normFile}
             extra="Upload your ID."
           >
-            <Upload name="doc1" listType="text">
+            <Upload name="doc1" listType="text" beforeUpload={() => false}>
               <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
             </Upload>
           </Form.Item>
@@ -145,7 +189,7 @@ const Advertiser = () => {
             getValueFromEvent={normFile}
             extra="Upload the taxation registry card."
           >
-            <Upload name="doc2" listType="text">
+            <Upload name="doc2" listType="text" beforeUpload={() => false}>
               <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
             </Upload>
           </Form.Item>

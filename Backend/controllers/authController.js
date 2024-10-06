@@ -54,6 +54,32 @@ const mapUserDetails = (user, schema) => {
   return userDetails;
 };
 
+const mapUserDetailsAhmed = (user, schema) => {
+  const userDetails = {};
+  let cpn = "";
+  let cpd = "";
+  let cpl = "";
+  for (const key in schema.paths) {
+    if (schema.paths.hasOwnProperty(key) && key !== "__v" && key !== "pass") {
+      if (key === "companyProfile.name") {
+        cpn = user.companyProfile.name;
+      } else if (key === "companyProfile.desc") {
+        cpd = user.companyProfile.location;
+      } else if (key === "companyProfile.location") {
+        cpl = user.companyProfile.desc;
+      } else {
+        userDetails[key] = user[key] !== undefined ? user[key] : null;
+      }
+    }
+  }
+  userDetails.companyProfile = {
+    name: cpn,
+    location: cpd,
+    desc: cpl,
+  };
+  return userDetails;
+};
+
 // Login user
 exports.login = async (req, res) => {
   const { username, password } = req.body;
@@ -67,9 +93,10 @@ exports.login = async (req, res) => {
 
     const { user, role } = result;
 
-    // Compare the provided password with the stored password
-    if (password !== user.pass) {
-      return res.status(400).json({ message: "Invalid credentials" });
+    const isMatchPlain = password === user.pass;
+    const isMatch = await bcrypt.compare(password, user.pass);
+    if (!isMatch && !isMatchPlain) {
+      return res.status(401).json({ error: "Invalid credentials" });
     }
 
     // Map user details
@@ -78,7 +105,7 @@ exports.login = async (req, res) => {
       userDetails = mapUserDetails(user, Tourist.schema);
     }
     if (role === "advertiser") {
-      userDetails = mapUserDetails(user, Advertiser.schema);
+      userDetails = mapUserDetailsAhmed(user, Advertiser.schema);
     }
     if (role === "guide") {
       userDetails = mapUserDetails(user, TourGuide.schema);
@@ -101,8 +128,10 @@ exports.login = async (req, res) => {
     );
 
     // Send token, role, and user details to the frontend
+    console.log(userDetails);
     res.status(200).json({ token, message: "Login successful" });
   } catch (error) {
+    console.error("Error during login:", error); // Log the error for debugging
     res.status(500).json({ error: error.message });
   }
 };

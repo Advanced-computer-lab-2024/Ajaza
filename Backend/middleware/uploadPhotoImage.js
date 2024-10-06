@@ -2,6 +2,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const Img = require('../models/Img'); // Adjust the path if necessary
+const { ObjectId } = require('mongoose').Types;
 
 // Configure Multer
 const storage = multer.diskStorage({
@@ -15,38 +16,44 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+const uploadFiles = upload.fields([
+    { name: 'photo', maxCount: 1 },
+  ]);
+
 const uploadPhotoImage = async (req, res, next) => {
-    upload.single('photo')(req, res, async (err) => {
+    uploadFiles(req, res, async (err) => {
       if (err) {
-        return res.status(500).json({ error: err.message });
+        return res.status(500).json({ error: "photo mw" + err.message });
       }
   
       try {
-        // Create a new document in the imgs collection
-        const imgDoc = new Img();
-        const savedImg = await imgDoc.save();
-  
-        // Update the filename and path to include the new ID
-        const newFilename = `${savedImg._id}.jpg`;
-        const newPath = path.join('../Frontend/src/uploads', newFilename);
-  
-        // Rename the file
-        fs.rename(req.file.path, newPath, async (renameErr) => {
-          if (renameErr) {
-            await Img.findByIdAndRemove(savedImg._id);
-            return res.status(500).json({ error: 'Failed to rename file' });
+        let idPhotoTobeAddedToBody = null;
+        if (req.files && req.files['photo']) {
+            const idFile = req.files['photo'][0]; // Access the first element of the 'id' array
+    
+            const imgDoc = new Img();
+            const savedImg = await imgDoc.save();
+    
+            const newFilename = `${savedImg._id}.jpg`;
+            const newPath = path.join('../Frontend/src/uploads', newFilename);
+    
+            // Rename the file
+            fs.rename(idFile.path, newPath, async (renameErr) => {
+              if (renameErr) {
+                await Img.findByIdAndRemove(savedImg._id);
+                return res.status(500).json({ error: 'Failed to rename file' });
+              }
+    
+              savedImg.path = newPath;
+              await savedImg.save();
+    
+            });
+            idPhotoTobeAddedToBody = savedImg._id;
           }
-  
-          // Update the path in the database (if needed)
-          savedImg.path = newPath; // You may want to add this field in your Img model
-          await savedImg.save();
-  
-          // Attach the image ID to the request for use in the next middleware
-          req.imgId = savedImg._id;
-          next();
-        });
+        req.body.photo = idPhotoTobeAddedToBody;
+        next();
       } catch (error) {
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: "id mw" + error.message });
       }
     });
   };

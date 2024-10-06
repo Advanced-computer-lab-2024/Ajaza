@@ -3,10 +3,9 @@ import { DropboxOutlined, UploadOutlined } from '@ant-design/icons';
 import { Avatar, Card, Flex, Switch } from 'antd';
 const actions = [
     <DropboxOutlined key="archive" />,
-    <UploadOutlined key="upload" />,
 ];
 
-const CustomCard = ({ name, desc, price, quantity, onClick }) => {
+const CustomCard = ({ name, desc, price, quantity, photo, onClick }) => {
     return (
         <Flex gap="middle" align="start" vertical>
             <Card
@@ -20,9 +19,11 @@ const CustomCard = ({ name, desc, price, quantity, onClick }) => {
                     <img
                         alt="example"
                         src="https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg"
+                    //src={require(`../../uploads/${photo}.jpg`)}
                     />
                 }
             >
+
                 <Card.Meta
                     description={
                         <>

@@ -39,10 +39,12 @@ import TourGuide from "./Components/TourGuide/TourGuide";
 import Advertiser from "./Components/Advertiser/Advertiser";
 import TourismGovernor from "./Components/TourismGovernor/TourismGovernor";
 import Admin from "./Components/Admin/Admin";
+import Guest from "./Components/Guest/Guest";
 import AddAccounts from "./Components/Admin/addAccounts";
 import CustomCard from "./Components/Card";
 import TouristProfile from "./Components/Tourist/TouristProfile";
 import CreateTourist from "./Components/Sign/CreateTourist";
+import CreateSeller from "./Components/Sign/CreateSeller";
 const { Header, Footer, Sider, Content } = Layout;
 
 function App() {
@@ -84,14 +86,11 @@ function App() {
             <Route path="/profile" element={<Profile />} />
 
             <Route path="/governor/*" element={<TourismGovernor />} />
-            <Route path="/seller/*" element={<Seller />} />
+            <Route path="/seller/*" element={<SellerPage />} />
+            <Route path="/guest/*" element={<Guest />} />
+
             {/* here */}
             {/* Tourist registration page */}
-            <Route path="/seller" element={<SellerPage />} />
-            <Route path="/createform" element={<CreateFormPage />} />
-            <Route path="/seller-form" element={<SellerForm />} />
-            <Route path="/product" element={<Product />} />
-            <Route path="/display" element={<DisplayForm />} />
 
             {/* Advertiser registration page */}
           </Routes>

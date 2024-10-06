@@ -34,6 +34,7 @@ const Seller = () => {
       icon: <ContainerOutlined />,
       label: "Report",
     },
+
   ];
 
   return (
@@ -41,6 +42,7 @@ const Seller = () => {
       <Routes>
         <Route path="/itineraries" element={<Itineraries />} />
         <Route path="Report" element={<div>Report</div>} />
+
       </Routes>
     </CustomLayout>
   );

@@ -13,11 +13,13 @@ const { Title } = Typography;
 
 const DisplayForm = () => {
     const location = useLocation();
-    const { quantity, name: initialName, desc: initialDesc, price: initialPrice, productId } = location.state || {};
+    const { quantity: initialQuantity, name: initialName, desc: initialDesc, price: initialPrice, productId, pic } = location.state || {};
 
     const [name, setName] = useState(initialName);
     const [desc, setDesc] = useState(initialDesc);
     const [price, setPrice] = useState(initialPrice);
+    const [quantity, setQuantity] = useState(initialQuantity);
+    const [photo, setPhoto] = useState(null);
     const [loading, setLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
 
@@ -35,11 +37,11 @@ const DisplayForm = () => {
     // Save the updated values
     const handleSaveClick = async (values) => {
         setIsEditing(false); // Exit editing mode
-        console.log("Updated values:", { name, desc, price });
+        console.log("Updated values:", { name, desc, price, quantity });
 
         // Validate data
-        if (!name || !desc || !price) {
-            message.error("Please provide valid details and price.");
+        if (!name || !desc || !price || !quantity) {
+            message.error("Please provide valid details, quantity and price.");
             return;
         }
 
@@ -52,7 +54,8 @@ const DisplayForm = () => {
             const response = await axios.patch(`http://localhost:5000/product/${newSellerId}/product/${prodId}/adminSellerEditProduct`, {
                 name,
                 desc,
-                price
+                price,
+                quantity,
             });
 
             console.log(values)
@@ -76,40 +79,70 @@ const DisplayForm = () => {
                 <Title level={1}>Product Details</Title>
 
                 <CustomCard
-                    name={isEditing ? (
-                        <Input.TextArea
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            rows={2}
-                        />
-                    ) : (
-                        name
-                    )}
-                    desc={isEditing ? (
-                        <Input.TextArea
-                            value={desc}
-                            onChange={(e) => setDesc(e.target.value)}
-                            rows={2}
-                        />
-                    ) : (
-                        desc
-                    )}
-
-                    price={isEditing ? (
-                        <Input
-                            type="number"
-                            value={price}
-                            onChange={(e) => setPrice(e.target.value)}
-                        />
-                    ) : (
-                        price
-                    )}
-                    quantity={quantity}
-                    onClick={handleUpdateClick} // Trigger update on card click
+                    name={
+                        isEditing ? (
+                            <Input.TextArea
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                rows={2}
+                            />
+                        ) : (
+                            name
+                        )
+                    }
+                    desc={
+                        isEditing ? (
+                            <Input.TextArea
+                                value={desc}
+                                onChange={(e) => setDesc(e.target.value)}
+                                rows={2}
+                            />
+                        ) : (
+                            desc
+                        )
+                    }
+                    price={
+                        isEditing ? (
+                            <Input
+                                type="number"
+                                value={price}
+                                onChange={(e) => setPrice(e.target.value)}
+                            />
+                        ) : (
+                            price
+                        )
+                    }
+                    quantity={
+                        isEditing ? (
+                            <Input
+                                type="number"
+                                value={quantity}
+                                onChange={(e) => setQuantity(e.target.value)}
+                            />
+                        ) : (
+                            quantity
+                        )
+                    }
+                    photo={
+                        <div>
+                            <Input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setPhoto(URL.createObjectURL(e.target.files[0]))}
+                            />
+                        </div>
+                    }
+                    onClick={handleUpdateClick} // Assuming this is the update handler
                 />
 
                 {isEditing && (
-                    <CustomButton type="primary" size="m" value="Save" onClick={handleSaveClick} loading={loading} />
+                    <CustomButton
+                        type="primary"
+                        size="m"
+                        value="Save"
+                        onClick={handleSaveClick}
+                        loading={loading}
+                    />
                 )}
             </div>
         </CustomLayout>

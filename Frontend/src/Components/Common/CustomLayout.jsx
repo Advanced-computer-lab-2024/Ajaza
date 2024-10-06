@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Icon, {
   BellFilled,
   MenuFoldOutlined,
@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import IconFloatButton from "./IconFloatButton";
 import { Colors } from "./Constants";
 import CustomButton from "./CustomButton";
+import { jwtDecode } from "jwt-decode";
 
 const { Header, Sider, Content } = Layout;
 
@@ -25,14 +26,7 @@ const CustomLayout = ({ userType = "Tour Guide", children, sideBarItems }) => {
     console.log("Test");
   };
   const [user, setUser] = useState("");
-  const [collapsed, setCollapsed] = useState(true);
-  const [hover, setHover] = useState(false);
-  const navigate = useNavigate();
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-
-  const navBarItems = (
+  const [navBarItems, setNavBarItems] = useState(
     <Flex align={"center"} style={{ marginLeft: "auto" }}>
       <IconFloatButton icon={BellFilled} badge={{ count: 5 }} />
       <UserOutlined
@@ -41,6 +35,31 @@ const CustomLayout = ({ userType = "Tour Guide", children, sideBarItems }) => {
       />
     </Flex>
   );
+  const [collapsed, setCollapsed] = useState(true);
+  const [hover, setHover] = useState(false);
+  const navigate = useNavigate();
+  const {
+    token: { colorBgContainer, borderRadiusLG },
+  } = theme.useToken();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const decodedToken = jwtDecode(token);
+    setUser(decodedToken.userDetails);
+
+    setNavBarItems(
+      <Flex align={"center"} style={{ marginLeft: "auto" }}>
+        <IconFloatButton icon={BellFilled} badge={{ count: 5 }} />
+        <UserOutlined
+          className="hover"
+          style={{ fontSize: "20px", marginLeft: "30px" }}
+          onClick={() => {
+            navigate(`/${decodedToken.role}/profile`);
+          }}
+        />
+      </Flex>
+    );
+  }, []);
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider

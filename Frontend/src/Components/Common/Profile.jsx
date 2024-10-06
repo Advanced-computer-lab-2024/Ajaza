@@ -29,19 +29,19 @@ const Profile = () => {
   const [form] = Form.useForm();
   const [role, setRole] = useState(""); // Store user role
   const [pending, setPending] = useState(false); // Store pending status
+  console.log(userDetails);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     let decodedToken = null;
     if (token) {
       decodedToken = jwtDecode(token);
-      console.log("Decoded Token:", decodedToken); // Debugging
       setResponse(decodedToken); // Set initial profile data
       setRole(decodedToken.role); // Set user role
 
       // Extract user details from the token
+      console.log(decodedToken);
       const userDetails = decodedToken.userDetails;
-      console.log("User Details:", userDetails); // Debugging
       setUserDetails(userDetails);
       setPending(userDetails.pending); // Set pending status from userDetails
 
@@ -51,6 +51,8 @@ const Profile = () => {
         "companyProfile.name": userDetails?.companyProfile?.name || "",
         "companyProfile.desc": userDetails?.companyProfile?.desc || "",
         "companyProfile.location": userDetails?.companyProfile?.location || "",
+        dob: userDetails?.dob ? formatDate(userDetails.dob) : "",
+        joined: userDetails?.joined ? formatDate(userDetails.joined) : "",
       });
     }
   }, [form]);
@@ -66,6 +68,10 @@ const Profile = () => {
         urlExtension = `guide/updateGuideProfile/${response.userId}`;
       } else if (role === "advertiser") {
         urlExtension = `advertiser/advertiserUpdateProfile/${response.userId}`;
+      } else if (role === "tourist") {
+        urlExtension = `tourist/touristUpdateProfile/${response.userId}`;
+      } else if (role === "seller") {
+        urlExtension = `seller/${response.userId}`;
       }
 
       // Extract companyProfile fields from values
@@ -82,14 +88,37 @@ const Profile = () => {
         previousWork: previousWork ? previousWork.split(" ") : [],
       };
 
-      await axios.put(`${apiUrl}${urlExtension}`, updatedProfile, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Make API request to update profile
+      const apiResponse = await axios.patch(
+        `${apiUrl}${urlExtension}`,
+        updatedProfile,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      setUserDetails((prev) => ({ ...prev, ...updatedProfile })); // Update the local profile data
-      form.setFieldsValue(updatedProfile); // Update form initial values
+      // Log the API response to check for token
+      console.log("API Response:", apiResponse.data);
+
+      // Extract the new JWT token from the API response
+      const newToken = apiResponse.data.token;
+
+      // Check if newToken is valid
+      if (!newToken || typeof newToken !== "string") {
+        throw new Error("Invalid token returned from API");
+      }
+
+      // Update the token in localStorage
+      localStorage.setItem("token", newToken);
+
+      // Decode the new token and update user details locally
+      const decodedToken = jwtDecode(newToken);
+      setResponse(decodedToken);
+      setUserDetails(decodedToken.userDetails); // Update the local profile data
+      form.setFieldsValue(decodedToken.userDetails); // Update form initial values
+
       setIsEditing(false); // Exit edit mode
       message.success("Profile updated successfully!");
     } catch (error) {
@@ -104,6 +133,8 @@ const Profile = () => {
 
     // Ensure the form is populated with the latest user details
     if (userDetails) {
+      console.log(userDetails);
+
       form.setFieldsValue({
         ...userDetails,
         "companyProfile.name": userDetails?.companyProfile?.name || "",
@@ -112,6 +143,8 @@ const Profile = () => {
         previousWork: userDetails.previousWork
           ? userDetails.previousWork.join(" ")
           : "",
+        dob: userDetails?.dob ? formatDate(userDetails.dob) : "",
+        joined: userDetails?.joined ? formatDate(userDetails.joined) : "",
       });
     }
   };
@@ -139,6 +172,12 @@ const Profile = () => {
     key = key.replace(/\b\w/g, (char) => char.toUpperCase());
 
     return key;
+  };
+
+  // Format date to remove time
+  const formatDate = (dateString) => {
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   return (
@@ -229,6 +268,39 @@ const Profile = () => {
                   </Form.Item>
                 </>
               )}
+
+              {/* Form fields for tourist */}
+              {role === "tourist" && (
+                <>
+                  <Form.Item name="email" label="Email">
+                    <Input />
+                  </Form.Item>
+                  <Form.Item name="mobile" label="Mobile">
+                    <Input />
+                  </Form.Item>
+                  <Form.Item name="nationality" label="Nationality">
+                    <Input />
+                  </Form.Item>
+                  <Form.Item name="dob" label="Date of Birth">
+                    <Input />
+                  </Form.Item>
+                  <Form.Item name="occupation" label="Occupation">
+                    <Input />
+                  </Form.Item>
+                </>
+              )}
+
+              {/* Form fields for seller */}
+              {role === "seller" && (
+                <>
+                  <Form.Item name="name" label="Name">
+                    <Input />
+                  </Form.Item>
+                  <Form.Item name="desc" label="Description">
+                    <Input />
+                  </Form.Item>
+                </>
+              )}
             </Form>
           ) : (
             // Display profile details (non-edit view)
@@ -272,6 +344,74 @@ const Profile = () => {
                       <strong>Hotline: </strong>
                       <span>{userDetails.hotline}</span>
                     </div>
+                  </>
+                )}
+                {role === "tourist" && (
+                  <>
+                    {userDetails.mobile && (
+                      <div>
+                        <strong>Mobile: </strong>
+                        <span>{userDetails.mobile}</span>
+                      </div>
+                    )}
+                    {userDetails.nationality && (
+                      <div>
+                        <strong>Nationality: </strong>
+                        <span>{userDetails.nationality}</span>
+                      </div>
+                    )}
+                    {userDetails.dob && (
+                      <div>
+                        <strong>Date of Birth: </strong>
+                        <span>{formatDate(userDetails.dob)}</span>
+                      </div>
+                    )}
+                    {userDetails.occupation && (
+                      <div>
+                        <strong>Occupation: </strong>
+                        <span>{userDetails.occupation}</span>
+                      </div>
+                    )}
+                    {userDetails.joined && (
+                      <div>
+                        <strong>Joined: </strong>
+                        <span>{formatDate(userDetails.joined)}</span>
+                      </div>
+                    )}
+                    {userDetails.wallet && (
+                      <div>
+                        <strong>Wallet: </strong>
+                        <span>{userDetails.wallet}</span>
+                      </div>
+                    )}
+                    {userDetails.totalPoints && (
+                      <div>
+                        <strong>Total Points: </strong>
+                        <span>{userDetails.totalPoints}</span>
+                      </div>
+                    )}
+                    {userDetails.badge && (
+                      <div>
+                        <strong>Badge: </strong>
+                        <span>{userDetails.badge}</span>
+                      </div>
+                    )}
+                  </>
+                )}
+                {role === "seller" && (
+                  <>
+                    {userDetails.name && (
+                      <div>
+                        <strong>Name: </strong>
+                        <span>{userDetails.name}</span>
+                      </div>
+                    )}
+                    {userDetails.desc && (
+                      <div>
+                        <strong>Description: </strong>
+                        <span>{userDetails.desc}</span>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
