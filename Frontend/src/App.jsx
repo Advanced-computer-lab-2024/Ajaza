@@ -42,7 +42,6 @@ import Admin from "./Components/Admin/Admin";
 import Guest from "./Components/Guest/Guest";
 import AddAccounts from "./Components/Admin/addAccounts";
 import CustomCard from "./Components/Card";
-import TouristProfile from "./Components/Tourist/TouristProfile";
 import CreateTourist from "./Components/Sign/CreateTourist";
 import CreateSeller from "./Components/Sign/CreateSeller";
 const { Header, Footer, Sider, Content } = Layout;

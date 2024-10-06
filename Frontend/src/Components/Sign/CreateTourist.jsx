@@ -7,7 +7,6 @@ import CustomButton from "../Common/CustomButton";
 import CustomLayout from "../Common/CustomLayout";
 import { Form, Input } from "antd";
 import { DatePicker, Select, message } from "antd";
-import TouristProfile from "../Tourist/TouristProfile";
 import Profile from "../Common/Profile";
 import Plans from "../Tourist/Plans";
 import { jwtDecode } from "jwt-decode";
