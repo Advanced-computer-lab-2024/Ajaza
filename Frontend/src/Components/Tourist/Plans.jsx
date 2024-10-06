@@ -34,7 +34,7 @@ const Plans = () => {
     extra: "price",
     rating: "avgRating",
   };
-  const fields = { Categories: "category", Tags: "tags" };
+  const fields = { Categories: "category", Tags: "tags", Type: "type" };
   const searchFields = ["name", "category", "tags"];
   const constProps = { rateDisplay: true };
   const sortFields = ["avgRating", "price"];
