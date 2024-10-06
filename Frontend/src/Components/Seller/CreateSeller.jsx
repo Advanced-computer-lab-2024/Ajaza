@@ -9,6 +9,8 @@ import { UserOutlined, UploadOutlined } from "@ant-design/icons";
 import CustomCard from "../Card";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import SellerForm from "./SellerForm";
+
 
 const CreateFormPage = () => {
     const navigate = useNavigate();
@@ -65,7 +67,7 @@ const CreateFormPage = () => {
     const onFinish = async (values) => {
         console.log("Form submitted with values:", values);
         await createSellerForm(values);
-        navigate("/seller-form", {
+        navigate("seller-form", {
             state: {
                 name: values.name,
                 description: values.description,
@@ -80,61 +82,69 @@ const CreateFormPage = () => {
 
 
     return (
-        <CustomLayout sideBarItems={sideBarItems}>
-            <div style={{ textAlign: "center", alignItems: "center", marginTop: "20px" }}>
-                <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>
-                    Create Seller
-                </h1>
-            </div>
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    minHeight: "100vh",
-                }}
-            >
-                <Form
-                    name="basic"
-                    labelCol={{ span: 8 }}
-                    wrapperCol={{ span: 16 }}
-                    style={{ maxWidth: 600, width: "100%" }}
-                    onFinish={onFinish}
-                    onFinishFailed={onFinishFailed}
-                    autoComplete="off"
+        <>
+            <CustomLayout sideBarItems={sideBarItems}>
+                <div style={{ textAlign: "center", alignItems: "center", marginTop: "20px" }}>
+                    <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>
+                        Create Seller
+                    </h1>
+                </div>
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        minHeight: "100vh",
+                    }}
                 >
-                    <Form.Item
-                        label="Name"
-                        name="name"
-                        rules={[{ required: true, message: "Please input a name!" }]}
+                    <Form
+                        name="basic"
+                        labelCol={{ span: 8 }}
+                        wrapperCol={{ span: 16 }}
+                        style={{ maxWidth: 600, width: "100%" }}
+                        onFinish={onFinish}
+                        onFinishFailed={onFinishFailed}
+                        autoComplete="off"
                     >
-                        <Input.TextArea
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            rows={1}
-                        />
-                    </Form.Item>
+                        <Form.Item
+                            label="Name"
+                            name="name"
+                            rules={[{ required: true, message: "Please input a name!" }]}
+                        >
+                            <Input.TextArea
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                rows={1}
+                            />
+                        </Form.Item>
 
-                    <Form.Item
-                        label="Description"
-                        name="description"
-                        rules={[{ required: true, message: "Please input a description!" }]}
-                    >
-                        <Input.TextArea
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            rows={4}
-                        />
-                    </Form.Item>
+                        <Form.Item
+                            label="Description"
+                            name="description"
+                            rules={[{ required: true, message: "Please input a description!" }]}
+                        >
+                            <Input.TextArea
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                rows={4}
+                            />
+                        </Form.Item>
 
-                    <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                        <CustomButton type="default" htmlType="submit" value="Save" size={"m"}>
-                        </CustomButton>
-                    </Form.Item>
-                </Form>
-            </div>
-        </CustomLayout>
+                        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                            <CustomButton type="default" htmlType="submit" value="Save" size={"m"}>
+                            </CustomButton>
+                        </Form.Item>
+                    </Form>
+
+                </div>
+            </CustomLayout>
+
+            <Routes>
+                <Route path="seller-form" element={<SellerForm />} />
+            </Routes>
+        </>
     );
+
 };
 
 export default CreateFormPage
