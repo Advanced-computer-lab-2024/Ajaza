@@ -10,9 +10,9 @@ const Advertiser = () => {
     {
       key: "1",
       icon: <CalendarOutlined />,
-      label: "Itineraries",
+      label: "Activites",
       onClick: () => {
-        navigate("itineraries");
+        navigate("activities");
       },
     },
   ];

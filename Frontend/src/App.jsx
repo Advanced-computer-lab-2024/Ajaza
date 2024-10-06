@@ -87,7 +87,6 @@ function App() {
             <Route path="/seller/*" element={<Seller />} />
             {/* here */}
             {/* Tourist registration page */}
-            <Route path="/blank" element={<BlankPage />} />
             <Route path="/seller" element={<SellerPage />} />
             <Route path="/createform" element={<CreateFormPage />} />
             <Route path="/seller-form" element={<SellerForm />} />

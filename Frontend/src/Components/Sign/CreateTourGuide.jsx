@@ -46,12 +46,17 @@ const CreateTourGuide = () => {
           pass: values.password,
         }
       );
-      console.log("ENGY");
-      settourGuideData(response.data);
       message.success("TourGuide created successfully!");
+
+      if (response.status == 201) {
+        navigate("/auth/signin");
+      }
+      settourGuideData(response.data);
     } catch (error) {
+      console.log(error.response); // TODO
+
       console.error("Error creating tour guide:", error);
-      message.error("Failed to create tour guide.");
+      message.error("Failed to create tour guide,");
     }
   };
 
@@ -61,7 +66,6 @@ const CreateTourGuide = () => {
 
   const onFinish = async (values) => {
     await createTourGuide(values);
-    navigate("/blank");
   };
 
   const onFinishFailed = (errorInfo) => {

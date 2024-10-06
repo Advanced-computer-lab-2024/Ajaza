@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { Avatar, Card, Space, Modal, message, Form, Input, Button as AntButton, Select } from "antd"; // Single line import
+import { EditOutlined, DeleteOutlined, PlusOutlined,MinusCircleOutlined } from "@ant-design/icons";
+import { Avatar, Card, Space, Modal, message, Form, Input, Button as AntButton, Select, InputNumber, Switch } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
 import { jwtDecode } from "jwt-decode";
-import { apiUrl } from "./Common/Constants"; // Import the apiUrl variable
+import { apiUrl } from "./Common/Constants"; 
 
 const { Option } = Select;
 
 const apiClient = axios.create({
   baseURL: apiUrl,
   headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`, // Set the token from localStorage
+    Authorization: `Bearer ${localStorage.getItem("token")}`, 
   },
 });
 
@@ -19,20 +19,19 @@ const Itineraries = () => {
   const [itinerariesData, setItinerariesData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingItineraryId, setEditingItineraryId] = useState(null);
   const [form] = Form.useForm();
 
   let decodedToken = null;
   const token = localStorage.getItem("token");
   if (token) {
-      decodedToken = jwtDecode(token);
+    decodedToken = jwtDecode(token);
   }
-  const userid = decodedToken ? decodedToken.userId : null; // Adjust this according to your token storage
+  const userid = decodedToken ? decodedToken.userId : null;
 
-
-  // Fetch itineraries from the backend
   const fetchItineraries = async () => {
     try {
-      const response = await apiClient.get(`/itinerary/readItineraries/${userid}`);
+      const response = await apiClient.get(`/itinerary/readItinerariesOfGuide/${userid}`);
       setItinerariesData(response.data);
     } catch (error) {
       console.error("Error fetching itineraries:", error);
@@ -46,63 +45,100 @@ const Itineraries = () => {
     fetchItineraries();
   }, []);
 
-  // Function to handle creating a new itinerary
   const createItinerary = async (values) => {
     try {
+      console.log("Form Values:", values); // Debugging line
       const newItinerary = {
-        guideId: userid,
         name: values.name,
-        timeline: [],
         language: values.language,
         price: values.price,
-        availableDateTime: [],
+        availableDateTime: (values.availableDateTime || []).map(date => ({
+          date: new Date(date.date),
+          spots: date.spots
+        })),
         pickUp: values.pickUp,
         dropOff: values.dropOff,
+        accessibility: values.accessibility,
+        maxTourists: values.maxTourists,
+        active: values.active || true,
+        timeline: {
+          start: values.timeline.start,
+          id: values.timeline.id,
+          type: values.timeline.type,
+          duration: values.timeline.duration,
+        },
+        feedback: [],
       };
-
-      const response = await apiClient.post("itinerary/createSpecifiedItinerary", newItinerary);
+  
+      const response = await apiClient.post(`itinerary/createSpecifiedItinerary/${userid}`, newItinerary);
       setItinerariesData([...itinerariesData, response.data]);
       message.success("Itinerary created successfully!");
-      setIsModalVisible(false); // Close the modal after success
-      form.resetFields(); // Reset the form fields
+      setIsModalVisible(false);
+      form.resetFields();
     } catch (error) {
       console.error("Error creating itinerary:", error);
       message.error("Failed to create itinerary.");
     }
   };
-
-  // Function to handle editing an itinerary
-  const editItinerary = async (id) => {
-    const itineraryToEdit = itinerariesData.find(
-      (itinerary) => itinerary._id === id
-    );
-    const updatedItinerary = { ...itineraryToEdit, name: "Updated Itinerary" }; // Update as needed
-
+  
+  
+  const editItinerary = async (values) => {
     try {
-      const response = await apiClient.patch(
-        `itinerary/${id}`,
-        updatedItinerary
-      );
+      const originalItinerary = itinerariesData.find((itinerary) => itinerary._id === editingItineraryId);
+      console.log("Original Itinerary:", originalItinerary);
+      console.log("Form Values:", values);
+  
+      const updatedFields = {};
+  
+      // Deep comparison for timeline
+      if (JSON.stringify(values.timeline) !== JSON.stringify(originalItinerary.timeline)) {
+        updatedFields.timeline = values.timeline;
+      }
+  
+      // Only include the fields that have changed
+      Object.keys(values).forEach((key) => {
+        if (key !== 'timeline' && values[key] !== originalItinerary[key]) {
+          updatedFields[key] = values[key];
+        }
+      });
+  
+      // Ensure maxTourists is included if it has changed
+      if (values.maxTourists !== originalItinerary.maxTourists) {
+        updatedFields.maxTourists = values.maxTourists;
+      }
+  
+      if (Object.keys(updatedFields).length === 0) {
+        message.info("No changes detected.");
+        return;
+      }
+  
+      const response = await apiClient.patch(`itinerary/updateItineraryFilteredFields/${userid}/${editingItineraryId}`, updatedFields);
       setItinerariesData(
         itinerariesData.map((itinerary) =>
-          itinerary._id === id ? response.data : itinerary
+          itinerary._id === editingItineraryId ? response.data : itinerary
         )
       );
+  
       message.success("Itinerary updated successfully!");
+      setIsModalVisible(false);
+      form.resetFields();
+      setEditingItineraryId(null);
     } catch (error) {
-      console.error("Error updating itinerary:", error);
+      console.error("Failed to update itinerary:", error);
       message.error("Failed to update itinerary.");
     }
   };
+  
 
-  // Function to handle deleting an itinerary
+  
+
   const deleteItinerary = async (id) => {
     Modal.confirm({
       title: "Are you sure?",
       content: "Do you want to delete this itinerary?",
       onOk: async () => {
         try {
-          await apiClient.delete(`itinerary/deleteSpecificItinerary/${id}`);
+          await apiClient.delete(`itinerary/deleteSpecificItinerary/${userid}/${id}`);
           setItinerariesData(
             itinerariesData.filter((itinerary) => itinerary._id !== id)
           );
@@ -115,14 +151,28 @@ const Itineraries = () => {
     });
   };
 
-  // Function to show the modal
-  const showModal = () => {
+  const openEditModal = (itineraryId) => {
+    setEditingItineraryId(itineraryId);
+    const itineraryToEdit = itinerariesData.find((itinerary) => itinerary._id === itineraryId);
+    
+    form.setFieldsValue({
+      ...itineraryToEdit,
+      timeline: itineraryToEdit.timeline.length > 0 ? itineraryToEdit.timeline : [{}],
+    });
+    
     setIsModalVisible(true);
   };
+  
 
-  // Function to handle modal cancellation
+  const showModal = () => {
+    setEditingItineraryId(null); 
+    form.resetFields();
+    setIsModalVisible(true); 
+  };
+
   const handleCancel = () => {
     setIsModalVisible(false);
+    form.resetFields();
   };
 
   return (
@@ -153,22 +203,54 @@ const Itineraries = () => {
                 actions={[
                   <EditOutlined
                     key="edit"
-                    onClick={() => editItinerary(itinerary._id)}
+                    onClick={() => openEditModal(itinerary._id)}
                   />,
                   <DeleteOutlined
                     key="delete"
                     onClick={() => deleteItinerary(itinerary._id)}
                   />,
                 ]}
-                style={{ minWidth: 300, margin: "10px" }} // Adding margin for better spacing
+                style={{ minWidth: 300, margin: "10px" }}
               >
                 <Card.Meta
-                  avatar={
-                    <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
-                  } // Use a relevant avatar
                   title={itinerary.name}
                   description={
-                    <p>{`Price: ${itinerary.price}, Language: ${itinerary.language}, Pick Up: ${itinerary.pickUp}, Drop Off: ${itinerary.dropOff}`}</p>
+                    <div>
+                      <p><strong>Price:</strong> {itinerary.price}</p>
+                      <p><strong>Language:</strong> {itinerary.language}</p>
+                      <p><strong>Pick Up Location:</strong> {itinerary.pickUp}</p>
+                      <p><strong>Drop Off Location:</strong> {itinerary.dropOff}</p>
+                      <p><strong>Maximum Tourists:</strong> {itinerary.maxTourists}</p>
+                      <p><strong>Active:</strong> {itinerary.active ? "Yes" : "No"}</p>
+                      <p><strong>Accessibility:</strong> {itinerary.accessibility || "Not specified"}</p>
+                      <p><strong>Available Dates:</strong> 
+                        {itinerary.availableDateTime.length > 0 ? (
+                          itinerary.availableDateTime.map(dateEntry => 
+                            `${new Date(dateEntry.date).toLocaleDateString()} (Spots: ${dateEntry.spots})`
+                          ).join(", ")
+                        ) : (
+                          "No available dates"
+                        )}
+                      </p>
+                      <p><strong>Timeline:</strong> 
+                        {itinerary.timeline.length > 0 ? (
+                          itinerary.timeline.map(entry => 
+                            `Start: ${entry.start}, Duration: ${entry.duration} mins, Type: ${entry.type}`
+                          ).join(", ")
+                        ) : (
+                          "No timeline available"
+                        )}
+                      </p>
+                      {/* <p><strong>Feedback:</strong> 
+                        {itinerary.feedback.length > 0 ? (
+                          itinerary.feedback.map(fb => 
+                            `Rating: ${fb.rating}, Comments: ${fb.comments}`
+                          ).join(", ")
+                        ) : (
+                          "No feedback available"
+                        )}
+                      </p> */}
+                    </div>
                   }
                 />
               </Card>
@@ -176,74 +258,155 @@ const Itineraries = () => {
           </Space>
         )}
 
-        {/* Modal for creating a new itinerary */}
+        {/* Modal for creating/editing an itinerary */}
         <Modal
-          title="Create Itinerary"
+          title={editingItineraryId ? "Edit Itinerary" : "Create Itinerary"}
           visible={isModalVisible}
           onCancel={handleCancel}
           footer={null}
         >
-          <Form form={form} layout="vertical" onFinish={createItinerary}>
+          <Form form={form} layout="vertical" onFinish={editingItineraryId ? editItinerary : createItinerary}>
             <Form.Item
               name="name"
               label="Itinerary Name"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input the itinerary name!",
-                },
-              ]}
+              rules={[{ required: true, message: "Please enter the itinerary name" }]}
             >
-              <Input />
+              <Input placeholder="Enter itinerary name" />
             </Form.Item>
+
             <Form.Item
               name="language"
               label="Language"
-              rules={[
-                { required: true, message: "Please select a language!" },
-              ]}
+              rules={[{ required: true, message: "Please select a language" }]}
             >
               <Select placeholder="Select a language">
                 <Option value="English">English</Option>
                 <Option value="Spanish">Spanish</Option>
                 <Option value="French">French</Option>
-                {/* Add more options as needed */}
+                <Option value="Arabic">Arabic</Option>
+
               </Select>
             </Form.Item>
+
             <Form.Item
               name="price"
               label="Price"
-              rules={[{ required: true, message: "Please input the price!" }]}
+              rules={[{ required: true, message: "Please enter the price" }]}
             >
-              <Input type="number" />
+              <InputNumber placeholder="Enter price" style={{ width: "100%" }} />
             </Form.Item>
+
             <Form.Item
               name="pickUp"
               label="Pick Up Location"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input the pick up location!",
-                },
-              ]}
             >
-              <Input />
+              <Input placeholder="Enter pick up location" />
             </Form.Item>
+
             <Form.Item
               name="dropOff"
               label="Drop Off Location"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input the drop off location!",
-                },
-              ]}
             >
-              <Input />
+              <Input placeholder="Enter drop off location" />
             </Form.Item>
+
+            <Form.Item
+              name="accessibility"
+              label="Accessibility"
+            >
+              <Input placeholder="Enter accessibility options" />
+            </Form.Item>
+
+            <Form.Item
+              name="maxTourists"
+              label="Max Tourists"
+              rules={[{ required: true, message: "Please enter the max number of tourists" }]}
+            >
+              <InputNumber min={1} placeholder="Enter max tourists" style={{ width: "100%" }} />
+            </Form.Item>
+
+            <Form.Item name="active" label="Active" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+
+            <Form.Item label="Timeline">
+              <div style={{ display: "flex", marginBottom: 8 }}>
+                <Form.Item
+                  name={['timeline', 0, 'start']}
+                  label="Start Time"
+                  rules={[{ required: true, message: "Please enter the start time" }]}
+                  style={{ flex: 1, marginRight: 8 }}
+                >
+                  <Input placeholder="Enter start time" />
+                </Form.Item>
+                <Form.Item
+                  name={['timeline', 0, 'id']}
+                  label="ID"
+                  rules={[{ required: true, message: "Please enter an ID" }]}
+                  style={{ flex: 1, marginRight: 8 }}
+                >
+                  <Input placeholder="Enter ID" />
+                </Form.Item>
+                <Form.Item
+                  name={['timeline', 0, 'type']}
+                  label="Type"
+                  rules={[{ required: true, message: "Please select a type" }]}
+                  style={{ flex: 1, marginRight: 8 }}
+                >
+                  <Select placeholder="Select type">
+                    <Select.Option value="Venue">Venue</Select.Option>
+                    <Select.Option value="Activity">Activity</Select.Option>
+                  </Select>
+                </Form.Item>
+                <Form.Item
+                  name={['timeline', 0, 'duration']}
+                  label="Duration"
+                  rules={[{ required: true, message: "Please enter duration" }]}
+                  style={{ flex: 1 }}
+                >
+                  <InputNumber min={1} placeholder="Enter duration" />
+                </Form.Item>
+              </div>
+            </Form.Item>
+            {/* Available date time entries */}
+              <Form.List name="availableDateTime">
+                {(fields, { add, remove }) => (
+                  <>
+                    {fields.map(({ key, fieldKey, name }) => (
+                      <div key={key} style={{ display: "flex", marginBottom: 8 }}>
+                        <Form.Item
+                          {...fieldKey}
+                          name={[name, 'date']}
+                          fieldKey={[fieldKey[0], 'date']}
+                          label="Available Date"
+                          rules={[{ required: true, message: 'Missing date' }]}
+                        >
+                          <Input type="date" />
+                        </Form.Item>
+                        <Form.Item
+                          {...fieldKey}
+                          name={[name, 'spots']}
+                          fieldKey={[fieldKey[0], 'spots']}
+                          label="Available Spots"
+                          rules={[{ required: true, message: 'Missing spots' }]}
+                        >
+                          <InputNumber min={1} placeholder="Enter spots" />
+                        </Form.Item>
+                        <AntButton type="link" onClick={() => remove(name)}>
+                          Remove
+                        </AntButton>
+                      </div>
+                    ))}
+                    <AntButton type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                      Add Available Date
+                    </AntButton>
+                  </>
+                )}
+              </Form.List>
+
             <Form.Item>
               <AntButton type="primary" htmlType="submit">
-                Create Itinerary
+                {editingItineraryId ? "Update Itinerary" : "Create Itinerary"}
               </AntButton>
             </Form.Item>
           </Form>
