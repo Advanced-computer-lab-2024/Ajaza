@@ -30,7 +30,8 @@ exports.getAllItineraries = async (req, res) => {
 // Get all itineraries not hidden
 exports.getAllItinerariesNH = async (req, res) => {
   try {
-    const itineraries = await Itinerary.find({hidden: { $ne: true }, active: { $ne: false }}).populate("guideId");14
+    const currentDate = new Date();
+    const itineraries = await Itinerary.find({hidden: { $ne: true }, active: { $ne: false }, availableDateTime: {$elemMatch: { date: { $gt: currentDate } }}}).populate("guideId");
     res.status(200).json(itineraries);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -192,12 +193,13 @@ exports.createSpecifiedItinerary = async (req, res) => {
     if (guide.requestingDeletion) {
       return res.status(400).json({ message: 'There is a deletion request. Cant Create Itinerary' });
     }
-    if (!guide.acceptedTerms) {
-      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
-    }
     if ( guide.pending) {
       return res.status(400).json({ message: 'The profile is still pending approval.' });
     }
+    if (!guide.acceptedTerms) {
+      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+    }
+    
     const newItinerary = new Itinerary({
       guideId,
       name,
@@ -210,7 +212,8 @@ exports.createSpecifiedItinerary = async (req, res) => {
       dropOff,
       maxTourists,
       hidden: false,
-      active: true
+      active: true,
+      tags: [],
     });
 
     const savedItinerary = await newItinerary.save();
