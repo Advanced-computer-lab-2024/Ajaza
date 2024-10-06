@@ -8,11 +8,12 @@ import {
   useNavigate,
 } from "react-router-dom";
 import AdminCustomLayout from "./AdminCustomLayout";
-import ManageActivityCategories from "./manageActivityCategories";
+import ManageActivityCategories from "./ManageActivityCategories";
 import AllAccounts from "./AllAccounts"; // Create a new AllAccounts component
 import AddAccounts from "./addAccounts";
-import ManagePreferenceTags from "./managePreferenceTags";
+import ManagePreferenceTags from "./ManagePreferenceTags";
 import Profile from "../Common/Profile";
+import AdminProducts from "./AdminProducts";
 
 const { Content } = Layout;
 
@@ -28,6 +29,7 @@ const Admin = () => {
           <Route path="add-Accounts" element={<AddAccounts />} />
           <Route path="/" element={<AllAccounts />} />
           <Route path="preference-tags" element={<ManagePreferenceTags />} />
+          <Route path="products" element={<AdminProducts />} />
           <Route path="profile" element={<Profile />} />
         </Routes>
       </Content>

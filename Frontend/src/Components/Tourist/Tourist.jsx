@@ -41,7 +41,7 @@ const Tourist = () => {
     {
       key: "4",
       icon: <ContainerOutlined />,
-      label: "Gift Shop",
+      label: "Products",
       onClick: () => navigate("products"),
     },
   ];
