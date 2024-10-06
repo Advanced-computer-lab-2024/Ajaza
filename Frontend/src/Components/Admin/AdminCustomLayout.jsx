@@ -26,14 +26,16 @@ const AdminCustomLayout = ({ children }) => {
   } = theme.useToken();
 
   const handleMenuClick = ({ key }) => {
-     if (key === "setting:2") {
+    if (key === "setting:2") {
       navigate("/admin");
-    }  else if (key === "5") {
+    } else if (key === "5") {
       navigate("/Admin/manage-activity-categories"); // New navigation for activity categories
     } else if (key === "setting:1") {
       navigate("/Admin/add-Accounts");
     } else if (key === "11") {
       navigate("/Admin/preference-tags");
+    } else if (key == "12") {
+      navigate("products");
     }
   };
 
@@ -79,6 +81,11 @@ const AdminCustomLayout = ({ children }) => {
               icon: <NumberOutlined />,
               label: "Preference Tags",
             },
+            {
+              key: "12",
+              icon: <NumberOutlined />,
+              label: "Products",
+            },
           ]}
         />
       </Sider>
@@ -110,9 +117,7 @@ const AdminCustomLayout = ({ children }) => {
             borderRadius: borderRadiusLG,
           }}
         >
-           {children} 
-          
-          
+          {children}
         </Content>
       </Layout>
     </Layout>
@@ -120,4 +125,3 @@ const AdminCustomLayout = ({ children }) => {
 };
 
 export default AdminCustomLayout;
-

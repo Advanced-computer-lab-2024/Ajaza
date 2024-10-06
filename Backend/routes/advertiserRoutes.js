@@ -5,7 +5,9 @@ const uploadIdImage = require("../middleware/uploadImage");
 const uploadTaxationRegCardImage = require("../middleware/uploadImage");
 const uploadLogoImage = require("../middleware/uploadImage");
 const validateEmail = require("../middleware/validateEmail");
+const uniqueEmail = require("../middleware/uniqueEmail");
 const uniqueUsername = require("../middleware/uniqueUsername");
+const uploadIdTaxImage = require('../middleware/uploadIdTaxImage');
 
 router.post("/", advertiserController.createAdvertiser);
 
@@ -28,6 +30,8 @@ router.post(
   "/guestAdvertiserCreateProfile",
   validateEmail,
   uniqueUsername,
+  uniqueEmail,
+  uploadIdTaxImage,
   advertiserController.guestAdvertiserCreateProfile
 ); // Guest Advertiser sign up
 

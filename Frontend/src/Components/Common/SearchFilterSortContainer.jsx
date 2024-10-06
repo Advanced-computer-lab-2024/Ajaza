@@ -73,10 +73,10 @@ const sortElements = (elements, sortField, sortAsc) => {
     let aValue = a[sortField];
     let bValue = b[sortField];
     if (sortField == "price") {
-      if (!Number.isInteger(aValue)) {
+      if (!typeof aValue == Number) {
         aValue = a.lower;
       }
-      if (!Number.isInteger(bValue)) {
+      if (!typeof bValue == Number) {
         bValue = b.lower;
       }
     }

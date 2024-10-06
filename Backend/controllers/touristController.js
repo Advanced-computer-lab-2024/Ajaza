@@ -596,6 +596,7 @@ exports.guestTouristCreateProfile = async (req, res) => {
   });
 
   try {
+
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(filteredBody.pass, saltRounds);
 
