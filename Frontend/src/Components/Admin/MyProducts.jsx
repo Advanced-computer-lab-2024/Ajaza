@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Typography, Modal, Input, message } from "antd";
 import SearchFilterSortContainer from "../Common/SearchFilterSortContainer";
+import SearchFilterSortContainerEditCreate from "../Common/SearchFilterSortContainerEditCreate";
 import {
   apiUrl,
   calculateYourPrice,
@@ -10,6 +10,17 @@ import {
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
 import { EditOutlined } from "@ant-design/icons";
+import { jwtDecode } from "jwt-decode";
+import CustomButton from "../Common/CustomButton";
+import {
+  Card,
+  Modal,
+  message,
+  Form,
+  Input,
+  Button as AntButton,
+  Select,
+} from "antd";
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -31,27 +42,26 @@ const convertTagsToValues = (tagsArray) => {
 
 const handleUpdate = async () => {};
 
-const AdminProducts = () => {
+const MyProducts = () => {
   const [combinedElements, setCombinedElements] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingProductId, setEditingProductId] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [refreshElements, setRefreshElements] = useState(false);
 
   const propMapping = {
     title: "name",
     extra: "price",
     rating: "avgRating",
   };
-  const [fields, setFields] = useState({
+  const fields = {
     Description: "desc",
     Seller: "sellerName",
     Sales: "sales",
     "Quantity Available": "quantity",
-  });
-
+  };
   const searchFields = ["name"];
-  const actions = [
-    <EditOutlined key="edit" onClick={() => setIsModalVisible(true)} />,
-  ];
-  const constProps = { rateDisplay: true, actions: actions };
+  const constProps = { rateDisplay: true };
   const sortFields = ["avgRating", "price"];
   const [filterFields, setfilterFields] = useState({
     price: {
@@ -69,9 +79,17 @@ const AdminProducts = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      const token = localStorage.getItem("token");
+      let decodedToken = null;
+      if (token) {
+        decodedToken = jwtDecode(token);
+      }
+      const userId = decodedToken.userDetails["_id"];
+      setUserId(userId);
+
       try {
         const [productResponse] = await Promise.all([
-          axios.get(`${apiUrl}product`),
+          axios.get(`${apiUrl}product/viewMyProducts/${userId}`),
         ]);
         let products = productResponse.data;
 
@@ -90,22 +108,38 @@ const AdminProducts = () => {
     };
 
     fetchData();
-  }, []);
+  }, [refreshElements]);
+
+  const createOnclick = () => {
+    setEditingProductId(null);
+    setIsModalVisible(true);
+  };
+
   return (
     <>
-      <SearchFilterSortContainer
+      <CustomButton
+        size={"s"}
+        value={"Create Product"}
+        onClick={createOnclick}
+      />
+      <SearchFilterSortContainerEditCreate
         cardComponent={BasicCard}
         elements={combinedElements}
         propMapping={propMapping}
         searchFields={searchFields}
         constProps={constProps}
         fields={fields}
-        setFields={setFields}
         sortFields={sortFields}
         filterFields={filterFields}
+        editingProductId={editingProductId}
+        setEditingProductId={setEditingProductId}
+        isModalVisible={isModalVisible}
+        setIsModalVisible={setIsModalVisible}
+        userId={userId}
+        setRefreshElements={setRefreshElements}
       />
     </>
   );
 };
 
-export default AdminProducts;
+export default MyProducts;

@@ -36,6 +36,8 @@ const AdminCustomLayout = ({ children }) => {
       navigate("/Admin/preference-tags");
     } else if (key == "12") {
       navigate("products");
+    } else if (key == "13") {
+      navigate("myProducts");
     }
   };
 
@@ -85,6 +87,11 @@ const AdminCustomLayout = ({ children }) => {
               key: "12",
               icon: <NumberOutlined />,
               label: "Products",
+            },
+            {
+              key: "13",
+              icon: <NumberOutlined />,
+              label: "My Products",
             },
           ]}
         />

@@ -35,13 +35,23 @@ const BasicCard = ({
 }) => {
   const [avgRating, setAvgRating] = useState(rating);
   const [dateTimeFormatted, setDateTimeFormatted] = useState(null);
+  const [isEditable, setIsEditable] = useState(false);
 
   useEffect(() => {
     if (dateTime) setDateTimeFormatted(formatDateTime(dateTime));
   }, [dateTime]);
 
+  const handleEdit = (prev) => {
+    if (prev != true) setIsEditable(true);
+  };
+
   return (
-    <Card title={title} extra={extra ? `$${extra}` : null} actions={actions}>
+    <Card
+      title={title}
+      extra={extra ? `$${extra}` : null}
+      actions={actions}
+      onClick={(prev) => handleEdit}
+    >
       {Object.entries(fields).map(([key, value]) => {
         if (value) {
           return (
