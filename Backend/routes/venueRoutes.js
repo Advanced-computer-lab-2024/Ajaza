@@ -7,6 +7,10 @@ router.post("/", venueController.createVenue);
 
 router.get("/", venueController.getAllVenues);
 
+//not hidden
+router.get("/notHidden", venueController.getAllVenuesNH);
+
+
 router.get("/visibleVenues", venueController.getAllVisibleVenues);
 
 router.get("/:id", venueController.getVenueById);

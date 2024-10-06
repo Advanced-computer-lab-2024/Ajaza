@@ -6,6 +6,9 @@ router.post("/", activityController.createActivity);
 
 router.get("/", activityController.getAllActivities);
 
+//not hidden
+router.get("/notHidden", activityController.getAllActivitiesNH);
+
 router.get("/group/byIds", activityController.getActivitiesByIds);
 
 //req44
@@ -40,17 +43,9 @@ router.post(
 );
 
 // req19
-router.post(
-  "/createSpecifiedActivity",
-  activityController.createSpecifiedActivity
-);
-router.get(
-  "/readActivities/:advertiserId",
-  activityController.readActivitiesOfAdvertiser
-);
-router.delete(
-  "/deleteSpecificActivity/:id",
-  activityController.deleteSpecificActivity
-);
+router.post('/createSpecifiedActivity/:advertiserId', activityController.createSpecifiedActivity);
+router.get('/readActivities/:advertiserId', activityController.readActivitiesOfAdvertiser);
+router.delete('/deleteSpecificActivity/:advertiserId/:activityId', activityController.deleteSpecificActivity);
+router.put('/updateActivityFilteredFields/:advertiserId/:activityId', activityController.updateActivityFilteredFields);
 
 module.exports = router;

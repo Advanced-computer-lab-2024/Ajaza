@@ -5,6 +5,10 @@ const Seller = require('../models/Seller');
 const Tourist = require('../models/Tourist');
 const Guide = require('../models/Guide');
 const bcrypt = require('bcrypt');
+const Product = require('../models/Product');
+const Tag = require('../models/Tag');
+const Category = require('../models/Category');
+
 
 
 
@@ -88,5 +92,61 @@ exports.adminAddAdmin = async (req, res) => {
     res.status(201).json(savedadmin);
   } catch (error) {
     res.status(400).json({error: error.message });
+  }
+};
+
+exports.adminDeletesAdminFromSystem = async (req, res) => {
+  const adminId = req.params.id;
+  if(!adminId) {
+    return res.status(400).json({ error: 'Admin ID is required' });
+  }
+  try {
+    //removing products posted by admin
+    const result = await Product.updateMany(
+      { adminId: adminId },
+      { $set: { hidden: true } }
+    );
+
+    //removing category posted by admin and updating activities accordingly
+    const result2 = await Category.find({ adminId: adminId });
+    const categoriesToRemove = result2.map((category) => category.category);
+    const activities = await Activity.find({});
+    for (const activity of activities) {
+      activity.category = activity.category.filter(
+        (cat) => !categoriesToRemove.includes(cat)
+      );
+      await activity.save();
+    }
+    await Category.deleteMany({ adminId: adminId });
+
+    //removing tags posted by admin and updating activities/itineraries/venues accordingly
+    const result3 = await Tag.find({ adminId: adminId });
+    const tagsToRemove = result3.map((tag) => tag.tag);
+    activities = await Activity.find({});
+    for (const activity of activities) {
+      activity.category = activity.tags.filter(
+        (tag) => !tagsToRemove.includes(tag)
+      );
+      await activity.save();
+    }
+    const venues = await Venue.find({});
+    for (const venue of venues) {
+      venue.tags = venue.tags.filter((tag) => !tagsToRemove.includes(tag));
+      await venue.save();
+    }
+    const itineraries = await Itinerary.find({});
+    for (const itinerary of itineraries) {
+      itinerary.tags = itinerary.tags.filter((tag) => !tagsToRemove.includes(tag));
+      await itinerary.save();
+    }
+    await Tag.deleteMany({ adminId: adminId });
+
+    const deletedAdmin = await Admin.findByIdAndDelete(adminId);
+    if (!deletedAdmin) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+    res.status(200).json({ message: 'Admin deleted successfully', result });
+  } catch(error) {
+    res.status(400).json({ error: error.message });
   }
 };

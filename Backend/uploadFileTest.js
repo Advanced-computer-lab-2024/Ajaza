@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const Admin = require('./models/Admin');
-const uploadImage = require('../middleware/uploadImage'); // Adjust path if necessary
+const uploadImage = require('./middleware/uploadImage'); // Adjust path if necessary
 require("dotenv").config();
 
 const app = express();

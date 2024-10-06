@@ -4,6 +4,7 @@ const guideController = require('../controllers/guideController');
 const uploadPhotoImage = require('../middleware/uploadImage');
 const validateEmail = require('../middleware/validateEmail');
 const uniqueUsername = require("../middleware/uniqueUsername");
+const validateMobile = require('../middleware/validateMobile');
 
 
 router.post('/', guideController.createGuide);
@@ -22,9 +23,10 @@ router.delete('/deleteGuides', guideController.deleteGuidesRequestingDeletion);
 // req52 & req53
 router.post('/:touristId/guide/:itineraryId/feedback', guideController.giveGuideFeedback);
 //req 7 
-router.post('/addGuide',guideController.createGuideProfile);
+router.post('/addGuide/:id', validateMobile, guideController.createGuideProfile);
 router.get('/getGuideProfile/:id', guideController.getGuideProfile);
-router.put('/updateGuideProfile/:id', guideController.updateGuideProfile);
+router.put('/updateGuideProfile/:id', validateMobile, guideController.updateGuideProfile);
+
 
 
 

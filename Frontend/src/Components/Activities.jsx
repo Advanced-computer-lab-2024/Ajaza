@@ -20,6 +20,7 @@ const Activities = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingActivityId, setEditingActivityId] = useState(null);
     const [categories, setCategories] = useState([]);
+    const [tags, setTags] = useState([]);
     const [form] = Form.useForm();
     
     let decodedToken = null;
@@ -44,28 +45,41 @@ const Activities = () => {
         try {
             const response = await apiClient.get("category");
             setCategories(response.data);
+            console.log(response.data)
         } catch (error) {
             console.error("Error fetching categories:", error);
             setCategories([]);
         }
     };
 
+    const fetchTags = async () => {
+        try {
+            const response = await apiClient.get("tag");
+            setTags(response.data);
+            console.log(response.data)
+    } catch (error) {
+            console.error("Error fetching tags:", error);
+            setTags([]);
+        }
+    };
+
     useEffect(() => {
         fetchActivities();
         fetchCategories();
+        fetchTags();
     }, []);
 
     const createActivity = async (values) => {
         try {
             const newActivity = {
-                advertiserId: userid,
+                // advertiserId: userid,
                 name: values.name,
                 date: values.date,
                 location: values.location,
                 upper: values.upper,
                 lower: values.lower,
                 category: values.category,
-                tags: values.tags.split(",").map((tag) => tag.trim()),
+                tags: values.tags,
                 discounts: values.discounts,
                 spots: values.spots,
                 isOpen: values.isOpen,
@@ -73,7 +87,7 @@ const Activities = () => {
                 transportation: values.transportation,
             };
 
-            const response = await apiClient.post("activity/createSpecifiedActivity/", newActivity);
+            const response = await apiClient.post(`activity/createSpecifiedActivity/${userid}`, newActivity);
             setActivitiesData([...activitiesData, response.data]);
             message.success("Activity created successfully!");
             setIsModalVisible(false);
@@ -85,23 +99,22 @@ const Activities = () => {
 
     const editActivity = async (values) => {
         try {
-            const updatedActivity = {
-                name: values.name,
-                date: values.date,
-                location: values.location,
-                upper: values.upper,
-                lower: values.lower,
-                category: values.category,
-                tags: values.tags.split(",").map((tag) => tag.trim()),
-                discounts: values.discounts,
-                spots: values.spots,
-                isOpen: values.isOpen,
-            };
-
-            const response = await apiClient.patch(`activity/editActivity/${editingActivityId}`, updatedActivity);
-            setActivitiesData(activitiesData.map(activity => 
-                activity._id === editingActivityId ? response.data : activity
-            ));
+            const originalActivity = activitiesData.find((activity) => activity._id === editingActivityId);
+            const updatedFields = {};
+            
+            Object.keys(values).forEach((key) => {
+                if (values[key] !== originalActivity[key]) {
+                    updatedFields[key] = values[key];
+                }
+            });
+    
+            const response = await apiClient.put(`activity/updateActivityFilteredFields/${userid}/${editingActivityId}`,updatedFields);
+            setActivitiesData(
+                activitiesData.map((activity) => 
+                    activity._id === editingActivityId ? response.data : activity
+                )
+            );
+            
             message.success("Activity updated successfully!");
             setIsModalVisible(false);
             form.resetFields();
@@ -117,7 +130,7 @@ const Activities = () => {
             content: "Do you want to delete this activity?",
             onOk: async () => {
                 try {
-                    await apiClient.delete(`activity/deleteSpecificActivity/${id}`);
+                    await apiClient.delete(`activity/deleteSpecificActivity/${userid}/${id}`);
                     setActivitiesData(activitiesData.filter((activity) => activity._id !== id));
                     message.success("Activity deleted successfully!");
                 } catch (error) {
@@ -128,6 +141,7 @@ const Activities = () => {
     };
 
     const showModal = () => {
+        setEditingActivityId(null);
         setIsModalVisible(true);
         form.resetFields();
     };
@@ -141,7 +155,7 @@ const Activities = () => {
             upper: activity.upper,
             lower: activity.lower,
             category: activity.category,
-            tags: activity.tags.join(", "),
+            tags: activity.tags,
             discounts: activity.discounts,
             spots: activity.spots,
             isOpen: activity.isOpen,
@@ -152,6 +166,7 @@ const Activities = () => {
     const handleCancel = () => {
         setIsModalVisible(false);
         setEditingActivityId(null);
+        form.resetFields();
     };
 
     return (
@@ -182,9 +197,8 @@ const Activities = () => {
                                         <p><strong>Date:</strong> {new Date(activity.date).toLocaleDateString()}</p>
                                         <p><strong>Upper Limit:</strong> {activity.upper}</p>
                                         <p><strong>Lower Limit:</strong> {activity.lower}</p>
-                                        <p><strong>Category:</strong> {activity.category.join(", ")}</p>
-                                        <p><strong>Tags:</strong> {activity.tags.join(", ")}</p>
-                                        <p><strong>Available Spots:</strong> {activity.spots}</p>
+                                        <p><strong>Categories:</strong> {categories.find(cat => cat._id.toString() === activity.category.toString())?.category || 'None'}</p>                                     
+                                        <p><strong>Tags:</strong> {activity.tags.map((tagId) => tags.find(tag => tag._id === tagId)?.tag || tagId).join(", ")}</p>                                        <p><strong>Available Spots:</strong> {activity.spots}</p>
                                         <p><strong>Discounts:</strong> {activity.discounts}</p>
                                     </div>
                                 }
@@ -220,14 +234,24 @@ const Activities = () => {
                         <Select placeholder="Select a category" allowClear>
                             {categories.map((category) => (
                                 <Select.Option key={category._id} value={category._id}>
-                                    {category.name}
+                                    {category.category}
                                 </Select.Option>
                             ))}
                         </Select>
                     </Form.Item>
 
                     <Form.Item name="tags" label="Tags">
-                        <Input placeholder="Comma-separated tags" />
+                        <Select
+                            mode="multiple"
+                            placeholder="Select Tags"
+                            allowClear
+                        >
+                            {tags.map((tag) => (
+                                <Select.Option key={tag._id} value={tag._id}>
+                                    {tag.tag}
+                                </Select.Option>
+                            ))}
+                        </Select>
                     </Form.Item>
 
                     <Form.Item name="spots" label="Available Spots" rules={[{ required: true, message: "Please input the number of available spots!" }]}>

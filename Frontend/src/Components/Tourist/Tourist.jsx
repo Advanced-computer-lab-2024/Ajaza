@@ -10,6 +10,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import SearchFilterSortContainer from "../Common/SearchFilterSortContainer";
 import Profile from "../Common/Profile";
+import Plans from "./Plans";
 
 const Tourist = () => {
   const [response, setResponse] = useState([]);
@@ -86,10 +87,8 @@ const Tourist = () => {
   return (
     <CustomLayout sideBarItems={sideBarItems}>
       <Routes>
-        <Route path="/" element={<SearchFilterSortContainer />} />
+        <Route path="/" element={<Plans />} />
         <Route path="itineraries" element={<div>Itineraries Page</div>} />
-        <Route path="account" element={<Profile />} />
-        <Route path="profile" element={<TouristProfile />} />
       </Routes>
     </CustomLayout>
   );

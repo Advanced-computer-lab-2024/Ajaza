@@ -3,6 +3,7 @@ const router = express.Router();
 const adminController = require("../controllers/adminController");
 const uniqueUsername = require("../middleware/uniqueUsername");
 
+
 router.post("/", adminController.createAdmin);
 
 // this will probably not be used
@@ -15,9 +16,13 @@ router.get("/:id", adminController.getAdminById);
 router.patch("/:id", adminController.updateAdmin);
 
 // this will probably be commented for security reasons
-router.delete("/:id", adminController.deleteAdmin);
+router.delete("/deleteAgain/:id", adminController.deleteAdmin);
 
 // req 17 ng, admin adds another admin
 router.post("/addAdmin", uniqueUsername, adminController.adminAddAdmin);
+
+//delete off system
+router.delete('/deleteAdminFromSystem/:id', adminController.adminDeletesAdminFromSystem);
+
 
 module.exports = router;
