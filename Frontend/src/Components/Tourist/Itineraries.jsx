@@ -29,7 +29,6 @@ const convertTagsToValues = (tagsArray) => {
 
 const Itineraries = () => {
   const [combinedElements, setCombinedElements] = useState([]);
-
   // propName:fieldName
   const propMapping = {
     title: "name",
@@ -144,17 +143,21 @@ const Itineraries = () => {
         },
       ],
       compareFn: (filterCriteria, element) => {
-        // filterCriteria is an array of minmimum and maximum values
-        // Convert startDate and endDate to Date objects
-        const start = new Date(filterCriteria[0]);
-        const end = new Date(filterCriteria[1]);
+        // Extract the month from filterCriteria
+        const startMonth = new Date(filterCriteria[0]).getMonth(); // Get the start month (0-11)
+        const endMonth = new Date(filterCriteria[1]).getMonth(); // Get the end month (0-11)
+
         if (!element.availableDateTime) {
           return false;
         }
-        // Check if any of the dates in availableDateTime are in the date range
+
+        // Check if any of the dates in availableDateTime fall within the given month range
         return element.availableDateTime.some((available) => {
           const availableDate = new Date(available.date);
-          return availableDate >= start && availableDate <= end;
+          const availableMonth = availableDate.getMonth(); // Get the month (0-11)
+
+          // Compare only the month, ignoring the year
+          return availableMonth >= startMonth && availableMonth <= endMonth;
         });
       },
     },
@@ -191,6 +194,7 @@ const Itineraries = () => {
         combinedArray = combinedArray.map((element) => {
           return { ...element, avgRating: getAvgRating(element.feedback) };
         });
+        console.log(combinedArray);
 
         setCombinedElements(combinedArray);
       } catch (error) {
