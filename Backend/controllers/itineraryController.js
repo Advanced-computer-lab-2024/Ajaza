@@ -30,7 +30,7 @@ exports.getAllItineraries = async (req, res) => {
 // Get all itineraries not hidden
 exports.getAllItinerariesNH = async (req, res) => {
   try {
-    const itineraries = await Itinerary.find({hidden: { $ne: true }}).populate("guideId");14
+    const itineraries = await Itinerary.find({hidden: { $ne: true }, active: { $ne: false }}).populate("guideId");14
     res.status(200).json(itineraries);
   } catch (error) {
     res.status(500).json({ error: error.message });

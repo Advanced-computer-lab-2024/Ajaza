@@ -29,6 +29,7 @@ const itinerarySchema = new mongoose.Schema({
       comments: { type: String ,required: true },
     },
   ],
+  tags: [ { type: String } ],
   maxTourists: { type: Number, required: true, default: 20},
   hidden: { type:Boolean, default: false}
 });

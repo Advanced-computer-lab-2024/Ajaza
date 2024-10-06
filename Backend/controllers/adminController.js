@@ -6,6 +6,7 @@ const Tourist = require('../models/Tourist');
 const Guide = require('../models/Guide');
 const bcrypt = require('bcrypt');
 const Product = require('../models/Product');
+const Tag = require('../models/Tag');
 
 
 
@@ -103,6 +104,8 @@ exports.adminDeletesAdminFromSystem = async (req, res) => {
       { adminId: adminId },
       { $set: { hidden: true } }
     );
+    const result2 = await Category.find({ adminId: adminId });
+    const result3 = await Tag.find({ adminId: adminId });
     const deletedAdmin = await Admin.findByIdAndDelete(adminId);
     if (!deletedAdmin) {
       return res.status(404).json({ message: 'Admin not found' });
