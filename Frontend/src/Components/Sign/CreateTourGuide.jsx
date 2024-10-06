@@ -37,14 +37,18 @@ const CreateTourGuide = () => {
       console.log(values.email);
       console.log(values.username);
       console.log(values.password);
-
+      const headers = {
+        'Content-Type': 'multipart/form-data',
+      }
       const response = await axios.post(
         "http://localhost:5000/guide/guestGuideCreateProfile",
         {
+          id: values.document1,
           username: values.username,
           email: values.email,
           pass: values.password,
-        }
+          certificates: values.document2,
+        }, headers
       );
       message.success("TourGuide created successfully!");
 

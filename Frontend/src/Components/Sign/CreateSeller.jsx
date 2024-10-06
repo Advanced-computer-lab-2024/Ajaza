@@ -27,20 +27,20 @@ const CreateSeller = () => {
       console.log(values.username);
       console.log(values.password);
 
-      // const headers = {
-      //   'Content-Type': 'multipart/form-data',
-      // }
+      const headers = {
+        'Content-Type': 'multipart/form-data',
+      }
 
       const response = await axios.post(
         "http://localhost:5000/seller/guestSellerCreateProfile",
         {
+          id: values.document1,
           username: values.username,
-          email: values.email,
           pass: values.password,
-          //id: values.document1,
-          //taxationRegCard: values.document2,
+          email: values.email,
+          taxationRegCard: values.document2,
         }
-        //, { headers }
+        , headers
       );
       const newSellerId = response.data._id;
 
