@@ -24,8 +24,6 @@ const CreateSeller = () => {
       formData.append('username', values.username);
       formData.append('pass', values.password);
       formData.append('email', values.email);
-      formData.append('pending', !values.pending); //el 3aks
-      formData.append('acceptedTerms', values.acceptedTerms);
 
       console.log("Values:", values);
 
@@ -139,22 +137,6 @@ const CreateSeller = () => {
             <Upload name="doc2" listType="text" beforeUpload={() => false} maxCount={1}>
               <CustomButton size="m" icon={<UploadOutlined />} value="Upload" />
             </Upload>
-          </Form.Item>
-
-          <Form.Item
-            label="Pending"
-            name="pending"
-            valuePropName="checked"
-          >
-            <Checkbox>Pending</Checkbox>
-          </Form.Item>
-
-          <Form.Item
-            label="Accepted Terms"
-            name="acceptedTerms"
-            valuePropName="checked"
-          >
-            <Checkbox>Accept Terms</Checkbox>
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
