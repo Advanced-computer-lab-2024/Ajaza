@@ -33,29 +33,39 @@ const CreateTourGuide = () => {
   ];
   const createTourGuide = async (values) => {
     try {
-      console.log("Values:", values);
-      console.log(values.email);
-      console.log(values.username);
-      console.log(values.password);
-      const headers = {
-        'Content-Type': 'multipart/form-data',
+      const formData = new FormData();
+
+      formData.append('username', values.username);
+      formData.append('pass', values.password);
+      formData.append('email', values.email);
+
+      if (values.document1 && values.document1.length > 0) {
+        formData.append('id', values.document1[0].originFileObj);
       }
+
+      if (values.document2 && values.document2.length > 0) {
+        for (let i = 0; i < values.document2.length; i++) {
+          formData.append('certificates', values.document2[i].originFileObj);
+        }
+      }
+
       const response = await axios.post(
         "http://localhost:5000/guide/guestGuideCreateProfile",
+        formData,
         {
-          id: values.document1,
-          username: values.username,
-          email: values.email,
-          pass: values.password,
-          certificates: values.document2,
-        }, headers
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        }
       );
+
       message.success("TourGuide created successfully!");
 
       if (response.status == 201) {
         navigate("/auth/signin");
       }
       settourGuideData(response.data);
+      return response.data._id;
     } catch (error) {
       console.log(error.response); // TODO
 
@@ -64,9 +74,6 @@ const CreateTourGuide = () => {
     }
   };
 
-  useEffect(() => {
-    //createSeller();
-  }, []);
 
   const onFinish = async (values) => {
     await createTourGuide(values);
@@ -154,7 +161,7 @@ const CreateTourGuide = () => {
             getValueFromEvent={normFile}
             extra="Upload your certificates."
           >
-            <Upload name="doc2" listType="text" beforeUpload={() => false} maxCount={1}>
+            <Upload name="doc2" listType="text" beforeUpload={() => false} >
               <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
             </Upload>
           </Form.Item>
