@@ -80,7 +80,6 @@ const mapUserDetailsAhmed = (user, schema) => {
   return userDetails;
 };
 
-
 // Login user
 exports.login = async (req, res) => {
   const { username, password } = req.body;
@@ -132,6 +131,7 @@ exports.login = async (req, res) => {
     console.log(userDetails);
     res.status(200).json({ token, message: "Login successful" });
   } catch (error) {
+    console.error("Error during login:", error); // Log the error for debugging
     res.status(500).json({ error: error.message });
   }
 };
