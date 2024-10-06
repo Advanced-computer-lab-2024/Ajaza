@@ -351,7 +351,7 @@ exports.redeemPoints = async (req, res) => {
     }
 
     const maxRedeemablePoints = Math.floor(tourist.points / 10000) * 100; // For every 10,000 points, redeem $100
-    if (maxRedeemablePoints <= 100) {
+    if (maxRedeemablePoints < 100) {
       return res.status(400).json({ message: "Not enough points to redeem." });
     }
 

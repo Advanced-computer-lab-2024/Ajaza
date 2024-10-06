@@ -378,18 +378,19 @@ const Profile = () => {
                         <span>{formatDate(userDetails.joined)}</span>
                       </div>
                     )}
-                    {userDetails.wallet && (
+                    {userDetails.wallet !== undefined && (
                       <div>
                         <strong>Wallet: </strong>
-                        <span>{userDetails.wallet}</span>
+                        <span>{userDetails.wallet || 0}</span>
                       </div>
                     )}
-                    {userDetails.totalPoints && (
+                    {userDetails.totalPoints !== undefined && (
                       <div>
                         <strong>Total Points: </strong>
-                        <span>{userDetails.totalPoints}</span>
+                        <span>{userDetails.totalPoints || 0}</span>
                       </div>
                     )}
+
                     {userDetails.badge && (
                       <div>
                         <strong>Badge: </strong>
