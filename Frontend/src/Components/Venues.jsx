@@ -28,7 +28,7 @@ const Venues = () => {
     const [isTagModalVisible, setIsTagModalVisible] = useState(false);
     const [newTag, setNewTag] = useState(""); 
     const [preferenceTag, setPreferenceTag] = useState("");
-    const allowedTagNames = ['Monuments', 'Museums', 'Religious Sites', 'Palaces/Castles'];
+    const allowedTagNames = ['Monuments', 'Museums', 'Religious Sites', 'Palaces/Castles',"1800s-1850s","1850s-1900s","1900s-1950s","1950s-2000s"];
     const [selectedLocation, setSelectedLocation] = useState(null);
 
 

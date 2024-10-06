@@ -196,9 +196,9 @@ exports.createTagForVenue = async (req, res) => {
     const { governorId, venueId } = req.params; 
     const { tag, preferenceTags } = req.body;
 
-    const validTags = ['Monuments', 'Museums', 'Religious Sites', 'Palaces/Castles'];
+    const validTags = ['Monuments', 'Museums', 'Religious Sites', 'Palaces/Castles','1800s-1850s','1850s-1900s','1900s-1950s','1950s-2000s'];
     if (!validTags.includes(tag)) {
-      return res.status(400).json({ message: 'Invalid tag. Valid tags are: Monuments, Museums, Religious Sites, Palaces/Castles.' });
+      return res.status(400).json({ message: 'Invalid tag. Valid tags are: Monuments, Museums, Religious Sites, Palaces/Castles,,1800s-1850s,1850s-1900s,1900s-1950s,1950s-2000s.' });
     }
 
     // Validate that preferenceTags is an array of strings, if provided
