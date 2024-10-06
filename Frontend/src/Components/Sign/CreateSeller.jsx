@@ -20,42 +20,81 @@ const CreateSeller = () => {
   }
   const userid = decodedToken ? decodedToken.userId : null;
 
+  // const createSeller = async (values) => {
+  //   try {
+  //     console.log("Values:", values);
+  //     console.log(values.email);
+  //     console.log(values.username);
+  //     console.log(values.password);
+
+  //     const headers = {
+  //       'Content-Type': 'multipart/form-data',
+  //     }
+
+  //     const response = await axios.post(
+  //       "http://localhost:5000/seller/guestSellerCreateProfile",
+  //       {
+  //         id: values.document1.originFileObj,
+  //         username: values.username,
+  //         pass: values.password,
+  //         email: values.email,
+  //         taxationRegCard: values.document2.originFileObj,
+  //       }
+  //       , headers
+  //     );
+  //     const newSellerId = response.data._id;
+
+  //     message.success("Seller created successfully!");
+  //     if (response.status == 201) {
+  //       navigate("/auth/signin");
+  //     }
+  //     setSellerData(response.data);
+
+  //     return newSellerId;
+  //   } catch (error) {
+  //     console.error("Error creating seller:", error);
+  //     message.error("Failed to create seller.");
+  //   }
+  // };
   const createSeller = async (values) => {
     try {
-      console.log("Values:", values);
-      console.log(values.email);
-      console.log(values.username);
-      console.log(values.password);
+      const formData = new FormData();
 
-      const headers = {
-        'Content-Type': 'multipart/form-data',
+      formData.append('username', values.username);
+      formData.append('pass', values.password);
+      formData.append('email', values.email);
+
+      if (values.document1) {
+        formData.append('id', values.document1[0].originFileObj);
+      }
+
+      if (values.document2) {
+        formData.append('taxationRegCard', values.document2[0].originFileObj);
       }
 
       const response = await axios.post(
         "http://localhost:5000/seller/guestSellerCreateProfile",
+        formData,
         {
-          id: values.document1,
-          username: values.username,
-          pass: values.password,
-          email: values.email,
-          taxationRegCard: values.document2,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
         }
-        , headers
       );
-      const newSellerId = response.data._id;
 
       message.success("Seller created successfully!");
-      if (response.status == 201) {
+      if (response.status === 201) {
         navigate("/auth/signin");
       }
       setSellerData(response.data);
 
-      return newSellerId;
+      return response.data._id;
     } catch (error) {
       console.error("Error creating seller:", error);
       message.error("Failed to create seller.");
     }
   };
+
 
   const onFinish = async (values) => {
     await createSeller(values);
@@ -102,6 +141,7 @@ const CreateSeller = () => {
       >
         <Form
           name="basic"
+          //id="ahmedAmr"
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600, width: "100%" }}
@@ -168,6 +208,7 @@ const CreateSeller = () => {
           </Form.Item>
         </Form>
       </div>
+
       {/* <Routes>
         <Route path="/seller" element={<SellerPage />} />
         <Route path="/createform" element={<CreateFormPage />} />
