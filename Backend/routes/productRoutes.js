@@ -31,4 +31,6 @@ router.post("/:id/product/adminSellerAddProduct", uploadPhotoImage, productContr
 //req88     // Admin/Seller Edit product      --Tatos
 router.patch("/:id/product/:productId/adminSellerEditProduct",productController.adminSellerEditProduct); //AdminSeller Edit product
 
+// get my products admin/seller
+router.get("/viewMyProducts/:id", productController.viewMyProducts);
 module.exports = router;
