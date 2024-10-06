@@ -71,7 +71,7 @@ const Profile = () => {
       } else if (role === "tourist") {
         urlExtension = `tourist/touristUpdateProfile/${response.userId}`;
       } else if (role === "seller") {
-        urlExtension = `seller/sellerUpdateProfile/${response.userId}`;
+        urlExtension = `seller/${response.userId}`;
       }
 
       // Extract companyProfile fields from values
@@ -88,14 +88,37 @@ const Profile = () => {
         previousWork: previousWork ? previousWork.split(" ") : [],
       };
 
-      await axios.patch(`${apiUrl}${urlExtension}`, updatedProfile, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Make API request to update profile
+      const apiResponse = await axios.patch(
+        `${apiUrl}${urlExtension}`,
+        updatedProfile,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      setUserDetails((prev) => ({ ...prev, ...updatedProfile })); // Update the local profile data
-      form.setFieldsValue(updatedProfile); // Update form initial values
+      // Log the API response to check for token
+      console.log("API Response:", apiResponse.data);
+
+      // Extract the new JWT token from the API response
+      const newToken = apiResponse.data.token;
+
+      // Check if newToken is valid
+      if (!newToken || typeof newToken !== "string") {
+        throw new Error("Invalid token returned from API");
+      }
+
+      // Update the token in localStorage
+      localStorage.setItem("token", newToken);
+
+      // Decode the new token and update user details locally
+      const decodedToken = jwtDecode(newToken);
+      setResponse(decodedToken);
+      setUserDetails(decodedToken.userDetails); // Update the local profile data
+      form.setFieldsValue(decodedToken.userDetails); // Update form initial values
+
       setIsEditing(false); // Exit edit mode
       message.success("Profile updated successfully!");
     } catch (error) {
