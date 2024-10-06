@@ -94,10 +94,11 @@ exports.login = async (req, res) => {
 
     const { user, role } = result;
 
-    // Compare the provided password with the stored password
-    /*if (password !== user.pass) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }*/
+    const isMatchPlain = password === user.pass;
+    const isMatch = await bcrypt.compare(password, user.pass);
+    if (!isMatch && !isMatchPlain) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
 
     // Map user details
     let userDetails = {};
