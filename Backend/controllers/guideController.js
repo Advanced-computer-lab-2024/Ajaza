@@ -260,25 +260,21 @@ exports.updateGuideProfile = async (req, res) => {
     // Update the guide's profile
     await Guide.findByIdAndUpdate(guideId, req.body);
 
-    // Retrieve the updated guide's profile, filtering out sensitive fields
-    const updatedGuide = await Guide.findById(guideId).select(
-      "-pass -pending -acceptedTerms -notifications -requestingDeletion"
-    );
+    // Retrieve the updated guide's profile, filtering out the pass field
+    const updatedGuide = await Guide.findById(guideId).select("-pass");
 
     if (!updatedGuide) {
       return res.status(404).json({ message: "Guide not found" });
     }
-    // if (!guide.acceptedTerms) {
-    //   return res
-    //     .status(400)
-    //     .json({ message: "Terms and conditions must be accepted" });
-    // }
-    if (guide.pending) {
-      return res
-        .status(400)
-        .json({ message: "The profile is still pending approval." });
-    }
-    res.status(200).json(updatedGuide);
+
+    // Generate a new JWT token
+    const token = jwt.sign(
+      { userId: updatedGuide._id, role: "guide", userDetails: updatedGuide }, // Include user data in the token
+      process.env.JWT_SECRET, // Use the environment variable
+      { expiresIn: "1h" }
+    );
+
+    res.status(200).json({ updatedGuide, token });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

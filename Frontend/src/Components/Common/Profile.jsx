@@ -51,6 +51,8 @@ const Profile = () => {
         "companyProfile.name": userDetails?.companyProfile?.name || "",
         "companyProfile.desc": userDetails?.companyProfile?.desc || "",
         "companyProfile.location": userDetails?.companyProfile?.location || "",
+        dob: userDetails?.dob ? formatDate(userDetails.dob) : "",
+        joined: userDetails?.joined ? formatDate(userDetails.joined) : "",
       });
     }
   }, [form]);
@@ -66,6 +68,10 @@ const Profile = () => {
         urlExtension = `guide/updateGuideProfile/${response.userId}`;
       } else if (role === "advertiser") {
         urlExtension = `advertiser/advertiserUpdateProfile/${response.userId}`;
+      } else if (role === "tourist") {
+        urlExtension = `tourist/touristUpdateProfile/${response.userId}`;
+      } else if (role === "seller") {
+        urlExtension = `seller/sellerUpdateProfile/${response.userId}`;
       }
 
       // Extract companyProfile fields from values
@@ -82,7 +88,7 @@ const Profile = () => {
         previousWork: previousWork ? previousWork.split(" ") : [],
       };
 
-      await axios.put(`${apiUrl}${urlExtension}`, updatedProfile, {
+      await axios.patch(`${apiUrl}${urlExtension}`, updatedProfile, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -114,6 +120,8 @@ const Profile = () => {
         previousWork: userDetails.previousWork
           ? userDetails.previousWork.join(" ")
           : "",
+        dob: userDetails?.dob ? formatDate(userDetails.dob) : "",
+        joined: userDetails?.joined ? formatDate(userDetails.joined) : "",
       });
     }
   };
@@ -141,6 +149,12 @@ const Profile = () => {
     key = key.replace(/\b\w/g, (char) => char.toUpperCase());
 
     return key;
+  };
+
+  // Format date to remove time
+  const formatDate = (dateString) => {
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   return (
@@ -231,6 +245,39 @@ const Profile = () => {
                   </Form.Item>
                 </>
               )}
+
+              {/* Form fields for tourist */}
+              {role === "tourist" && (
+                <>
+                  <Form.Item name="email" label="Email">
+                    <Input />
+                  </Form.Item>
+                  <Form.Item name="mobile" label="Mobile">
+                    <Input />
+                  </Form.Item>
+                  <Form.Item name="nationality" label="Nationality">
+                    <Input />
+                  </Form.Item>
+                  <Form.Item name="dob" label="Date of Birth">
+                    <Input />
+                  </Form.Item>
+                  <Form.Item name="occupation" label="Occupation">
+                    <Input />
+                  </Form.Item>
+                </>
+              )}
+
+              {/* Form fields for seller */}
+              {role === "seller" && (
+                <>
+                  <Form.Item name="name" label="Name">
+                    <Input />
+                  </Form.Item>
+                  <Form.Item name="desc" label="Description">
+                    <Input />
+                  </Form.Item>
+                </>
+              )}
             </Form>
           ) : (
             // Display profile details (non-edit view)
@@ -274,6 +321,74 @@ const Profile = () => {
                       <strong>Hotline: </strong>
                       <span>{userDetails.hotline}</span>
                     </div>
+                  </>
+                )}
+                {role === "tourist" && (
+                  <>
+                    {userDetails.mobile && (
+                      <div>
+                        <strong>Mobile: </strong>
+                        <span>{userDetails.mobile}</span>
+                      </div>
+                    )}
+                    {userDetails.nationality && (
+                      <div>
+                        <strong>Nationality: </strong>
+                        <span>{userDetails.nationality}</span>
+                      </div>
+                    )}
+                    {userDetails.dob && (
+                      <div>
+                        <strong>Date of Birth: </strong>
+                        <span>{formatDate(userDetails.dob)}</span>
+                      </div>
+                    )}
+                    {userDetails.occupation && (
+                      <div>
+                        <strong>Occupation: </strong>
+                        <span>{userDetails.occupation}</span>
+                      </div>
+                    )}
+                    {userDetails.joined && (
+                      <div>
+                        <strong>Joined: </strong>
+                        <span>{formatDate(userDetails.joined)}</span>
+                      </div>
+                    )}
+                    {userDetails.wallet && (
+                      <div>
+                        <strong>Wallet: </strong>
+                        <span>{userDetails.wallet}</span>
+                      </div>
+                    )}
+                    {userDetails.totalPoints && (
+                      <div>
+                        <strong>Total Points: </strong>
+                        <span>{userDetails.totalPoints}</span>
+                      </div>
+                    )}
+                    {userDetails.badge && (
+                      <div>
+                        <strong>Badge: </strong>
+                        <span>{userDetails.badge}</span>
+                      </div>
+                    )}
+                  </>
+                )}
+                {role === "seller" && (
+                  <>
+                    {userDetails.name && (
+                      <div>
+                        <strong>Name: </strong>
+                        <span>{userDetails.name}</span>
+                      </div>
+                    )}
+                    {userDetails.desc && (
+                      <div>
+                        <strong>Description: </strong>
+                        <span>{userDetails.desc}</span>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
