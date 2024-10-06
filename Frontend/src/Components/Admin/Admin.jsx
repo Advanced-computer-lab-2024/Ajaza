@@ -9,9 +9,9 @@ import {
 } from "react-router-dom";
 import AdminCustomLayout from "./AdminCustomLayout";
 import ManageActivityCategories from "./ManageActivityCategories";
+import ManagePreferenceTags from "./ManagePreferenceTags";
 import AllAccounts from "./AllAccounts"; // Create a new AllAccounts component
 import AddAccounts from "./addAccounts";
-import ManagePreferenceTags from "./ManagePreferenceTags";
 import Profile from "../Common/Profile";
 import MyProducts from "./MyProducts";
 import Products from "../Tourist/Products";

@@ -76,7 +76,7 @@
 import { Button, Col, Row } from "antd";
 import React from "react";
 import CustomButton from "./Common/CustomButton";
-import image from "../Assets/landingPage.svg";
+import image from "../Assets/landingPage.png";
 import { Colors } from "./Common/Constants";
 import { useNavigate } from "react-router-dom";
 

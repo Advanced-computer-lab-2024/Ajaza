@@ -1,7 +1,7 @@
-const Seller = require('../models/Seller');
-const Product = require('../models/Product');
-const bcrypt = require('bcrypt');
-
+const Seller = require("../models/Seller");
+const Product = require("../models/Product");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 // Create a new seller
 exports.createSeller = async (req, res) => {
@@ -17,7 +17,7 @@ exports.createSeller = async (req, res) => {
 // Get all sellers (admin Read all sellers)
 exports.getAllSellers = async (req, res) => {
   try {
-    const sellers = await Seller.find()
+    const sellers = await Seller.find();
     res.status(200).json(sellers);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -27,16 +27,15 @@ exports.getAllSellers = async (req, res) => {
 // Get seller by ID (seller Read profile)
 exports.getSellerById = async (req, res) => {
   try {
-    const seller = await Seller.findById(req.params.id)
+    const seller = await Seller.findById(req.params.id);
     if (!seller) {
-      return res.status(404).json({ message: 'Seller not found' });
+      return res.status(404).json({ message: "Seller not found" });
     }
     res.status(200).json(seller);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 // Update seller by ID (PATCH)
 
@@ -45,16 +44,18 @@ exports.updateSeller = async (req, res) => {
     const { pass } = req.body;
 
     // Retrieve the existing seller document
-    const existingSeller = await Seller.findById(req.params.id).select('pass');
+    const existingSeller = await Seller.findById(req.params.id).select("pass");
     if (!existingSeller) {
-      return res.status(404).json({ message: 'Seller not found' });
+      return res.status(404).json({ message: "Seller not found" });
     }
 
     // If a new password is provided, compare it with the existing hashed password
     if (pass) {
       const isMatch = await bcrypt.compare(pass, existingSeller.pass);
       if (isMatch) {
-        return res.status(400).json({ message: 'New password cannot be the same as old password' });
+        return res
+          .status(400)
+          .json({ message: "New password cannot be the same as old password" });
       }
 
       // Hash the new password before updating
@@ -63,47 +64,62 @@ exports.updateSeller = async (req, res) => {
     }
 
     // Proceed with the update
-    const updatedSeller = await Seller.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.status(200).json(updatedSeller);
+    const updatedSeller = await Seller.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    ).select("-pass");
+
+    if (!updatedSeller) {
+      return res.status(404).json({ message: "Seller not found" });
+    }
+
+    // Generate a new JWT token
+    const token = jwt.sign(
+      { userId: updatedSeller._id, role: "seller", userDetails: updatedSeller }, // Include user data in the token
+      process.env.JWT_SECRET, // Use the environment variable
+      { expiresIn: "1h" }
+    );
+
+    res.status(200).json({ updatedSeller, token });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 // Delete seller by ID
 exports.deleteSeller = async (req, res) => {
   try {
     const deletedSeller = await Seller.findByIdAndDelete(req.params.id);
     if (!deletedSeller) {
-      return res.status(404).json({ message: 'Seller not found' });
+      return res.status(404).json({ message: "Seller not found" });
     }
-    res.status(200).json({ message: 'Seller deleted successfully' });
+    res.status(200).json({ message: "Seller deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-
-          //              req5            //
-          // Geuest/Seller sign up
+//              req5            //
+// Geuest/Seller sign up
 exports.guestSellerCreateProfile = async (req, res) => {
 
   // TODO: validation of the input data
 
   // Allowed fields
-  const allowedFields = ['username', 'email', 'pass','id', 'taxationRegCard'];
+  const allowedFields = ["username", "email", "pass", "id", "taxationRegCard"];
 
   // Filter the request body
   const filteredBody = {};
-  allowedFields.forEach(field => { // Loop through the allowed fields
-    if (req.body[field] !== undefined) { // Check if the field exists in the request body
+  allowedFields.forEach((field) => {
+    // Loop through the allowed fields
+    if (req.body[field] !== undefined) {
+      // Check if the field exists in the request body
       filteredBody[field] = req.body[field]; // Add the field to the filtered body
     }
   });
 
   try {
-
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(filteredBody.pass, saltRounds);
 
@@ -118,19 +134,15 @@ exports.guestSellerCreateProfile = async (req, res) => {
   }
 };
 
+//              req6            //
 
-
-
-
-          //              req6            //
-
-          // Seller create profile
+// Seller create profile
 
 exports.sellerCreateProfile = async (req, res) => {
-
   const sellerId = req.params.id;
 
   // Allowed fields
+
   const allowedFields = ['name', 'desc'];
   if (!req.body.name || !req.body.desc) {
     return res.status(400).json({ message: 'Name and description are required' });
@@ -138,7 +150,7 @@ exports.sellerCreateProfile = async (req, res) => {
 
   // Filter the request body
   const filteredBody = {};
-  allowedFields.forEach(field => {
+  allowedFields.forEach((field) => {
     if (req.body[field] !== undefined) {
       filteredBody[field] = req.body[field];
     }
@@ -147,10 +159,13 @@ exports.sellerCreateProfile = async (req, res) => {
   try {
     const seller = await Seller.findById(sellerId);
     if (!seller) {
-      return res.status(404).json({ message: 'Seller not found' });
+      return res.status(404).json({ message: "Seller not found" });
     }
-    if(seller.pending === true || seller.acceptedTerms === false) {
-      return res.status(401).json({ message: 'Seller is pending approval or has not accepted terms and condition' });
+    if (seller.pending === true || seller.acceptedTerms === false) {
+      return res.status(401).json({
+        message:
+          "Seller is pending approval or has not accepted terms and condition",
+      });
     }
     if(seller.name || seller.desc){
       return res.status(401).json({ message: 'Profile already exists' });
@@ -162,20 +177,23 @@ exports.sellerCreateProfile = async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
-
 };
 
-
-          // Seller read profile
+// Seller read profile
 
 exports.sellerReadProfile = async (req, res) => {
   try {
-    const seller = await Seller.findById(req.params.id).select('-pass -id -taxationRegCard');  // Exclude the multiple fields from the response
+    const seller = await Seller.findById(req.params.id).select(
+      "-pass -id -taxationRegCard"
+    ); // Exclude the multiple fields from the response
     if (!seller) {
-      return res.status(404).json({ message: 'Seller not found' });
+      return res.status(404).json({ message: "Seller not found" });
     }
-    if(seller.pending === true || seller.acceptedTerms === false) {
-      return res.status(401).json({ message: 'Seller is pending approval or has not accepted terms and condition' });
+    if (seller.pending === true || seller.acceptedTerms === false) {
+      return res.status(401).json({
+        message:
+          "Seller is pending approval or has not accepted terms and condition",
+      });
     }
     res.status(201).json(seller);
   } catch (error) {
@@ -183,37 +201,44 @@ exports.sellerReadProfile = async (req, res) => {
   }
 };
 
-          // Seller update profile
+// Seller update profile
 
 // Seller update profile
 exports.sellerUpdateProfile = async (req, res) => {
-
   const sellerId = req.params.id;
 
   // Allowed fields for update
-  const allowedFields = ['email', 'name', 'desc'];
+  const allowedFields = ["email", "name", "desc"];
 
   // Filter the request body
-  const filteredBody = {}; 
-  allowedFields.forEach(field => {  // Loop through the allowed fields
-    if (req.body[field] !== undefined) { // Check if the field exists in the request body
+  const filteredBody = {};
+  allowedFields.forEach((field) => {
+    // Loop through the allowed fields
+    if (req.body[field] !== undefined) {
+      // Check if the field exists in the request body
       filteredBody[field] = req.body[field]; // Add the field to the filtered body
     }
   });
 
   try {
-
     // Retrieve the existing seller document
     const existingSeller = await Seller.findById(sellerId);
     if (!existingSeller) {
-      return res.status(404).json({ message: 'Seller not found' });
+      return res.status(404).json({ message: "Seller not found" });
     }
 
-    if(existingSeller.pending === true || existingSeller.acceptedTerms === false) {
-      return res.status(401).json({ message: 'Seller is pending approval' });
+    if (
+      existingSeller.pending === true ||
+      existingSeller.acceptedTerms === false
+    ) {
+      return res.status(401).json({ message: "Seller is pending approval" });
     }
     // Proceed with the update
-    const updatedSeller = await Seller.findByIdAndUpdate(sellerId, filteredBody, { new: true, runValidators: true });
+    const updatedSeller = await Seller.findByIdAndUpdate(
+      sellerId,
+      filteredBody,
+      { new: true, runValidators: true }
+    );
     updatedSeller.pass = undefined;
     res.status(200).json(updatedSeller);
   } catch (error) {
@@ -228,16 +253,18 @@ exports.deleteSellersRequestingDeletion = async (req, res) => {
     const sellers = await Seller.find({ requestingDeletion: true });
 
     if (sellers.length === 0) {
-      return res.status(404).json({ message: 'No sellers found requesting deletion' });
+      return res
+        .status(404)
+        .json({ message: "No sellers found requesting deletion" });
     }
 
     for (const seller of sellers) {
       await Seller.findByIdAndDelete(seller._id);
     }
 
-    res.status(200).json({ message: 'Sellers deleted successfully' });
+    res.status(200).json({ message: "Sellers deleted successfully" });
   } catch (error) {
-    console.error('Error deleting sellers:', error);
+    console.error("Error deleting sellers:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -247,13 +274,15 @@ exports.sellerDeleteHimself = async (req, res) => {
   try {
     const seller = await Seller.findById(req.params.id);
     if (!seller) {
-      return res.status(404).json({ message: 'Seller not found' });
+      return res.status(404).json({ message: "Seller not found" });
     }
-    if(seller.pending === true || seller.acceptedTerms === false) {
-      return res.status(400).json({ message: 'Seller is pending approval' });
+    if (seller.pending === true || seller.acceptedTerms === false) {
+      return res.status(400).json({ message: "Seller is pending approval" });
     }
-    if(seller.requestingDeletion === true) {
-      return res.status(400).json({ message: 'Seller has already requested to be deleted' });
+    if (seller.requestingDeletion === true) {
+      return res
+        .status(400)
+        .json({ message: "Seller has already requested to be deleted" });
     }
     seller.requestingDeletion = true;
     await seller.save();
@@ -261,7 +290,7 @@ exports.sellerDeleteHimself = async (req, res) => {
       { sellerId: req.params.id },
       { $set: { hidden: true } }
     );
-    res.status(200).json({ message: 'Request to be deleted successful' });
+    res.status(200).json({ message: "Request to be deleted successful" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -269,15 +298,20 @@ exports.sellerDeleteHimself = async (req, res) => {
 
 exports.adminDeletesSellers = async (req, res) => {
   const sellerIds = req.body.sellerIds;
-  if(!sellerIds || !sellerIds.length) {
-    return res.status(400).json({ error: 'Seller IDs are required' });
+  if (!sellerIds || !sellerIds.length) {
+    return res.status(400).json({ error: "Seller IDs are required" });
   }
   try {
-    const result = await Seller.deleteMany({ _id: { $in: sellerIds }, requestingDeletion: true});
+    const result = await Seller.deleteMany({
+      _id: { $in: sellerIds },
+      requestingDeletion: true,
+    });
     if (result.deletedCount === 0) {
-      return res.status(404).json({ message: 'sellers selected were not requesting deletion' });
+      return res
+        .status(404)
+        .json({ message: "sellers selected were not requesting deletion" });
     }
-    res.status(200).json({ message: 'Sellers deleted successfully', result });
+    res.status(200).json({ message: "Sellers deleted successfully", result });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -285,20 +319,20 @@ exports.adminDeletesSellers = async (req, res) => {
 
 exports.adminDeletesSellerFromSystem = async (req, res) => {
   const sellerId = req.params.id;
-  if(!sellerId) {
-    return res.status(400).json({ error: 'Seller ID is required' });
+  if (!sellerId) {
+    return res.status(400).json({ error: "Seller ID is required" });
   }
   try {
     const result = await Product.updateMany(
       { sellerId: sellerId }, // Find all activities with this sellerId
-      { $set: { hidden: true } }      // Set hidden field to true
+      { $set: { hidden: true } } // Set hidden field to true
     );
     const deletedseller = await Seller.findByIdAndDelete(sellerId);
     if (!deletedseller) {
-      return res.status(404).json({ message: 'Seller not found' });
+      return res.status(404).json({ message: "Seller not found" });
     }
-    res.status(200).json({ message: 'Seller deleted successfully', result });
-  } catch(error) {
+    res.status(200).json({ message: "Seller deleted successfully", result });
+  } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
@@ -308,11 +342,11 @@ exports.acceptTerms = async (req, res) => {
     const id = req.params.id;
     const user = await Seller.findById(id);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
     user.acceptedTerms = true;
     await user.save();
-    res.status(200).json({ message: 'Terms accepted successfully' });
+    res.status(200).json({ message: "Terms accepted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

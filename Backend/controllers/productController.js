@@ -217,6 +217,57 @@ exports.adminSellerAddProduct = async (req, res) => {
   }
 };
 
+
+//view my products
+exports.viewMyProducts = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    let isSeller = false;
+    let isAdmin = false;
+
+    // Check if the ID is a seller ID
+    const seller = await Seller.findById(id);
+    if (seller) {
+      isSeller = true;
+      if(seller.pending){
+        return res.status(403).json({ error: "Seller is pending approval" });
+      }
+      if(seller.acceptedTerms === false){
+        return res.status(403).json({ error: "Seller has not accepted the terms" });
+      }
+    } else {
+      // If not a seller, check if the ID is an admin ID
+      const admin = await Admin.findById(id);
+      if (admin) {
+        isAdmin = true;
+      }
+    }
+
+    // If the ID is neither a seller nor an admin, return an error
+    if (!isSeller && !isAdmin) {
+      return res.status(404).json({ error: "ID entered is invalid" });
+    }
+
+    if(isSeller){
+      const products = await Product.find({sellerId: id, hidden: { $ne: true }/*, archived: { $ne: true },*/});
+      if(!products || products.length === 0){
+        return res.status(404).json({ message: "No products found" });
+      }
+      res.status(200).json(products);
+    } else {
+      const products = await Product.find({adminId: id, hidden: { $ne: true }/*, archived: { $ne: true },*/});
+      if(!products || products.length === 0){
+        return res.status(404).json({ message: "No products found" });
+      }
+      res.status(200).json(products);
+    }
+    
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 //req. 88
 // Admin/Seller Edit a product in the system
 

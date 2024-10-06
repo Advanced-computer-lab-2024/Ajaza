@@ -45,7 +45,7 @@ router.get(
 );
 
 // Update the profile of the authenticated advertiser
-router.put(
+router.patch(
   "/advertiserUpdateProfile/:id",
   advertiserController.advertiserUpdateProfile
 );
