@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Form, Input, Upload, message, Table } from "antd";
+import React, { useState } from "react";
+import { Form, Input, Upload, message, Checkbox } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import CustomButton from "../Common/CustomButton";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-// import SellerPage from "./Components/Seller/SellerPage";
-// import CreateFormPage from "./Components/Seller/CreateSeller";
-// import SellerForm from "./Components/Seller/SellerForm";
 
 const CreateSeller = () => {
   const [sellerData, setSellerData] = useState([]);
@@ -20,42 +17,6 @@ const CreateSeller = () => {
   }
   const userid = decodedToken ? decodedToken.userId : null;
 
-  // const createSeller = async (values) => {
-  //   try {
-  //     console.log("Values:", values);
-  //     console.log(values.email);
-  //     console.log(values.username);
-  //     console.log(values.password);
-
-  //     const headers = {
-  //       'Content-Type': 'multipart/form-data',
-  //     }
-
-  //     const response = await axios.post(
-  //       "http://localhost:5000/seller/guestSellerCreateProfile",
-  //       {
-  //         id: values.document1.originFileObj,
-  //         username: values.username,
-  //         pass: values.password,
-  //         email: values.email,
-  //         taxationRegCard: values.document2.originFileObj,
-  //       }
-  //       , headers
-  //     );
-  //     const newSellerId = response.data._id;
-
-  //     message.success("Seller created successfully!");
-  //     if (response.status == 201) {
-  //       navigate("/auth/signin");
-  //     }
-  //     setSellerData(response.data);
-
-  //     return newSellerId;
-  //   } catch (error) {
-  //     console.error("Error creating seller:", error);
-  //     message.error("Failed to create seller.");
-  //   }
-  // };
   const createSeller = async (values) => {
     try {
       const formData = new FormData();
@@ -63,12 +24,16 @@ const CreateSeller = () => {
       formData.append('username', values.username);
       formData.append('pass', values.password);
       formData.append('email', values.email);
+      formData.append('pending', !values.pending); //el 3aks
+      formData.append('acceptedTerms', values.acceptedTerms);
 
-      if (values.document1) {
+      console.log("Values:", values);
+
+      if (values.document1 && values.document1.length > 0) {
         formData.append('id', values.document1[0].originFileObj);
       }
 
-      if (values.document2) {
+      if (values.document2 && values.document2.length > 0) {
         formData.append('taxationRegCard', values.document2[0].originFileObj);
       }
 
@@ -95,7 +60,6 @@ const CreateSeller = () => {
     }
   };
 
-
   const onFinish = async (values) => {
     await createSeller(values);
   };
@@ -111,37 +75,11 @@ const CreateSeller = () => {
     return e?.fileList;
   };
 
-  const columns = [
-    {
-      title: "Email",
-      dataIndex: "email",
-      key: "email",
-    },
-    {
-      title: "Username",
-      dataIndex: "username",
-      key: "username",
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (text, record) => <CustomButton type="primary" value="Edit" />,
-    },
-  ];
-
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-        }}
-      >
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
         <Form
           name="basic"
-          //id="ahmedAmr"
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600, width: "100%" }}
@@ -186,7 +124,7 @@ const CreateSeller = () => {
             getValueFromEvent={normFile}
             extra="Upload the ID."
           >
-            <Upload name="doc1" listType="text " beforeUpload={() => false}>
+            <Upload name="doc1" listType="text" beforeUpload={() => false} maxCount={1}>
               <CustomButton size="m" icon={<UploadOutlined />} value="Upload" />
             </Upload>
           </Form.Item>
@@ -198,9 +136,25 @@ const CreateSeller = () => {
             getValueFromEvent={normFile}
             extra="Upload the taxation registery card."
           >
-            <Upload name="doc2" listType="text" beforeUpload={() => false}>
+            <Upload name="doc2" listType="text" beforeUpload={() => false} maxCount={1}>
               <CustomButton size="m" icon={<UploadOutlined />} value="Upload" />
             </Upload>
+          </Form.Item>
+
+          <Form.Item
+            label="Pending"
+            name="pending"
+            valuePropName="checked"
+          >
+            <Checkbox>Pending</Checkbox>
+          </Form.Item>
+
+          <Form.Item
+            label="Accepted Terms"
+            name="acceptedTerms"
+            valuePropName="checked"
+          >
+            <Checkbox>Accept Terms</Checkbox>
           </Form.Item>
 
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
@@ -208,12 +162,6 @@ const CreateSeller = () => {
           </Form.Item>
         </Form>
       </div>
-
-      {/* <Routes>
-        <Route path="/seller" element={<SellerPage />} />
-        <Route path="/createform" element={<CreateFormPage />} />
-        <Route path="/seller-form" element={<SellerForm />} />
-      </Routes> */}
     </>
   );
 };
