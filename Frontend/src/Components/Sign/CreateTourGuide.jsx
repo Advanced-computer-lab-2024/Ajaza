@@ -141,7 +141,7 @@ const CreateTourGuide = () => {
             getValueFromEvent={normFile}
             extra="Upload your ID."
           >
-            <Upload name="doc1" listType="text" beforeUpload={() => false}>
+            <Upload name="doc1" listType="text" beforeUpload={() => false} maxCount={1}>
               <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
             </Upload>
           </Form.Item>
@@ -154,7 +154,7 @@ const CreateTourGuide = () => {
             getValueFromEvent={normFile}
             extra="Upload your certificates."
           >
-            <Upload name="doc2" listType="text" beforeUpload={() => false}>
+            <Upload name="doc2" listType="text" beforeUpload={() => false} maxCount={1}>
               <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
             </Upload>
           </Form.Item>
