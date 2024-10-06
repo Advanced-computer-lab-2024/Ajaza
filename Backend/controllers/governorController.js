@@ -72,26 +72,18 @@ exports.createGovernorVenue = async (req, res) => {
   try {
     const { governorId } = req.params; 
     const { name, desc, pictures, location, openingHours, price, tags } = req.body;
+    console.log(req.body);
     const governor = await Governor.findById(governorId);
     if (!governor) {
       return res.status(404).json({ message: 'Governor not found' });
     }
 
-    const newVenue = new Venue({
-      governorId, 
-      name,
-      desc,
-      pictures,
-      location,
-      openingHours,
-      price,
-      tags,
-    });
+    const newVenue = new Venue({governorId, name, desc, pictures, location, openingHours, price, tags,});
 
     await newVenue.save();
     res.status(201).json(newVenue);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "controller--" + error.message });
   }
 };
 

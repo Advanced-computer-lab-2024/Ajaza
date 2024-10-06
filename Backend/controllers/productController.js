@@ -156,7 +156,7 @@ exports.adminSellerAddProduct = async (req, res) => {
   // TODO: validation of the input data
 
   // Allowed fields
-  const allowedFields = ["name", "price", "desc", "quantity"];
+  const allowedFields = ["name", "photo","price", "desc", "quantity"];
   // Filter the request body
   const filteredBody = {};
   allowedFields.forEach((field) => {

@@ -2,8 +2,7 @@ const express = require('express');
 const router = express.Router();
 const governorController = require('../controllers/governorController');
 const uniqueUsername = require("../middleware/uniqueUsername");
-
-
+const uploadVenuePicturesImage = require("../middleware/uploadImage");
 
 router.post('/createAgain' , governorController.createGovernor)
 
@@ -25,6 +24,7 @@ router.delete('/deleteGov/:id', governorController.deleteGovernor);
  update: in the url write the id of the venue and in the body give the governor id + the fields u want to update
  delete: in the url write the id of the venue and in the body provide the governor id 
 */
+//router.post('/createGovernorVenue/:governorId', uploadVenuePicturesImage, governorController.createGovernorVenue); 
 router.post('/createGovernorVenue/:governorId', governorController.createGovernorVenue); 
 router.get('/readAllGovernorVenues/:governorId', governorController.readAllGovernorVenues); 
 router.put('/updateGovernorVenue/:governorId/:venueId', governorController.updateGovernorVenue);
