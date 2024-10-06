@@ -5,6 +5,9 @@ import CustomButton from "../Common/CustomButton";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
+// import SellerPage from "./Components/Seller/SellerPage";
+// import CreateFormPage from "./Components/Seller/CreateSeller";
+// import SellerForm from "./Components/Seller/SellerForm";
 
 const CreateSeller = () => {
   const [sellerData, setSellerData] = useState([]);
@@ -24,13 +27,20 @@ const CreateSeller = () => {
       console.log(values.username);
       console.log(values.password);
 
+      // const headers = {
+      //   'Content-Type': 'multipart/form-data',
+      // }
+
       const response = await axios.post(
         "http://localhost:5000/seller/guestSellerCreateProfile",
         {
           username: values.username,
           email: values.email,
           pass: values.password,
+          //id: values.document1,
+          //taxationRegCard: values.document2,
         }
+        //, { headers }
       );
       const newSellerId = response.data._id;
 
@@ -136,7 +146,7 @@ const CreateSeller = () => {
             getValueFromEvent={normFile}
             extra="Upload the ID."
           >
-            <Upload name="doc1" listType="text">
+            <Upload name="doc1" listType="text " beforeUpload={() => false}>
               <CustomButton size="m" icon={<UploadOutlined />} value="Upload" />
             </Upload>
           </Form.Item>
@@ -148,7 +158,7 @@ const CreateSeller = () => {
             getValueFromEvent={normFile}
             extra="Upload the taxation registery card."
           >
-            <Upload name="doc2" listType="text">
+            <Upload name="doc2" listType="text" beforeUpload={() => false}>
               <CustomButton size="m" icon={<UploadOutlined />} value="Upload" />
             </Upload>
           </Form.Item>
@@ -158,6 +168,11 @@ const CreateSeller = () => {
           </Form.Item>
         </Form>
       </div>
+      {/* <Routes>
+        <Route path="/seller" element={<SellerPage />} />
+        <Route path="/createform" element={<CreateFormPage />} />
+        <Route path="/seller-form" element={<SellerForm />} />
+      </Routes> */}
     </>
   );
 };

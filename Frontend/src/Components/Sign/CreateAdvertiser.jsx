@@ -132,7 +132,7 @@ const Advertiser = () => {
             getValueFromEvent={normFile}
             extra="Upload your ID."
           >
-            <Upload name="doc1" listType="text">
+            <Upload name="doc1" listType="text" beforeUpload={() => false}>
               <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
             </Upload>
           </Form.Item>
@@ -145,7 +145,7 @@ const Advertiser = () => {
             getValueFromEvent={normFile}
             extra="Upload the taxation registry card."
           >
-            <Upload name="doc2" listType="text">
+            <Upload name="doc2" listType="text" beforeUpload={() => false}>
               <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
             </Upload>
           </Form.Item>
