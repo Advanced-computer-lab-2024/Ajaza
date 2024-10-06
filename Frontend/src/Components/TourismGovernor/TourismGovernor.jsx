@@ -2,7 +2,8 @@ import React from "react";
 import { CustomLayout } from "../Common";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Venues from "../Venues";
-import { CalendarOutlined, ContainerOutlined} from "@ant-design/icons";
+import { CalendarOutlined, ContainerOutlined } from "@ant-design/icons";
+import Profile from "../Common/Profile";
 
 const TourismGovernor = () => {
   const navigate = useNavigate();
@@ -32,14 +33,16 @@ const TourismGovernor = () => {
     },
   ];
 
-  return(
+  return (
     <CustomLayout sideBarItems={sideBarItems}>
       <Routes>
         <Route path="/" element={<div>TourismGovernor Default</div>} />
-        <Route path="venues" element={<Venues />}/>
+        <Route path="venues" element={<Venues />} />
         <Route path="Report" element={<div>Report</div>} />
+        <Route path="profile" element={<Profile />} />
       </Routes>
     </CustomLayout>
-  );};
+  );
+};
 
 export default TourismGovernor;

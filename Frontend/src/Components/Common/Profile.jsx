@@ -29,19 +29,19 @@ const Profile = () => {
   const [form] = Form.useForm();
   const [role, setRole] = useState(""); // Store user role
   const [pending, setPending] = useState(false); // Store pending status
+  console.log(userDetails);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     let decodedToken = null;
     if (token) {
       decodedToken = jwtDecode(token);
-      console.log("Decoded Token:", decodedToken); // Debugging
       setResponse(decodedToken); // Set initial profile data
       setRole(decodedToken.role); // Set user role
 
       // Extract user details from the token
+      console.log(decodedToken);
       const userDetails = decodedToken.userDetails;
-      console.log("User Details:", userDetails); // Debugging
       setUserDetails(userDetails);
       setPending(userDetails.pending); // Set pending status from userDetails
 
@@ -104,6 +104,8 @@ const Profile = () => {
 
     // Ensure the form is populated with the latest user details
     if (userDetails) {
+      console.log(userDetails);
+
       form.setFieldsValue({
         ...userDetails,
         "companyProfile.name": userDetails?.companyProfile?.name || "",

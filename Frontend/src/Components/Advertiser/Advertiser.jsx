@@ -3,6 +3,7 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import Activities from "../Activities";
 import { CalendarOutlined } from "@ant-design/icons";
 import CustomLayout from "../Common/CustomLayout";
+import Profile from "../Common/Profile";
 
 const Advertiser = () => {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ const Advertiser = () => {
         <Route path="/" />
         <Route path="activities" element={<Activities />} />
         <Route path="Report" element={<div>Report</div>} />
+        <Route path="profile" element={<Profile />} />
       </Routes>
     </CustomLayout>
   );
