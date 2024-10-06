@@ -39,6 +39,7 @@ import TourGuide from "./Components/TourGuide/TourGuide";
 import Advertiser from "./Components/Advertiser/Advertiser";
 import TourismGovernor from "./Components/TourismGovernor/TourismGovernor";
 import Admin from "./Components/Admin/Admin";
+import Guest from "./Components/Guest/Guest";
 import AddAccounts from "./Components/Admin/addAccounts";
 import CustomCard from "./Components/Card";
 import TouristProfile from "./Components/Tourist/TouristProfile";
@@ -85,6 +86,7 @@ function App() {
 
             <Route path="/governor/*" element={<TourismGovernor />} />
             <Route path="/seller/*" element={<Seller />} />
+            <Route path="/guest/*" element={<Guest />} />
             {/* here */}
             {/* Tourist registration page */}
             <Route path="/seller" element={<SellerPage />} />
