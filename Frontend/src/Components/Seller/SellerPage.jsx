@@ -2,6 +2,11 @@ import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import CustomButton from "../Common/CustomButton";
 import CustomLayout from "../Common/CustomLayout";
+import { Routes, Route } from "react-router-dom";
+import CreateFormPage from "./CreateSeller";
+import SellerForm from "./SellerForm";
+import Product from "./SellerProduct";
+import DisplayForm from "./DisplayProduct";
 
 const SellerPage = () => {
     const navigate = useNavigate();
@@ -11,13 +16,14 @@ const SellerPage = () => {
 
     // Navigation function for creating a form
     const handleCustomButtonClick = () => {
-        navigate("/createform", { state: { newSellerId } });
+        navigate("createform", { state: { newSellerId } });
     };
 
     // Navigation function for adding a product
     const handleAddProductClick = () => {
-        navigate("/product", { state: { newSellerId } });
+        navigate("product", { state: { newSellerId } });
     };
+
 
     // Sidebar items including the "Add Product" button
     const sideBarItems = [
@@ -30,21 +36,38 @@ const SellerPage = () => {
     ];
 
     return (
-        <CustomLayout user="seller" sideBarItems={sideBarItems}>
-            <div style={{ textAlign: "center", marginTop: "20px" }}>
-                <h1>Welcome to Seller Page!</h1>
-            </div>
-            {/* Create Seller Button */}
-            <CustomButton
-                type="primary"
-                htmlType="submit"
-                size="m"
-                value="Create Seller"
-                rounded={true}
-                loading={false}
-                onClick={handleCustomButtonClick} // Set the onClick handler for the "Create Seller" button
-            />
-        </CustomLayout>
+        <>
+            <Routes>
+                {/* Default Seller Page */}
+                <Route
+                    path="/"
+                    element={
+                        <CustomLayout user="seller" sideBarItems={sideBarItems}>
+                            <div style={{ textAlign: "center", marginTop: "20px" }}>
+                                <h1>Welcome to Seller Page!</h1>
+                            </div>
+                            {/* Create Seller Button */}
+                            <CustomButton
+                                type="primary"
+                                htmlType="submit"
+                                size="m"
+                                value="Create Seller"
+                                rounded={true}
+                                loading={false}
+                                onClick={handleCustomButtonClick} // Set the onClick handler for the "Create Seller" button
+                            />
+                        </CustomLayout>
+                    }
+                />
+                {/* Create Form Page */}
+                <Route path="createform" element={<CreateFormPage />} />
+                {/* Seller Form */}
+                <Route path="product" element={<Product />} />
+
+
+            </Routes>
+        </>
+
     );
 };
 
