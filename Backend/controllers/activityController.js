@@ -2,6 +2,7 @@ const Activity = require("../models/Activity");
 const Advertiser = require("../models/Advertiser");
 const Tourist = require("../models/Tourist");
 const Tag = require("../models/Tag");
+const Category = require("../models/Category");
 // Create a new activity
 exports.createActivity = async (req, res) => {
   try {
@@ -260,6 +261,9 @@ exports.createSpecifiedActivity = async (req, res) => {
       const tagObjects = await Tag.find({ _id: { $in: tags } });
       const tagNames = tagObjects.map(tag => tag.tag);
 
+      const categoryObjects = await Category.find({ _id: { $in: category } });
+      const categoryNames = categoryObjects.map(category => category.category);
+
       const newActivity = new Activity({
           advertiserId,
           name,
@@ -268,7 +272,7 @@ exports.createSpecifiedActivity = async (req, res) => {
           upper,
           lower,
           price,
-          category,
+          category: categoryNames,
           tags: tagNames,
           discounts,
           isOpen,
@@ -377,7 +381,7 @@ exports.updateActivityFilteredFields = async (req, res) => {
     if (time) activity.time = time; 
     if (location) activity.location = location;
     if (price) activity.price = price;
-    if (category) activity.category = category;
+    if (category) {const categoryNames = await Category.find({ _id: { $in: category } }, 'category').lean(); const categoryNamesArray = categoryNames.map(category => category.category); activity.category = categoryNamesArray; };
     if (tags) {const tagNames = await Tag.find({ _id: { $in: tags } }, 'tag').lean(); const tagNamesArray = tagNames.map(tag => tag.tag); activity.tags = tagNamesArray; }
     if (discounts) activity.discounts = discounts;
 
