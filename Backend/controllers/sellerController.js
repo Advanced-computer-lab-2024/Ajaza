@@ -88,6 +88,7 @@ exports.deleteSeller = async (req, res) => {
           //              req5            //
           // Geuest/Seller sign up
 exports.guestSellerCreateProfile = async (req, res) => {
+
   // TODO: validation of the input data
 
   // Allowed fields
