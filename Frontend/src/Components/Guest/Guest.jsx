@@ -9,9 +9,9 @@ import { jwtDecode } from "jwt-decode";
 import SearchFilterSortContainer from "../Common/SearchFilterSortContainer";
 import Profile from "../Common/Profile";
 import Plans from "../Tourist/Plans";
-import Venues from "../Tourist/Venues";
-import Products from "../Tourist/Products";
 import Itineraries from "../Tourist/Itineraries";
+import Products from "../Tourist/Products";
+import Venues from "../Tourist/Venues";
 
 const Guest = () => {
   const [response, setResponse] = useState([]);
