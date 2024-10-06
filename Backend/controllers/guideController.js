@@ -268,16 +268,6 @@ exports.updateGuideProfile = async (req, res) => {
     if (!updatedGuide) {
       return res.status(404).json({ message: "Guide not found" });
     }
-    // if (!guide.acceptedTerms) {
-    //   return res
-    //     .status(400)
-    //     .json({ message: "Terms and conditions must be accepted" });
-    // }
-    if (guide.pending) {
-      return res
-        .status(400)
-        .json({ message: "The profile is still pending approval." });
-    }
     res.status(200).json(updatedGuide);
   } catch (error) {
     res.status(500).json({ error: error.message });
