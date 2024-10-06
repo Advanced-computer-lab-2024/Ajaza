@@ -3,6 +3,7 @@ const router = express.Router();
 const guideController = require('../controllers/guideController');
 const uploadPhotoImage = require('../middleware/uploadImage');
 const validateEmail = require('../middleware/validateEmail');
+const uniqueEmail = require('../middleware/uniqueEmail');
 const uniqueUsername = require("../middleware/uniqueUsername");
 const validateMobile = require('../middleware/validateMobile');
 const uploadIdCertificatesImage = require('../middleware/uploadIdCertificatesImage');
@@ -29,7 +30,7 @@ router.get('/getGuideProfile/:id', guideController.getGuideProfile);
 router.put('/updateGuideProfile/:id', validateMobile, guideController.updateGuideProfile);
 
 //req5  -- Tatos
-router.post('/guestGuideCreateProfile',validateEmail,uniqueUsername, uploadIdCertificatesImage, guideController.guestGuideCreateProfile);    // Guest Guide sign up
+router.post('/guestGuideCreateProfile',validateEmail,uniqueUsername, uniqueEmail, uploadIdCertificatesImage, guideController.guestGuideCreateProfile);    // Guest Guide sign up
 
 //req 26
 router.get('/getMyItineraries/:guideId', guideController.getGuideItineraries);

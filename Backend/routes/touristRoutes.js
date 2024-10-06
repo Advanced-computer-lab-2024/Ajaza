@@ -3,6 +3,7 @@ const router = express.Router();
 const touristController = require('../controllers/touristController');
 const apiController = require('../controllers/apiController');
 const validateEmail = require('../middleware/validateEmail');
+const uniqueEmail = require('../middleware/uniqueEmail');
 const validateMobile = require('../middleware/validateMobile');
 const uniqueUsername = require("../middleware/uniqueUsername");
 
@@ -26,7 +27,7 @@ router.delete('/deleteTourists', touristController.deleteTouristsRequestingDelet
 
 
 // req11
-router.patch('/touristUpdateProfile/:id',validateEmail,validateMobile, touristController.touristUpdateProfile); 
+router.patch('/touristUpdateProfile/:id',validateEmail,uniqueEmail,validateMobile, touristController.touristUpdateProfile); 
 /*
 passed: id from params,
 {
@@ -93,7 +94,7 @@ router.post('/:touristId/itinerary/:itineraryId/book', touristController.bookIti
 
 
 //req4      --Tatos
-router.post('/guestTouristCreateProfile', validateEmail, validateMobile, uniqueUsername, touristController.guestTouristCreateProfile);    // Guest Tourist sign up
+router.post('/guestTouristCreateProfile', validateEmail, uniqueEmail, validateMobile, uniqueUsername, touristController.guestTouristCreateProfile);    // Guest Tourist sign up
 
 router.delete('/deleteSomeTourists', touristController.adminDeletesTourists);
 

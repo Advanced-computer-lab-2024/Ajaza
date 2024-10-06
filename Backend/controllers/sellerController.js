@@ -132,6 +132,9 @@ exports.sellerCreateProfile = async (req, res) => {
 
   // Allowed fields
   const allowedFields = ['name', 'desc'];
+  if (!req.body.name || !req.body.desc) {
+    return res.status(400).json({ message: 'Name and description are required' });
+  }
 
   // Filter the request body
   const filteredBody = {};
@@ -149,10 +152,13 @@ exports.sellerCreateProfile = async (req, res) => {
     if(seller.pending === true || seller.acceptedTerms === false) {
       return res.status(401).json({ message: 'Seller is pending approval or has not accepted terms and condition' });
     }
+    if(seller.name || seller.desc){
+      return res.status(401).json({ message: 'Profile already exists' });
+    }
 
-    await Seller.findByIdAndUpdate(sellerId, {$set:filteredBody}, { new: true , runValidators: true });
-    seller.pass = undefined;
-    res.status(201).json(seller);
+    const newSeller = await Seller.findByIdAndUpdate(sellerId, {$set:filteredBody}, { new: true , runValidators: true });
+    newSeller.pass = undefined;
+    res.status(201).json(newSeller);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
