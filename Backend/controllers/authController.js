@@ -48,7 +48,7 @@ const mapUserDetails = (user, schema) => {
   const userDetails = {};
   for (const key in schema.paths) {
     if (schema.paths.hasOwnProperty(key) && key !== "__v" && key !== "pass") {
-        userDetails[key] = user[key] !== undefined ? user[key] : null;
+      userDetails[key] = user[key] !== undefined ? user[key] : null;
     }
   }
   return userDetails;
@@ -61,11 +61,11 @@ const mapUserDetailsAhmed = (user, schema) => {
   let cpl = "";
   for (const key in schema.paths) {
     if (schema.paths.hasOwnProperty(key) && key !== "__v" && key !== "pass") {
-      if(key === "companyProfile.name"){
+      if (key === "companyProfile.name") {
         cpn = user.companyProfile.name;
-      } else if(key === "companyProfile.desc"){
+      } else if (key === "companyProfile.desc") {
         cpd = user.companyProfile.location;
-      } else if(key === "companyProfile.location"){
+      } else if (key === "companyProfile.location") {
         cpl = user.companyProfile.desc;
       } else {
         userDetails[key] = user[key] !== undefined ? user[key] : null;
@@ -75,11 +75,10 @@ const mapUserDetailsAhmed = (user, schema) => {
   userDetails.companyProfile = {
     name: cpn,
     location: cpd,
-    desc: cpl
+    desc: cpl,
   };
   return userDetails;
 };
-
 
 // Login user
 exports.login = async (req, res) => {
@@ -97,7 +96,7 @@ exports.login = async (req, res) => {
     const isMatchPlain = password === user.pass;
     const isMatch = await bcrypt.compare(password, user.pass);
     if (!isMatch && !isMatchPlain) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: "Invalid credentials" });
     }
 
     // Map user details
