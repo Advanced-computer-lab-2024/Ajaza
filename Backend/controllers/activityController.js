@@ -346,12 +346,15 @@ exports.updateActivityFilteredFields = async (req, res) => {
   try {
     const { advertiserId, activityId } = req.params; 
     const {
+      name,
       date,
       time,
       location,
-      price,
+      upper,
+      lower,
       category,
       tags,
+      spots,
       discounts
     } = req.body; 
     /*const advertiser = await Advertiser.findById(advertiserId);
@@ -372,10 +375,13 @@ exports.updateActivityFilteredFields = async (req, res) => {
     }
 
     // updating only the allowed fields
+    if (name) activity.name = name;
     if (date) activity.date = date;
     if (time) activity.time = time; 
     if (location) activity.location = location;
-    if (price) activity.price = price;
+    if (upper) activity.upper = upper;
+    if (lower) activity.lower = lower;
+    if (spots) activity.spots = spots;
     if (category) activity.category = category;
     if (tags) activity.tags = tags;
     if (discounts) activity.discounts = discounts;

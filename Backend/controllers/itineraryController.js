@@ -254,6 +254,7 @@ exports.updateItineraryFilteredFields = async (req, res) => {
   try {
     const { guideId, itineraryId } = req.params; 
     const {
+      name,
       timeline,
       language,
       price,
@@ -280,6 +281,7 @@ exports.updateItineraryFilteredFields = async (req, res) => {
     }
 
     // e3ml update to only the allowed fields 
+    if (name) itinerary.name = name;
     if (timeline) itinerary.timeline = timeline;
     if (language) itinerary.language = language;
     if (price) itinerary.price = price;

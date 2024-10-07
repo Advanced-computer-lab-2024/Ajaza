@@ -153,13 +153,19 @@ const Itineraries = () => {
 
       const updatedFields = {};
 
+      const timelineWithTypes = (values.timeline || []).map((entry) => ({
+        ...entry,
+        type: optionsMap[entry.id]?.type || null, // Ensure type is included
+      }));  
+
       // Deep comparison for timeline
       if (
-        JSON.stringify(values.timeline) !==
+        JSON.stringify(timelineWithTypes) !==
         JSON.stringify(originalItinerary.timeline)
       ) {
-        updatedFields.timeline = values.timeline;
+        updatedFields.timeline = timelineWithTypes;
       }
+      console.log("edit:", updatedFields)
 
       // Only include the fields that have changed
       Object.keys(values).forEach((key) => {
@@ -244,6 +250,7 @@ const Itineraries = () => {
     setIsModalVisible(false);
     form.resetFields();
   };
+  console.log("allooo:" , itinerariesData)
 
   return (
     <div style={{ display: "flex" }}>
@@ -340,7 +347,7 @@ const Itineraries = () => {
                           ? itinerary.timeline
                               .map(
                                 (entry) =>
-                                  `Start: ${entry.start}, Duration: ${entry.duration} mins, Type: ${entry.type}`
+                                  `Start: ${entry.start}, Duration: ${entry.duration} mins, type: ${entry.type}`
                               )
                               .join(", ")
                           : "No timeline available"}
