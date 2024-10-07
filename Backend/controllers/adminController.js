@@ -123,8 +123,8 @@ exports.adminDeletesAdminFromSystem = async (req, res) => {
     await Category.deleteMany({ adminId: adminId });
 
     //removing tags posted by admin and updating activities/itineraries/venues accordingly
-    let tagsToRemove = await Tag.find({ adminId: adminId });
-    console.log("after here");
+    let result3 = await Tag.find({ adminId: adminId });
+    let tagsToRemove = result3.map((tag) => tag.tag);
 
     activities = await Activity.find({});
     for (let activity of activities) {
