@@ -95,7 +95,9 @@ const Advertiser = () => {
 
     } catch (error) {
       console.error("Error creating advertiser:", error);
-      message.error("Failed to create advertiser.");
+      const errorDetails = error.response?.data?.error || "Failed to create advertiser.";
+      // Display the error message with the custom prefix
+      message.error(`Failed to create advertiser: ${errorDetails}`);
     }
   };
 

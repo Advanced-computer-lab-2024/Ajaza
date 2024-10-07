@@ -54,7 +54,9 @@ const CreateSeller = () => {
       return response.data._id;
     } catch (error) {
       console.error("Error creating seller:", error);
-      message.error("Failed to create seller.");
+      const errorDetails = error.response?.data?.error || "Failed to create seller.";
+      // Display the error message with the custom prefix
+      message.error(`Failed to create seller: ${errorDetails}`);
     }
   };
 

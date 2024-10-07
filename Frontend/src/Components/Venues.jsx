@@ -582,7 +582,16 @@ const Venues = () => {
             </Input.Group>
           </Form.Item>
 
-          <Form.Item name="price" label="Price">
+          <Form.Item
+            name="price"
+            label="Price"
+            rules={[
+              {
+                required: true,
+                message: "Please input all prices!",
+              },
+            ]}
+          >
             <Input.Group compact>
               <Form.Item name={["price", "foreigner"]} noStyle>
                 <Input
