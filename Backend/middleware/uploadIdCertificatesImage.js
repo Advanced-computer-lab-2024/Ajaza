@@ -39,7 +39,7 @@ const uploadIdCertificatesImage = async (req, res, next) => {
 
         // Update the filename and path to include the new ID
         const newFilename = `${savedImg._id}.jpg`;
-        const newPath = path.join("../Frontend/src/uploads", newFilename);
+        const newPath = path.join("../Frontend/public/uploads", newFilename);
 
         // Rename the file
         fs.rename(idFile.path, newPath, async (renameErr) => {
@@ -66,7 +66,7 @@ const uploadIdCertificatesImage = async (req, res, next) => {
           const savedImg = await imgDoc.save();
 
           const newFilename = `${savedImg._id}.jpg`;
-          const newPath = path.join("../Frontend/src/uploads", newFilename);
+          const newPath = path.join("../Frontend/public/uploads", newFilename);
 
           fs.rename(idFile.path, newPath, async (renameErr) => {
             if (renameErr) {

@@ -33,7 +33,7 @@ const uploadPhotoImage = async (req, res, next) => {
         const savedImg = await imgDoc.save();
 
         const newFilename = `${savedImg._id}.jpg`;
-        const newPath = path.join("../Frontend/src/uploads", newFilename);
+        const newPath = path.join("../Frontend/public/uploads", newFilename);
 
         // Rename the file
         fs.rename(idFile.path, newPath, async (renameErr) => {

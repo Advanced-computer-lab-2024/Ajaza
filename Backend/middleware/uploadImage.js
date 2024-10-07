@@ -29,7 +29,7 @@ const uploadImage = async (req, res, next) => {
 
       // Update the filename and path to include the new ID
       const newFilename = `${savedImg._id}.jpg`;
-      const newPath = path.join("../Frontend/src/uploads", newFilename);
+      const newPath = path.join("../Frontend/public/uploads", newFilename);
 
       // Rename the file
       fs.rename(req.file.path, newPath, async (renameErr) => {
