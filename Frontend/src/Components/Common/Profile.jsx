@@ -222,7 +222,16 @@ const Profile = () => {
                   <Form.Item name="link" label="Link">
                     <Input />
                   </Form.Item>
-                  <Form.Item name="hotline" label="Hotline">
+                  <Form.Item
+                    name="hotline"
+                    label="Hotline"
+                    rules={[
+                      {
+                        pattern: /^\d+$/,
+                        message: "Enter valid hotline",
+                      },
+                    ]}
+                  >
                     <Input />
                   </Form.Item>
 
