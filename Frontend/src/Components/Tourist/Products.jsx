@@ -33,6 +33,7 @@ const Products = () => {
     title: "name",
     extra: "price",
     rating: "avgRating",
+    photo: "photo",
   };
   const fields = {
     Description: "desc",

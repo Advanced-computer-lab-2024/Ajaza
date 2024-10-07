@@ -12,6 +12,7 @@ import Plans from "../Tourist/Plans";
 import Itineraries from "../Tourist/Itineraries";
 import Products from "../Tourist/Products";
 import Venues from "../Tourist/Venues";
+import Activities from "../Tourist/Activities";
 
 const Guest = () => {
   const [response, setResponse] = useState([]);
@@ -41,8 +42,8 @@ const Guest = () => {
     {
       key: "4",
       icon: <ContainerOutlined />,
-      label: "Gift Shop",
-      onClick: () => navigate("products"),
+      label: "Activities",
+      onClick: () => navigate("activities"),
     },
   ];
 
@@ -53,7 +54,7 @@ const Guest = () => {
         <Route path="profile" element={<Profile />} />
         <Route path="itineraries" element={<Itineraries />} />
         <Route path="venues" element={<Venues />} />
-        <Route path="products" element={<Products />} />
+        <Route path="activities" element={<Activities />} />
       </Routes>
     </CustomLayout>
   );

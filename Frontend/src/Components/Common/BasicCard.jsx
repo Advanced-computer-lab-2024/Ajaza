@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Card, Rate } from "antd";
+import { Card, Flex, Rate } from "antd";
+import img from "../../uploads/6702b737bc1f3e9c8fc16972.jpg";
 
 function formatDateTime(availableDateTime) {
   return availableDateTime.map((item) => {
@@ -32,10 +33,12 @@ const BasicCard = ({
   actions,
   rating,
   dateTime,
+  photo,
 }) => {
   const [avgRating, setAvgRating] = useState(rating);
   const [dateTimeFormatted, setDateTimeFormatted] = useState(null);
   const [isEditable, setIsEditable] = useState(false);
+  const [img, setImg] = useState(null);
 
   useEffect(() => {
     if (dateTime) setDateTimeFormatted(formatDateTime(dateTime));
@@ -44,13 +47,23 @@ const BasicCard = ({
   const handleEdit = (prev) => {
     if (prev != true) setIsEditable(true);
   };
-
   return (
     <Card
       title={title}
       extra={extra ? `$${extra}` : null}
       actions={actions}
       onClick={(prev) => handleEdit}
+      cover={
+        photo ? (
+          <Flex justify="center">
+            <img
+              alt={photo}
+              style={{ height: "150px", width: "80%" }}
+              src={`/uploads/${photo}.jpg`}
+            />
+          </Flex>
+        ) : null
+      }
     >
       {Object.entries(fields).map(([key, value]) => {
         if (value) {
