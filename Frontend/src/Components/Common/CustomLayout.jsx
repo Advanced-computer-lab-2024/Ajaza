@@ -71,7 +71,7 @@ const CustomLayout = ({
     setNavBarItems(
       <Flex align={"center"} style={{ marginLeft: "auto" }}>
         <IconFloatButton icon={BellFilled} badge={{ count: 5 }} />
-        {decodedToken.role !== "governor" && (
+        {decodedToken.role !== "governor" && decodedToken.role !== "admin" && (
           <UserOutlined
             className="hover"
             style={{ fontSize: "20px", marginLeft: "30px" }}
@@ -80,7 +80,9 @@ const CustomLayout = ({
             }}
           />
         )}
+
       </Flex>
+    
     );
   }, []);
   return (
