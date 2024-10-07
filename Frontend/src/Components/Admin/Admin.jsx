@@ -8,8 +8,8 @@ import {
   useNavigate,
 } from "react-router-dom";
 import AdminCustomLayout from "./AdminCustomLayout";
-import ManageActivityCategories from "./ManageActivityCategories";
-import ManagePreferenceTags from "./ManagePreferenceTags";
+import ManageActivityCategories from "./manageActivityCategories";
+import ManagePreferenceTags from "./managePreferenceTags";
 import AllAccounts from "./AllAccounts"; // Create a new AllAccounts component
 import AddAccounts from "./addAccounts";
 import Profile from "../Common/Profile";
