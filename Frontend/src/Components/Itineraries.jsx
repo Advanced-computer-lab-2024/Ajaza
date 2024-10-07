@@ -21,6 +21,30 @@ const Itineraries = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingItineraryId, setEditingItineraryId] = useState(null);
   const [form] = Form.useForm();
+  const [options, setOptions] = useState([])
+
+  useEffect(() => {
+    // Fetch the list of activities/venues
+    const fetchOptions = async () => {
+      try {
+        //const response = await axios.get('http://localhost:5000/itinerary/fetchOptions');
+        const response = await apiClient.get(`/itinerary/fetchOptions/fetchOptions`);
+        console.log("Options:", response.data); // Debugging line
+        const data = await response.data;
+        setOptions(data); // Set the fetched data to state
+      } catch (error) {
+        console.error("Failed to fetch options:", error);
+      }
+    };
+
+    fetchOptions();
+  }, []);
+
+  const optionsMap = options.reduce((acc, option) => {
+    acc[option.id] = option; // Use option.id as the key
+    return acc;
+  }, {});
+
 
   let decodedToken = null;
   const token = localStorage.getItem("token");
@@ -61,16 +85,15 @@ const Itineraries = () => {
         accessibility: values.accessibility,
         maxTourists: values.maxTourists,
         active: values.active || true,
-        timeline: {
-          start: values.timeline.start,
-          id: values.timeline.id,
-          type: values.timeline.type,
-          duration: values.timeline.duration,
-        },
+        timeline: (values.timeline || []).map(entry => ({
+          start: entry.start,
+          id: entry.id,
+          type: optionsMap[entry.id]?.type || null,
+          duration: entry.duration,
+        })),
         feedback: [],
       };
-  
-      const response = await apiClient.post(`itinerary/createSpecifiedItinerary/${userid}`, newItinerary);
+      const response = await apiClient.post(`/itinerary/createSpecifiedItinerary/${userid}`, newItinerary);
       setItinerariesData([...itinerariesData, response.data]);
       message.success("Itinerary created successfully!");
       setIsModalVisible(false);
@@ -299,6 +322,8 @@ const Itineraries = () => {
             <Form.Item
               name="pickUp"
               label="Pick Up Location"
+              rules={[{ required: true, message: "Please enter the pick up location" }]}
+
             >
               <Input placeholder="Enter pick up location" />
             </Form.Item>
@@ -306,6 +331,8 @@ const Itineraries = () => {
             <Form.Item
               name="dropOff"
               label="Drop Off Location"
+              rules={[{ required: true, message: "Please enter the drop off location" }]}
+
             >
               <Input placeholder="Enter drop off location" />
             </Form.Item>
@@ -319,7 +346,7 @@ const Itineraries = () => {
 
             <Form.Item
               name="maxTourists"
-              label="Max Tourists"
+              label="Maximum Tourists"
               rules={[{ required: true, message: "Please enter the max number of tourists" }]}
             >
               <InputNumber min={1} placeholder="Enter max tourists" style={{ width: "100%" }} />
@@ -329,45 +356,58 @@ const Itineraries = () => {
               <Switch />
             </Form.Item>
 
-            <Form.Item label="Timeline">
-              <div style={{ display: "flex", marginBottom: 8 }}>
-                <Form.Item
-                  name={['timeline', 0, 'start']}
-                  label="Start Time"
-                  rules={[{ required: true, message: "Please enter the start time" }]}
-                  style={{ flex: 1, marginRight: 8 }}
-                >
-                  <Input placeholder="Enter start time" />
-                </Form.Item>
-                <Form.Item
-                  name={['timeline', 0, 'id']}
-                  label="ID"
-                  rules={[{ required: true, message: "Please enter an ID" }]}
-                  style={{ flex: 1, marginRight: 8 }}
-                >
-                  <Input placeholder="Enter ID" />
-                </Form.Item>
-                <Form.Item
-                  name={['timeline', 0, 'type']}
-                  label="Type"
-                  rules={[{ required: true, message: "Please select a type" }]}
-                  style={{ flex: 1, marginRight: 8 }}
-                >
-                  <Select placeholder="Select type">
-                    <Select.Option value="Venue">Venue</Select.Option>
-                    <Select.Option value="Activity">Activity</Select.Option>
-                  </Select>
-                </Form.Item>
-                <Form.Item
-                  name={['timeline', 0, 'duration']}
-                  label="Duration"
-                  rules={[{ required: true, message: "Please enter duration" }]}
-                  style={{ flex: 1 }}
-                >
-                  <InputNumber min={1} placeholder="Enter duration" />
-                </Form.Item>
-              </div>
-            </Form.Item>
+            <Form.List name="timeline">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, ...restField }) => (
+                    <div key={key} style={{ display: "flex", marginBottom: 8 }}>
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'start']}
+                        label="Start Time"
+                        rules={[{ required: true, message: "Please enter the start time" }]}
+                        style={{ flex: 1, marginRight: 8 }}
+                      >
+                        <InputNumber min={0} max={2359} placeholder="Enter start time (e.g. 1300 for 1 PM)" />
+                      </Form.Item>
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'id']}
+                        label="ID"
+                        rules={[{ required: true, message: "Please select an option" }]}
+                        style={{ flex: 1, marginRight: 8 }}
+                      >
+                        <Select placeholder="Select an option" allowClear>
+                          {options.map((option) => (
+                            //<Select.Option key={option.id} value={option.id}>
+                            <Select.Option key={option.id} value={option.id}>
+                              {option.name} {/* Adjust this based on your options' structure */}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'duration']}
+                        label="Duration"
+                        rules={[{ required: true, message: "Please enter duration" }]}
+                        style={{ flex: 1, marginRight: 8 }}
+                      >
+                        <InputNumber min={1} placeholder="Enter duration in minutes" />
+                      </Form.Item>
+                      <AntButton type="link" onClick={() => remove(name)} icon={<MinusCircleOutlined />} >
+                        Remove
+                      </AntButton>
+                    </div>
+                  ))}
+                  <AntButton type="dashed" onClick={() => add()} block icon={<PlusOutlined />} >
+                    Add Timeline Entry
+                  </AntButton>
+                </>
+              )}
+            </Form.List>
+
+
             {/* Available date time entries */}
               <Form.List name="availableDateTime">
                 {(fields, { add, remove }) => (
@@ -415,5 +455,19 @@ const Itineraries = () => {
     </div>
   );
 };
+
+//backup
+/*<Form.Item
+  {...restField}
+  name={[name, 'type']}
+  label="Type"
+  rules={[{ required: true, message: "Please select a type" }]}
+  style={{ flex: 1, marginRight: 8 }}
+>
+  <Select placeholder="Select type">
+    <Select.Option value="Venue">Venue</Select.Option>
+    <Select.Option value="Activity">Activity</Select.Option>
+  </Select>
+</Form.Item> */
 
 export default Itineraries;

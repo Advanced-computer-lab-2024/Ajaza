@@ -215,9 +215,11 @@ exports.createSpecifiedItinerary = async (req, res) => {
       active: true,
       tags: [],
     });
+    //const newItinerary = new Itinerary(req.body);
+    
+    newItinerary.save();
 
-    const savedItinerary = await newItinerary.save();
-    res.status(201).json(savedItinerary);
+    res.status(201).json(newItinerary);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -360,3 +362,19 @@ exports.getUpcomingItineraries = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+//returns list of not hidden activities and venues alongside their type
+exports.fetchOptions = async (req, res) => {
+  try {
+    const activities = await Activity.find({ hidden: false });
+    const venues = await Venue.find({ isVisible: true });
+    const options = activities.concat(venues).map((option) => ({
+      id: option._id,
+      name: option.name,
+      type: option.governorId? "Venue" : "Activity",
+    }));
+    res.status(200).json(options);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}

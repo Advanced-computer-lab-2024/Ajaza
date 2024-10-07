@@ -70,7 +70,7 @@ const uploadIdCertificatesImage = async (req, res, next) => {
 
           fs.rename(idFile.path, newPath, async (renameErr) => {
             if (renameErr) {
-              await Img.findByIdAndRemove(savedImg._id);
+              //await Img.findByIdAndRemove(savedImg._id);
               return res.status(500).json({ error: "Failed to rename file" });
             }
 
