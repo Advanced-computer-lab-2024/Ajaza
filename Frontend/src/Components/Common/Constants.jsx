@@ -56,6 +56,7 @@ export const getUniqueTags = (data) => {
 };
 
 export const comparePriceRange = (filterCriteria, element) => {
+  console.log("ele", element);
   if (!element.price) {
     return false;
   }
@@ -65,6 +66,9 @@ export const comparePriceRange = (filterCriteria, element) => {
   const max = Math.max(num1, num2);
 
   if (!typeof element["price"] == Number) {
+    console.log("upper", element.upper);
+    console.log("lower", element.lower);
+
     if (element.upper < max && element.lower > min) {
       return true;
     }

@@ -36,12 +36,7 @@ const Activities = () => {
     rating: "avgRating",
     dateTime: "availableDateTime",
   };
-  const fields = {
-    Language: "language",
-    "Accessibility Offered": "accessibility",
-    "Pick Up": "pickUp",
-    "Drop off": "dropOff",
-  };
+  const fields = { Categories: "category", Tags: "tags" };
   const searchFields = ["name"];
   const constProps = { rateDisplay: true };
   const sortFields = ["avgRating", "price"];
@@ -56,77 +51,6 @@ const Activities = () => {
       ],
       compareFn: (filterCriteria, element) =>
         comparePriceRange(filterCriteria, element),
-    },
-    availableDateTime: {
-      displayName: "Available Dates/Times",
-      values: [
-        {
-          displayName: "January",
-          filterCriteria: ["2024-01-01", "2024-01-31"],
-        },
-        {
-          displayName: "February",
-          filterCriteria: ["2024-02-01", "2024-02-29"],
-        },
-        {
-          displayName: "March",
-          filterCriteria: ["2024-03-01", "2024-03-31"],
-        },
-        {
-          displayName: "April",
-          filterCriteria: ["2024-04-01", "2024-04-30"],
-        },
-        {
-          displayName: "May",
-          filterCriteria: ["2024-05-01", "2024-05-31"],
-        },
-        {
-          displayName: "June",
-          filterCriteria: ["2024-06-01", "2024-06-30"],
-        },
-        {
-          displayName: "July",
-          filterCriteria: ["2024-07-01", "2024-07-31"],
-        },
-        {
-          displayName: "August",
-          filterCriteria: ["2024-08-01", "2024-08-31"],
-        },
-        {
-          displayName: "September",
-          filterCriteria: ["2024-09-01", "2024-09-30"],
-        },
-        {
-          displayName: "October",
-          filterCriteria: ["2024-10-01", "2024-10-31"],
-        },
-        {
-          displayName: "November",
-          filterCriteria: ["2024-11-01", "2024-11-30"],
-        },
-        {
-          displayName: "December",
-          filterCriteria: ["2024-12-01", "2024-12-31"],
-        },
-      ],
-      compareFn: (filterCriteria, element) => {
-        // Extract the month from filterCriteria
-        const startMonth = new Date(filterCriteria[0]).getMonth(); // Get the start month (0-11)
-        const endMonth = new Date(filterCriteria[1]).getMonth(); // Get the end month (0-11)
-
-        if (!element.availableDateTime) {
-          return false;
-        }
-
-        // Check if any of the dates in availableDateTime fall within the given month range
-        return element.availableDateTime.some((available) => {
-          const availableDate = new Date(available.date);
-          const availableMonth = availableDate.getMonth(); // Get the month (0-11)
-
-          // Compare only the month, ignoring the year
-          return availableMonth >= startMonth && availableMonth <= endMonth;
-        });
-      },
     },
     avgRating: {
       displayName: "Rating",
