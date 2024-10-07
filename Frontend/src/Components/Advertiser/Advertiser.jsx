@@ -13,16 +13,14 @@ const Advertiser = () => {
       icon: <CalendarOutlined />,
       label: "Activites",
       onClick: () => {
-        navigate("activities");
+        navigate("/advertiser/");
       },
     },
   ];
   return (
     <CustomLayout sideBarItems={sideBarItems}>
       <Routes>
-        <Route path="/" />
-        <Route path="activities" element={<Activities />} />
-        <Route path="Report" element={<div>Report</div>} />
+        <Route path="/" element={<Activities />} />
         <Route path="profile" element={<Profile />} />
       </Routes>
     </CustomLayout>

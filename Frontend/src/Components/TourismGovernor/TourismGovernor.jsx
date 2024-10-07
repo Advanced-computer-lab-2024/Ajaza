@@ -24,7 +24,7 @@ const TourismGovernor = () => {
       key: "3",
       icon: <CalendarOutlined />,
       label: "Venues",
-      onClick: () => navigate(""),
+      onClick: () => navigate("/governor/"),
     },
   ];
 
