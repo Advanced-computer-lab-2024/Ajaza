@@ -281,9 +281,6 @@ const Profile = () => {
                   <Form.Item name="nationality" label="Nationality">
                     <Input />
                   </Form.Item>
-                  <Form.Item name="dob" label="Date of Birth">
-                    <Input />
-                  </Form.Item>
                   <Form.Item name="occupation" label="Occupation">
                     <Input />
                   </Form.Item>
