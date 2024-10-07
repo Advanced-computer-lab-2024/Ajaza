@@ -37,6 +37,8 @@ const Itineraries = () => {
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingItineraryId, setEditingItineraryId] = useState(null);
+  const [tags, setTags] = useState([]);
+
   const [form] = Form.useForm();
   const [options, setOptions] = useState([]);
 
@@ -85,8 +87,20 @@ const Itineraries = () => {
     }
   };
 
+  const fetchTags = async () => {
+    try {
+      const response = await apiClient.get("tag");
+      setTags(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error fetching tags:", error);
+      setTags([]);
+    }
+  };
+
   useEffect(() => {
     fetchItineraries();
+    fetchTags();
   }, []);
 
   const createItinerary = async (values) => {
@@ -104,6 +118,7 @@ const Itineraries = () => {
         dropOff: values.dropOff,
         accessibility: values.accessibility,
         maxTourists: values.maxTourists,
+        tags: values.tags,
         active: values.active || true,
         timeline: (values.timeline || []).map((entry) => ({
           start: entry.start,
@@ -113,6 +128,7 @@ const Itineraries = () => {
         })),
         feedback: [],
       };
+
       const response = await apiClient.post(
         `/itinerary/createSpecifiedItinerary/${userid}`,
         newItinerary
@@ -300,6 +316,10 @@ const Itineraries = () => {
                         {itinerary.accessibility || "Not specified"}
                       </p>
                       <p>
+                        <strong>Tags:</strong>{" "}
+                        {itinerary.tags?.join(", ") || "None"}
+                      </p>
+                      <p>
                         <strong>Available Dates:</strong>
                         {itinerary.availableDateTime.length > 0
                           ? itinerary.availableDateTime
@@ -437,6 +457,15 @@ const Itineraries = () => {
 
             <Form.Item name="active" label="Active" valuePropName="checked">
               <Switch />
+            </Form.Item>
+            <Form.Item name="tags" label="Tags">
+              <Select mode="multiple" placeholder="Select Tags" allowClear>
+                {tags.map((tag) => (
+                  <Select.Option key={tag._id} value={tag.tag}>
+                    {tag.tag}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
 
             <Form.List name="timeline">

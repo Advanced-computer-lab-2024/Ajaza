@@ -14,7 +14,6 @@ import {
   Select,
   Dropdown,
   Typography,
-  
 } from "antd";
 import {
   EditOutlined,
@@ -23,7 +22,7 @@ import {
   UploadOutlined,
 } from "@ant-design/icons";
 import Search from "./Search";
-import { DownOutlined , InboxOutlined } from "@ant-design/icons";
+import { DownOutlined, InboxOutlined } from "@ant-design/icons";
 import { apiUrl } from "./Constants";
 import axios from "axios";
 import CustomButton from "./CustomButton";
@@ -186,7 +185,6 @@ const SearchFilterSortContainerEditCreate = ({
   const [fileList, setFileList] = useState([]);
   const { Dragger } = Upload;
 
-
   const span = 24 / cardsPerRow;
 
   useEffect(() => {
@@ -253,53 +251,7 @@ const SearchFilterSortContainerEditCreate = ({
     });
   });
 
-  // const filterItems = [];
-  let filterItems = [
-    {
-      key: "1",
-      type: "group",
-      label: "Group title",
-      children: [
-        {
-          key: "1-1",
-          label: "1st menu item",
-        },
-        {
-          key: "1-2",
-          label: "2nd menu item",
-        },
-      ],
-    },
-    {
-      key: "2",
-      label: "sub menu",
-      children: [
-        {
-          key: "2-1",
-          label: "3rd menu item",
-        },
-        {
-          key: "2-2",
-          label: "4th menu item",
-        },
-      ],
-    },
-    {
-      key: "3",
-      label: "disabled sub menu",
-      disabled: true,
-      children: [
-        {
-          key: "3-1",
-          label: "5d menu item",
-        },
-        {
-          key: "3-2",
-          label: "6th menu item",
-        },
-      ],
-    },
-  ];
+  let filterItems = [];
 
   function generateFilterItems(filterFields) {
     let filterItems = [
@@ -426,8 +378,10 @@ const SearchFilterSortContainerEditCreate = ({
     }
     return e?.fileList;
   };
-  const handleFileChange = ({ fileList: newFileList }) => setFileList(newFileList);
+  const handleFileChange = ({ fileList: newFileList }) =>
+    setFileList(newFileList);
 
+  filterItems = generateFilterItems(filterFields);
   return (
     <>
       <Flex align="center">
@@ -550,10 +504,12 @@ const SearchFilterSortContainerEditCreate = ({
               beforeUpload={() => false}
               maxCount={1}
             >
-               <p className="ant-upload-drag-icon">
-                                <InboxOutlined />
-                            </p>
-                            <p className="ant-upload-text">Click or drag file to this area to upload</p>
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined />
+              </p>
+              <p className="ant-upload-text">
+                Click or drag file to this area to upload
+              </p>
             </Dragger>
           </Form.Item>
 
