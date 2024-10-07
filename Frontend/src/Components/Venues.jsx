@@ -295,6 +295,7 @@ const Venues = () => {
     setNewTag(""); // Reset the newTag
     setPreferenceTag(""); // Reset the preferenceTag
     setIsTagModalVisible(true); // Open the tag modal
+    setNewTag([]);
   }; // Function to open tag modal
   const handleTagCancel = () => {
     setNewTag("");
@@ -326,7 +327,7 @@ const Venues = () => {
         `governor/createTagForVenue/${userid}/${venueId}`,
         {
           venueId,
-          tag: newTag, // Ensure this is a valid tag from validTags in the backend
+          tags: newTag, // Ensure this is a valid tag from validTags in the backend
           preferenceTags: preferenceTagsArray, // This should be an array
         }
       );
@@ -337,7 +338,7 @@ const Venues = () => {
       setVenuesData((prevVenues) =>
         prevVenues.map((venue) => {
           if (venue._id === venueId) {
-            return { ...venue, tags: [...venue.tags, response.data.tag] };
+            return { ...venue, tags: [...venue.tags, ...newTag] };
           }
           return venue;
         })
@@ -656,29 +657,30 @@ const Venues = () => {
           layout="vertical"
           onFinish={() => handleCreateTag(editingVenueId)} // Pass the editingVenueId here for tag creation
         >
-          <Form.Item
-            label="Tag"
-            rules={[{ required: true, message: "Please select a tag!" }]}
+        <Form.Item
+          label="Tag"
+          rules={[{ required: true, message: "Please select a tag!" }]}
+        >
+          <Select
+            mode="multiple"
+            value={newTag} // Use the newTag state to manage selected tags
+            onChange={(value) => setNewTag(value)}
+            placeholder="Select tags"
           >
-            <Select
-              value={newTag}
-              onChange={(value) => setNewTag(value)}
-              placeholder="Select a tag"
-            >
-              {allowedTagNames.map((tag) => (
-                <Option key={tag} value={tag}>
-                  {tag}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item label="Preference Tag">
+            {allowedTagNames.map((tag) => (
+              <Option key={tag} value={tag}>
+                {tag}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+          {/* <Form.Item label="Preference Tag">
             <Input
               value={preferenceTag}
               onChange={(e) => setPreferenceTag(e.target.value)}
               placeholder="Enter preference tag (optional)"
             />
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item>
             <AntButton type="primary" htmlType="submit">
               Create Tag

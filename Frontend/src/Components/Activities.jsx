@@ -291,7 +291,7 @@
                         <Form.Item name="category" label="Category">
                             <Select placeholder="Select a category" allowClear>
                                 {categories.map((category) => (
-                                    <Select.Option key={category._id} value={category._id}>
+                                    <Select.Option key={category._id} value={category.category}>
                                         {category.category}
                                     </Select.Option>
                                 ))}
@@ -305,7 +305,7 @@
                                 allowClear
                             >
                                 {tags.map((tag) => (
-                                    <Select.Option key={tag._id} value={tag._id}>
+                                    <Select.Option key={tag._id} value={tag.tag}>
                                         {tag.tag}
                                     </Select.Option>
                                 ))}

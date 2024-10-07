@@ -258,11 +258,6 @@ exports.createSpecifiedActivity = async (req, res) => {
       }
         */
 
-      const tagObjects = await Tag.find({ _id: { $in: tags } });
-      const tagNames = tagObjects.map(tag => tag.tag);
-
-      const categoryObjects = await Category.find({ _id: { $in: category } });
-      const categoryNames = categoryObjects.map(category => category.category);
 
       const newActivity = new Activity({
           advertiserId,
@@ -272,8 +267,8 @@ exports.createSpecifiedActivity = async (req, res) => {
           upper,
           lower,
           price,
-          category: categoryNames,
-          tags: tagNames,
+          category,
+          tags,
           discounts,
           isOpen,
           spots,
@@ -381,15 +376,8 @@ exports.updateActivityFilteredFields = async (req, res) => {
     if (time) activity.time = time; 
     if (location) activity.location = location;
     if (price) activity.price = price;
-    if (category) { // Check if category is provided
-      if (category === null || category === '') {
-          activity.category = []; // Set to empty array if no category
-      } else {
-          const categoryNames = await Category.find({ _id: category }, 'category').lean();
-          const categoryNamesArray = categoryNames.map(cat => cat.category);
-          activity.category = categoryNamesArray; // Store the names of the selected categories
-      }
-  }    if (tags) {const tagNames = await Tag.find({ _id: { $in: tags } }, 'tag').lean(); const tagNamesArray = tagNames.map(tag => tag.tag); activity.tags = tagNamesArray; }
+    if (category) activity.category = category;
+    if (tags) activity.tags = tags;
     if (discounts) activity.discounts = discounts;
 
     const updatedActivity = await activity.save();
