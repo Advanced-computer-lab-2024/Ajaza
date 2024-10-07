@@ -254,14 +254,28 @@ const Profile = () => {
                   <Form.Item name="email" label="Email">
                     <Input />
                   </Form.Item>
-                  <Form.Item name="mobile" label="Mobile">
+                  <Form.Item
+                    name="mobile"
+                    label="Mobile"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your mobile number!",
+                      },
+                      { len: 13, message: "Mobile number must be 13 digits!" },
+                      {
+                        pattern: /^\+20\d{10}$/,
+                        message: "Mobile number must start with +20",
+                      },
+                    ]}
+                  >
                     <Input />
                   </Form.Item>
                   <Form.Item
                     name="yearsOfExperience"
                     label="Years of Experience"
                   >
-                    <Input />
+                    <Input type="number" />
                   </Form.Item>
                   <Form.Item name="previousWork" label="Previous Work">
                     <Input.TextArea />
@@ -275,7 +289,21 @@ const Profile = () => {
                   <Form.Item name="email" label="Email">
                     <Input />
                   </Form.Item>
-                  <Form.Item name="mobile" label="Mobile">
+                  <Form.Item
+                    name="mobile"
+                    label="Mobile"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your mobile number!",
+                      },
+                      { len: 13, message: "Mobile number must be 13 digits!" },
+                      {
+                        pattern: /^\+20\d{10}$/,
+                        message: "Mobile number must start with +20",
+                      },
+                    ]}
+                  >
                     <Input />
                   </Form.Item>
                   <Form.Item name="nationality" label="Nationality">
