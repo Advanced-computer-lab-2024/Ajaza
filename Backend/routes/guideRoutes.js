@@ -44,4 +44,6 @@ router.delete(
 
 router.patch("/acceptTerms/:id", guideController.acceptTerms);
 
+router.post("/uploadPhoto/:guideId", uploadPhotoImage, guideController.uploadPhoto);
+
 module.exports = router;

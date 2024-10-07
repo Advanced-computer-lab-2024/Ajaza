@@ -351,3 +351,19 @@ exports.acceptTerms = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+//uploadLogo for specific seller
+exports.uploadSellerLogo = async (req, res) => {
+  try {
+    const seller = await Seller.findById(req.params.sellerId);
+    const logo = req.body.logo;
+    if (!seller) {
+      return res.status(404).json({ message: "Seller not found" });
+    }
+    seller.logo = logo;
+    await seller.save();
+    res.status(200).json(venue);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};

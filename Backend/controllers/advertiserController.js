@@ -309,3 +309,20 @@ exports.acceptTerms = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+//uploadLogo for specific advertiser
+exports.uploadAdvertiserLogo = async (req, res) => {
+  try {
+    const advertiser = await Advertiser.findById(req.params.advertiserId);
+    const logo = req.body.logo;
+    if (!advertiser) {
+      return res.status(404).json({ message: "Advertiser not found" });
+    }
+    advertiser.logo = logo;
+    await advertiser.save();
+    res.status(200).json(venue);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};

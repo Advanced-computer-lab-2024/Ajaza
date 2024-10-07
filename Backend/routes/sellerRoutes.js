@@ -39,5 +39,8 @@ router.delete('/deleteSellerFromSystem/:id', sellerController.adminDeletesSeller
 
 router.patch('/acceptTerms/:id', sellerController.acceptTerms);
 
+router.post("/uploadLogo/:sellerId", uploadLogoImage, sellererController.uploadLogo);
+
+
 
 module.exports = router;
