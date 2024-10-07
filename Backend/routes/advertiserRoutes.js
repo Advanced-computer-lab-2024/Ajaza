@@ -74,6 +74,6 @@ router.delete(
 router.patch("/acceptTerms/:id", advertiserController.acceptTerms);
 
 
-router.post("/uploadLogo/:advertiserId", uploadLogoImage, advertiserController.uploadLogo);
+router.post("/uploadLogo/:advertiserId", uploadLogoImage, advertiserController.uploadAdvertiserLogo);
 
 module.exports = router;
