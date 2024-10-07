@@ -132,6 +132,21 @@ const Activities = () => {
           if (JSON.stringify(originalTags) !== JSON.stringify(newTags)) {
             updatedFields[key] = newTags;
           }
+        } else if (key === "category") {
+          const selectedCategories = values.category || []; // Ensure it’s an array
+
+          // If selectedCategories is empty, set it to an empty array
+          if (selectedCategories.length === 0) {
+            updatedFields[key] = []; // or use `null` based on your requirement
+          } else {
+            // Only update if the selected categories have changed
+            if (
+              JSON.stringify(originalActivity.category) !==
+              JSON.stringify(selectedCategories)
+            ) {
+              updatedFields[key] = selectedCategories; // Store the selected category IDs directly
+            }
+          }
         } else if (values[key] !== originalActivity[key]) {
           updatedFields[key] = values[key];
         }
@@ -190,7 +205,6 @@ const Activities = () => {
 
   const showEditModal = (activity) => {
     const date = dayjs(activity.date); // Convert activity.date to a dayjs object
-    console.log(date.format("YYYY-MM-DD HH:mm:ss")); // For debugging
 
     setIsModalVisible(true);
     form.setFieldsValue({
@@ -199,7 +213,7 @@ const Activities = () => {
       location: activity.location,
       upper: activity.upper,
       lower: activity.lower,
-      category: activity.category,
+      category: activity.category.length > 0 ? activity.category : null,
       tags: activity.tags,
       discounts: activity.discounts,
       spots: activity.spots,
@@ -398,7 +412,7 @@ const Activities = () => {
           <Form.Item name="category" label="Category">
             <Select placeholder="Select a category" allowClear>
               {categories.map((category) => (
-                <Select.Option key={category._id} value={category._id}>
+                <Select.Option key={category._id} value={category.category}>
                   {category.category}
                 </Select.Option>
               ))}
@@ -408,7 +422,7 @@ const Activities = () => {
           <Form.Item name="tags" label="Tags">
             <Select mode="multiple" placeholder="Select Tags" allowClear>
               {tags.map((tag) => (
-                <Select.Option key={tag._id} value={tag._id}>
+                <Select.Option key={tag._id} value={tag.tag}>
                   {tag.tag}
                 </Select.Option>
               ))}

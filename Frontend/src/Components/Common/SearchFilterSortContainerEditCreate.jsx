@@ -343,7 +343,7 @@ const SearchFilterSortContainerEditCreate = ({
         }
       );
       setRefreshElements((prev) => !prev);
-      message.success("Activity updated successfully!");
+      message.success("Product updated successfully!");
       setIsModalVisible(false);
       form.resetFields();
       setEditingProductId(null);
@@ -361,7 +361,7 @@ const SearchFilterSortContainerEditCreate = ({
         formValues
       );
       setRefreshElements((prev) => !prev);
-      message.success("Activity updated successfully!");
+      message.success("Product updated successfully!");
       setIsModalVisible(false);
       form.resetFields();
       setEditingProductId(null);
