@@ -66,24 +66,24 @@ const Advertiser = () => {
     try {
       const formData = new FormData();
 
-      formData.append('username', values.username);
-      formData.append('pass', values.password);
-      formData.append('email', values.email);
+      formData.append("username", values.username);
+      formData.append("pass", values.password);
+      formData.append("email", values.email);
 
-      if (values.document1) {
-        formData.append('id', values.document1[0].originFileObj);
-      }
+      // if (values.document1) {
+      //   formData.append('id', values.document1[0].originFileObj);
+      // }
 
-      if (values.document2) {
-        formData.append('taxationRegCard', values.document2[0].originFileObj);
-      }
+      // if (values.document2) {
+      //   formData.append('taxationRegCard', values.document2[0].originFileObj);
+      // }
       const response = await axios.post(
         "http://localhost:5000/advertiser/guestAdvertiserCreateProfile",
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
-          }
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
       message.success("Advertiser created successfully!");
@@ -92,15 +92,14 @@ const Advertiser = () => {
       }
       setAdvertiserData(response.data);
       return response.data._id;
-
     } catch (error) {
       console.error("Error creating advertiser:", error);
-      const errorDetails = error.response?.data?.error || "Failed to create advertiser.";
+      const errorDetails =
+        error.response?.data?.error || "Failed to create advertiser.";
       // Display the error message with the custom prefix
       message.error(`Failed to create advertiser: ${errorDetails}`);
     }
   };
-
 
   const onFinish = async (values) => {
     await createAdvertiser(values);
