@@ -24,7 +24,7 @@ const TourismGovernor = () => {
       key: "3",
       icon: <CalendarOutlined />,
       label: "Venues",
-      onClick: () => navigate("/"),
+      onClick: () => navigate(""),
     },
   ];
 
@@ -32,6 +32,7 @@ const TourismGovernor = () => {
     <CustomLayout sideBarItems={sideBarItems}>
       <Routes>
         <Route path="/" element={<Venues />} />
+        <Route path="profile" element={<Profile />} />
       </Routes>
     </CustomLayout>
   );

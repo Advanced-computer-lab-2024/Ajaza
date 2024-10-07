@@ -11,6 +11,7 @@ import {
   Button as AntButton,
   Select,
   Upload,
+  Flex,
 } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
@@ -49,6 +50,22 @@ const Venues = () => {
     "1900s-1950s",
     "1950s-2000s",
   ];
+  const openingTimePlaceholders = [
+    "Sunday Opening",
+    "Sunday Closing",
+    "Monday Opening",
+    "Monday Closing",
+    "Tuesday Opening",
+    "Tuesday Closing",
+    "Wednesday Opening",
+    "Wednesday Closing",
+    "Thursday Opening",
+    "Thursday Closing",
+    "Friday Opening",
+    "Friday Closing",
+    "Saturday Opening",
+    "Saturday Closing",
+  ];
   const [selectedLocation, setSelectedLocation] = useState(null);
 
   const token = localStorage.getItem("token");
@@ -80,7 +97,7 @@ const Venues = () => {
         // governorId: userid,
         name: values.name,
         desc: values.desc,
-        location: selectedLocation,
+        location: "selectedLocation", // TODO
         openingHours: {
           suno: values.openingHours.suno,
           sunc: values.openingHours.sunc,
@@ -102,27 +119,29 @@ const Venues = () => {
           native: values.price.native,
           student: values.price.student,
         },
-        pictures: fileList.map((file) => file.originFileObj),
       };
       const formData = new FormData();
-      Object.entries(newVenue).map(([key, value]) => {
-        formData.append(key, value);
-      });
-
-      for (let [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          console.log(`${key}:`);
-          console.log(`  Name: ${value.name}`);
-          console.log(`  Size: ${value.size} bytes`);
-          console.log(`  Type: ${value.type}`);
-        } else {
-          console.log(`${key}: ${value}`);
+      if (values.pictures && values.pictures.length > 0) {
+        for (let i = 0; i < values.pictures.length; i++) {
+          formData.append("pictures", values.pictures[i].originFileObj);
         }
       }
+
       const response = await apiClient.post(
         `governor/createGovernorVenue/${userid}`,
         newVenue
       );
+      const picResponse = await apiClient.post(
+        `venue/uploadPhotos/${response.data._id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log(picResponse);
+
       setVenuesData([...venuesData, response.data]);
       message.success("Venue created successfully!");
       setIsModalVisible(false);
@@ -362,6 +381,17 @@ const Venues = () => {
           >
             {venuesData.map((venue) => (
               <Card
+                cover={
+                  venue.pictures?.length != 0 ? (
+                    <Flex justify="center">
+                      <img
+                        alt={venue.pictures[0]}
+                        style={{ height: "150px", width: "80%" }}
+                        src={`/uploads/${venue.pictures[0]}.jpg`}
+                      />
+                    </Flex>
+                  ) : null
+                }
                 key={venue._id}
                 actions={[
                   <EditOutlined
@@ -427,9 +457,6 @@ const Venues = () => {
                   </ul>
                   <p>
                     <strong>Tags:</strong> {venue.tags.join(", ")}
-                  </p>
-                  <p>
-                    <strong>Pictures:</strong> {venue.pictures}
                   </p>
                   <Button
                     size={"s"}
@@ -524,13 +551,31 @@ const Venues = () => {
                 "fric",
                 "sato",
                 "satc",
-              ].map((day) => (
-                <Form.Item key={day} name={["openingHours", day]} noStyle>
+              ].map((day, index) => (
+                <Form.Item
+                  key={day}
+                  name={["openingHours", day]}
+                  noStyle
+                  rules={[
+                    {
+                      validator: (_, value) => {
+                        if (
+                          value === undefined ||
+                          (value >= 0 && value <= 24)
+                        ) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(
+                          new Error("Value must be between 0 and 24")
+                        );
+                      },
+                    },
+                  ]}
+                >
                   <Input
                     style={{ width: "50%" }}
-                    placeholder={`${
-                      day.charAt(0).toUpperCase() + day.slice(1)
-                    } Open`}
+                    placeholder={openingTimePlaceholders[index]}
+                    type="number"
                   />
                 </Form.Item>
               ))}
@@ -569,12 +614,12 @@ const Venues = () => {
             getValueFromEvent={normFile}
           >
             <Dragger
-              name="photo"
+              name="pictures"
               listType="text"
               fileList={fileList}
               onChange={handleFileChange}
               beforeUpload={() => false}
-              maxCount={1}
+              maxCount={3}
             >
               <p className="ant-upload-drag-icon">
                 <InboxOutlined />

@@ -51,7 +51,6 @@ const Guest = () => {
     <CustomLayout guest={true} sideBarItems={sideBarItems}>
       <Routes>
         <Route path="/" element={<Plans />} />
-        <Route path="profile" element={<Profile />} />
         <Route path="itineraries" element={<Itineraries />} />
         <Route path="venues" element={<Venues />} />
         <Route path="activities" element={<Activities />} />

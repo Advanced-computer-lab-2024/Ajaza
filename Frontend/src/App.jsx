@@ -86,7 +86,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
 
             <Route path="/governor/*" element={<TourismGovernor />} />
-            <Route path="/seller/*" element={<SellerPage />} />
+            <Route path="/seller/*" element={<Seller />} />
             <Route path="/guest/*" element={<Guest />} />
 
             {/* here */}

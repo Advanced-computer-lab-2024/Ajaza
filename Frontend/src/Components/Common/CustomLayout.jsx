@@ -75,7 +75,7 @@ const CustomLayout = ({
           className="hover"
           style={{ fontSize: "20px", marginLeft: "30px" }}
           onClick={() => {
-            navigate(`/profile`);
+            navigate(`/${decodedToken.role}/profile`);
           }}
         />
       </Flex>
