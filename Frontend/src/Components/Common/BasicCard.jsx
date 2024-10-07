@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Card, Flex, Rate } from "antd";
-import img from "../../uploads/6702b737bc1f3e9c8fc16972.jpg";
 
 function formatDateTime(availableDateTime) {
   return availableDateTime.map((item) => {
