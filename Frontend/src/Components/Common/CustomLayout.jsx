@@ -71,13 +71,15 @@ const CustomLayout = ({
     setNavBarItems(
       <Flex align={"center"} style={{ marginLeft: "auto" }}>
         <IconFloatButton icon={BellFilled} badge={{ count: 5 }} />
-        <UserOutlined
-          className="hover"
-          style={{ fontSize: "20px", marginLeft: "30px" }}
-          onClick={() => {
-            navigate(`/${decodedToken.role}/profile`);
-          }}
-        />
+        {decodedToken.role !== "governor" && (
+          <UserOutlined
+            className="hover"
+            style={{ fontSize: "20px", marginLeft: "30px" }}
+            onClick={() => {
+              navigate(`/${decodedToken.role}/profile`);
+            }}
+          />
+        )}
       </Flex>
     );
   }, []);
