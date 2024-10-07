@@ -24,7 +24,7 @@ const Guest = () => {
       icon: <CalendarOutlined />,
       label: "Plans",
       onClick: () => {
-        navigate("/tourist/");
+        navigate("/guest/");
       },
     },
     {
