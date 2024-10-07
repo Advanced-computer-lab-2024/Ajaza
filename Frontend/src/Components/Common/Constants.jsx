@@ -13,7 +13,7 @@ export const Colors = {
   },
   primary: {
     default: "#1b696a",
-    light: "#9fcfbb",
+    light: "#6c9c88",
   },
 };
 
