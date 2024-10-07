@@ -294,8 +294,8 @@ const Activities = () => {
                       }
                     </p>
                     <p>
-                      <strong>Date:</strong>{" "}
-                      {new Date(activity.date).toLocaleDateString()}
+                      <strong>Datetime:</strong>{" "}
+                      {new Date(activity.date).toLocaleString()}
                     </p>
                     <p>
                       <strong>Upper Limit:</strong> {activity.upper}

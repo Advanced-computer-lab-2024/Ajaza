@@ -97,7 +97,7 @@ const Venues = () => {
         // governorId: userid,
         name: values.name,
         desc: values.desc,
-        location: "selectedLocation", // TODO
+        location: selectedLocation, 
         openingHours: {
           suno: values.openingHours.suno,
           sunc: values.openingHours.sunc,
@@ -617,6 +617,7 @@ const Venues = () => {
               </Form.Item>
             </Input.Group>
           </Form.Item>
+          {!editingVenueId && (
           <Form.Item
             label="Pictures"
             name="pictures"
@@ -639,6 +640,7 @@ const Venues = () => {
               </p>
             </Dragger>
           </Form.Item>
+        )}
           <Form.Item>
             <AntButton type="primary" htmlType="submit">
               {editingVenueId ? "Update Venue" : "Create Venue"}
