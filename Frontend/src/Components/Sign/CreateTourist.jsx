@@ -52,7 +52,9 @@ const CreateTourist = () => {
       }
     } catch (error) {
       console.error("Error creating tourist:", error);
-      message.error("Failed to create tourist.");
+      const errorDetails = error.response?.data?.error || "Failed to create tourist.";
+      // Display the error message with the custom prefix
+      message.error(`Failed to create tourist: ${errorDetails}`);
     }
   };
 
@@ -115,10 +117,14 @@ const CreateTourist = () => {
 
           <Form.Item
             label="Mobile number"
-            name="mobile_number" // Adjust the name to follow snake_case
+            name="mobile_number"
             rules={[
               { required: true, message: "Please input your mobile number!" },
               { len: 13, message: "Mobile number must be 13 digits!" },
+              {
+                pattern: /^\+20\d{10}$/,
+                message: "Mobile number must start with +20",
+              },
             ]}
           >
             <Input />
@@ -137,10 +143,19 @@ const CreateTourist = () => {
           <Form.Item
             label="DOB"
             name="dob"
-            rules={[{ required: true, message: "Please input your DOB!" }]}
+            rules={[
+              { required: true, message: "Please input your DOB!" },
+              {
+                validator: (_, value) =>
+                  value && value.isAfter(new Date())
+                    ? Promise.reject(new Error("DOB cannot be in the future!"))
+                    : Promise.resolve(),
+              },
+            ]}
           >
             <DatePicker />
           </Form.Item>
+
 
           <Form.Item
             label="Occupation"
