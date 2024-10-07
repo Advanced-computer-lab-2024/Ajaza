@@ -19,7 +19,7 @@ exports.getAllProducts = async (req, res) => {
   try {
     const products = await Product.find({hidden: { $ne: true }/*, archived: { $ne: true },*/});
     if(!products || products.length === 0){
-      return res.status(404).json({ message: "No products found" });
+      //return res.status(404).json({ message: "No products found" });
     }
     res.status(200).json(products);
   } catch (error) {
@@ -32,7 +32,7 @@ exports.getAllProductsEH = async (req, res) => {
   try {
     const products = await Product.find();
     if(!products || products.length === 0){
-      return res.status(404).json({ message: "No products found" });
+      //return res.status(404).json({ message: "No products found" });
     }
     res.status(200).json(products);
   } catch (error) {
@@ -252,13 +252,13 @@ exports.viewMyProducts = async (req, res) => {
     if(isSeller){
       const products = await Product.find({sellerId: id, hidden: { $ne: true }/*, archived: { $ne: true },*/});
       if(!products || products.length === 0){
-        return res.status(404).json({ message: "No products found" });
+        //return res.status(404).json({ message: "No products found" });
       }
       res.status(200).json(products);
     } else {
       const products = await Product.find({adminId: id, hidden: { $ne: true }/*, archived: { $ne: true },*/});
       if(!products || products.length === 0){
-        return res.status(404).json({ message: "No products found" });
+        //return res.status(404).json({ message: "No products found" });
       }
       res.status(200).json(products);
     }
@@ -371,7 +371,7 @@ exports.searchProduct = async (req, res) => {
       /*archived: { $ne: true },*/
     });
     if (products.length === 0) {
-      return res.status(404).json({ message: "No products found" });
+      //return res.status(404).json({ message: "No products found" });
     }
     res.status(200).json(products);
   } catch (error) {

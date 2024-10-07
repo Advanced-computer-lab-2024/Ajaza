@@ -113,7 +113,7 @@ exports.getAllVisibleVenues = async (req, res) => {
     // Find venues where isVisible is true
     const venues = await Venue.find({ isVisible: true });
     if(!venues || venues.length === 0) {
-      return res.status(404).json({ message: "No visible venues found" });
+      //return res.status(404).json({ message: "No visible venues found" });
     }
     res.status(200).json(venues);
   } catch (error) {

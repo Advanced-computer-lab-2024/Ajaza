@@ -302,7 +302,7 @@ exports.readActivitiesOfAdvertiser = async (req, res) => {
       const activities = await Activity.find({ advertiserId, hidden: false });
       
       if (!activities || activities.length === 0) {
-        return res.status(404).json({ message: 'No activities found for this advertiser.' });
+        //return res.status(404).json({ message: 'No activities found for this advertiser.' });
       }
       res.status(200).json(activities);
   } catch (error) {
@@ -406,7 +406,7 @@ exports.getUpcomingActivities = async (req, res) => {
     });
 
     if(!upcomingActivities || upcomingActivities.length === 0){
-      return res.status(404).json({ message: "No upcoming activities found" });
+      //return res.status(404).json({ message: "No upcoming activities found" });
     }
 
     res.status(200).json(upcomingActivities);

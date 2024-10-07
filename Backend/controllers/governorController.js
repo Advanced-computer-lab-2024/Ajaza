@@ -96,7 +96,7 @@ exports.readAllGovernorVenues = async (req, res) => {
     const venues = await Venue.find({ governorId, isVisible: true });
 
     if (!venues || venues.length === 0) {
-      return res.status(404).json({ message: 'No venues found for this governor.' });
+      //return res.status(404).json({ message: 'No venues found for this governor.' });
     }
 
     res.status(200).json(venues);
@@ -179,7 +179,7 @@ exports.getGovernorVenues = async (req, res) => {
     const venues = await Venue.find({ governorId, isVisible: true });
 
     if (!venues || venues.length === 0) {
-      return res.status(404).json({ message: 'No venues found for this governor' });
+      //return res.status(404).json({ message: 'No venues found for this governor' });
     }
 
     res.status(200).json(venues);

@@ -238,7 +238,7 @@ exports.readItinerariesOfGuide = async (req, res) => {
       return res.status(400).json({ message: 'The profile is still pending approval.' });
     }
     if (!itineraries || itineraries.length === 0) {
-      return res.status(404).json({ message: 'No itineraries found for this guide.' });
+      //return res.status(404).json({ message: 'No itineraries found for this guide.' });
     }
 
     res.status(200).json(itineraries);
@@ -351,7 +351,7 @@ exports.getUpcomingItineraries = async (req, res) => {
       });
 
     if(!itineraries || itineraries.length === 0) {
-      return res.status(404).json({ message: "No upcoming itineraries found" });
+      //return res.status(404).json({ message: "No upcoming itineraries found" });
     }
 
     res.status(200).json(itineraries);
