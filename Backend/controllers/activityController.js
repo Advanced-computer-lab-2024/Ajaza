@@ -381,8 +381,15 @@ exports.updateActivityFilteredFields = async (req, res) => {
     if (time) activity.time = time; 
     if (location) activity.location = location;
     if (price) activity.price = price;
-    if (category) {const categoryNames = await Category.find({ _id: { $in: category } }, 'category').lean(); const categoryNamesArray = categoryNames.map(category => category.category); activity.category = categoryNamesArray; };
-    if (tags) {const tagNames = await Tag.find({ _id: { $in: tags } }, 'tag').lean(); const tagNamesArray = tagNames.map(tag => tag.tag); activity.tags = tagNamesArray; }
+    if (category) { // Check if category is provided
+      if (category === null || category === '') {
+          activity.category = []; // Set to empty array if no category
+      } else {
+          const categoryNames = await Category.find({ _id: category }, 'category').lean();
+          const categoryNamesArray = categoryNames.map(cat => cat.category);
+          activity.category = categoryNamesArray; // Store the names of the selected categories
+      }
+  }    if (tags) {const tagNames = await Tag.find({ _id: { $in: tags } }, 'tag').lean(); const tagNamesArray = tagNames.map(tag => tag.tag); activity.tags = tagNamesArray; }
     if (discounts) activity.discounts = discounts;
 
     const updatedActivity = await activity.save();

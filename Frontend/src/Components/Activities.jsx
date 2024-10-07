@@ -110,9 +110,21 @@
                     if (key === "tags") {
                         const originalTags = originalActivity.tags.map(tag => tag.toString());
                         const newTags = values.tags.map(tag => tag.toString());
-                        
+        
                         if (JSON.stringify(originalTags) !== JSON.stringify(newTags)) {
                             updatedFields[key] = newTags;
+                        }
+                    }else if (key === "category") {
+                        const selectedCategories = values.category || []; // Ensure it’s an array
+                        
+                        // If selectedCategories is empty, set it to an empty array
+                        if (selectedCategories.length === 0) {
+                            updatedFields[key] = []; // or use `null` based on your requirement
+                        } else {
+                            // Only update if the selected categories have changed
+                            if (JSON.stringify(originalActivity.category) !== JSON.stringify(selectedCategories)) {
+                                updatedFields[key] = selectedCategories; // Store the selected category IDs directly
+                            }
                         }
                     } else if (values[key] !== originalActivity[key]) {
                         updatedFields[key] = values[key];
@@ -171,7 +183,7 @@
                 location: activity.location,
                 upper: activity.upper,
                 lower: activity.lower,
-                category: activity.category,
+                category: activity.category.length > 0 ? activity.category : null,
                 tags: activity.tags,
                 discounts: activity.discounts,
                 spots: activity.spots,
@@ -222,7 +234,7 @@
                                             <p><strong>Date:</strong> {new Date(activity.date).toLocaleDateString()}</p>
                                             <p><strong>Upper Limit:</strong> {activity.upper}</p>
                                             <p><strong>Lower Limit:</strong> {activity.lower}</p>
-                                            <p><strong>Categories:</strong> {categories.find(cat => cat._id.toString() === activity.category.toString())?.category || 'None'}</p>                                     
+                                            <p><strong>Categories:</strong> {activity.category.length > 0 ? activity.category.join(", ") : 'None'}</p>
                                             <p><strong>Tags:</strong> {activity.tags.map((tagId) => tags.find(tag => tag._id === tagId)?.tag || tagId).join(", ")}</p>                                        <p><strong>Available Spots:</strong> {activity.spots}</p>
                                             <p><strong>Discounts:</strong> {activity.discounts}</p>
                                         </div>
