@@ -68,13 +68,14 @@ const SignIn = () => {
           if (decodedToken?.userDetails?.pending) {
             message.error("Account is still pending");
             return;
-          }
-          if (!decodedToken?.userDetails?.acceptedTerms) {
+          } else if (decodedToken?.userDetails?.acceptedTerms == false) {
             message.error(
               "Account has not yet accepted the terms of services (TODO redirect to term)"
             );
+            localStorage.setItem("token", apiResponse.data.token); // TODO
+          } else {
+            localStorage.setItem("token", apiResponse.data.token);
           }
-          localStorage.setItem("token", apiResponse.data.token);
 
           navigate(`/${decodedToken.role}`);
         }
@@ -86,7 +87,7 @@ const SignIn = () => {
       } catch (error) {
         if (error?.response?.data?.message) {
           setFeedbackMessage(error?.response?.data?.message);
-          message.error(feedbackMessage);
+          message.error(error?.response?.data?.message);
         }
         console.error("Error fetching data:", error);
       }
