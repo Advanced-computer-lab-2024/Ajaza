@@ -70,7 +70,9 @@ const CreateTourGuide = () => {
       console.log(error.response); // TODO
 
       console.error("Error creating tour guide:", error);
-      message.error("Failed to create tour guide,");
+      const errorDetails = error.response?.data?.error || "Failed to create tour guide.";
+      // Display the error message with the custom prefix
+      message.error(`Failed to create tour guide: ${errorDetails}`);
     }
   };
 
