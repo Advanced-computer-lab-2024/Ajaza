@@ -39,15 +39,15 @@ const CreateTourGuide = () => {
       formData.append("pass", values.password);
       formData.append("email", values.email);
 
-      if (values.document1 && values.document1.length > 0) {
-        formData.append("id", values.document1[0].originFileObj);
-      }
+      // if (values.document1 && values.document1.length > 0) {
+      //   formData.append("id", values.document1[0].originFileObj);
+      // }
 
-      if (values.document2 && values.document2.length > 0) {
-        for (let i = 0; i < values.document2.length; i++) {
-          formData.append("certificates", values.document2[i].originFileObj);
-        }
-      }
+      // if (values.document2 && values.document2.length > 0) {
+      //   for (let i = 0; i < values.document2.length; i++) {
+      //     formData.append("certificates", values.document2[i].originFileObj);
+      //   }
+      // }
 
       const response = await axios.post(
         "http://localhost:5000/guide/guestGuideCreateProfile",
