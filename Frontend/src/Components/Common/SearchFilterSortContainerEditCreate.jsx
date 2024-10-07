@@ -14,6 +14,7 @@ import {
   Select,
   Dropdown,
   Typography,
+  
 } from "antd";
 import {
   EditOutlined,
@@ -22,7 +23,7 @@ import {
   UploadOutlined,
 } from "@ant-design/icons";
 import Search from "./Search";
-import { DownOutlined } from "@ant-design/icons";
+import { DownOutlined , InboxOutlined } from "@ant-design/icons";
 import { apiUrl } from "./Constants";
 import axios from "axios";
 import CustomButton from "./CustomButton";
@@ -182,6 +183,9 @@ const SearchFilterSortContainerEditCreate = ({
   const [filterCriteria, setFilterCriteria] = useState(null);
   const [filterField, setFilterField] = useState(null);
   const [form] = Form.useForm();
+  const [fileList, setFileList] = useState([]);
+  const { Dragger } = Upload;
+
 
   const span = 24 / cardsPerRow;
 
@@ -422,6 +426,7 @@ const SearchFilterSortContainerEditCreate = ({
     }
     return e?.fileList;
   };
+  const handleFileChange = ({ fileList: newFileList }) => setFileList(newFileList);
 
   return (
     <>
@@ -536,16 +541,20 @@ const SearchFilterSortContainerEditCreate = ({
             name="photo"
             valuePropName="fileList"
             getValueFromEvent={normFile}
-            extra="Upload your certificates."
           >
-            <Upload
+            <Dragger
               name="photo"
               listType="text"
+              fileList={fileList}
+              onChange={handleFileChange}
               beforeUpload={() => false}
               maxCount={1}
             >
-              <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
-            </Upload>
+               <p className="ant-upload-drag-icon">
+                                <InboxOutlined />
+                            </p>
+                            <p className="ant-upload-text">Click or drag file to this area to upload</p>
+            </Dragger>
           </Form.Item>
 
           <Form.Item>
