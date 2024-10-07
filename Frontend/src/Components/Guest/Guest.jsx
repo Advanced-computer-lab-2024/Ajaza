@@ -48,7 +48,7 @@ const Guest = () => {
   ];
 
   return (
-    <CustomLayout sideBarItems={sideBarItems}>
+    <CustomLayout guest={true} sideBarItems={sideBarItems}>
       <Routes>
         <Route path="/" element={<Plans />} />
         <Route path="profile" element={<Profile />} />

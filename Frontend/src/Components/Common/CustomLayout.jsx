@@ -17,10 +17,16 @@ import IconFloatButton from "./IconFloatButton";
 import { Colors } from "./Constants";
 import CustomButton from "./CustomButton";
 import { jwtDecode } from "jwt-decode";
+import image from "../../Assets/logo.svg";
 
 const { Header, Sider, Content } = Layout;
 
-const CustomLayout = ({ userType = "Tour Guide", children, sideBarItems }) => {
+const CustomLayout = ({
+  userType = "Tour Guide",
+  guest,
+  children,
+  sideBarItems,
+}) => {
   // navBar:Boolean true->Normal navbar, false-> landing page navBar
   const testFunction = () => {
     console.log("Test");
@@ -38,6 +44,21 @@ const CustomLayout = ({ userType = "Tour Guide", children, sideBarItems }) => {
   const [collapsed, setCollapsed] = useState(true);
   const [hover, setHover] = useState(false);
   const navigate = useNavigate();
+  const guestNavBarItems = (
+    <div style={{ marginLeft: "auto" }}>
+      <CustomButton
+        size={"s"}
+        value={"Sign in"}
+        onClick={() => navigate("/auth/signin")}
+      />
+      <CustomButton
+        size={"s"}
+        value={"Sign up"}
+        style={{ marginLeft: "20px" }}
+        onClick={() => navigate("/auth/signup")}
+      />
+    </div>
+  );
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -96,7 +117,7 @@ const CustomLayout = ({ userType = "Tour Guide", children, sideBarItems }) => {
               height: 64,
             }}
           />
-          {navBarItems}
+          {guest ? guestNavBarItems : navBarItems}
         </Header>
         <Content
           style={{
