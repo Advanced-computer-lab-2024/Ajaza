@@ -184,6 +184,7 @@ exports.createSpecifiedItinerary = async (req, res) => {
       accessibility,
       pickUp,
       dropOff,
+      tags,
       maxTourists
     } = req.body;
     const guide = await Guide.findById(guideId);
@@ -213,7 +214,7 @@ exports.createSpecifiedItinerary = async (req, res) => {
       maxTourists,
       hidden: false,
       active: true,
-      tags: [],
+      tags,
     });
     //const newItinerary = new Itinerary(req.body);
     
@@ -260,6 +261,7 @@ exports.updateItineraryFilteredFields = async (req, res) => {
       accessibility,
       pickUp,
       dropOff,
+      tags,
       maxTourists
     } = req.body; 
     const guide = await Guide.findById(guideId);
@@ -286,7 +288,8 @@ exports.updateItineraryFilteredFields = async (req, res) => {
     if (pickUp) itinerary.pickUp = pickUp;
     if (dropOff) itinerary.dropOff = dropOff;
     if (maxTourists) itinerary.maxTourists = maxTourists;
-
+    if (tags) itinerary.tags = tags;
+    
     const updatedItinerary = await itinerary.save();
 
     res.status(200).json(updatedItinerary);

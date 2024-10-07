@@ -37,6 +37,8 @@ const Itineraries = () => {
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingItineraryId, setEditingItineraryId] = useState(null);
+  const [tags, setTags] = useState([]);
+
   const [form] = Form.useForm();
   const [options, setOptions] = useState([]);
 
@@ -85,8 +87,20 @@ const Itineraries = () => {
     }
   };
 
+  const fetchTags = async () => {
+    try {
+        const response = await apiClient.get("tag");
+        setTags(response.data);
+        console.log(response.data)
+} catch (error) {
+        console.error("Error fetching tags:", error);
+        setTags([]);
+    }
+};
+
   useEffect(() => {
     fetchItineraries();
+    fetchTags();
   }, []);
 
   const createItinerary = async (values) => {
@@ -104,6 +118,7 @@ const Itineraries = () => {
         dropOff: values.dropOff,
         accessibility: values.accessibility,
         maxTourists: values.maxTourists,
+        tags: values.tags,
         active: values.active || true,
         timeline: (values.timeline || []).map((entry) => ({
           start: entry.start,
@@ -113,10 +128,8 @@ const Itineraries = () => {
         })),
         feedback: [],
       };
-      const response = await apiClient.post(
-        `/itinerary/createSpecifiedItinerary/${userid}`,
-        newItinerary
-      );
+
+      const response = await apiClient.post(`/itinerary/createSpecifiedItinerary/${userid}`, newItinerary);
       setItinerariesData([...itinerariesData, response.data]);
       message.success("Itinerary created successfully!");
       setIsModalVisible(false);
@@ -275,8 +288,22 @@ const Itineraries = () => {
                   title={itinerary.name}
                   description={
                     <div>
-                      <p>
-                        <strong>Price:</strong> {itinerary.price}
+                      <p><strong>Price:</strong> {itinerary.price}</p>
+                      <p><strong>Language:</strong> {itinerary.language}</p>
+                      <p><strong>Pick Up Location:</strong> {itinerary.pickUp}</p>
+                      <p><strong>Drop Off Location:</strong> {itinerary.dropOff}</p>
+                      <p><strong>Maximum Tourists:</strong> {itinerary.maxTourists}</p>
+                      <p><strong>Tags:</strong> {itinerary.tags.map((tagId) => tags.find(tag => tag._id === tagId)?.tag || tagId).join(", ")}</p>                                        
+                      <p><strong>Active:</strong> {itinerary.active ? "Yes" : "No"}</p>
+                      <p><strong>Accessibility:</strong> {itinerary.accessibility || "Not specified"}</p>
+                      <p><strong>Available Dates:</strong> 
+                        {itinerary.availableDateTime.length > 0 ? (
+                          itinerary.availableDateTime.map(dateEntry => 
+                            `${new Date(dateEntry.date).toLocaleDateString()} (Spots: ${dateEntry.spots})`
+                          ).join(", ")
+                        ) : (
+                          "No available dates"
+                        )}
                       </p>
                       <p>
                         <strong>Language:</strong> {itinerary.language}
@@ -438,6 +465,20 @@ const Itineraries = () => {
             <Form.Item name="active" label="Active" valuePropName="checked">
               <Switch />
             </Form.Item>
+            <Form.Item name="tags" label="Tags">
+              <Select
+                mode="multiple"
+                placeholder="Select Tags"
+                allowClear
+              >
+                {tags.map((tag) => (
+                  <Select.Option key={tag._id} value={tag.tag}>
+                    {tag.tag}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+
 
             <Form.List name="timeline">
               {(fields, { add, remove }) => (
