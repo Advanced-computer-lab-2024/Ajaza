@@ -89,14 +89,14 @@ const Itineraries = () => {
 
   const fetchTags = async () => {
     try {
-        const response = await apiClient.get("tag");
-        setTags(response.data);
-        console.log(response.data)
-} catch (error) {
-        console.error("Error fetching tags:", error);
-        setTags([]);
+      const response = await apiClient.get("tag");
+      setTags(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error fetching tags:", error);
+      setTags([]);
     }
-};
+  };
 
   useEffect(() => {
     fetchItineraries();
@@ -129,7 +129,10 @@ const Itineraries = () => {
         feedback: [],
       };
 
-      const response = await apiClient.post(`/itinerary/createSpecifiedItinerary/${userid}`, newItinerary);
+      const response = await apiClient.post(
+        `/itinerary/createSpecifiedItinerary/${userid}`,
+        newItinerary
+      );
       setItinerariesData([...itinerariesData, response.data]);
       message.success("Itinerary created successfully!");
       setIsModalVisible(false);
@@ -288,22 +291,8 @@ const Itineraries = () => {
                   title={itinerary.name}
                   description={
                     <div>
-                      <p><strong>Price:</strong> {itinerary.price}</p>
-                      <p><strong>Language:</strong> {itinerary.language}</p>
-                      <p><strong>Pick Up Location:</strong> {itinerary.pickUp}</p>
-                      <p><strong>Drop Off Location:</strong> {itinerary.dropOff}</p>
-                      <p><strong>Maximum Tourists:</strong> {itinerary.maxTourists}</p>
-                      <p><strong>Tags:</strong> {itinerary.tags.map((tagId) => tags.find(tag => tag._id === tagId)?.tag || tagId).join(", ")}</p>                                        
-                      <p><strong>Active:</strong> {itinerary.active ? "Yes" : "No"}</p>
-                      <p><strong>Accessibility:</strong> {itinerary.accessibility || "Not specified"}</p>
-                      <p><strong>Available Dates:</strong> 
-                        {itinerary.availableDateTime.length > 0 ? (
-                          itinerary.availableDateTime.map(dateEntry => 
-                            `${new Date(dateEntry.date).toLocaleDateString()} (Spots: ${dateEntry.spots})`
-                          ).join(", ")
-                        ) : (
-                          "No available dates"
-                        )}
+                      <p>
+                        <strong>Price:</strong> {itinerary.price}
                       </p>
                       <p>
                         <strong>Language:</strong> {itinerary.language}
@@ -325,6 +314,10 @@ const Itineraries = () => {
                       <p>
                         <strong>Accessibility:</strong>{" "}
                         {itinerary.accessibility || "Not specified"}
+                      </p>
+                      <p>
+                        <strong>Tags:</strong>{" "}
+                        {itinerary.tags?.join(", ") || "None"}
                       </p>
                       <p>
                         <strong>Available Dates:</strong>
@@ -466,11 +459,7 @@ const Itineraries = () => {
               <Switch />
             </Form.Item>
             <Form.Item name="tags" label="Tags">
-              <Select
-                mode="multiple"
-                placeholder="Select Tags"
-                allowClear
-              >
+              <Select mode="multiple" placeholder="Select Tags" allowClear>
                 {tags.map((tag) => (
                   <Select.Option key={tag._id} value={tag.tag}>
                     {tag.tag}
@@ -478,7 +467,6 @@ const Itineraries = () => {
                 ))}
               </Select>
             </Form.Item>
-
 
             <Form.List name="timeline">
               {(fields, { add, remove }) => (
