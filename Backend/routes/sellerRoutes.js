@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const sellerController = require('../controllers/sellerController');
 const uploadIdTaxImage = require('../middleware/uploadIdTaxImage');
-const uploadLogoImage = require('../middleware/uploadImage');
+const uploadLogoImage = require('../middleware/uploadLogoImage');
 const validateEmail = require('../middleware/validateEmail');
 const uniqueEmail = require('../middleware/uniqueEmail');
 const uniqueUsername = require("../middleware/uniqueUsername");
@@ -27,7 +27,7 @@ router.post('/guestSellerCreateProfile', validateEmail, uniqueEmail, uniqueUsern
 // req9
 router.post('/sellerCreateProfile/:id', sellerController.sellerCreateProfile);    // Seller sign up
 router.get('/sellerReadProfile/:id', sellerController.sellerReadProfile);    // Seller read profile
-router.patch('/sellerUpdateProfile/:id', validateEmail, uniqueEmail, sellerController.sellerUpdateProfile);  // Seller update profile
+router.patch('/sellerUpdateProfile/:id', validateEmail, uniqueEmail,uploadLogoImage, sellerController.sellerUpdateProfile);  // Seller update profile
 router.delete('/sellerDeleteHimself/:id',sellerController.sellerDeleteHimself);  // Seller delete himself
 
 

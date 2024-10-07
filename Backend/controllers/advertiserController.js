@@ -181,7 +181,7 @@ exports.deleteAdvertisersRequestingDeletion = async (req, res) => {
 
 //new req 8
 exports.advertiserUpdateProfile = async (req, res) => {
-  const allowedFields = ["email", "link", "hotline", "companyProfile"];
+  const allowedFields = ["email", "link", "hotline", "companyProfile", "logo"];
 
   const filteredBody = Object.keys(req.body)
     .filter((key) => allowedFields.includes(key))

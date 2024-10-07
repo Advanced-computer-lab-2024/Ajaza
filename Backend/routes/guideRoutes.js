@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const guideController = require('../controllers/guideController');
-const uploadPhotoImage = require('../middleware/uploadImage');
+const uploadPhotoImage = require('../middleware/uploadPhotoImage');
 const validateEmail = require('../middleware/validateEmail');
 const uniqueEmail = require('../middleware/uniqueEmail');
 const uniqueUsername = require("../middleware/uniqueUsername");
@@ -26,7 +26,7 @@ router.post('/:touristId/guide/:itineraryId/feedback', guideController.giveGuide
 //req 7 
 router.post('/addGuide/:id', validateMobile, guideController.createGuideProfile);
 router.get('/getGuideProfile/:id', guideController.getGuideProfile);
-router.patch('/updateGuideProfile/:id', validateMobile, guideController.updateGuideProfile);
+router.patch('/updateGuideProfile/:id', validateMobile, uploadPhotoImage, guideController.updateGuideProfile);
 
 //req5  -- Tatos
 router.post('/guestGuideCreateProfile',validateEmail,uniqueUsername, uniqueEmail, uploadIdCertificatesImage, guideController.guestGuideCreateProfile);    // Guest Guide sign up

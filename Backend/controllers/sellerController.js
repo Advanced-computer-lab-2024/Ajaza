@@ -208,7 +208,7 @@ exports.sellerUpdateProfile = async (req, res) => {
   const sellerId = req.params.id;
 
   // Allowed fields for update
-  const allowedFields = ["email", "name", "desc"];
+  const allowedFields = ["email", "name", "desc", "logo"];
 
   // Filter the request body
   const filteredBody = {};
