@@ -120,3 +120,19 @@ exports.getAllVisibleVenues = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+//uploadPhotos for specific venue
+exports.uploadVenuePictures = async (req, res) => {
+  try {
+    const venue = await Venue.findById(req.params.venueId);
+    const pictures = req.body.pictures;
+    if (!venue) {
+      return res.status(404).json({ message: "Venue not found" });
+    }
+    venue.pictures = pictures;
+    await venue.save();
+    res.status(200).json(venue);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};

@@ -34,7 +34,7 @@ const uploadVenuePicturesImage = async (req, res, next) => {
           const savedImg = await imgDoc.save();
 
           const newFilename = `${savedImg._id}.jpg`;
-          const newPath = path.join("../Frontend/src/uploads", newFilename);
+          const newPath = path.join("../Frontend/public/uploads", newFilename);
 
           fs.rename(idFile.path, newPath, async (renameErr) => {
             if (renameErr) {
@@ -52,11 +52,10 @@ const uploadVenuePicturesImage = async (req, res, next) => {
       next();
     } catch (error) {
       return res
-        .status(500)
-        .json({ error: "picturesbottom mw" + error.message });
+        .status(500).json({ error: "picturesbottom mw" + error.message });
     }
   });
-  next();
+  //next();
 };
 
 module.exports = uploadVenuePicturesImage;
