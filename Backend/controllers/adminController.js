@@ -115,7 +115,7 @@ exports.adminDeletesAdminFromSystem = async (req, res) => {
     const categoriesToRemove = result2.map((category) => category.category);
     let activities = await Activity.find({});
     const filteredActivities = activities.filter(activity => 
-      categoriesToRemove.includes(activity.category)
+      activity.category.some(category => categoriesToRemove.includes(category))
     );
     for (let activity of filteredActivities) {
       await Activity.deleteOne({ _id: activity._id });
@@ -124,7 +124,7 @@ exports.adminDeletesAdminFromSystem = async (req, res) => {
       );
       await activity.save();*/
     }
-    //await Category.deleteMany({ adminId: adminId });
+    await Category.deleteMany({ adminId: adminId });
 
     //removing tags posted by admin and updating activities/itineraries/venues accordingly
     let result3 = await Tag.find({ adminId: adminId });
