@@ -3,6 +3,9 @@ import axios from "axios";
 import { Card, Button, Typography, Modal, Input, message } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { apiUrl } from "../Common/Constants";
+import Admin from "./Admin";
+import { jwtDecode } from "jwt-decode";
+
 
 const { Title } = Typography;
 
@@ -81,8 +84,11 @@ const ManagePreferenceTags = () => {
     }
 
     try {
+      const token = localStorage.getItem("token");
+      const decodedToken = jwtDecode(token);
+      console.log(decodedToken);
       const response = await axios.post( apiUrl + "tag", {
-        tag: newtagName,
+        tag: newtagName, adminId: decodedToken.userDetails._id,
       });
 
       if (response.status === 201) {
