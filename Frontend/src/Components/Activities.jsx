@@ -304,11 +304,7 @@ const Activities = () => {
                       <strong>Lower Limit:</strong> {activity.lower}
                     </p>
                     <p>
-                      <strong>Categories:</strong>{" "}
-                      {categories.find(
-                        (cat) =>
-                          cat._id.toString() === activity.category.toString()
-                      )?.category || "None"}
+                      <strong>Categories:</strong> {activity.category}
                     </p>
                     <p>
                       <strong>Tags:</strong>{" "}
