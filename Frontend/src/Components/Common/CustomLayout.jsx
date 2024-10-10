@@ -17,7 +17,8 @@ import IconFloatButton from "./IconFloatButton";
 import { Colors } from "./Constants";
 import CustomButton from "./CustomButton";
 import { jwtDecode } from "jwt-decode";
-import image from "../../Assets/logo.svg";
+import image from "../../Assets/logo-cropped.svg";
+import style from "./CustomLayout.module.css";
 
 const { Header, Sider, Content } = Layout;
 
@@ -69,20 +70,43 @@ const CustomLayout = ({
     setUser(decodedToken.userDetails);
 
     setNavBarItems(
-      <Flex align={"center"} style={{ marginLeft: "auto" }}>
-        <IconFloatButton icon={BellFilled} badge={{ count: 5 }} />
-        {decodedToken.role !== "governor" && decodedToken.role !== "admin" && (
-          <UserOutlined
-            className="hover"
-            style={{ fontSize: "20px", marginLeft: "30px" }}
-            onClick={() => {
-              navigate(`/${decodedToken.role}/profile`);
+      <Flex justify="center" style={{ width: "100%", position: "relative" }}>
+        <div
+          id="logo"
+          style={{ position: "relative", right: 40, bottom: 3 }}
+          onClick={() => navigate("/")}
+        >
+          <img
+            src={image}
+            alt="Ajaza Logo"
+            style={{
+              width: "58px",
             }}
           />
-        )}
-
+        </div>
+        <Flex
+          align={"center"}
+          style={{
+            position: "absolute",
+            right: "28px",
+            top: "0",
+            bottom: "0",
+            margin: "auto 0",
+          }}
+        >
+          <IconFloatButton icon={BellFilled} badge={{ count: 5 }} />
+          {decodedToken.role !== "governor" &&
+            decodedToken.role !== "admin" && (
+              <UserOutlined
+                className="hover"
+                style={{ fontSize: "20px", marginLeft: "30px" }}
+                onClick={() => {
+                  navigate(`/${decodedToken.role}/profile`);
+                }}
+              />
+            )}
+        </Flex>
       </Flex>
-    
     );
   }, []);
   return (
@@ -104,11 +128,12 @@ const CustomLayout = ({
       </Sider>
       <Layout>
         <Header
+          className={style.navShadow}
           style={{
-            padding: 0,
             background: colorBgContainer,
             display: "flex",
-            paddingRight: "20px",
+            padding: 0,
+            paddingRight: 0,
           }}
         >
           <Button

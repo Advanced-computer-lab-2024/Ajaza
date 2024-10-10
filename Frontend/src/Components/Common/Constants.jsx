@@ -56,24 +56,22 @@ export const getUniqueTags = (data) => {
 };
 
 export const comparePriceRange = (filterCriteria, element) => {
-  console.log("ele", element);
   if (!element.price) {
     return false;
   }
+
   // filterCriteria is one of the values that we can filter with
   const [num1, num2] = filterCriteria;
   const min = Math.min(num1, num2);
   const max = Math.max(num1, num2);
 
-  if (!typeof element["price"] == Number) {
-    console.log("upper", element.upper);
-    console.log("lower", element.lower);
-
-    if (element.upper < max && element.lower > min) {
+  if (element["price"].length != null) {
+    if (element.upper <= max && element.lower >= min) {
       return true;
     }
     return false;
   }
+  console.log("barra");
 
   return element?.price >= min && element.price <= max; // inclusive range
 };
