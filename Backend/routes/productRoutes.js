@@ -31,6 +31,10 @@ router.post("/:id/product/adminSellerAddProduct", uploadPhotoImage, productContr
 //req88     // Admin/Seller Edit product      --Tatos
 router.patch("/:id/product/:productId/adminSellerEditProduct",productController.adminSellerEditProduct); //AdminSeller Edit product
 
+
+//req89     // Admin/Seller archive/unarchive products      --Tatos
+router.patch("/:id/product/:productId/adminSellerArchiveProduct",productController.adminSellerArchiveProduct); //AdminSeller Archive/Unarchive product
+
 // get my products admin/seller
 router.get("/viewMyProducts/:id", productController.viewMyProducts);
 module.exports = router;
