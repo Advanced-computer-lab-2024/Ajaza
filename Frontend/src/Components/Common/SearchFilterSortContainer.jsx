@@ -73,10 +73,10 @@ const sortElements = (elements, sortField, sortAsc) => {
     let aValue = a[sortField];
     let bValue = b[sortField];
     if (sortField == "price") {
-      if (!typeof aValue == Number) {
+      if (a[sortField].length != null) {
         aValue = a.lower;
       }
-      if (!typeof bValue == Number) {
+      if (b[sortField].length != null) {
         bValue = b.lower;
       }
     }
@@ -320,43 +320,47 @@ const SearchFilterSortContainer = ({
 
   return (
     <>
-      <Flex align="center">
+      <Flex align="center" justify="center" style={{ marginBottom: "30px" }}>
         {searchFields ? (
           <Search
             activateHover={false}
             searchValue={searchValue}
             setSearchValue={setSearchValue}
+            style={{ width: "600px" }}
+            inputStyleParam={{ paddingLeft: "40px" }}
           />
         ) : null}
 
-        <Dropdown
-          menu={{
-            selectable: true,
-            items: filterItems,
-          }}
-        >
-          <a onClick={(e) => e.preventDefault()} style={{ marginLeft: "auto" }}>
-            <Space>
-              Filter
-              <DownOutlined />
-            </Space>
-          </a>
-        </Dropdown>
+        <Flex style={{ position: "absolute", right: "70px" }}>
+          <Dropdown
+            menu={{
+              selectable: true,
+              items: filterItems,
+            }}
+          >
+            <a onClick={(e) => e.preventDefault()}>
+              <Space>
+                Filter
+                <DownOutlined />
+              </Space>
+            </a>
+          </Dropdown>
 
-        <Dropdown
-          menu={{
-            items: sortItems,
-            selectable: true,
-            defaultSelectedKeys: ["3"],
-          }}
-        >
-          <Typography.Link style={{ marginLeft: "30px" }}>
-            <Space>
-              Sort
-              <DownOutlined />
-            </Space>
-          </Typography.Link>
-        </Dropdown>
+          <Dropdown
+            menu={{
+              items: sortItems,
+              selectable: true,
+              defaultSelectedKeys: ["3"],
+            }}
+          >
+            <Typography.Link style={{ marginLeft: "30px" }}>
+              <Space>
+                Sort
+                <DownOutlined />
+              </Space>
+            </Typography.Link>
+          </Dropdown>
+        </Flex>
       </Flex>
       <Row gutter={[horizontalGap, verticalGap]}>
         {displayedElements?.map((element, index) => {

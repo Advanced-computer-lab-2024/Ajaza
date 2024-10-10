@@ -41,6 +41,7 @@ const Itineraries = () => {
     "Accessibility Offered": "accessibility",
     "Pick Up": "pickUp",
     "Drop off": "dropOff",
+    Tags: "tags",
   };
   const searchFields = ["name"];
   const constProps = { rateDisplay: true };
