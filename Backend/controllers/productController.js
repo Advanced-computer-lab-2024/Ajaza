@@ -388,11 +388,14 @@ exports.adminSellerArchiveProduct = async (req, res) => {
   //TODO: input validations (check ta7t el awel ashan enta 3amel a8labhom)
   const id = req.params.id;
   const productId = req.params.productId;
-  const archive = req.body.archive;
+  const archive = req.body.archived; // Direct access without conversion
 
-  // Log the IDs for debugging
-  console.log(`Received ID: ${id}`);
-  console.log(`Received Product ID: ${productId}`);
+
+  // // Log the IDs for debugging
+  // console.log(`Received ID: ${id}`);
+  // console.log(`Received Product ID: ${productId}`);
+  // console.log(`Request body archive value: ${archive}`);
+  // console.log(`Type of request body archive value: ${typeof archive}`);
 
   // Initialize flags
   let isSeller = false;
@@ -403,10 +406,10 @@ exports.adminSellerArchiveProduct = async (req, res) => {
     const seller = await Seller.findById(id);
     if (seller) {
       isSeller = true;
-      if(seller.pending){
+      if (seller.pending) {
         return res.status(403).json({ error: "Seller is pending approval" });
       }
-      if(seller.acceptedTerms === false){
+      if (seller.acceptedTerms === false) {
         return res.status(403).json({ error: "Seller has not accepted the terms" });
       }
     } else {
@@ -433,24 +436,26 @@ exports.adminSellerArchiveProduct = async (req, res) => {
       if (product.sellerId) {
         if (product.sellerId.toString() !== id) {
           return res.status(403).json({
-            error:
-              "Seller ID entered cannot update this product (Product belongs to another Seller)",
+            error: "Seller ID entered cannot update this product (Product belongs to another Seller)",
           });
         }
       } else {
         //product doesn't belong to a seller
         return res.status(403).json({
-          error:
-            "Seller ID entered cannot update this product (Product belongs to the Admin)",
+          error: "Seller ID entered cannot update this product (Product belongs to the Admin)",
         });
       }
     }
-    // Check if the product is already archived and the request body has archived set to true
+
+    // // Check if the product is already archived and the request body has archive set to true
+    // console.log(`Product archived status: ${product.archived}`);
+    // console.log(`Request body archive value: ${archive}`);
+
     if (product.archived && archive === true) {
       return res.status(400).json({ error: "Product is already archived" });
     }
 
-    // Check if the product is already archived and the request body has archived set to true
+    // Check if the product is not archived and the request body has archive set to false
     if (!product.archived && archive === false) {
       return res.status(400).json({ error: "Product is already unarchived" });
     }
@@ -468,7 +473,7 @@ exports.adminSellerArchiveProduct = async (req, res) => {
 
     // Update the product --> archived/unarchived
     try {
-      const updatedProduct = await Product.findByIdAndUpdate(productId,filteredBody,{ new: true });
+      const updatedProduct = await Product.findByIdAndUpdate(productId, filteredBody, { new: true });
       if (!updatedProduct) {
         return res.status(404).json({ message: "Product not found" });
       }
