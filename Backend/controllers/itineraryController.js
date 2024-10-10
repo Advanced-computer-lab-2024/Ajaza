@@ -262,6 +262,7 @@ exports.updateItineraryFilteredFields = async (req, res) => {
       accessibility,
       pickUp,
       dropOff,
+      active,
       tags,
       maxTourists
     } = req.body; 
@@ -290,6 +291,7 @@ exports.updateItineraryFilteredFields = async (req, res) => {
     if (pickUp) itinerary.pickUp = pickUp;
     if (dropOff) itinerary.dropOff = dropOff;
     if (maxTourists) itinerary.maxTourists = maxTourists;
+    if (active !== undefined) itinerary.active = active;
     if (tags) itinerary.tags = tags;
     
     const updatedItinerary = await itinerary.save();
