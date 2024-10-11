@@ -127,4 +127,7 @@ router.patch("/acceptTerms/:id", touristController.acceptTerms);
 //req 111
 router.get("/promoCodes/getApplicablePromoCodes/:id", touristController.getApplicablePromoCodes);
 
+//req52-57
+router.get("/history/getHistory/:id", touristController.getHistory);
+
 module.exports = router;

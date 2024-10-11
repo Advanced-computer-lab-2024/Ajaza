@@ -1,6 +1,7 @@
 const Tourist = require("../models/Tourist");
 const Activity = require("../models/Activity");
 const Itinerary = require("../models/Itinerary");
+const Guide = require("../models/Guide");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -819,3 +820,64 @@ const generateUniqueCode = async () => {
 
   return code;
 };
+
+// helper for feedback
+exports.getHistory = async (req, res) => {
+  try {
+
+    const tourist = await Tourist.findById(req.params.id)
+      .populate('activityBookings.activityId')
+      .populate('itineraryBookings.itineraryId');
+
+    if (!tourist) {
+      throw new Error('Tourist not found');
+    }
+
+    const currentDate = new Date();
+    /*
+      activity ids
+      66f6ac560f0094718a1e9e73
+      66f6ac560f0094718a1e9e74
+      66f6ac560f0094718a1e9e75
+      670433de2aa613b75f8e4935
+    */
+    /*
+      itinerary ids
+      66f6adef0f0094718a1f6050
+      66f6adef0f0094718a1f6051
+      66f6adef0f0094718a1f6052
+      66f6adef0f0094718a1f6053
+    */
+    /*guide 66f6ad970f0094718a1f366a*/
+    let activities = [];
+    for(let i = 0; i < tourist.activityBookings.length; i++){
+      if(tourist.activityBookings[i].activityId.date < currentDate){
+        activities.push({activityId: tourist.activityBookings[i].activityId._id, name: tourist.activityBookings[i].activityId.name ,date: tourist.activityBookings[i].activityId.date, gaveFeedback: (tourist.gaveFeedback.includes(tourist.activityBookings[i].activityId._id))});
+      }
+    }
+    let itineraries = [];
+    let guides = [];
+    let guideNames = [];
+    for(let i = 0; i < tourist.itineraryBookings.length; i++){
+      if(tourist.itineraryBookings[i].date < currentDate){
+        itineraries.push({itineraryId: tourist.itineraryBookings[i].itineraryId._id, name: tourist.itineraryBookings[i].itineraryId.name ,date: tourist.activityBookings[i].date, gaveFeedback: (tourist.gaveFeedback.includes(tourist.itineraryBookings[i].itineraryId._id))});
+        console.log("Itinerary guide id:", tourist.itineraryBookings[i].itineraryId.guideId);
+        console.log("Tourist gave feedback:", tourist.gaveFeedback);
+        const guideNumberOfTimesRated = tourist.gaveFeedback.filter(el => el.equals(tourist.itineraryBookings[i].itineraryId.guideId)).length;
+        const numberOfBookingsWithGuide = tourist.itineraryBookings.filter(booking => {return booking.itineraryId && booking.itineraryId.guideId.equals(tourist.itineraryBookings[i].itineraryId.guideId) && booking.date < currentDate;}).length;
+        console.log("Guide number of times rated:", guideNumberOfTimesRated);
+        console.log("Number of bookings with guide:", numberOfBookingsWithGuide);
+        const guideName = await Guide.findById(tourist.itineraryBookings[i].itineraryId.guideId).select('username');
+        if(guideName && !guideNames.includes(guideName.username)){ 
+          guides.push({guideId: tourist.itineraryBookings[i].itineraryId.guideId, name: guideName.username, gaveFeedback: (numberOfBookingsWithGuide < guideNumberOfTimesRated)});
+          guideNames.push(guideName.username);
+        }
+      }
+    }
+
+    res.status(200).json({activities: activities, itineraries: itineraries, guides: guides});
+  } catch (error) {
+    console.error("Error retrieving past activity bookings:", error);
+    throw error;
+  }
+}
