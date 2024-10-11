@@ -130,4 +130,7 @@ router.get("/promoCodes/getApplicablePromoCodes/:id", touristController.getAppli
 //req52-57
 router.get("/history/getHistory/:id", touristController.getHistory);
 
+//req63
+router.get("/future/getFutureBookings/:id", touristController.getFutureBookings);
+
 module.exports = router;
