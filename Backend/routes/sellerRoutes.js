@@ -44,5 +44,10 @@ router.post("/uploadLogo/:sellerId", uploadLogoImage, sellerController.uploadSel
 //for admin to view uploaded documents of a seller
 router.get('/getDocuments/:id', sellerController.getSellerDocuments);
 
+//accept seller
+router.put('/accept/:id', sellerController.acceptSeller);
+
+//reject seller
+router.delete('/reject/:id', sellerController.rejectSeller);
 
 module.exports = router;
