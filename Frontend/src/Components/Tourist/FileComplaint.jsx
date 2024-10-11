@@ -1,20 +1,14 @@
-
-
 import React, { useState, useEffect } from "react";
-import { Input, message } from "antd";
+import { Form, Input, message, Card } from "antd"; 
 import axios from "axios";
 import { apiUrl } from "../Common/Constants";
 import { jwtDecode } from "jwt-decode"; 
 import CustomButton from "../Common/CustomButton";
 
 const FileComplaint = () => {
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [touristId, setTouristId] = useState(null); 
-
-
+  const [touristId, setTouristId] = useState(null);
   const currentDate = new Date().toLocaleDateString(); 
-
+  const [form] = Form.useForm();
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -25,13 +19,8 @@ const FileComplaint = () => {
     }
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!title || !body) {
-      message.error("Title and body are required.");
-      return;
-    }
+  const handleSubmit = async (values) => {
+    const { title, body } = values;
 
     try {
       const response = await axios.post(`${apiUrl}complaint/fileComplaint/${touristId}`, {
@@ -39,45 +28,53 @@ const FileComplaint = () => {
         body,
       });
       message.success(response.data.message);
-      setTitle("");
-      setBody("");
+      form.setFieldsValue({ title:'', body:''});
     } catch (error) {
-      message.error(error.response?.data?.message || "Failed to file complaint.");
+      message.error("Failed to file complaint.");
     }
   };
 
   return (
-    <div>
-      <h2>File a Complaint</h2>
-      <p>Date: {currentDate}</p> 
-      <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
-        <div>
-          <label>
-            Title:
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
+    <div style={{ 
+      padding: "20px", 
+      background: "#ffffff", 
+      display: 'flex', 
+      justifyContent: 'center' 
+    }}>
+      <Card
+        style={{ 
+          background: "#fff", 
+          padding: "15px",
+          borderRadius: "8px", 
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)", 
+          width: "400px"
+        }}
+      >
+        <h2 style={{ fontSize: '20px', textAlign: 'center' }}>File a Complaint</h2> 
+        <p style={{ textAlign: 'center' }}>Date: {currentDate}</p>
+        <Form onFinish={handleSubmit} layout="vertical">
+          <Form.Item
+          
+            name="title"
+            rules={[{ required: true, message: "Title is required." }]}
+          >
+            <Input placeholder="Title"/>
+          </Form.Item>
+          <Form.Item
+            name="body"
+            rules={[{ required: true, message: "Problem description is required." }]}
+          >
+            <Input.TextArea 
+              autoSize={{ minRows: 3, maxRows: 6 }} placeholder="Problem"
             />
-          </label>
-        </div>
-        <div>
-          <label>
-            Problem:
-            <Input.TextArea
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              required
-              rows={4}
-            />
-          </label>
-        </div>
-        <CustomButton size="s" value="File Complaint" htmlType="submit">
-          File Complaint
-        </CustomButton>
-      </form>
+          </Form.Item>
+          <Form.Item>
+            <CustomButton size="s" value="File Complaint" htmlType="submit" />
+          </Form.Item>
+        </Form>
+      </Card>
     </div>
   );
 };
 
-export default FileComplaint; 
+export default FileComplaint;

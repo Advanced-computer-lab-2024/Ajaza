@@ -18,7 +18,8 @@ import Activities from "./Activities";
 import ReportGmailerrorredOutlinedIcon from '@mui/icons-material/ReportGmailerrorredOutlined';
 import FileComplaint from "./FileComplaint";
 import Complaints from "./Complaints";
-
+import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
+import TouristHistory from "./TouristHistory";
 
 const Tourist = () => {
   const [response, setResponse] = useState([]);
@@ -75,6 +76,15 @@ const Tourist = () => {
       label: "My Complaints",
       onClick: () => navigate("Complaints"),
     },
+    {
+      key: "9",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Feedback",
+      onClick: () => navigate("TouristHistory"),
+    },
+
+      
+
 
   ];
 
@@ -90,6 +100,7 @@ const Tourist = () => {
         <Route path="redeemPoints" element={<RedeemPoints />} />
         <Route path="fileComplaint" element={<FileComplaint />} />
         <Route path="complaints" element={<Complaints />} />
+        <Route path="touristHistory" element={<TouristHistory />} />
       </Routes>
     </CustomLayout>
   );
