@@ -46,4 +46,8 @@ router.patch("/acceptTerms/:id", guideController.acceptTerms);
 
 router.post("/uploadPhoto/:guideId", uploadPhotoImage, guideController.uploadPhoto);
 
+//for admin to view uploaded documents of a guide
+router.get("/getDocuments/:id", guideController.getGuideDocuments);
+
+
 module.exports = router;

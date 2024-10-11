@@ -41,6 +41,8 @@ router.patch('/acceptTerms/:id', sellerController.acceptTerms);
 
 router.post("/uploadLogo/:sellerId", uploadLogoImage, sellerController.uploadSellerLogo);
 
+//for admin to view uploaded documents of a seller
+router.get('/getDocuments/:id', sellerController.getSellerDocuments);
 
 
 module.exports = router;
