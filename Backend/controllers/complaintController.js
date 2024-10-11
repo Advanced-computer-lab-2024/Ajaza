@@ -70,7 +70,7 @@ exports.getTouristComplaints = async (req, res) => {
     const complaints = await Complaint.find({ touristId });
 
     if (complaints.length === 0) {
-      return res.status(404).json({ message: 'No complaints found for this tourist.' });
+      //return res.status(404).json({ message: 'No complaints found for this tourist.' });
     }
 
     res.status(200).json(complaints);

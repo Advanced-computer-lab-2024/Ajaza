@@ -1,5 +1,8 @@
 const Admin = require('../models/Admin');
 const Advertiser = require('../models/Advertiser');
+const Activity = require('../models/Activity');
+const Venue = require('../models/venue');
+const Itinerary = require('../models/Itinerary');
 const Governor = require('../models/Governor');
 const Seller = require('../models/Seller');
 const Tourist = require('../models/Tourist');
@@ -110,32 +113,37 @@ exports.adminDeletesAdminFromSystem = async (req, res) => {
     //removing category posted by admin and updating activities accordingly
     const result2 = await Category.find({ adminId: adminId });
     const categoriesToRemove = result2.map((category) => category.category);
-    const activities = await Activity.find({});
-    for (const activity of activities) {
-      activity.category = activity.category.filter(
+    let activities = await Activity.find({});
+    const filteredActivities = activities.filter(activity => 
+      activity.category.some(category => categoriesToRemove.includes(category))
+    );
+    for (let activity of filteredActivities) {
+      await Activity.deleteOne({ _id: activity._id });
+      /*activity.category = activity.category.filter(
         (cat) => !categoriesToRemove.includes(cat)
       );
-      await activity.save();
+      await activity.save();*/
     }
     await Category.deleteMany({ adminId: adminId });
 
     //removing tags posted by admin and updating activities/itineraries/venues accordingly
-    const result3 = await Tag.find({ adminId: adminId });
-    const tagsToRemove = result3.map((tag) => tag.tag);
+    let result3 = await Tag.find({ adminId: adminId });
+    let tagsToRemove = result3.map((tag) => tag.tag);
+
     activities = await Activity.find({});
-    for (const activity of activities) {
-      activity.category = activity.tags.filter(
+    for (let activity of activities) {
+      activity.tags = activity.tags.filter(
         (tag) => !tagsToRemove.includes(tag)
       );
       await activity.save();
     }
     const venues = await Venue.find({});
-    for (const venue of venues) {
+    for (let venue of venues) {
       venue.tags = venue.tags.filter((tag) => !tagsToRemove.includes(tag));
       await venue.save();
     }
     const itineraries = await Itinerary.find({});
-    for (const itinerary of itineraries) {
+    for (let itinerary of itineraries) {
       itinerary.tags = itinerary.tags.filter((tag) => !tagsToRemove.includes(tag));
       await itinerary.save();
     }

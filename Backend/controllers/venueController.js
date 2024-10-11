@@ -113,10 +113,26 @@ exports.getAllVisibleVenues = async (req, res) => {
     // Find venues where isVisible is true
     const venues = await Venue.find({ isVisible: true });
     if(!venues || venues.length === 0) {
-      return res.status(404).json({ message: "No visible venues found" });
+      //return res.status(404).json({ message: "No visible venues found" });
     }
     res.status(200).json(venues);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+//uploadPhotos for specific venue
+exports.uploadVenuePictures = async (req, res) => {
+  try {
+    const venue = await Venue.findById(req.params.venueId);
+    const pictures = req.body.pictures;
+    if (!venue) {
+      return res.status(404).json({ message: "Venue not found" });
+    }
+    venue.pictures = pictures;
+    await venue.save();
+    res.status(200).json(venue);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 };

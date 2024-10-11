@@ -222,7 +222,16 @@ const Profile = () => {
                   <Form.Item name="link" label="Link">
                     <Input />
                   </Form.Item>
-                  <Form.Item name="hotline" label="Hotline">
+                  <Form.Item
+                    name="hotline"
+                    label="Hotline"
+                    rules={[
+                      {
+                        pattern: /^\d+$/,
+                        message: "Enter valid hotline",
+                      },
+                    ]}
+                  >
                     <Input />
                   </Form.Item>
 
@@ -254,14 +263,28 @@ const Profile = () => {
                   <Form.Item name="email" label="Email">
                     <Input />
                   </Form.Item>
-                  <Form.Item name="mobile" label="Mobile">
+                  <Form.Item
+                    name="mobile"
+                    label="Mobile"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your mobile number!",
+                      },
+                      { len: 13, message: "Mobile number must be 13 digits!" },
+                      {
+                        pattern: /^\+20\d{10}$/,
+                        message: "Mobile number must start with +20",
+                      },
+                    ]}
+                  >
                     <Input />
                   </Form.Item>
                   <Form.Item
                     name="yearsOfExperience"
                     label="Years of Experience"
                   >
-                    <Input />
+                    <Input type="number" />
                   </Form.Item>
                   <Form.Item name="previousWork" label="Previous Work">
                     <Input.TextArea />
@@ -275,13 +298,24 @@ const Profile = () => {
                   <Form.Item name="email" label="Email">
                     <Input />
                   </Form.Item>
-                  <Form.Item name="mobile" label="Mobile">
+                  <Form.Item
+                    name="mobile"
+                    label="Mobile"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your mobile number!",
+                      },
+                      { len: 13, message: "Mobile number must be 13 digits!" },
+                      {
+                        pattern: /^\+20\d{10}$/,
+                        message: "Mobile number must start with +20",
+                      },
+                    ]}
+                  >
                     <Input />
                   </Form.Item>
                   <Form.Item name="nationality" label="Nationality">
-                    <Input />
-                  </Form.Item>
-                  <Form.Item name="dob" label="Date of Birth">
                     <Input />
                   </Form.Item>
                   <Form.Item name="occupation" label="Occupation">
@@ -378,18 +412,19 @@ const Profile = () => {
                         <span>{formatDate(userDetails.joined)}</span>
                       </div>
                     )}
-                    {userDetails.wallet && (
+                    {userDetails.wallet !== undefined && (
                       <div>
                         <strong>Wallet: </strong>
-                        <span>{userDetails.wallet}</span>
+                        <span>{userDetails.wallet || 0}</span>
                       </div>
                     )}
-                    {userDetails.totalPoints && (
+                    {userDetails.totalPoints !== undefined && (
                       <div>
                         <strong>Total Points: </strong>
-                        <span>{userDetails.totalPoints}</span>
+                        <span>{userDetails.totalPoints || 0}</span>
                       </div>
                     )}
+
                     {userDetails.badge && (
                       <div>
                         <strong>Badge: </strong>

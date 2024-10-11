@@ -4,6 +4,10 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import Itineraries from "../Itineraries";
 import { CalendarOutlined, ContainerOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
+import SearchFilterSortContainerEditCreate from "../Common/SearchFilterSortContainerEditCreate";
+import Profile from "../Common/Profile";
+import Products from "../Tourist/Products";
+import MyProducts from "../Admin/MyProducts";
 
 const Seller = () => {
   const navigate = useNavigate();
@@ -12,37 +16,27 @@ const Seller = () => {
     {
       key: "1",
       icon: <CalendarOutlined />,
-      label: "Itineraries",
+      label: "Products",
       onClick: () => {
-        navigate("itineraries");
+        navigate("/seller");
       },
     },
     {
       key: "2",
       icon: <CalendarOutlined />,
-      label: "Activities",
-      onClick: () => navigate("activities"),
+      label: "My Products",
+      onClick: () => {
+        navigate("myProducts");
+      },
     },
-    {
-      key: "3",
-      icon: <CalendarOutlined />,
-      label: "Venues",
-      onClick: () => navigate("/venues"),
-    },
-    {
-      key: "4",
-      icon: <ContainerOutlined />,
-      label: "Report",
-    },
-
   ];
 
   return (
     <CustomLayout sideBarItems={sideBarItems}>
       <Routes>
-        <Route path="/itineraries" element={<Itineraries />} />
-        <Route path="Report" element={<div>Report</div>} />
-
+        <Route path="/" element={<Products />} />
+        <Route path="myProducts" element={<MyProducts />} />
+        <Route path="profile" element={<Profile />} />
       </Routes>
     </CustomLayout>
   );

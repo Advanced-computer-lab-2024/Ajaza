@@ -12,6 +12,9 @@ import Profile from "../Common/Profile";
 import Plans from "./Plans";
 import Venues from "./Venues";
 import Products from "./Products";
+import RedeemPoints from "./RedeemPoints";
+import RedeemIcon from "@mui/icons-material/Redeem";
+import Activities from "./Activities";
 
 const Tourist = () => {
   const [response, setResponse] = useState([]);
@@ -40,9 +43,21 @@ const Tourist = () => {
     },
     {
       key: "4",
+      icon: <CalendarOutlined />,
+      label: "Activities",
+      onClick: () => navigate("activities"),
+    },
+    {
+      key: "5",
       icon: <ContainerOutlined />,
       label: "Products",
       onClick: () => navigate("products"),
+    },
+    {
+      key: "6",
+      icon: <RedeemIcon />,
+      label: "Redeem Points",
+      onClick: () => navigate("redeemPoints"),
     },
   ];
 
@@ -53,7 +68,9 @@ const Tourist = () => {
         <Route path="profile" element={<Profile />} />
         <Route path="itineraries" element={<Itineraries />} />
         <Route path="venues" element={<Venues />} />
+        <Route path="activities" element={<Activities />} />
         <Route path="products" element={<Products />} />
+        <Route path="redeemPoints" element={<RedeemPoints />} />
       </Routes>
     </CustomLayout>
   );

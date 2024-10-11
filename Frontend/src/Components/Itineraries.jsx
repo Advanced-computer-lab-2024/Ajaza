@@ -1,17 +1,34 @@
 import React, { useEffect, useState } from "react";
-import { EditOutlined, DeleteOutlined, PlusOutlined,MinusCircleOutlined } from "@ant-design/icons";
-import { Avatar, Card, Space, Modal, message, Form, Input, Button as AntButton, Select, InputNumber, Switch } from "antd";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  MinusCircleOutlined,
+} from "@ant-design/icons";
+import {
+  Avatar,
+  Card,
+  Space,
+  Modal,
+  message,
+  Form,
+  Input,
+  Button as AntButton,
+  Select,
+  InputNumber,
+  Switch,
+} from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
 import { jwtDecode } from "jwt-decode";
-import { apiUrl } from "./Common/Constants"; 
+import { apiUrl } from "./Common/Constants";
 
 const { Option } = Select;
 
 const apiClient = axios.create({
   baseURL: apiUrl,
   headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`, 
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
   },
 });
 
@@ -20,7 +37,34 @@ const Itineraries = () => {
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingItineraryId, setEditingItineraryId] = useState(null);
+  const [tags, setTags] = useState([]);
+
   const [form] = Form.useForm();
+  const [options, setOptions] = useState([]);
+
+  useEffect(() => {
+    // Fetch the list of activities/venues
+    const fetchOptions = async () => {
+      try {
+        //const response = await axios.get('http://localhost:5000/itinerary/fetchOptions');
+        const response = await apiClient.get(
+          `/itinerary/fetchOptions/fetchOptions`
+        );
+        console.log("Options:", response.data); // Debugging line
+        const data = await response.data;
+        setOptions(data); // Set the fetched data to state
+      } catch (error) {
+        console.error("Failed to fetch options:", error);
+      }
+    };
+
+    fetchOptions();
+  }, []);
+
+  const optionsMap = options.reduce((acc, option) => {
+    acc[option.id] = option; // Use option.id as the key
+    return acc;
+  }, {});
 
   let decodedToken = null;
   const token = localStorage.getItem("token");
@@ -31,7 +75,9 @@ const Itineraries = () => {
 
   const fetchItineraries = async () => {
     try {
-      const response = await apiClient.get(`/itinerary/readItinerariesOfGuide/${userid}`);
+      const response = await apiClient.get(
+        `/itinerary/readItinerariesOfGuide/${userid}`
+      );
       setItinerariesData(response.data);
     } catch (error) {
       console.error("Error fetching itineraries:", error);
@@ -41,8 +87,20 @@ const Itineraries = () => {
     }
   };
 
+  const fetchTags = async () => {
+    try {
+      const response = await apiClient.get("tag");
+      setTags(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error("Error fetching tags:", error);
+      setTags([]);
+    }
+  };
+
   useEffect(() => {
     fetchItineraries();
+    fetchTags();
   }, []);
 
   const createItinerary = async (values) => {
@@ -52,25 +110,29 @@ const Itineraries = () => {
         name: values.name,
         language: values.language,
         price: values.price,
-        availableDateTime: (values.availableDateTime || []).map(date => ({
+        availableDateTime: (values.availableDateTime || []).map((date) => ({
           date: new Date(date.date),
-          spots: date.spots
+          spots: date.spots,
         })),
         pickUp: values.pickUp,
         dropOff: values.dropOff,
         accessibility: values.accessibility,
         maxTourists: values.maxTourists,
-        active: values.active || true,
-        timeline: {
-          start: values.timeline.start,
-          id: values.timeline.id,
-          type: values.timeline.type,
-          duration: values.timeline.duration,
-        },
+        tags: values.tags,
+        active: values.active !== undefined ? values.active : false,
+        timeline: (values.timeline || []).map((entry) => ({
+          start: entry.start,
+          id: entry.id,
+          type: optionsMap[entry.id]?.type || null,
+          duration: entry.duration,
+        })),
         feedback: [],
       };
-  
-      const response = await apiClient.post(`itinerary/createSpecifiedItinerary/${userid}`, newItinerary);
+
+      const response = await apiClient.post(
+        `/itinerary/createSpecifiedItinerary/${userid}`,
+        newItinerary
+      );
       setItinerariesData([...itinerariesData, response.data]);
       message.success("Itinerary created successfully!");
       setIsModalVisible(false);
@@ -80,45 +142,53 @@ const Itineraries = () => {
       message.error("Failed to create itinerary.");
     }
   };
-  
-  
+
   const editItinerary = async (values) => {
     try {
-      const originalItinerary = itinerariesData.find((itinerary) => itinerary._id === editingItineraryId);
+      const originalItinerary = itinerariesData.find(
+        (itinerary) => itinerary._id === editingItineraryId
+      );
       console.log("Original Itinerary:", originalItinerary);
       console.log("Form Values:", values);
-  
+
       const updatedFields = {};
-  
+
+      const timelineWithTypes = (values.timeline || []).map((entry) => ({
+        ...entry,
+        type: optionsMap[entry.id]?.type || null, // Ensure type is included
+      }));
+
       // Deep comparison for timeline
-      if (JSON.stringify(values.timeline) !== JSON.stringify(originalItinerary.timeline)) {
-        updatedFields.timeline = values.timeline;
+      if (
+        JSON.stringify(timelineWithTypes) !==
+        JSON.stringify(originalItinerary.timeline)
+      ) {
+        updatedFields.timeline = timelineWithTypes;
       }
-  
+      console.log("edit:", updatedFields);
+
       // Only include the fields that have changed
       Object.keys(values).forEach((key) => {
-        if (key !== 'timeline' && values[key] !== originalItinerary[key]) {
+        if (key !== "timeline" && values[key] !== originalItinerary[key]) {
           updatedFields[key] = values[key];
         }
       });
-  
-      // Ensure maxTourists is included if it has changed
-      if (values.maxTourists !== originalItinerary.maxTourists) {
-        updatedFields.maxTourists = values.maxTourists;
-      }
-  
+
       if (Object.keys(updatedFields).length === 0) {
         message.info("No changes detected.");
         return;
       }
-  
-      const response = await apiClient.patch(`itinerary/updateItineraryFilteredFields/${userid}/${editingItineraryId}`, updatedFields);
+
+      const response = await apiClient.patch(
+        `itinerary/updateItineraryFilteredFields/${userid}/${editingItineraryId}`,
+        updatedFields
+      );
       setItinerariesData(
         itinerariesData.map((itinerary) =>
           itinerary._id === editingItineraryId ? response.data : itinerary
         )
       );
-  
+
       message.success("Itinerary updated successfully!");
       setIsModalVisible(false);
       form.resetFields();
@@ -128,9 +198,6 @@ const Itineraries = () => {
       message.error("Failed to update itinerary.");
     }
   };
-  
-
-  
 
   const deleteItinerary = async (id) => {
     Modal.confirm({
@@ -138,7 +205,9 @@ const Itineraries = () => {
       content: "Do you want to delete this itinerary?",
       onOk: async () => {
         try {
-          await apiClient.delete(`itinerary/deleteSpecificItinerary/${userid}/${id}`);
+          await apiClient.delete(
+            `itinerary/deleteSpecificItinerary/${userid}/${id}`
+          );
           setItinerariesData(
             itinerariesData.filter((itinerary) => itinerary._id !== id)
           );
@@ -153,27 +222,30 @@ const Itineraries = () => {
 
   const openEditModal = (itineraryId) => {
     setEditingItineraryId(itineraryId);
-    const itineraryToEdit = itinerariesData.find((itinerary) => itinerary._id === itineraryId);
-    
+    const itineraryToEdit = itinerariesData.find(
+      (itinerary) => itinerary._id === itineraryId
+    );
+
     form.setFieldsValue({
       ...itineraryToEdit,
-      timeline: itineraryToEdit.timeline.length > 0 ? itineraryToEdit.timeline : [{}],
+      timeline:
+        itineraryToEdit.timeline.length > 0 ? itineraryToEdit.timeline : [{}],
     });
-    
+
     setIsModalVisible(true);
   };
-  
 
   const showModal = () => {
-    setEditingItineraryId(null); 
+    setEditingItineraryId(null);
     form.resetFields();
-    setIsModalVisible(true); 
+    setIsModalVisible(true);
   };
 
   const handleCancel = () => {
     setIsModalVisible(false);
     form.resetFields();
   };
+  console.log("allooo:", itinerariesData);
 
   return (
     <div style={{ display: "flex" }}>
@@ -186,7 +258,12 @@ const Itineraries = () => {
             justifyContent: "flex-start",
           }}
         >
-          <Button size={"s"} value={"Create Itinerary"} rounded={true} onClick={showModal} />
+          <Button
+            size={"s"}
+            value={"Create Itinerary"}
+            rounded={true}
+            onClick={showModal}
+          />
         </div>
 
         {loading ? (
@@ -216,30 +293,59 @@ const Itineraries = () => {
                   title={itinerary.name}
                   description={
                     <div>
-                      <p><strong>Price:</strong> {itinerary.price}</p>
-                      <p><strong>Language:</strong> {itinerary.language}</p>
-                      <p><strong>Pick Up Location:</strong> {itinerary.pickUp}</p>
-                      <p><strong>Drop Off Location:</strong> {itinerary.dropOff}</p>
-                      <p><strong>Maximum Tourists:</strong> {itinerary.maxTourists}</p>
-                      <p><strong>Active:</strong> {itinerary.active ? "Yes" : "No"}</p>
-                      <p><strong>Accessibility:</strong> {itinerary.accessibility || "Not specified"}</p>
-                      <p><strong>Available Dates:</strong> 
-                        {itinerary.availableDateTime.length > 0 ? (
-                          itinerary.availableDateTime.map(dateEntry => 
-                            `${new Date(dateEntry.date).toLocaleDateString()} (Spots: ${dateEntry.spots})`
-                          ).join(", ")
-                        ) : (
-                          "No available dates"
-                        )}
+                      <p>
+                        <strong>Price:</strong> {itinerary.price}
                       </p>
-                      <p><strong>Timeline:</strong> 
-                        {itinerary.timeline.length > 0 ? (
-                          itinerary.timeline.map(entry => 
-                            `Start: ${entry.start}, Duration: ${entry.duration} mins, Type: ${entry.type}`
-                          ).join(", ")
-                        ) : (
-                          "No timeline available"
-                        )}
+                      <p>
+                        <strong>Language:</strong> {itinerary.language}
+                      </p>
+                      <p>
+                        <strong>Pick Up Location:</strong> {itinerary.pickUp}
+                      </p>
+                      <p>
+                        <strong>Drop Off Location:</strong> {itinerary.dropOff}
+                      </p>
+                      <p>
+                        <strong>Maximum Tourists:</strong>{" "}
+                        {itinerary.maxTourists}
+                      </p>
+                      <p>
+                        <strong>Active:</strong>{" "}
+                        {itinerary.active ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <strong>Accessibility:</strong>{" "}
+                        {itinerary.accessibility || "Not specified"}
+                      </p>
+                      <p>
+                        <strong>Tags:</strong>{" "}
+                        {itinerary.tags?.join(", ") || "None"}
+                      </p>
+                      <p>
+                        <strong>Available Dates:</strong>
+                        {itinerary.availableDateTime.length > 0
+                          ? itinerary.availableDateTime
+                              .map(
+                                (dateEntry) =>
+                                  `${new Date(
+                                    dateEntry.date
+                                  ).toLocaleDateString()} (Spots: ${
+                                    dateEntry.spots
+                                  })`
+                              )
+                              .join(", ")
+                          : "No available dates"}
+                      </p>
+                      <p>
+                        <strong>Timeline:</strong>
+                        {itinerary.timeline.length > 0
+                          ? itinerary.timeline
+                              .map(
+                                (entry) =>
+                                  `Start: ${entry.start}, Duration: ${entry.duration} mins, type: ${entry.type}`
+                              )
+                              .join(", ")
+                          : "No timeline available"}
                       </p>
                       {/* <p><strong>Feedback:</strong> 
                         {itinerary.feedback.length > 0 ? (
@@ -265,11 +371,17 @@ const Itineraries = () => {
           onCancel={handleCancel}
           footer={null}
         >
-          <Form form={form} layout="vertical" onFinish={editingItineraryId ? editItinerary : createItinerary}>
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={editingItineraryId ? editItinerary : createItinerary}
+          >
             <Form.Item
               name="name"
               label="Itinerary Name"
-              rules={[{ required: true, message: "Please enter the itinerary name" }]}
+              rules={[
+                { required: true, message: "Please enter the itinerary name" },
+              ]}
             >
               <Input placeholder="Enter itinerary name" />
             </Form.Item>
@@ -284,7 +396,6 @@ const Itineraries = () => {
                 <Option value="Spanish">Spanish</Option>
                 <Option value="French">French</Option>
                 <Option value="Arabic">Arabic</Option>
-
               </Select>
             </Form.Item>
 
@@ -293,12 +404,21 @@ const Itineraries = () => {
               label="Price"
               rules={[{ required: true, message: "Please enter the price" }]}
             >
-              <InputNumber placeholder="Enter price" style={{ width: "100%" }} />
+              <InputNumber
+                placeholder="Enter price"
+                style={{ width: "100%" }}
+              />
             </Form.Item>
 
             <Form.Item
               name="pickUp"
               label="Pick Up Location"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter the pick up location",
+                },
+              ]}
             >
               <Input placeholder="Enter pick up location" />
             </Form.Item>
@@ -306,103 +426,170 @@ const Itineraries = () => {
             <Form.Item
               name="dropOff"
               label="Drop Off Location"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter the drop off location",
+                },
+              ]}
             >
               <Input placeholder="Enter drop off location" />
             </Form.Item>
 
-            <Form.Item
-              name="accessibility"
-              label="Accessibility"
-            >
+            <Form.Item name="accessibility" label="Accessibility">
               <Input placeholder="Enter accessibility options" />
             </Form.Item>
 
             <Form.Item
               name="maxTourists"
-              label="Max Tourists"
-              rules={[{ required: true, message: "Please enter the max number of tourists" }]}
+              label="Maximum Tourists"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter the max number of tourists",
+                },
+              ]}
             >
-              <InputNumber min={1} placeholder="Enter max tourists" style={{ width: "100%" }} />
+              <InputNumber
+                min={1}
+                placeholder="Enter max tourists"
+                style={{ width: "100%" }}
+              />
             </Form.Item>
 
             <Form.Item name="active" label="Active" valuePropName="checked">
               <Switch />
             </Form.Item>
-
-            <Form.Item label="Timeline">
-              <div style={{ display: "flex", marginBottom: 8 }}>
-                <Form.Item
-                  name={['timeline', 0, 'start']}
-                  label="Start Time"
-                  rules={[{ required: true, message: "Please enter the start time" }]}
-                  style={{ flex: 1, marginRight: 8 }}
-                >
-                  <Input placeholder="Enter start time" />
-                </Form.Item>
-                <Form.Item
-                  name={['timeline', 0, 'id']}
-                  label="ID"
-                  rules={[{ required: true, message: "Please enter an ID" }]}
-                  style={{ flex: 1, marginRight: 8 }}
-                >
-                  <Input placeholder="Enter ID" />
-                </Form.Item>
-                <Form.Item
-                  name={['timeline', 0, 'type']}
-                  label="Type"
-                  rules={[{ required: true, message: "Please select a type" }]}
-                  style={{ flex: 1, marginRight: 8 }}
-                >
-                  <Select placeholder="Select type">
-                    <Select.Option value="Venue">Venue</Select.Option>
-                    <Select.Option value="Activity">Activity</Select.Option>
-                  </Select>
-                </Form.Item>
-                <Form.Item
-                  name={['timeline', 0, 'duration']}
-                  label="Duration"
-                  rules={[{ required: true, message: "Please enter duration" }]}
-                  style={{ flex: 1 }}
-                >
-                  <InputNumber min={1} placeholder="Enter duration" />
-                </Form.Item>
-              </div>
+            <Form.Item name="tags" label="Tags">
+              <Select mode="multiple" placeholder="Select Tags" allowClear>
+                {tags.map((tag) => (
+                  <Select.Option key={tag._id} value={tag.tag}>
+                    {tag.tag}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
+
+            <Form.List name="timeline">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, ...restField }) => (
+                    <div key={key} style={{ display: "flex", marginBottom: 8 }}>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "start"]}
+                        label="Start Time"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter the start time",
+                          },
+                        ]}
+                        style={{ flex: 1, marginRight: 8 }}
+                      >
+                        <InputNumber
+                          min={0}
+                          max={2359}
+                          placeholder="Enter start time (e.g. 1300 for 1 PM)"
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "id"]}
+                        label="Activity/Venue"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please select an option",
+                          },
+                        ]}
+                        style={{ flex: 1, marginRight: 8 }}
+                      >
+                        <Select placeholder="Select an option" allowClear>
+                          {options.map((option) => (
+                            //<Select.Option key={option.id} value={option.id}>
+                            <Select.Option key={option.id} value={option.id}>
+                              {option.name}{" "}
+                              {/* Adjust this based on your options' structure */}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "duration"]}
+                        label="Duration"
+                        rules={[
+                          { required: true, message: "Please enter duration" },
+                        ]}
+                        style={{ flex: 1, marginRight: 8 }}
+                      >
+                        <InputNumber
+                          min={1}
+                          placeholder="Enter duration in minutes"
+                        />
+                      </Form.Item>
+                      <AntButton
+                        type="link"
+                        onClick={() => remove(name)}
+                        icon={<MinusCircleOutlined />}
+                      >
+                        Remove
+                      </AntButton>
+                    </div>
+                  ))}
+                  <AntButton
+                    type="dashed"
+                    onClick={() => add()}
+                    block
+                    icon={<PlusOutlined />}
+                  >
+                    Add Timeline Entry
+                  </AntButton>
+                </>
+              )}
+            </Form.List>
+
             {/* Available date time entries */}
-              <Form.List name="availableDateTime">
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, fieldKey, name }) => (
-                      <div key={key} style={{ display: "flex", marginBottom: 8 }}>
-                        <Form.Item
-                          {...fieldKey}
-                          name={[name, 'date']}
-                          fieldKey={[fieldKey[0], 'date']}
-                          label="Available Date"
-                          rules={[{ required: true, message: 'Missing date' }]}
-                        >
-                          <Input type="date" />
-                        </Form.Item>
-                        <Form.Item
-                          {...fieldKey}
-                          name={[name, 'spots']}
-                          fieldKey={[fieldKey[0], 'spots']}
-                          label="Available Spots"
-                          rules={[{ required: true, message: 'Missing spots' }]}
-                        >
-                          <InputNumber min={1} placeholder="Enter spots" />
-                        </Form.Item>
-                        <AntButton type="link" onClick={() => remove(name)}>
-                          Remove
-                        </AntButton>
-                      </div>
-                    ))}
-                    <AntButton type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                      Add Available Date
-                    </AntButton>
-                  </>
-                )}
-              </Form.List>
+            <Form.List name="availableDateTime">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, fieldKey, name }) => (
+                    <div key={key} style={{ display: "flex", marginBottom: 8 }}>
+                      <Form.Item
+                        {...fieldKey}
+                        name={[name, "date"]}
+                        fieldKey={[fieldKey[0], "date"]}
+                        label="Available Date"
+                        rules={[{ required: true, message: "Missing date" }]}
+                      >
+                        <Input type="date" />
+                      </Form.Item>
+                      <Form.Item
+                        {...fieldKey}
+                        name={[name, "spots"]}
+                        fieldKey={[fieldKey[0], "spots"]}
+                        label="Available Spots"
+                        rules={[{ required: true, message: "Missing spots" }]}
+                      >
+                        <InputNumber min={1} placeholder="Enter spots" />
+                      </Form.Item>
+                      <AntButton type="link" onClick={() => remove(name)}>
+                        Remove
+                      </AntButton>
+                    </div>
+                  ))}
+                  <AntButton
+                    type="dashed"
+                    onClick={() => add()}
+                    block
+                    icon={<PlusOutlined />}
+                  >
+                    Add Available Date
+                  </AntButton>
+                </>
+              )}
+            </Form.List>
 
             <Form.Item>
               <AntButton type="primary" htmlType="submit">
@@ -415,5 +602,19 @@ const Itineraries = () => {
     </div>
   );
 };
+
+//backup
+/*<Form.Item
+  {...restField}
+  name={[name, 'type']}
+  label="Type"
+  rules={[{ required: true, message: "Please select a type" }]}
+  style={{ flex: 1, marginRight: 8 }}
+>
+  <Select placeholder="Select type">
+    <Select.Option value="Venue">Venue</Select.Option>
+    <Select.Option value="Activity">Activity</Select.Option>
+  </Select>
+</Form.Item> */
 
 export default Itineraries;

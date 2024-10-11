@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const venueController = require("../controllers/venueController");
 const uploadPhotoImage = require("../middleware/uploadImage");
+const uploadVenuePictures = require("../middleware/uploadVenuePictures");
 
 router.post("/", venueController.createVenue);
 
@@ -22,5 +23,9 @@ router.delete("/:id", venueController.deleteVenue);
 
 // req37
 router.get("/searchForThis/searchAgain", venueController.searchByNameTag);
+
+
+//upload photos to existing venue
+router.post("/uploadPhotos/:venueId", uploadVenuePictures, venueController.uploadVenuePictures);
 
 module.exports = router;

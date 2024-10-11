@@ -9,9 +9,10 @@ import {
   UserOutlined,
   VideoCameraOutlined,
   DownOutlined,
+  BellFilled,
 } from "@ant-design/icons";
-import { Button, Layout, Menu, theme /*, Dropdown*/ } from "antd";
-//import ManageActivityCategories from "./manageActivityCategories";
+import { Button, Layout, Menu, theme, Flex } from "antd";
+import IconFloatButton from "../Common/IconFloatButton";
 
 const { Header, Sider, Content } = Layout;
 
@@ -20,6 +21,15 @@ const AdminCustomLayout = ({ children }) => {
   //  const [user, setUser] = useState("");
   const [collapsed, setCollapsed] = useState(true);
   const [hover, setHover] = useState(false);
+  const [navBarItems, setNavBarItems] = useState(
+    <Flex align={"center"} style={{ marginLeft: "auto" }}>
+      <IconFloatButton icon={BellFilled} badge={{ count: 5 }} />
+      <UserOutlined
+        className="hover"
+        style={{ fontSize: "20px", marginLeft: "30px" }}
+      />
+    </Flex>
+  );
   const [showManageOptions, setShowManageOptions] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -36,6 +46,8 @@ const AdminCustomLayout = ({ children }) => {
       navigate("/Admin/preference-tags");
     } else if (key == "12") {
       navigate("products");
+    } else if (key == "13") {
+      navigate("myProducts");
     }
   };
 
@@ -86,6 +98,11 @@ const AdminCustomLayout = ({ children }) => {
               icon: <NumberOutlined />,
               label: "Products",
             },
+            {
+              key: "13",
+              icon: <NumberOutlined />,
+              label: "My Products",
+            },
           ]}
         />
       </Sider>
@@ -95,6 +112,7 @@ const AdminCustomLayout = ({ children }) => {
             padding: 0,
             background: colorBgContainer,
             display: "flex",
+            paddingRight: "20px",
           }}
         >
           <Button
@@ -107,6 +125,7 @@ const AdminCustomLayout = ({ children }) => {
               height: 64,
             }}
           />
+          {navBarItems}
         </Header>
         <Content
           style={{

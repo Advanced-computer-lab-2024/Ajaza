@@ -351,7 +351,7 @@ exports.redeemPoints = async (req, res) => {
     }
 
     const maxRedeemablePoints = Math.floor(tourist.points / 10000) * 100; // For every 10,000 points, redeem $100
-    if (maxRedeemablePoints <= 100) {
+    if (maxRedeemablePoints < 100) {
       return res.status(400).json({ message: "Not enough points to redeem." });
     }
 
@@ -591,7 +591,11 @@ exports.guestTouristCreateProfile = async (req, res) => {
   const filteredBody = {};
   allowedFields.forEach((field) => {
     if (req.body[field] !== undefined) {
-      filteredBody[field] = req.body[field];
+      if(field === 'dob'){
+        filteredBody[field] = new Date(req.body[field]);
+      } else {
+        filteredBody[field] = req.body[field];
+      }
     }
   });
 
@@ -683,4 +687,135 @@ exports.acceptTerms = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
+
+//req111
+exports.getApplicablePromoCodes = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    let returnedPromoCodes = [];
+
+    const birthday = tourist.dob;
+    const promoCodesBD = await PromoCode.findOne({
+      "birthday.date": birthday,
+    });
+
+    let within2Days = false;
+
+  
+    const currentYear = (new Date()).getFullYear();
+    
+    const birthdayThisYear = new Date(currentYear, birthday.getMonth(), birthday.getDate());
+    
+    const twoDaysAfter = new Date(birthdayThisYear);
+    twoDaysAfter.setDate(birthdayThisYear.getDate() + 2);
+
+    within2Days = (today >= twoDaysAfter && today <= birthdayThisYear);
+
+    if (promoCodesBD && within2Days) {
+      returnedPromoCodes.push(json({code:promoCodesBD[0].code, value: promoCodesBD[0].value}));
+    }
+
+    const promoCodes = await PromoCode.find({
+      code: { $nin: tourist.usedPromoCodes },
+      $or: [
+        { birthday: { $exists: false } }, // No birthday field at all
+        { birthday: null },               // Birthday field exists but is null
+      ],
+    });
+
+    for(let i = 0; i < promoCodes.length; i++){
+      returnedPromoCodes.push(json({code:promoCodes[i].code, value: promoCodes[i].value}));
+    }
+
+    res.status(200).json(returnedPromoCodes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+// birthdayEventTriggered
+exports.birthdayEventTriggered = async (usersWithBirthdayToday) => {
+  try {
+    const today = new Date();
+
+    const uniquePromoCode = await generateUniqueCode();    //generate a unique 6-character promo code
+
+    const newPromoCode = new PromoCode({
+      code: uniquePromoCode,
+      value: 0.2, // the discount value
+      birthday: {
+        date: today
+      }
+    });
+
+    await newPromoCode.save();
+
+    for(let i = 0; i < usersWithBirthdayToday.length; i++){
+      const tourist = await Tourist.findById(usersWithBirthdayToday[i]._id);
+      if (!tourist) {
+        console.error("Tourist not found");
+        continue;
+      }
+
+      tourist.notifications.push({
+        text: "Happy birthday! Here's a promo code for you: " + uniquePromoCode,
+        seen: false
+      });
+
+      const transporter = nodemailer.createTransport({
+        service: "Gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.NODE_MAILER_USER,
+          pass: process.env.NODE_MAILER_PASS,
+        },
+      });
+  
+      const mailOptions = {
+        from: "reservy.me@gmail.com",
+        to: tourist.email,
+        subject: "Happy Birthday!",
+        html: '<h1>Happy Birthday from Ajaza</h1><h4>Here is a promo code for you,</h4><h2>' + uniquePromoCode + '</h2>',
+      };
+  
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error("Error sending email: ", error);
+        } else {
+          console.log("Email sent: ", info.response);
+        }
+      });
+  
+      await tourist.save();
+    }
+
+    //console.log("Promo code created successfully:", newPromoCode);
+  } catch (error) {
+    console.error("Error creating promo code:", error);
+  }
+};
+
+//helper
+const generateUniqueCode = async () => {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let code;
+  let existingCode;
+
+  do {
+    // Generate a random 6-letter code
+    code = Array.from({ length: 6 }, () => characters.charAt(Math.floor(Math.random() * characters.length))).join('');
+
+    // Check if this code already exists in the database
+    existingCode = await PromoCode.findOne({ code });
+  } while (existingCode);
+
+  return code;
 };

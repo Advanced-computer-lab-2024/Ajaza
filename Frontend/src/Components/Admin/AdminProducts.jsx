@@ -40,12 +40,13 @@ const AdminProducts = () => {
     extra: "price",
     rating: "avgRating",
   };
-  const fields = {
+  const [fields, setFields] = useState({
     Description: "desc",
     Seller: "sellerName",
     Sales: "sales",
     "Quantity Available": "quantity",
-  };
+  });
+
   const searchFields = ["name"];
   const actions = [
     <EditOutlined key="edit" onClick={() => setIsModalVisible(true)} />,
@@ -99,6 +100,7 @@ const AdminProducts = () => {
         searchFields={searchFields}
         constProps={constProps}
         fields={fields}
+        setFields={setFields}
         sortFields={sortFields}
         filterFields={filterFields}
       />
