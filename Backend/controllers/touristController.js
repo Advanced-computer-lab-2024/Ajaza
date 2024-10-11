@@ -961,3 +961,98 @@ exports.getFutureBookings = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 }
+
+//req65
+exports.addActivityBookmark = async (req, res) => {
+  const { touristId, activityId } = req.params;
+  cleanActivityBookmarks(touristId);
+
+  try {
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    if (!tourist.activityBookmarks.includes(activityId)) {
+      tourist.activityBookmarks.push(activityId);
+    }
+
+    await tourist.save();
+
+    res.status(200).json({ message: "Activity bookmarked successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+async function cleanActivityBookmarks(touristId) {
+
+  const tourist = await Tourist.findById(touristId);
+  const activityBookmarks = tourist.activityBookmarks;
+
+  const currentDate = new Date();
+  for (let i = 0; i < activityBookmarks.length; i++) {
+    const activity = await Activity.findById(activityBookmarks[i]);
+    if(!activity){
+      activityBookmarks.splice(i, 1);
+      i--;
+    } else {
+      if (activity.date < currentDate) {
+        activityBookmarks.splice(i, 1);
+        i--;
+      } else {
+        if (activity.hidden) {
+          activityBookmarks.splice(i, 1);
+          i--;
+        }
+      }
+    }
+  }
+
+  tourist.activityBookmarks = activityBookmarks;
+  await tourist.save();
+}
+
+//req65
+exports.addItineraryBookmark = async (req, res) => {
+  const { touristId, itineraryId } = req.params;
+  cleanItineraryBookmarks(touristId);
+
+  try {
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    if (!tourist.itineraryBookmarks.includes(itineraryId)) {
+      tourist.itineraryBookmarks.push(itineraryId);
+    }
+
+    await tourist.save();
+
+    res.status(200).json({ message: "Itinerary bookmarked successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+async function cleanItineraryBookmarks(touristId) {
+
+  const tourist = await Tourist.findById(touristId);
+  const itineraryBookmarks = tourist.itineraryBookmarks;
+
+  for (let i = 0; i < itineraryBookmarks.length; i++) {
+    const itinerary = await Itinerary.findById(itineraryBookmarks[i]);
+    if(!itinerary){
+      itineraryBookmarks.splice(i, 1);
+      i--;
+    } else {
+        if (itinerary.hidden) {
+          itineraryBookmarks.splice(i, 1);
+          i--;
+        }
+    }
+  }
+  tourist.itineraryBookmarks = itineraryBookmarks;
+  await tourist.save();
+}
