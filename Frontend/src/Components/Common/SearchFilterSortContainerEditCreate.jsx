@@ -22,7 +22,7 @@ import {
   UploadOutlined,
 } from "@ant-design/icons";
 import Search from "./Search";
-import { DownOutlined } from "@ant-design/icons";
+import { DownOutlined, InboxOutlined } from "@ant-design/icons";
 import { apiUrl } from "./Constants";
 import axios from "axios";
 import CustomButton from "./CustomButton";
@@ -182,6 +182,8 @@ const SearchFilterSortContainerEditCreate = ({
   const [filterCriteria, setFilterCriteria] = useState(null);
   const [filterField, setFilterField] = useState(null);
   const [form] = Form.useForm();
+  const [fileList, setFileList] = useState([]);
+  const { Dragger } = Upload;
 
   const span = 24 / cardsPerRow;
 
@@ -249,53 +251,7 @@ const SearchFilterSortContainerEditCreate = ({
     });
   });
 
-  // const filterItems = [];
-  let filterItems = [
-    {
-      key: "1",
-      type: "group",
-      label: "Group title",
-      children: [
-        {
-          key: "1-1",
-          label: "1st menu item",
-        },
-        {
-          key: "1-2",
-          label: "2nd menu item",
-        },
-      ],
-    },
-    {
-      key: "2",
-      label: "sub menu",
-      children: [
-        {
-          key: "2-1",
-          label: "3rd menu item",
-        },
-        {
-          key: "2-2",
-          label: "4th menu item",
-        },
-      ],
-    },
-    {
-      key: "3",
-      label: "disabled sub menu",
-      disabled: true,
-      children: [
-        {
-          key: "3-1",
-          label: "5d menu item",
-        },
-        {
-          key: "3-2",
-          label: "6th menu item",
-        },
-      ],
-    },
-  ];
+  let filterItems = [];
 
   function generateFilterItems(filterFields) {
     let filterItems = [
@@ -387,13 +343,13 @@ const SearchFilterSortContainerEditCreate = ({
         }
       );
       setRefreshElements((prev) => !prev);
-      message.success("Activity updated successfully!");
+      message.success("Product updated successfully!");
       setIsModalVisible(false);
       form.resetFields();
       setEditingProductId(null);
     } catch (error) {
       message.error(
-        "Failed to create activity." + error?.response?.data?.error
+        "Failed to create Product. " + error?.response?.data?.error
       );
     }
   };
@@ -405,7 +361,7 @@ const SearchFilterSortContainerEditCreate = ({
         formValues
       );
       setRefreshElements((prev) => !prev);
-      message.success("Activity updated successfully!");
+      message.success("Product updated successfully!");
       setIsModalVisible(false);
       form.resetFields();
       setEditingProductId(null);
@@ -422,7 +378,10 @@ const SearchFilterSortContainerEditCreate = ({
     }
     return e?.fileList;
   };
+  const handleFileChange = ({ fileList: newFileList }) =>
+    setFileList(newFileList);
 
+  filterItems = generateFilterItems(filterFields);
   return (
     <>
       <Flex align="center">
@@ -536,16 +495,22 @@ const SearchFilterSortContainerEditCreate = ({
             name="photo"
             valuePropName="fileList"
             getValueFromEvent={normFile}
-            extra="Upload your certificates."
           >
-            <Upload
+            <Dragger
               name="photo"
               listType="text"
+              fileList={fileList}
+              onChange={handleFileChange}
               beforeUpload={() => false}
               maxCount={1}
             >
-              <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
-            </Upload>
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined />
+              </p>
+              <p className="ant-upload-text">
+                Click or drag file to this area to upload
+              </p>
+            </Dragger>
           </Form.Item>
 
           <Form.Item>

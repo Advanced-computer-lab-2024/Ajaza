@@ -1,7 +1,5 @@
-
-
 import { Input } from "antd";
-import React, { useState , useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Button, Form, Typography, message, Card } from "antd";
@@ -22,7 +20,6 @@ const SignIn = () => {
   useEffect(() => {
     setClientReady(true);
   }, []);
-
 
   const info = (e) => {
     e.preventDefault();
@@ -64,28 +61,39 @@ const SignIn = () => {
         );
 
         if (apiResponse.status === 200) {
-          setResponse(apiResponse.data);
-          localStorage.setItem("token", apiResponse.data.token);
+          console.log(apiResponse.data);
 
-          const decodedToken = jwtDecode(apiResponse.data.token);
+          const token = apiResponse.data.token;
+          const decodedToken = jwtDecode(token);
+          if (decodedToken?.userDetails?.pending) {
+            message.error("Account is still pending");
+            return;
+          } else if (decodedToken?.userDetails?.acceptedTerms == false) {
+            message.error(
+              "Account has not yet accepted the terms of services (TODO redirect to term)"
+            );
+            localStorage.setItem("token", apiResponse.data.token); // TODO
+          } else {
+            localStorage.setItem("token", apiResponse.data.token);
+          }
+
           navigate(`/${decodedToken.role}`);
         }
 
-        if (apiResponse?.data?.message) {
-          setFeedbackMessage(apiResponse.data.message);
-          message.error(feedbackMessage);
-        }
+        // if (apiResponse?.data?.message) {
+        //   setFeedbackMessage(apiResponse.data.message);
+        //   message.error(feedbackMessage);
+        // }
       } catch (error) {
         if (error?.response?.data?.message) {
           setFeedbackMessage(error?.response?.data?.message);
-          message.error(feedbackMessage);
+          message.error(error?.response?.data?.message);
         }
         console.error("Error fetching data:", error);
       }
     };
     fetchData();
   };
-
 
   return (
     <>
@@ -151,19 +159,21 @@ const SignIn = () => {
             </Form.Item>
 
             <Form.Item shouldUpdate>
-            {() => (
-              <CustomButton
-                size="s"
-                value={"Log in"}
-                style={{ marginLeft: "-8px", width: 370 }}
-                onClick={() => signIn()}
-                disabled={
-                  !clientReady ||
-                  !form.isFieldsTouched(true) ||
-                  !!form.getFieldsError().filter(({ errors }) => errors.length).length
-                }
-              />
-            )}
+              {() => (
+                <CustomButton
+                  size="s"
+                  value={"Log in"}
+                  style={{ marginLeft: "-8px", width: 370 }}
+                  onClick={() => signIn()}
+                  disabled={
+                    !clientReady ||
+                    !form.isFieldsTouched(true) ||
+                    !!form
+                      .getFieldsError()
+                      .filter(({ errors }) => errors.length).length
+                  }
+                />
+              )}
             </Form.Item>
           </Form>
         </Card>

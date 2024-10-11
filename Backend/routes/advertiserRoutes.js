@@ -3,7 +3,7 @@ const router = express.Router();
 const advertiserController = require("../controllers/advertiserController");
 const uploadIdImage = require("../middleware/uploadImage");
 const uploadTaxationRegCardImage = require("../middleware/uploadImage");
-const uploadLogoImage = require("../middleware/uploadImage");
+const uploadLogoImage = require("../middleware/uploadLogoImage");
 const validateEmail = require("../middleware/validateEmail");
 const uniqueEmail = require("../middleware/uniqueEmail");
 const uniqueUsername = require("../middleware/uniqueUsername");
@@ -46,7 +46,7 @@ router.get(
 
 // Update the profile of the authenticated advertiser
 router.patch(
-  "/advertiserUpdateProfile/:id",
+  "/advertiserUpdateProfile/:id", uploadLogoImage,
   advertiserController.advertiserUpdateProfile
 );
 router.post(
@@ -72,5 +72,8 @@ router.delete(
 );
 
 router.patch("/acceptTerms/:id", advertiserController.acceptTerms);
+
+
+router.post("/uploadLogo/:advertiserId", uploadLogoImage, advertiserController.uploadAdvertiserLogo);
 
 module.exports = router;

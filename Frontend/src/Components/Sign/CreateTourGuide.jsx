@@ -35,29 +35,30 @@ const CreateTourGuide = () => {
     try {
       const formData = new FormData();
 
-      formData.append('username', values.username);
-      formData.append('pass', values.password);
-      formData.append('email', values.email);
+      formData.append("username", values.username);
+      formData.append("pass", values.password);
+      formData.append("email", values.email);
 
-      if (values.document1 && values.document1.length > 0) {
-        formData.append('id', values.document1[0].originFileObj);
-      }
+      // if (values.document1 && values.document1.length > 0) {
+      //   formData.append("id", values.document1[0].originFileObj);
+      // }
 
-      if (values.document2 && values.document2.length > 0) {
-        for (let i = 0; i < values.document2.length; i++) {
-          formData.append('certificates', values.document2[i].originFileObj);
-        }
-      }
+      // if (values.document2 && values.document2.length > 0) {
+      //   for (let i = 0; i < values.document2.length; i++) {
+      //     formData.append("certificates", values.document2[i].originFileObj);
+      //   }
+      // }
 
       const response = await axios.post(
         "http://localhost:5000/guide/guestGuideCreateProfile",
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
-          }
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
+      console.log(response);
 
       message.success("TourGuide created successfully!");
 
@@ -70,10 +71,12 @@ const CreateTourGuide = () => {
       console.log(error.response); // TODO
 
       console.error("Error creating tour guide:", error);
-      message.error("Failed to create tour guide,");
+      const errorDetails =
+        error.response?.data?.error || "Failed to create tour guide.";
+      // Display the error message with the custom prefix
+      message.error(`Failed to create tour guide: ${errorDetails}`);
     }
   };
-
 
   const onFinish = async (values) => {
     await createTourGuide(values);
@@ -148,7 +151,12 @@ const CreateTourGuide = () => {
             getValueFromEvent={normFile}
             extra="Upload your ID."
           >
-            <Upload name="doc1" listType="text" beforeUpload={() => false} maxCount={1}>
+            <Upload
+              name="doc1"
+              listType="text"
+              beforeUpload={() => false}
+              maxCount={1}
+            >
               <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
             </Upload>
           </Form.Item>
@@ -161,7 +169,7 @@ const CreateTourGuide = () => {
             getValueFromEvent={normFile}
             extra="Upload your certificates."
           >
-            <Upload name="doc2" listType="text" beforeUpload={() => false} >
+            <Upload name="doc2" listType="text" beforeUpload={() => false}>
               <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
             </Upload>
           </Form.Item>

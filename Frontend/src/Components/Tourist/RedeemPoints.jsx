@@ -1,7 +1,6 @@
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { message } from "antd";
+import { message , Tooltip } from "antd";
 import CustomButton from "../Common/CustomButton";
 import {jwtDecode} from "jwt-decode";
 
@@ -63,13 +62,28 @@ export const RedeemPoints = () => {
       <h2>Redeem Points</h2>
       <p>Your current points: {points}</p>
       <p>Your wallet balance: EGP {wallet}</p>
-      <CustomButton
-        size="m"
-        value={"Redeem Points"}
-        onClick={redeemPoints}
-        disabled={points < 10000}
-        loading={loading}
-      />
+      {points < 10000 ? (
+        <Tooltip title="You must have at least 10000 points to redeem">
+          <span> 
+            <CustomButton
+              size="m"
+              value="Redeem Points"
+              onClick={redeemPoints}
+              disabled
+              loading={loading}
+            />
+          </span>
+        </Tooltip>
+      ) : (
+        <CustomButton
+          size="m"
+          value="Redeem Points"
+          onClick={redeemPoints}
+          disabled={false}
+          loading={loading}
+        />
+      )}
+
     </div>
   );
 };

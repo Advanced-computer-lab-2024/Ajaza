@@ -33,6 +33,7 @@ const Plans = () => {
     title: "name",
     extra: "price",
     rating: "avgRating",
+    photo: "photo",
   };
   const fields = { Categories: "category", Tags: "tags", Type: "type" };
   const searchFields = ["name", "category", "tags"];
@@ -110,7 +111,23 @@ const Plans = () => {
 
         filterFields.tags = {
           displayName: "Tags",
-          values: convertTagsToValues(tags),
+          values: [
+            ...convertTagsToValues(tags),
+            { displayName: "Monuments", filterCriteria: "Monuments" },
+            { displayName: "Museums", filterCriteria: "Museums" },
+            {
+              displayName: "Religious Sites",
+              filterCriteria: "Religious Sites",
+            },
+            {
+              displayName: "Palaces/Castles",
+              filterCriteria: "Palaces/Castles",
+            },
+            { displayName: "1800s-1850s", filterCriteria: "1800s-1850s" },
+            { displayName: "1850s-1900s", filterCriteria: "1850s-1900s" },
+            { displayName: "1900s-1950s", filterCriteria: "1900s-1950s" },
+            { displayName: "1950s-2000s", filterCriteria: "1950s-2000s" },
+          ],
           compareFn: (filterCriteria, element) => {
             if (!element.tags) {
               return false;

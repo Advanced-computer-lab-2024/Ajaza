@@ -184,6 +184,7 @@ exports.createSpecifiedItinerary = async (req, res) => {
       accessibility,
       pickUp,
       dropOff,
+      tags,
       maxTourists
     } = req.body;
     const guide = await Guide.findById(guideId);
@@ -213,11 +214,13 @@ exports.createSpecifiedItinerary = async (req, res) => {
       maxTourists,
       hidden: false,
       active: true,
-      tags: [],
+      tags,
     });
+    //const newItinerary = new Itinerary(req.body);
+    
+    newItinerary.save();
 
-    const savedItinerary = await newItinerary.save();
-    res.status(201).json(savedItinerary);
+    res.status(201).json(newItinerary);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -238,7 +241,7 @@ exports.readItinerariesOfGuide = async (req, res) => {
       return res.status(400).json({ message: 'The profile is still pending approval.' });
     }
     if (!itineraries || itineraries.length === 0) {
-      return res.status(404).json({ message: 'No itineraries found for this guide.' });
+      //return res.status(404).json({ message: 'No itineraries found for this guide.' });
     }
 
     res.status(200).json(itineraries);
@@ -251,6 +254,7 @@ exports.updateItineraryFilteredFields = async (req, res) => {
   try {
     const { guideId, itineraryId } = req.params; 
     const {
+      name,
       timeline,
       language,
       price,
@@ -258,6 +262,8 @@ exports.updateItineraryFilteredFields = async (req, res) => {
       accessibility,
       pickUp,
       dropOff,
+      active,
+      tags,
       maxTourists
     } = req.body; 
     const guide = await Guide.findById(guideId);
@@ -276,6 +282,7 @@ exports.updateItineraryFilteredFields = async (req, res) => {
     }
 
     // e3ml update to only the allowed fields 
+    if (name) itinerary.name = name;
     if (timeline) itinerary.timeline = timeline;
     if (language) itinerary.language = language;
     if (price) itinerary.price = price;
@@ -284,7 +291,9 @@ exports.updateItineraryFilteredFields = async (req, res) => {
     if (pickUp) itinerary.pickUp = pickUp;
     if (dropOff) itinerary.dropOff = dropOff;
     if (maxTourists) itinerary.maxTourists = maxTourists;
-
+    if (active !== undefined) itinerary.active = active;
+    if (tags) itinerary.tags = tags;
+    
     const updatedItinerary = await itinerary.save();
 
     res.status(200).json(updatedItinerary);
@@ -351,7 +360,7 @@ exports.getUpcomingItineraries = async (req, res) => {
       });
 
     if(!itineraries || itineraries.length === 0) {
-      return res.status(404).json({ message: "No upcoming itineraries found" });
+      //return res.status(404).json({ message: "No upcoming itineraries found" });
     }
 
     res.status(200).json(itineraries);
@@ -360,3 +369,19 @@ exports.getUpcomingItineraries = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+//returns list of not hidden activities and venues alongside their type
+exports.fetchOptions = async (req, res) => {
+  try {
+    const activities = await Activity.find({ hidden: false });
+    const venues = await Venue.find({ isVisible: true });
+    const options = activities.concat(venues).map((option) => ({
+      id: option._id,
+      name: option.name,
+      type: option.governorId? "Venue" : "Activity",
+    }));
+    res.status(200).json(options);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}

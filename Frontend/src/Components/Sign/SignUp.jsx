@@ -7,6 +7,14 @@ import CreateAdvertiser from "./CreateAdvertiser";
 
 import { Route, Routes, useNavigate } from "react-router-dom";
 
+// Function to determine the correct article ("a" or "an")
+const getArticle = (role) => {
+  if (role === "advertiser") {
+    return "an";
+  }
+  return "a";
+};
+
 const SignUp = () => {
   const [role, setRole] = useState("tourist");
   const navigate = useNavigate();
@@ -16,7 +24,7 @@ const SignUp = () => {
         style={{ textAlign: "center", alignItems: "center", marginTop: "20px" }}
       >
         <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>
-          Register as a {role} {/* Display the current role */}
+          Register as {getArticle(role)} {role} {/* Display the current role */}
         </h1>
       </div>
       <div style={{ textAlign: "center", marginBottom: "20px" }}>

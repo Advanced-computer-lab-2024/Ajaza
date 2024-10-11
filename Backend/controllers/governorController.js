@@ -96,7 +96,7 @@ exports.readAllGovernorVenues = async (req, res) => {
     const venues = await Venue.find({ governorId, isVisible: true });
 
     if (!venues || venues.length === 0) {
-      return res.status(404).json({ message: 'No venues found for this governor.' });
+      //return res.status(404).json({ message: 'No venues found for this governor.' });
     }
 
     res.status(200).json(venues);
@@ -179,7 +179,7 @@ exports.getGovernorVenues = async (req, res) => {
     const venues = await Venue.find({ governorId, isVisible: true });
 
     if (!venues || venues.length === 0) {
-      return res.status(404).json({ message: 'No venues found for this governor' });
+      //return res.status(404).json({ message: 'No venues found for this governor' });
     }
 
     res.status(200).json(venues);
@@ -194,11 +194,11 @@ exports.getGovernorVenues = async (req, res) => {
 exports.createTagForVenue = async (req, res) => {
   try {
     const { governorId, venueId } = req.params; 
-    const { tag, preferenceTags } = req.body;
+    const { tags, preferenceTags } = req.body;
 
     const validTags = ['Monuments', 'Museums', 'Religious Sites', 'Palaces/Castles','1800s-1850s','1850s-1900s','1900s-1950s','1950s-2000s'];
-    if (!validTags.includes(tag)) {
-      return res.status(400).json({ message: 'Invalid tag. Valid tags are: Monuments, Museums, Religious Sites, Palaces/Castles,,1800s-1850s,1850s-1900s,1900s-1950s,1950s-2000s.' });
+    if (!tags.every(tag => validTags.includes(tag))) {
+      return res.status(400).json({ message: 'Invalid tags. Please provide valid tags.' });
     }
 
     // Validate that preferenceTags is an array of strings, if provided
@@ -213,16 +213,19 @@ exports.createTagForVenue = async (req, res) => {
     }
 
     // Add the provided tag to the venue's tags array (ensure no duplicate tags)
-    if (!venue.tags.includes(tag)) {
-      venue.tags.push(tag);
-    } else {
-      return res.status(400).json({ message: 'Tag already exists for this venue.' });
-    }
+    venue.tags = venue.tags || [];
 
+    // Filter unique tags that are not already in the venue's tags array
+    const uniqueTags = tags.filter(tag => !venue.tags.includes(tag));
+    if (uniqueTags.length > 0) {
+      venue.tags.push(...uniqueTags);
+    } else {
+      return res.status(400).json({ message: 'All tags already exist for this venue.' });
+    }
     // Save the updated venue
     await venue.save();
 
-    res.status(200).json({ message: 'Tag assigned to venue successfully', tag, venue });
+    res.status(200).json({ message: 'Tag assigned to venue successfully', tags, venue });
   } catch (error) {
     // Handle any error that occurs and return it in the response
     res.status(500).json({ error: error.message });

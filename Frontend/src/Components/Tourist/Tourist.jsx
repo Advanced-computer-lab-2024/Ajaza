@@ -12,6 +12,13 @@ import Profile from "../Common/Profile";
 import Plans from "./Plans";
 import Venues from "./Venues";
 import Products from "./Products";
+import RedeemPoints from "./RedeemPoints";
+import RedeemIcon from "@mui/icons-material/Redeem";
+import Activities from "./Activities";
+import ReportGmailerrorredOutlinedIcon from '@mui/icons-material/ReportGmailerrorredOutlined';
+import FileComplaint from "./FileComplaint";
+import Complaints from "./Complaints";
+
 import RedeemIcon from '@mui/icons-material/Redeem';
 import RedeemPoints from "./RedeemPoints";
 
@@ -42,16 +49,35 @@ const Tourist = () => {
     },
     {
       key: "4",
+      icon: <CalendarOutlined />,
+      label: "Activities",
+      onClick: () => navigate("activities"),
+    },
+    {
+      key: "5",
       icon: <ContainerOutlined />,
       label: "Products",
       onClick: () => navigate("products"),
     },
     {
-      key: "5",
+      key: "6",
       icon: <RedeemIcon />,
       label: "Redeem Points",
       onClick: () => navigate("redeemPoints"),
     },
+    {
+      key: "7",
+      icon: <ReportGmailerrorredOutlinedIcon />,
+      label: "File Complaint",
+      onClick: () => navigate("FileComplaint"),
+    },
+    {
+      key: "8",
+      icon: <ReportGmailerrorredOutlinedIcon />,
+      label: "My Complaints",
+      onClick: () => navigate("Complaints"),
+    },
+
   ];
 
   return (
@@ -61,8 +87,11 @@ const Tourist = () => {
         <Route path="profile" element={<Profile />} />
         <Route path="itineraries" element={<Itineraries />} />
         <Route path="venues" element={<Venues />} />
+        <Route path="activities" element={<Activities />} />
         <Route path="products" element={<Products />} />
         <Route path="redeemPoints" element={<RedeemPoints />} />
+        <Route path="fileComplaint" element={<FileComplaint />} />
+        <Route path="complaints" element={<Complaints />} />
       </Routes>
     </CustomLayout>
   );
