@@ -357,3 +357,51 @@ exports.getAdvertiserDocuments = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+//admin accept advertiser
+exports.acceptAdvertiser = async (req, res) => {
+  try {
+    const advertiserId = req.params.id;
+    const advertiser = await Advertiser.findById(advertiserId);
+
+    if (!advertiser) {
+      return res.status(404).json({ message: "Advertiser not found" });
+    }
+
+    if (!advertiser.pending) {
+      return res.status(400).json({ message: "Advertiser is not in a pending state" });
+    }
+
+    advertiser.pending = false;
+    await advertiser.save();
+
+    res.status(200).json({ message: "Advertiser accepted successfully", advertiser });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//admin reject Advertiser (deletes advertiser upon rejection)
+exports.rejectAdvertiser = async (req, res) => {
+  try {
+    const advertiserId = req.params.id;
+    const advertiser = await Advertiser.findById(advertiserId);
+
+    if (!advertiser) {
+      return res.status(404).json({ message: "Advertiser not found" });
+    }
+
+    if (!advertiser.pending) {
+      return res.status(400).json({ message: "Advertiser is not in a pending state" });
+    }
+
+    const deletedAdvertiser = await Advertiser.findByIdAndDelete(advertiserId);
+
+    res.status(200).json({
+      message: "Advertiser rejected and deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

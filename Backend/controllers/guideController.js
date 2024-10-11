@@ -388,3 +388,52 @@ exports.getGuideDocuments = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+//admin accept guide
+exports.acceptGuide = async (req, res) => {
+  try {
+    const guideId = req.params.id;
+    const guide = await Guide.findById(guideId);
+
+    if (!guide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+
+    if (!guide.pending) {
+      return res.status(400).json({ message: "Guide is not in a pending state" });
+    }
+
+    guide.pending = false;
+    await guide.save();
+
+    res.status(200).json({ message: "Guide accepted successfully", guide });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//admin reject guide (deletes guide upon rejection)
+exports.rejectGuide = async (req, res) => {
+  try {
+    const guideId = req.params.id;
+    const guide = await Guide.findById(guideId);
+
+    if (!guide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+
+    if (!guide.pending) {
+      return res.status(400).json({ message: "Guide is not in a pending state" });
+    }
+
+    const deletedguide = await Guide.findByIdAndDelete(guideId);
+
+    res.status(200).json({
+      message: "Guide rejected and deleted successfully",
+      //guideId: deletedguide._id, // You can return the deleted guide's ID if needed
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

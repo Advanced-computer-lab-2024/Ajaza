@@ -49,5 +49,10 @@ router.post("/uploadPhoto/:guideId", uploadPhotoImage, guideController.uploadPho
 //for admin to view uploaded documents of a guide
 router.get("/getDocuments/:id", guideController.getGuideDocuments);
 
+//accept guide
+router.put('/accept/:id', guideController.acceptGuide);
+
+//reject guide
+router.delete('/reject/:id', guideController.rejectGuide);
 
 module.exports = router;
