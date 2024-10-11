@@ -22,7 +22,7 @@ router.delete("/deleteAgain/:id", guideController.deleteGuide);
 router.delete("/deleteGuides", guideController.deleteGuidesRequestingDeletion);
 
 // req52 & req53
-router.post('/:touristId/guide/:itineraryId/feedback', guideController.giveGuideFeedback);
+router.post('/:touristId/guide/:guideId/feedback', guideController.giveGuideFeedback);
 //req 7 
 router.post('/addGuide/:id', validateMobile, guideController.createGuideProfile);
 router.get('/getGuideProfile/:id', guideController.getGuideProfile);

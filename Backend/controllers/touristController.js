@@ -1,6 +1,7 @@
 const Tourist = require("../models/Tourist");
 const Activity = require("../models/Activity");
 const Itinerary = require("../models/Itinerary");
+const Guide = require("../models/Guide");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -384,13 +385,12 @@ exports.bookActivity = async (req, res) => {
     }
 
     if (!isAdult(tourist.dob)) {
-      return res.status(400).json({ message: "Tourist is not an adult" });
+      return res.status(418).json({ message: "Tourist is not an adult" });
     }
 
+    //this condition may be commented since handling it in the frontend
     if (promoCode && tourist.usedPromoCodes.includes(promoCode)) {
-      return res
-        .status(404)
-        .json({ message: "You already used this promo code" });
+      return res.status(404).json({ message: "You already used this promo code" });
     }
 
     const activity = await Activity.findById(activityId);
@@ -400,9 +400,7 @@ exports.bookActivity = async (req, res) => {
 
     // check if the activity is open for booking
     if (!activity.isOpen && activity.spots <= 0) {
-      return res
-        .status(400)
-        .json({ message: "This activity is not open for booking" });
+      return res.status(400).json({ message: "This activity is not open for booking" });
     }
 
     // if the wallet is being used, check if the tourist has enough balance
@@ -414,7 +412,7 @@ exports.bookActivity = async (req, res) => {
       tourist.wallet -= total;
     }
 
-    // otherwise, deduct the payment from another method (e.g. COD, card), assumed handled elsewhere.
+    // otherwise, deduct the payment from another method
 
     // deduct 1 spot from the activity
     activity.spots -= 1;
@@ -455,6 +453,11 @@ exports.bookActivity = async (req, res) => {
       tourist.badge = 1;
     }
 
+    const paymentMethod = useWallet ? "wallet" : "card";
+
+    tourist.notifications.push({text: `Booking confirmed for ${activity.name}`, seen: false, activityId: activity._id});
+    sendEmail(tourist.email, `Booking confirmed for ${activity.name}`, `Your payment of ${total} by ${paymentMethod} was confirmed. You have successfully booked ${activity.name} on ${activity.date}.`);
+
     // Save both the tourist and activity updates
     await tourist.save();
     await activity.save();
@@ -470,6 +473,14 @@ exports.bookItinerary = async (req, res) => {
     const { touristId, itineraryId } = req.params;
     const { useWallet, total, date, promoCode } = req.body; // Boolean to check if wallet should be used for payment, and total passed from frontend
 
+    if(!date || !total){
+      return res.status(400).json({ message: "Date and total are required" });
+    }
+
+    if(date < new Date()){
+      return res.status(400).json({ message: "Date must be in the future" });
+    }
+
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
       return res.status(404).json({ message: "Tourist not found" });
@@ -479,6 +490,7 @@ exports.bookItinerary = async (req, res) => {
       return res.status(400).json({ message: "Tourist is not an adult" });
     }
 
+    //unnecessary condition
     if (promoCode && tourist.usedPromoCodes.includes(promoCode)) {
       return res
         .status(404)
@@ -497,7 +509,7 @@ exports.bookItinerary = async (req, res) => {
         .json({ message: "This itinerary is not open for booking" });
     }
 
-    const availableDate = itinerary.availableDates.find(
+    const availableDate = itinerary.availableDateTime.find(
       (dateObj) => dateObj.date.getTime() === date.getTime()
     );
 
@@ -510,7 +522,7 @@ exports.bookItinerary = async (req, res) => {
     // check if date is in future and has an availableDateTime === date passed
 
     // if the wallet is being used, check if the tourist has enough balance
-    if (useWallet) {
+    if (useWallet && useWallet === true) {
       if (tourist.wallet < total) {
         return res.status(400).json({ message: "Insufficient wallet balance" });
       }
@@ -518,7 +530,7 @@ exports.bookItinerary = async (req, res) => {
       tourist.wallet -= total;
     }
 
-    // otherwise, deduct the payment from another method (e.g. COD, card), assumed handled elsewhere.
+    // otherwise, deduct the payment from another method
 
     // deduct 1 spot from the itinerary
     availableDate.spots -= 1;
@@ -560,6 +572,12 @@ exports.bookItinerary = async (req, res) => {
       tourist.badge = 1;
     }
 
+    const paymentMethod = useWallet ? "wallet" : "card";
+
+    tourist.notifications.push({text: `Booking confirmed for ${itinerary.name}`, seen: false, itineraryId: itinerary._id});
+    sendEmail(tourist.email, `Booking confirmed for ${itinerary.name}`, `Your payment of ${total} by ${paymentMethod} was confirmed. You have successfully booked ${itinerary.name} on ${itinerary.date}.`);
+
+
     // Save both the tourist and itinerary updates
     await tourist.save();
     await itinerary.save();
@@ -591,7 +609,11 @@ exports.guestTouristCreateProfile = async (req, res) => {
   const filteredBody = {};
   allowedFields.forEach((field) => {
     if (req.body[field] !== undefined) {
-      filteredBody[field] = req.body[field];
+      if(field === 'dob'){
+        filteredBody[field] = new Date(req.body[field]);
+      } else {
+        filteredBody[field] = req.body[field];
+      }
     }
   });
 
@@ -684,3 +706,353 @@ exports.acceptTerms = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+//req111
+exports.getApplicablePromoCodes = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    let returnedPromoCodes = [];
+
+    const birthday = tourist.dob;
+    const promoCodesBD = await PromoCode.findOne({
+      "birthday.date": birthday,
+    });
+
+    let within2Days = false;
+
+  
+    const currentYear = (new Date()).getFullYear();
+    
+    const birthdayThisYear = new Date(currentYear, birthday.getMonth(), birthday.getDate());
+    
+    const twoDaysAfter = new Date(birthdayThisYear);
+    twoDaysAfter.setDate(birthdayThisYear.getDate() + 2);
+
+    within2Days = (today >= twoDaysAfter && today <= birthdayThisYear);
+
+    if (promoCodesBD && within2Days) {
+      returnedPromoCodes.push(json({code:promoCodesBD[0].code, value: promoCodesBD[0].value}));
+    }
+
+    const promoCodes = await PromoCode.find({
+      code: { $nin: tourist.usedPromoCodes },
+      $or: [
+        { birthday: { $exists: false } }, // No birthday field at all
+        { birthday: null },               // Birthday field exists but is null
+      ],
+    });
+
+    for(let i = 0; i < promoCodes.length; i++){
+      returnedPromoCodes.push(json({code:promoCodes[i].code, value: promoCodes[i].value}));
+    }
+
+    res.status(200).json(returnedPromoCodes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+// birthdayEventTriggered
+exports.birthdayEventTriggered = async (usersWithBirthdayToday) => {
+  try {
+    const today = new Date();
+
+    const uniquePromoCode = await generateUniqueCode();    //generate a unique 6-character promo code
+
+    const newPromoCode = new PromoCode({
+      code: uniquePromoCode,
+      value: 0.2, // the discount value
+      birthday: {
+        date: today
+      }
+    });
+
+    await newPromoCode.save();
+
+    for(let i = 0; i < usersWithBirthdayToday.length; i++){
+      const tourist = await Tourist.findById(usersWithBirthdayToday[i]._id);
+      if (!tourist) {
+        console.error("Tourist not found");
+        continue;
+      }
+
+      tourist.notifications.push({
+        text: "Happy birthday! Here's a promo code for you: " + uniquePromoCode,
+        seen: false
+      });
+
+      const transporter = nodemailer.createTransport({
+        service: "Gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.NODE_MAILER_USER,
+          pass: process.env.NODE_MAILER_PASS,
+        },
+      });
+  
+      const mailOptions = {
+        from: "reservy.me@gmail.com",
+        to: tourist.email,
+        subject: "Happy Birthday!",
+        html: '<h1>Happy Birthday from Ajaza</h1><h4>Here is a promo code for you,</h4><h2>' + uniquePromoCode + '</h2>',
+      };
+  
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error("Error sending email: ", error);
+        } else {
+          console.log("Email sent: ", info.response);
+        }
+      });
+  
+      await tourist.save();
+    }
+
+    //console.log("Promo code created successfully:", newPromoCode);
+  } catch (error) {
+    console.error("Error creating promo code:", error);
+  }
+};
+
+//helper
+const generateUniqueCode = async () => {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let code;
+  let existingCode;
+
+  do {
+    // Generate a random 6-letter code
+    code = Array.from({ length: 6 }, () => characters.charAt(Math.floor(Math.random() * characters.length))).join('');
+
+    // Check if this code already exists in the database
+    existingCode = await PromoCode.findOne({ code });
+  } while (existingCode);
+
+  return code;
+};
+
+// helper for feedback
+exports.getHistory = async (req, res) => {
+  try {
+
+    const tourist = await Tourist.findById(req.params.id)
+      .populate('activityBookings.activityId')
+      .populate('itineraryBookings.itineraryId');
+
+    if (!tourist) {
+      throw new Error('Tourist not found');
+    }
+
+    const currentDate = new Date();
+    /*
+      activity ids
+      66f6ac560f0094718a1e9e73
+      66f6ac560f0094718a1e9e74
+      66f6ac560f0094718a1e9e75
+      670433de2aa613b75f8e4935
+    */
+    /*
+      itinerary ids
+      66f6adef0f0094718a1f6050
+      66f6adef0f0094718a1f6051
+      66f6adef0f0094718a1f6052
+      66f6adef0f0094718a1f6053
+    */
+    /*guide 66f6ad970f0094718a1f366a*/
+    let activities = [];
+    for(let i = 0; i < tourist.activityBookings.length; i++){
+      if(tourist.activityBookings[i].activityId.date < currentDate){
+        activities.push({activityId: tourist.activityBookings[i].activityId._id, name: tourist.activityBookings[i].activityId.name ,date: tourist.activityBookings[i].activityId.date, gaveFeedback: (tourist.gaveFeedback.includes(tourist.activityBookings[i].activityId._id))});
+      }
+    }
+    let itineraries = [];
+    let guides = [];
+    let guideNames = [];
+    for(let i = 0; i < tourist.itineraryBookings.length; i++){
+      if(tourist.itineraryBookings[i].date < currentDate){
+        itineraries.push({itineraryId: tourist.itineraryBookings[i].itineraryId._id, name: tourist.itineraryBookings[i].itineraryId.name ,date: tourist.itineraryBookings[i].date, gaveFeedback: (tourist.gaveFeedback.includes(tourist.itineraryBookings[i].itineraryId._id))});
+        console.log("Itinerary guide id:", tourist.itineraryBookings[i].itineraryId.guideId);
+        console.log("Tourist gave feedback:", tourist.gaveFeedback);
+        const guideNumberOfTimesRated = tourist.gaveFeedback.filter(el => el.equals(tourist.itineraryBookings[i].itineraryId.guideId)).length;
+        const numberOfBookingsWithGuide = tourist.itineraryBookings.filter(booking => {return booking.itineraryId && booking.itineraryId.guideId.equals(tourist.itineraryBookings[i].itineraryId.guideId) && booking.date < currentDate;}).length;
+        console.log("Guide number of times rated:", guideNumberOfTimesRated);
+        console.log("Number of bookings with guide:", numberOfBookingsWithGuide);
+        const guideName = await Guide.findById(tourist.itineraryBookings[i].itineraryId.guideId).select('username');
+        if(guideName && !guideNames.includes(guideName.username)){ 
+          guides.push({guideId: tourist.itineraryBookings[i].itineraryId.guideId, name: guideName.username, gaveFeedback: (numberOfBookingsWithGuide < guideNumberOfTimesRated)});
+          guideNames.push(guideName.username);
+        }
+      }
+    }
+
+    res.status(200).json({activities: activities, itineraries: itineraries, guides: guides});
+  } catch (error) {
+    console.error("Error retrieving past activity bookings:", error);
+    throw error;
+  }
+}
+
+async function sendEmail(email, subject, html) {
+  const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.NODE_MAILER_USER,
+      pass: process.env.NODE_MAILER_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: "reservy.me@gmail.com",
+    to: email,
+    subject: subject,
+    html: html,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error("Error sending email: ", error);
+    } else {
+      console.log("Email sent: ", info.response);
+    }
+  });
+}
+
+//req63
+exports.getFutureBookings = async (req, res) => {
+  const { touristId } = req.params.id;
+  const currentDate = new Date();
+
+  try {
+    const tourist = await Tourist.findById(touristId)
+      .populate('activityBookings.activityId')
+      .populate('itineraryBookings.itineraryId');
+
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    let activities = [];
+    for(let i = 0; i < tourist.activityBookings.length; i++){
+      if(tourist.activityBookings[i].activityId.date > currentDate){
+        const hoursDifference = (new Date(tourist.activityBookings[i].activityId.date) - currentDate) / (1000 * 60 * 60);
+        activities.push({activityId: tourist.activityBookings[i].activityId._id, name: tourist.activityBookings[i].activityId.name ,date: tourist.activityBookings[i].activityId.date, canBeCancelled: (hoursDifference > 48)});
+      }
+    }
+    let itineraries = [];
+    for(let i = 0; i < tourist.itineraryBookings.length; i++){
+      if(tourist.itineraryBookings[i].date > currentDate){
+        const hoursDifference = (new Date(tourist.itineraryBookings[i].date) - currentDate) / (1000 * 60 * 60);
+        itineraries.push({itineraryId: tourist.itineraryBookings[i].itineraryId._id, name: tourist.itineraryBookings[i].itineraryId.name ,date: tourist.itineraryBookings[i].date, canBeCancelled: (hoursDifference > 48)});
+      }
+    }
+
+    res.status(200).json({ activities: activities, itineraries: itineraries });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+//req65
+exports.addActivityBookmark = async (req, res) => {
+  const { touristId, activityId } = req.params;
+  cleanActivityBookmarks(touristId);
+
+  try {
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    if (!tourist.activityBookmarks.includes(activityId)) {
+      tourist.activityBookmarks.push(activityId);
+    }
+
+    await tourist.save();
+
+    res.status(200).json({ message: "Activity bookmarked successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+async function cleanActivityBookmarks(touristId) {
+
+  const tourist = await Tourist.findById(touristId);
+  const activityBookmarks = tourist.activityBookmarks;
+
+  const currentDate = new Date();
+  for (let i = 0; i < activityBookmarks.length; i++) {
+    const activity = await Activity.findById(activityBookmarks[i]);
+    if(!activity){
+      activityBookmarks.splice(i, 1);
+      i--;
+    } else {
+      if (activity.date < currentDate) {
+        activityBookmarks.splice(i, 1);
+        i--;
+      } else {
+        if (activity.hidden) {
+          activityBookmarks.splice(i, 1);
+          i--;
+        }
+      }
+    }
+  }
+
+  tourist.activityBookmarks = activityBookmarks;
+  await tourist.save();
+}
+
+//req65
+exports.addItineraryBookmark = async (req, res) => {
+  const { touristId, itineraryId } = req.params;
+  cleanItineraryBookmarks(touristId);
+
+  try {
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    if (!tourist.itineraryBookmarks.includes(itineraryId)) {
+      tourist.itineraryBookmarks.push(itineraryId);
+    }
+
+    await tourist.save();
+
+    res.status(200).json({ message: "Itinerary bookmarked successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+async function cleanItineraryBookmarks(touristId) {
+
+  const tourist = await Tourist.findById(touristId);
+  const itineraryBookmarks = tourist.itineraryBookmarks;
+
+  for (let i = 0; i < itineraryBookmarks.length; i++) {
+    const itinerary = await Itinerary.findById(itineraryBookmarks[i]);
+    if(!itinerary){
+      itineraryBookmarks.splice(i, 1);
+      i--;
+    } else {
+        if (itinerary.hidden) {
+          itineraryBookmarks.splice(i, 1);
+          i--;
+        }
+    }
+  }
+  tourist.itineraryBookmarks = itineraryBookmarks;
+  await tourist.save();
+}
