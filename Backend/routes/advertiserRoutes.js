@@ -76,4 +76,8 @@ router.patch("/acceptTerms/:id", advertiserController.acceptTerms);
 
 router.post("/uploadLogo/:advertiserId", uploadLogoImage, advertiserController.uploadAdvertiserLogo);
 
+//for admin to view uploaded documents of a advertiser
+router.get("/getDocuments/:advertiserId", advertiserController.getAdvertiserDocuments);//id walla advertiserId
+
+
 module.exports = router;
