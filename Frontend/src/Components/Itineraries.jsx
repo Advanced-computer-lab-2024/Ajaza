@@ -119,7 +119,7 @@ const Itineraries = () => {
         accessibility: values.accessibility,
         maxTourists: values.maxTourists,
         tags: values.tags,
-        active: values.active || true,
+        active: values.active !== undefined ? values.active : false,
         timeline: (values.timeline || []).map((entry) => ({
           start: entry.start,
           id: entry.id,
@@ -156,7 +156,7 @@ const Itineraries = () => {
       const timelineWithTypes = (values.timeline || []).map((entry) => ({
         ...entry,
         type: optionsMap[entry.id]?.type || null, // Ensure type is included
-      }));  
+      }));
 
       // Deep comparison for timeline
       if (
@@ -165,7 +165,7 @@ const Itineraries = () => {
       ) {
         updatedFields.timeline = timelineWithTypes;
       }
-      console.log("edit:", updatedFields)
+      console.log("edit:", updatedFields);
 
       // Only include the fields that have changed
       Object.keys(values).forEach((key) => {
@@ -173,11 +173,6 @@ const Itineraries = () => {
           updatedFields[key] = values[key];
         }
       });
-
-      // Ensure maxTourists is included if it has changed
-      if (values.maxTourists !== originalItinerary.maxTourists) {
-        updatedFields.maxTourists = values.maxTourists;
-      }
 
       if (Object.keys(updatedFields).length === 0) {
         message.info("No changes detected.");
@@ -250,7 +245,7 @@ const Itineraries = () => {
     setIsModalVisible(false);
     form.resetFields();
   };
-  console.log("allooo:" , itinerariesData)
+  console.log("allooo:", itinerariesData);
 
   return (
     <div style={{ display: "flex" }}>
