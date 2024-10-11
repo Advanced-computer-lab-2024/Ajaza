@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, Flex, Rate } from "antd";
+import SelectCurrency from "../Tourist/SelectCurrency";
 
 function formatDateTime(availableDateTime) {
   return availableDateTime.map((item) => {
@@ -49,7 +50,7 @@ const BasicCard = ({
   return (
     <Card
       title={title}
-      extra={extra ? `$${extra}` : null}
+      extra={<SelectCurrency basePrice={extra} />}
       actions={actions}
       onClick={(prev) => handleEdit}
       cover={
