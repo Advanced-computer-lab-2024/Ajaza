@@ -97,7 +97,9 @@ const MyProducts = () => {
         let combinedArray = products;
 
         combinedArray = combinedArray.map((element) => {
-          return { ...element, avgRating: getAvgRating(element.feedback) };
+          return { ...element, avgRating: getAvgRating(element.feedback),
+            sales: element.sales || 0, // Ensure sales is set to 0 if not present
+           };
         });
 
         console.log(combinedArray);
