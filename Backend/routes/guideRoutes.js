@@ -22,11 +22,23 @@ router.delete("/deleteAgain/:id", guideController.deleteGuide);
 router.delete("/deleteGuides", guideController.deleteGuidesRequestingDeletion);
 
 // req52 & req53
-router.post('/:touristId/guide/:guideId/feedback', guideController.giveGuideFeedback);
-//req 7 
-router.post('/addGuide/:id', validateMobile, guideController.createGuideProfile);
-router.get('/getGuideProfile/:id', guideController.getGuideProfile);
-router.patch('/updateGuideProfile/:id', validateMobile, uploadPhotoImage, guideController.updateGuideProfile);
+router.post(
+  "/:touristId/guide/:itineraryId/feedback",
+  guideController.giveGuideFeedback
+);
+//req 7
+router.post(
+  "/addGuide/:id",
+  validateMobile,
+  guideController.createGuideProfile
+);
+router.get("/getGuideProfile/:id", guideController.getGuideProfile);
+router.patch(
+  "/updateGuideProfile/:id",
+  validateMobile,
+  uploadPhotoImage,
+  guideController.updateGuideProfile
+);
 
 //req5  -- Tatos
 router.post(
@@ -51,18 +63,19 @@ router.delete(
 
 router.patch("/acceptTerms/:id", guideController.acceptTerms);
 
-//change password
-router.patch("/changePassword/:id", guideController.changePassword);
-
-router.post("/uploadPhoto/:guideId", uploadPhotoImage, guideController.uploadPhoto);
+router.post(
+  "/uploadPhoto/:guideId",
+  uploadPhotoImage,
+  guideController.uploadPhoto
+);
 
 //for admin to view uploaded documents of a guide
 router.get("/getDocuments/:id", guideController.getGuideDocuments);
 
 //accept guide
-router.put('/accept/:id', guideController.acceptGuide);
+router.put("/accept/:id", guideController.acceptGuide);
 
 //reject guide
-router.delete('/reject/:id', guideController.rejectGuide);
+router.delete("/reject/:id", guideController.rejectGuide);
 
 module.exports = router;

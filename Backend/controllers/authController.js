@@ -221,3 +221,58 @@ exports.verifyOTP = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword, role } = req.body;
+    const userId = req.params.id; // Assuming user ID is passed as a parameter
+
+    // Find the user by ID based on the role
+    let user;
+    if (role === "tourist") {
+      user = await Tourist.findById(userId);
+    } else if (role === "guide") {
+      user = await Guide.findById(userId);
+    } else if (role === "advertiser") {
+      user = await Advertiser.findById(userId);
+    } else if (role === "seller") {
+      user = await Seller.findById(userId);
+    } else if (role === "governor") {
+      user = await TourismGovernor.findById(userId);
+    } else if (role === "admin") {
+      user = await Admin.findById(userId);
+    } else {
+      return res.status(400).json({ message: "Invalid user role" });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Compare the provided old password with the hashed password stored in the database
+    const isMatch = await bcrypt.compare(oldPassword, user.pass);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Incorrect old password" });
+    }
+
+    // Check if the new password is the same as the old password
+    const isSamePassword = await bcrypt.compare(newPassword, user.pass);
+    if (isSamePassword) {
+      return res.status(400).json({
+        message: "New password cannot be the same as the old password",
+      });
+    }
+
+    // Hash the new password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update the password in the database
+    user.pass = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password changed successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

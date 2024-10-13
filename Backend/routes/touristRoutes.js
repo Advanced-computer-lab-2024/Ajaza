@@ -129,11 +129,12 @@ router.delete(
 );
 
 router.patch("/acceptTerms/:id", touristController.acceptTerms);
-//router of change password
-router.patch("/changePassword/:id", touristController.changePassword);
 
 //req 111
-router.get("/promoCodes/getApplicablePromoCodes/:id", touristController.getApplicablePromoCodes);
+router.get(
+  "/promoCodes/getApplicablePromoCodes/:id",
+  touristController.getApplicablePromoCodes
+);
 
 //req52-57
 router.get("/history/getHistory/:id", touristController.getHistory);

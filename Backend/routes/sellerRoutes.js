@@ -33,11 +33,16 @@ router.post(
 ); // Guest Seller sign up
 
 // req9
-router.post('/sellerCreateProfile/:id', sellerController.sellerCreateProfile);    // Seller sign up
-router.get('/sellerReadProfile/:id', sellerController.sellerReadProfile);    // Seller read profile
-router.patch('/sellerUpdateProfile/:id', validateEmail, uniqueEmail,uploadLogoImage, sellerController.sellerUpdateProfile);  // Seller update profile
-router.delete('/sellerDeleteHimself/:id',sellerController.sellerDeleteHimself);  // Seller delete himself
-
+router.post("/sellerCreateProfile/:id", sellerController.sellerCreateProfile); // Seller sign up
+router.get("/sellerReadProfile/:id", sellerController.sellerReadProfile); // Seller read profile
+router.patch(
+  "/sellerUpdateProfile/:id",
+  validateEmail,
+  uniqueEmail,
+  uploadLogoImage,
+  sellerController.sellerUpdateProfile
+); // Seller update profile
+router.delete("/sellerDeleteHimself/:id", sellerController.sellerDeleteHimself); // Seller delete himself
 
 router.delete("/deleteSomeSellers", sellerController.adminDeletesSellers);
 
@@ -47,7 +52,7 @@ router.delete(
   sellerController.adminDeletesSellerFromSystem
 );
 
-router.patch('/acceptTerms/:id', sellerController.acceptTerms);
+router.patch("/acceptTerms/:id", sellerController.acceptTerms);
 
 router.post("/uploadLogo/:sellerId", uploadLogoImage, sellerController.uploadSellerLogo);
 
@@ -60,7 +65,5 @@ router.put('/accept/:id', sellerController.acceptSeller);
 //reject seller
 router.delete('/reject/:id', sellerController.rejectSeller);
 
-//change password
-router.patch("/changePassword/:id", sellerController.changePassword);
 
 module.exports = router;

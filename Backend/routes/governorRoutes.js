@@ -63,7 +63,5 @@ router.delete(
 );
 
 router.patch("/acceptTerms/:id", governorController.acceptTerms);
-//change password
-router.patch("/changePassword/:id", governorController.changePassword);
 
 module.exports = router;

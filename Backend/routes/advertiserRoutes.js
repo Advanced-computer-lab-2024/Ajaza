@@ -46,7 +46,8 @@ router.get(
 
 // Update the profile of the authenticated advertiser
 router.patch(
-  "/advertiserUpdateProfile/:id", uploadLogoImage,
+  "/advertiserUpdateProfile/:id",
+  uploadLogoImage,
   advertiserController.advertiserUpdateProfile
 );
 router.post(
@@ -73,11 +74,11 @@ router.delete(
 
 router.patch("/acceptTerms/:id", advertiserController.acceptTerms);
 
-//change password
-router.patch("/changePassword/:id", advertiserController.changePassword);
-
-
-router.post("/uploadLogo/:advertiserId", uploadLogoImage, advertiserController.uploadAdvertiserLogo);
+router.post(
+  "/uploadLogo/:advertiserId",
+  uploadLogoImage,
+  advertiserController.uploadAdvertiserLogo
+);
 
 //for admin to view uploaded documents of a advertiser
 router.get("/getDocuments/:advertiserId", advertiserController.getAdvertiserDocuments);//id walla advertiserId
