@@ -135,4 +135,13 @@ router.patch("/changePassword/:id", touristController.changePassword);
 //req 111
 router.get("/promoCodes/getApplicablePromoCodes/:id", touristController.getApplicablePromoCodes);
 
+//req52-57
+router.get("/history/getHistory/:id", touristController.getHistory);
+
+//req63
+router.get("/future/getFutureBookings/:id", touristController.getFutureBookings);
+
+//req65
+router.post("/bookmark/addActivityBookmark/:touristId/:activityId", touristController.addActivityBookmark);
+router.post("/bookmark/addItineraryBookmark/:touristId/:itineraryId", touristController.addItineraryBookmark);
 module.exports = router;

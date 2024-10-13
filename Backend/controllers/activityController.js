@@ -120,12 +120,18 @@ exports.giveActivityFeedback = async (req, res) => {
     const { touristId, activityId } = req.params;
     const { rating, comments } = req.body;
 
+    if (!rating || !comments) {
+      return res.status(400).json({ message: "Bad request" });
+    }
+
+
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
       return res.status(404).json({ message: "Tourist not found" });
     }
 
-    if (tourist.gaveFeedback.includes(activityId)) {
+    //these conditions are no longer needed since button for feedback will only appear if allowed
+    /*if (tourist.gaveFeedback.includes(activityId)) {
       return res.status(400).json({ message: "Feedback already given" });
     }
 
@@ -137,7 +143,7 @@ exports.giveActivityFeedback = async (req, res) => {
       return res
         .status(400)
         .json({ message: "No valid past activity booking found" });
-    }
+    }*/
 
     const activity = await Activity.findById(activityId);
     if (!activity) {

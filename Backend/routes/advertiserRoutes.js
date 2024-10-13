@@ -79,4 +79,14 @@ router.patch("/changePassword/:id", advertiserController.changePassword);
 
 router.post("/uploadLogo/:advertiserId", uploadLogoImage, advertiserController.uploadAdvertiserLogo);
 
+//for admin to view uploaded documents of a advertiser
+router.get("/getDocuments/:advertiserId", advertiserController.getAdvertiserDocuments);//id walla advertiserId
+
+
+//accept advertiser
+router.put('/accept/:id', advertiserController.acceptAdvertiser);
+
+//reject advertiser
+router.delete('/reject/:id', advertiserController.rejectAdvertiser);
+
 module.exports = router;
