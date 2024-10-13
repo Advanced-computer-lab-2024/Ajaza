@@ -591,7 +591,7 @@ exports.guestTouristCreateProfile = async (req, res) => {
   const filteredBody = {};
   allowedFields.forEach((field) => {
     if (req.body[field] !== undefined) {
-      if(field === 'dob'){
+      if (field === "dob") {
         filteredBody[field] = new Date(req.body[field]);
       } else {
         filteredBody[field] = req.body[field];
@@ -688,23 +688,6 @@ exports.acceptTerms = async (req, res) => {
   }
 };
 
-exports.changePassword = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const user = await Tourist.findById(id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(req.body.pass, saltRounds);
-    user.pass = hashedPassword;
-    await user.save();
-    res.status(200).json({ message: "Password changed successfully" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
 //req111
 exports.getApplicablePromoCodes = async (req, res) => {
   try {
@@ -723,56 +706,63 @@ exports.getApplicablePromoCodes = async (req, res) => {
 
     let within2Days = false;
 
-  
-    const currentYear = (new Date()).getFullYear();
-    
-    const birthdayThisYear = new Date(currentYear, birthday.getMonth(), birthday.getDate());
-    
+    const currentYear = new Date().getFullYear();
+
+    const birthdayThisYear = new Date(
+      currentYear,
+      birthday.getMonth(),
+      birthday.getDate()
+    );
+
     const twoDaysAfter = new Date(birthdayThisYear);
     twoDaysAfter.setDate(birthdayThisYear.getDate() + 2);
 
-    within2Days = (today >= twoDaysAfter && today <= birthdayThisYear);
+    within2Days = today >= twoDaysAfter && today <= birthdayThisYear;
 
     if (promoCodesBD && within2Days) {
-      returnedPromoCodes.push(json({code:promoCodesBD[0].code, value: promoCodesBD[0].value}));
+      returnedPromoCodes.push(
+        json({ code: promoCodesBD[0].code, value: promoCodesBD[0].value })
+      );
     }
 
     const promoCodes = await PromoCode.find({
       code: { $nin: tourist.usedPromoCodes },
       $or: [
         { birthday: { $exists: false } }, // No birthday field at all
-        { birthday: null },               // Birthday field exists but is null
+        { birthday: null }, // Birthday field exists but is null
       ],
     });
 
-    for(let i = 0; i < promoCodes.length; i++){
-      returnedPromoCodes.push(json({code:promoCodes[i].code, value: promoCodes[i].value}));
+    for (let i = 0; i < promoCodes.length; i++) {
+      returnedPromoCodes.push(
+        json({ code: promoCodes[i].code, value: promoCodes[i].value })
+      );
     }
 
     res.status(200).json(returnedPromoCodes);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
 // birthdayEventTriggered
 exports.birthdayEventTriggered = async (usersWithBirthdayToday) => {
   try {
     const today = new Date();
 
-    const uniquePromoCode = await generateUniqueCode();    //generate a unique 6-character promo code
+    const uniquePromoCode = await generateUniqueCode(); //generate a unique 6-character promo code
 
     const newPromoCode = new PromoCode({
       code: uniquePromoCode,
       value: 0.2, // the discount value
       birthday: {
-        date: today
-      }
+        date: today,
+      },
     });
 
     await newPromoCode.save();
 
-    for(let i = 0; i < usersWithBirthdayToday.length; i++){
+    for (let i = 0; i < usersWithBirthdayToday.length; i++) {
       const tourist = await Tourist.findById(usersWithBirthdayToday[i]._id);
       if (!tourist) {
         console.error("Tourist not found");
@@ -781,7 +771,7 @@ exports.birthdayEventTriggered = async (usersWithBirthdayToday) => {
 
       tourist.notifications.push({
         text: "Happy birthday! Here's a promo code for you: " + uniquePromoCode,
-        seen: false
+        seen: false,
       });
 
       const transporter = nodemailer.createTransport({
@@ -794,14 +784,17 @@ exports.birthdayEventTriggered = async (usersWithBirthdayToday) => {
           pass: process.env.NODE_MAILER_PASS,
         },
       });
-  
+
       const mailOptions = {
         from: "reservy.me@gmail.com",
         to: tourist.email,
         subject: "Happy Birthday!",
-        html: '<h1>Happy Birthday from Ajaza</h1><h4>Here is a promo code for you,</h4><h2>' + uniquePromoCode + '</h2>',
+        html:
+          "<h1>Happy Birthday from Ajaza</h1><h4>Here is a promo code for you,</h4><h2>" +
+          uniquePromoCode +
+          "</h2>",
       };
-  
+
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           console.error("Error sending email: ", error);
@@ -809,7 +802,7 @@ exports.birthdayEventTriggered = async (usersWithBirthdayToday) => {
           console.log("Email sent: ", info.response);
         }
       });
-  
+
       await tourist.save();
     }
 
@@ -821,13 +814,15 @@ exports.birthdayEventTriggered = async (usersWithBirthdayToday) => {
 
 //helper
 const generateUniqueCode = async () => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let code;
   let existingCode;
 
   do {
     // Generate a random 6-letter code
-    code = Array.from({ length: 6 }, () => characters.charAt(Math.floor(Math.random() * characters.length))).join('');
+    code = Array.from({ length: 6 }, () =>
+      characters.charAt(Math.floor(Math.random() * characters.length))
+    ).join("");
 
     // Check if this code already exists in the database
     existingCode = await PromoCode.findOne({ code });

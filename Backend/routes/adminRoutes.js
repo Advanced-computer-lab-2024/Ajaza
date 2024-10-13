@@ -26,7 +26,4 @@ router.delete(
   adminController.adminDeletesAdminFromSystem
 );
 
-//change password
-router.patch("/changePassword/:id", adminController.changePassword);
-
 module.exports = router;

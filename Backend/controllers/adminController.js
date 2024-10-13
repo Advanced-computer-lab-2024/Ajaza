@@ -1,19 +1,16 @@
-const Admin = require('../models/Admin');
-const Advertiser = require('../models/Advertiser');
-const Activity = require('../models/Activity');
-const Venue = require('../models/venue');
-const Itinerary = require('../models/Itinerary');
-const Governor = require('../models/Governor');
-const Seller = require('../models/Seller');
-const Tourist = require('../models/Tourist');
-const Guide = require('../models/Guide');
-const bcrypt = require('bcrypt');
-const Product = require('../models/Product');
-const Tag = require('../models/Tag');
-const Category = require('../models/Category');
-
-
-
+const Admin = require("../models/Admin");
+const Advertiser = require("../models/Advertiser");
+const Activity = require("../models/Activity");
+const Venue = require("../models/venue");
+const Itinerary = require("../models/Itinerary");
+const Governor = require("../models/Governor");
+const Seller = require("../models/Seller");
+const Tourist = require("../models/Tourist");
+const Guide = require("../models/Guide");
+const bcrypt = require("bcrypt");
+const Product = require("../models/Product");
+const Tag = require("../models/Tag");
+const Category = require("../models/Category");
 
 // Create a new admin
 exports.createAdmin = async (req, res) => {
@@ -117,8 +114,10 @@ exports.adminDeletesAdminFromSystem = async (req, res) => {
     const result2 = await Category.find({ adminId: adminId });
     const categoriesToRemove = result2.map((category) => category.category);
     let activities = await Activity.find({});
-    const filteredActivities = activities.filter(activity => 
-      activity.category.some(category => categoriesToRemove.includes(category))
+    const filteredActivities = activities.filter((activity) =>
+      activity.category.some((category) =>
+        categoriesToRemove.includes(category)
+      )
     );
     for (let activity of filteredActivities) {
       await Activity.deleteOne({ _id: activity._id });
@@ -147,7 +146,9 @@ exports.adminDeletesAdminFromSystem = async (req, res) => {
     }
     const itineraries = await Itinerary.find({});
     for (let itinerary of itineraries) {
-      itinerary.tags = itinerary.tags.filter((tag) => !tagsToRemove.includes(tag));
+      itinerary.tags = itinerary.tags.filter(
+        (tag) => !tagsToRemove.includes(tag)
+      );
       await itinerary.save();
     }
     await Tag.deleteMany({ adminId: adminId });
@@ -159,22 +160,5 @@ exports.adminDeletesAdminFromSystem = async (req, res) => {
     res.status(200).json({ message: "Admin deleted successfully", result });
   } catch (error) {
     res.status(400).json({ error: error.message });
-  }
-};
-
-exports.changePassword = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const user = await Admin.findById(id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(req.body.pass, saltRounds);
-    user.pass = hashedPassword;
-    await user.save();
-    res.status(200).json({ message: "Password changed successfully" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
 };
