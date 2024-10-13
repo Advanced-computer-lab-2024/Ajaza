@@ -386,3 +386,18 @@ exports.changePassword = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.uploadPhoto = async (req, res) => {
+  try {
+    const guideId = req.params.id;
+    const guide = await Guide.findById(guideId);
+    if (!guide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+    guide.photo = req.body.photo;
+    await guide.save();
+    res.status(200).json({ message: "Photo uploaded successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}

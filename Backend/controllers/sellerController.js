@@ -213,7 +213,7 @@ exports.sellerUpdateProfile = async (req, res) => {
   const sellerId = req.params.id;
 
   // Allowed fields for update
-  const allowedFields = ["email", "name", "desc"];
+  const allowedFields = ["email", "name", "desc", "logo"];
 
   // Filter the request body
   const filteredBody = {};
@@ -371,5 +371,21 @@ exports.changePassword = async (req, res) => {
     res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+//uploadLogo for specific seller
+exports.uploadSellerLogo = async (req, res) => {
+  try {
+    const seller = await Seller.findById(req.params.sellerId);
+    const logo = req.body.logo;
+    if (!seller) {
+      return res.status(404).json({ message: "Seller not found" });
+    }
+    seller.logo = logo;
+    await seller.save();
+    res.status(200).json(venue);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 };

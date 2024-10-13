@@ -181,7 +181,7 @@ exports.deleteAdvertisersRequestingDeletion = async (req, res) => {
 
 //new req 8
 exports.advertiserUpdateProfile = async (req, res) => {
-  const allowedFields = ["email", "link", "hotline", "companyProfile"];
+  const allowedFields = ["email", "link", "hotline", "companyProfile", "logo"];
 
   const filteredBody = Object.keys(req.body)
     .filter((key) => allowedFields.includes(key))
@@ -325,5 +325,21 @@ exports.changePassword = async (req, res) => {
     res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+//uploadLogo for specific advertiser
+exports.uploadAdvertiserLogo = async (req, res) => {
+  try {
+    const advertiser = await Advertiser.findById(req.params.advertiserId);
+    const logo = req.body.logo;
+    if (!advertiser) {
+      return res.status(404).json({ message: "Advertiser not found" });
+    }
+    advertiser.logo = logo;
+    await advertiser.save();
+    res.status(200).json(venue);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 };

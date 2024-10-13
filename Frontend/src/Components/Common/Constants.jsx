@@ -12,8 +12,8 @@ export const Colors = {
     50: "#f2f2f2",
   },
   primary: {
-    light: "#1b696a",
-    default: "#9fcfbb",
+    default: "#1b696a",
+    light: "#6c9c88",
   },
 };
 
@@ -59,17 +59,19 @@ export const comparePriceRange = (filterCriteria, element) => {
   if (!element.price) {
     return false;
   }
+
   // filterCriteria is one of the values that we can filter with
   const [num1, num2] = filterCriteria;
   const min = Math.min(num1, num2);
   const max = Math.max(num1, num2);
 
-  if (!typeof element["price"] == Number) {
-    if (element.upper < max && element.lower > min) {
+  if (element["price"].length != null) {
+    if (element.upper <= max && element.lower >= min) {
       return true;
     }
     return false;
   }
+  console.log("barra");
 
   return element?.price >= min && element.price <= max; // inclusive range
 };

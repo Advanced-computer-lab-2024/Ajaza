@@ -40,4 +40,7 @@ router.get('/readItinerariesOfGuide/:guideId', itineraryController.readItinerari
 router.patch('/updateItineraryFilteredFields/:guideId/:itineraryId', itineraryController.updateItineraryFilteredFields);
 router.delete('/deleteSpecificItinerary/:guideId/:itineraryId', itineraryController.deleteSpecificItinerary);
 
+//gets list of activities and venues that can be added to an itinerary
+router.get('/fetchOptions/fetchOptions', itineraryController.fetchOptions);
+
 module.exports = router;

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const guideController = require("../controllers/guideController");
-const uploadPhotoImage = require("../middleware/uploadImage");
+const uploadPhotoImage = require("../middleware/uploadPhotoImage");
 const validateEmail = require("../middleware/validateEmail");
 const uniqueEmail = require("../middleware/uniqueEmail");
 const uniqueUsername = require("../middleware/uniqueUsername");
@@ -22,22 +22,11 @@ router.delete("/deleteAgain/:id", guideController.deleteGuide);
 router.delete("/deleteGuides", guideController.deleteGuidesRequestingDeletion);
 
 // req52 & req53
-router.post(
-  "/:touristId/guide/:itineraryId/feedback",
-  guideController.giveGuideFeedback
-);
-//req 7
-router.post(
-  "/addGuide/:id",
-  validateMobile,
-  guideController.createGuideProfile
-);
-router.get("/getGuideProfile/:id", guideController.getGuideProfile);
-router.patch(
-  "/updateGuideProfile/:id",
-  validateMobile,
-  guideController.updateGuideProfile
-);
+router.post('/:touristId/guide/:itineraryId/feedback', guideController.giveGuideFeedback);
+//req 7 
+router.post('/addGuide/:id', validateMobile, guideController.createGuideProfile);
+router.get('/getGuideProfile/:id', guideController.getGuideProfile);
+router.patch('/updateGuideProfile/:id', validateMobile, uploadPhotoImage, guideController.updateGuideProfile);
 
 //req5  -- Tatos
 router.post(
@@ -64,5 +53,7 @@ router.patch("/acceptTerms/:id", guideController.acceptTerms);
 
 //change password
 router.patch("/changePassword/:id", guideController.changePassword);
+
+router.post("/uploadPhoto/:guideId", uploadPhotoImage, guideController.uploadPhoto);
 
 module.exports = router;

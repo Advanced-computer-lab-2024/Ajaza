@@ -63,6 +63,36 @@ const Venues = () => {
       compareFn: (filterCriteria, element) =>
         comparePriceRange(filterCriteria, element),
     },
+    tags: {
+      displayName: "Tags",
+      values: [
+        { displayName: "Monuments", filterCriteria: "Monuments" },
+        { displayName: "Museums", filterCriteria: "Museums" },
+        {
+          displayName: "Religious Sites",
+          filterCriteria: "Religious Sites",
+        },
+        {
+          displayName: "Palaces/Castles",
+          filterCriteria: "Palaces/Castles",
+        },
+        { displayName: "1800s-1850s", filterCriteria: "1800s-1850s" },
+        { displayName: "1850s-1900s", filterCriteria: "1850s-1900s" },
+        { displayName: "1900s-1950s", filterCriteria: "1900s-1950s" },
+        { displayName: "1950s-2000s", filterCriteria: "1950s-2000s" },
+      ],
+      compareFn: (filterCriteria, element) => {
+        if (!element.tags) {
+          return false;
+        }
+        // Convert filterCriteria to lowercase
+        const lowerFilterCriteria = filterCriteria.toLowerCase();
+        // Check if any of the tags (converted to lowercase) match the filterCriteria
+        return element?.tags.some(
+          (tag) => tag.toLowerCase() === lowerFilterCriteria
+        );
+      },
+    },
   });
 
   useEffect(() => {
@@ -76,22 +106,6 @@ const Venues = () => {
         venues = venues.map((venue) => {
           return calculateYourPrice(venue, "egypt", "student");
         });
-
-        filterFields.tags = {
-          displayName: "Tags",
-          values: structureTags(getUniqueTags(venues)),
-          compareFn: (filterCriteria, element) => {
-            if (!element.tags) {
-              return false;
-            }
-            // Convert filterCriteria to lowercase
-            const lowerFilterCriteria = filterCriteria.toLowerCase();
-            // Check if any of the tags (converted to lowercase) match the filterCriteria
-            return element?.tags.some(
-              (tag) => tag.toLowerCase() === lowerFilterCriteria
-            );
-          },
-        };
 
         let combinedArray = venues;
 

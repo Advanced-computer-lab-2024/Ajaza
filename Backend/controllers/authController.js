@@ -99,7 +99,7 @@ exports.login = async (req, res) => {
     const isMatchPlain = password === user.pass;
     const isMatch = await bcrypt.compare(password, user.pass);
     if (!isMatch && !isMatchPlain) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
     // Map user details
@@ -135,7 +135,7 @@ exports.login = async (req, res) => {
     res.status(200).json({ token, message: "Login successful" });
   } catch (error) {
     console.error("Error during login:", error); // Log the error for debugging
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 

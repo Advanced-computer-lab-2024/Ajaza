@@ -37,7 +37,7 @@ const venueSchema = new mongoose.Schema({
   tags: [
     {
       type: String,
-      enum: ["Monuments", "Museums", "Religious Sites", "Palaces/Castles"],
+      enum: ["Monuments", "Museums", "Religious Sites", "Palaces/Castles","1800s-1850s","1850s-1900s","1900s-1950s","1950s-2000s"],
     },
   ], // Array of tags related to the venue, from the limited list given in description
   isVisible: { type: Boolean, default: true },

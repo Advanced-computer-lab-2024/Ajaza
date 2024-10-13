@@ -2,6 +2,7 @@ const Activity = require("../models/Activity");
 const Advertiser = require("../models/Advertiser");
 const Tourist = require("../models/Tourist");
 const Tag = require("../models/Tag");
+const Category = require("../models/Category");
 // Create a new activity
 exports.createActivity = async (req, res) => {
   try {
@@ -257,8 +258,6 @@ exports.createSpecifiedActivity = async (req, res) => {
       }
         */
 
-      const tagObjects = await Tag.find({ _id: { $in: tags } });
-      const tagNames = tagObjects.map(tag => tag.tag);
 
       const newActivity = new Activity({
           advertiserId,
@@ -269,7 +268,7 @@ exports.createSpecifiedActivity = async (req, res) => {
           lower,
           price,
           category,
-          tags: tagNames,
+          tags,
           discounts,
           isOpen,
           spots,
@@ -298,7 +297,7 @@ exports.readActivitiesOfAdvertiser = async (req, res) => {
       const activities = await Activity.find({ advertiserId, hidden: false });
       
       if (!activities || activities.length === 0) {
-        return res.status(404).json({ message: 'No activities found for this advertiser.' });
+        //return res.status(404).json({ message: 'No activities found for this advertiser.' });
       }
       res.status(200).json(activities);
   } catch (error) {
@@ -347,12 +346,15 @@ exports.updateActivityFilteredFields = async (req, res) => {
   try {
     const { advertiserId, activityId } = req.params; 
     const {
+      name,
       date,
       time,
       location,
-      price,
+      upper,
+      lower,
       category,
       tags,
+      spots,
       discounts
     } = req.body; 
     /*const advertiser = await Advertiser.findById(advertiserId);
@@ -373,12 +375,15 @@ exports.updateActivityFilteredFields = async (req, res) => {
     }
 
     // updating only the allowed fields
+    if (name) activity.name = name;
     if (date) activity.date = date;
     if (time) activity.time = time; 
     if (location) activity.location = location;
-    if (price) activity.price = price;
+    if (upper) activity.upper = upper;
+    if (lower) activity.lower = lower;
+    if (spots) activity.spots = spots;
     if (category) activity.category = category;
-    if (tags) {const tagNames = await Tag.find({ _id: { $in: tags } }, 'tag').lean(); const tagNamesArray = tagNames.map(tag => tag.tag); activity.tags = tagNamesArray; }
+    if (tags) activity.tags = tags;
     if (discounts) activity.discounts = discounts;
 
     const updatedActivity = await activity.save();
@@ -402,7 +407,7 @@ exports.getUpcomingActivities = async (req, res) => {
     });
 
     if(!upcomingActivities || upcomingActivities.length === 0){
-      return res.status(404).json({ message: "No upcoming activities found" });
+      //return res.status(404).json({ message: "No upcoming activities found" });
     }
 
     res.status(200).json(upcomingActivities);

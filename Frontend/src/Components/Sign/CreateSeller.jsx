@@ -21,27 +21,27 @@ const CreateSeller = () => {
     try {
       const formData = new FormData();
 
-      formData.append('username', values.username);
-      formData.append('pass', values.password);
-      formData.append('email', values.email);
+      formData.append("username", values.username);
+      formData.append("pass", values.password);
+      formData.append("email", values.email);
 
       console.log("Values:", values);
 
-      if (values.document1 && values.document1.length > 0) {
-        formData.append('id', values.document1[0].originFileObj);
-      }
+      // if (values.document1 && values.document1.length > 0) {
+      //   formData.append('id', values.document1[0].originFileObj);
+      // }
 
-      if (values.document2 && values.document2.length > 0) {
-        formData.append('taxationRegCard', values.document2[0].originFileObj);
-      }
+      // if (values.document2 && values.document2.length > 0) {
+      //   formData.append('taxationRegCard', values.document2[0].originFileObj);
+      // }
 
       const response = await axios.post(
         "http://localhost:5000/seller/guestSellerCreateProfile",
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
-          }
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
 
@@ -54,7 +54,10 @@ const CreateSeller = () => {
       return response.data._id;
     } catch (error) {
       console.error("Error creating seller:", error);
-      message.error("Failed to create seller.");
+      const errorDetails =
+        error.response?.data?.error || "Failed to create seller.";
+      // Display the error message with the custom prefix
+      message.error(`Failed to create seller: ${errorDetails}`);
     }
   };
 
@@ -75,7 +78,14 @@ const CreateSeller = () => {
 
   return (
     <>
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
+      >
         <Form
           name="basic"
           labelCol={{ span: 8 }}
@@ -122,7 +132,12 @@ const CreateSeller = () => {
             getValueFromEvent={normFile}
             extra="Upload the ID."
           >
-            <Upload name="doc1" listType="text" beforeUpload={() => false} maxCount={1}>
+            <Upload
+              name="doc1"
+              listType="text"
+              beforeUpload={() => false}
+              maxCount={1}
+            >
               <CustomButton size="m" icon={<UploadOutlined />} value="Upload" />
             </Upload>
           </Form.Item>
@@ -134,7 +149,12 @@ const CreateSeller = () => {
             getValueFromEvent={normFile}
             extra="Upload the taxation registery card."
           >
-            <Upload name="doc2" listType="text" beforeUpload={() => false} maxCount={1}>
+            <Upload
+              name="doc2"
+              listType="text"
+              beforeUpload={() => false}
+              maxCount={1}
+            >
               <CustomButton size="m" icon={<UploadOutlined />} value="Upload" />
             </Upload>
           </Form.Item>

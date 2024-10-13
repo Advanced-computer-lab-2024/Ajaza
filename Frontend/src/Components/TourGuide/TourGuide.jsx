@@ -22,7 +22,7 @@ const TourGuide = () => {
       icon: <CalendarOutlined />,
       label: "Itineraries",
       onClick: () => {
-        navigate("itineraries");
+        navigate("/guide/");
       },
     },
   ];
@@ -30,9 +30,7 @@ const TourGuide = () => {
   return (
     <CustomLayout sideBarItems={sideBarItems}>
       <Routes>
-        <Route path="/" element={<div>Tour Guide</div>} />
-        <Route path="/itineraries" element={<Itineraries />} />
-        <Route path="Report" element={<div>Report</div>} />
+        <Route path="/" element={<Itineraries />} />
         <Route path="profile" element={<Profile />} />
       </Routes>
     </CustomLayout>

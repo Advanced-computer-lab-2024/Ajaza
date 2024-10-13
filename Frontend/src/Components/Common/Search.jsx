@@ -32,6 +32,7 @@ const Search = ({
   textColor,
   style,
   icon: IconComponent = SearchOutlined, // Passed as a prop
+  inputStyleParam,
 }) => {
   // Use useState to create a state "searchValue" and state modifier "setSearchValue"
   // This is an example
@@ -120,7 +121,7 @@ const Search = ({
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           className={styles.searchInput}
-          style={inputStyle}
+          style={{ ...inputStyle, ...inputStyleParam }}
           placeholder="Search..."
         />
         <IconComponent
