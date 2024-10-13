@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const touristController = require('../controllers/touristController');
-const apiController = require('../controllers/apiController');
-const validateEmail = require('../middleware/validateEmail');
-const uniqueEmail = require('../middleware/uniqueEmail');
-const validateMobile = require('../middleware/validateMobile');
+const touristController = require("../controllers/touristController");
+const apiController = require("../controllers/apiController");
+const validateEmail = require("../middleware/validateEmail");
+const uniqueEmail = require("../middleware/uniqueEmail");
+const validateMobile = require("../middleware/validateMobile");
 const uniqueUsername = require("../middleware/uniqueUsername");
 
 const axios = require("axios");
@@ -109,10 +109,16 @@ router.post(
 );
 
 //req4      --Tatos
-router.post('/guestTouristCreateProfile', validateEmail, uniqueEmail, validateMobile, uniqueUsername, touristController.guestTouristCreateProfile);    // Guest Tourist sign up
+router.post(
+  "/guestTouristCreateProfile",
+  validateEmail,
+  uniqueEmail,
+  validateMobile,
+  uniqueUsername,
+  touristController.guestTouristCreateProfile
+); // Guest Tourist sign up
 
-router.delete('/deleteSomeTourists', touristController.adminDeletesTourists);
-
+router.delete("/deleteSomeTourists", touristController.adminDeletesTourists);
 
 router.delete("/deleteSomeTourists", touristController.adminDeletesTourists);
 
@@ -123,5 +129,7 @@ router.delete(
 );
 
 router.patch("/acceptTerms/:id", touristController.acceptTerms);
+//router of change password
+router.patch("/changePassword/:id", touristController.changePassword);
 
 module.exports = router;

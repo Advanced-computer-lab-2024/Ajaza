@@ -3,7 +3,6 @@ const router = express.Router();
 const adminController = require("../controllers/adminController");
 const uniqueUsername = require("../middleware/uniqueUsername");
 
-
 router.post("/", adminController.createAdmin);
 
 // this will probably not be used
@@ -22,7 +21,12 @@ router.delete("/deleteAgain/:id", adminController.deleteAdmin);
 router.post("/addAdmin", uniqueUsername, adminController.adminAddAdmin);
 
 //delete off system
-router.delete('/deleteAdminFromSystem/:id', adminController.adminDeletesAdminFromSystem);
+router.delete(
+  "/deleteAdminFromSystem/:id",
+  adminController.adminDeletesAdminFromSystem
+);
 
+//change password
+router.patch("/changePassword/:id", adminController.changePassword);
 
 module.exports = router;

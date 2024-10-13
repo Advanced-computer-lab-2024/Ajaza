@@ -369,3 +369,20 @@ exports.acceptTerms = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.changePassword = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await Guide.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(req.body.pass, saltRounds);
+    user.pass = hashedPassword;
+    await user.save();
+    res.status(200).json({ message: "Password changed successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

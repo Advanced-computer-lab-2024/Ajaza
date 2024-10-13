@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const guideController = require('../controllers/guideController');
-const uploadPhotoImage = require('../middleware/uploadImage');
-const validateEmail = require('../middleware/validateEmail');
-const uniqueEmail = require('../middleware/uniqueEmail');
+const guideController = require("../controllers/guideController");
+const uploadPhotoImage = require("../middleware/uploadImage");
+const validateEmail = require("../middleware/validateEmail");
+const uniqueEmail = require("../middleware/uniqueEmail");
 const uniqueUsername = require("../middleware/uniqueUsername");
-const validateMobile = require('../middleware/validateMobile');
-const uploadIdCertificatesImage = require('../middleware/uploadIdCertificatesImage');
+const validateMobile = require("../middleware/validateMobile");
+const uploadIdCertificatesImage = require("../middleware/uploadIdCertificatesImage");
 
 router.post("/", guideController.createGuide);
 
@@ -22,14 +22,32 @@ router.delete("/deleteAgain/:id", guideController.deleteGuide);
 router.delete("/deleteGuides", guideController.deleteGuidesRequestingDeletion);
 
 // req52 & req53
-router.post('/:touristId/guide/:itineraryId/feedback', guideController.giveGuideFeedback);
-//req 7 
-router.post('/addGuide/:id', validateMobile, guideController.createGuideProfile);
-router.get('/getGuideProfile/:id', guideController.getGuideProfile);
-router.patch('/updateGuideProfile/:id', validateMobile, guideController.updateGuideProfile);
+router.post(
+  "/:touristId/guide/:itineraryId/feedback",
+  guideController.giveGuideFeedback
+);
+//req 7
+router.post(
+  "/addGuide/:id",
+  validateMobile,
+  guideController.createGuideProfile
+);
+router.get("/getGuideProfile/:id", guideController.getGuideProfile);
+router.patch(
+  "/updateGuideProfile/:id",
+  validateMobile,
+  guideController.updateGuideProfile
+);
 
 //req5  -- Tatos
-router.post('/guestGuideCreateProfile',validateEmail,uniqueUsername, uniqueEmail, uploadIdCertificatesImage, guideController.guestGuideCreateProfile);    // Guest Guide sign up
+router.post(
+  "/guestGuideCreateProfile",
+  validateEmail,
+  uniqueUsername,
+  uniqueEmail,
+  uploadIdCertificatesImage,
+  guideController.guestGuideCreateProfile
+); // Guest Guide sign up
 
 //req 26
 router.get("/getMyItineraries/:guideId", guideController.getGuideItineraries);
@@ -43,5 +61,8 @@ router.delete(
 );
 
 router.patch("/acceptTerms/:id", guideController.acceptTerms);
+
+//change password
+router.patch("/changePassword/:id", guideController.changePassword);
 
 module.exports = router;
