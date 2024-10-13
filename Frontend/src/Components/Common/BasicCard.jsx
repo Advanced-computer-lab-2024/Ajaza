@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, Flex, Rate } from "antd";
+import SelectCurrency from "../Tourist/SelectCurrency";
 
 function formatDateTime(availableDateTime) {
   return availableDateTime.map((item) => {
@@ -14,7 +15,6 @@ function formatDateTime(availableDateTime) {
       hour: "2-digit",
       minute: "2-digit",
     });
-
     // Return an object with formatted values
     return {
       id: item._id,
@@ -46,10 +46,11 @@ const BasicCard = ({
   const handleEdit = (prev) => {
     if (prev != true) setIsEditable(true);
   };
+
   return (
     <Card
       title={title}
-      extra={extra ? `$${extra}` : null}
+      extra={<SelectCurrency basePrice={extra} />}
       actions={actions}
       onClick={(prev) => handleEdit}
       cover={
@@ -65,7 +66,7 @@ const BasicCard = ({
       }
     >
       {Object.entries(fields).map(([key, value]) => {
-        if (value) {
+        if (value !== undefined) {
           return (
             <div
               style={{
@@ -85,12 +86,10 @@ const BasicCard = ({
           <div style={{ fontWeight: "bold" }}>Dates/Times Available</div>
           {dateTimeFormatted.map((element, index) => {
             console.log(element);
-
             return <div key={index}>{element.display}</div>;
           })}
         </>
       ) : null}
-
       {rateDisplay ? (
         <Rate allowHalf disabled={!rateEnabled} value={avgRating} />
       ) : null}

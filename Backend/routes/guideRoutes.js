@@ -63,10 +63,18 @@ router.delete(
 
 router.patch("/acceptTerms/:id", guideController.acceptTerms);
 
-router.post(
-  "/uploadPhoto/:guideId",
-  uploadPhotoImage,
-  guideController.uploadPhoto
-);
+//change password
+router.patch("/changePassword/:id", guideController.changePassword);
+
+router.post("/uploadPhoto/:guideId", uploadPhotoImage, guideController.uploadPhoto);
+
+//for admin to view uploaded documents of a guide
+router.get("/getDocuments/:id", guideController.getGuideDocuments);
+
+//accept guide
+router.put('/accept/:id', guideController.acceptGuide);
+
+//reject guide
+router.delete('/reject/:id', guideController.rejectGuide);
 
 module.exports = router;

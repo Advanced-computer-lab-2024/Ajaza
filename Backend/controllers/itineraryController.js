@@ -132,7 +132,8 @@ exports.giveItineraryFeedback = async (req, res) => {
       return res.status(404).json({ message: "Tourist not found" });
     }
 
-    if (tourist.gaveFeedback.includes(itineraryId)) {
+    //these conditions are no longer needed since button for feedback will only appear if allowed
+    /*if (tourist.gaveFeedback.includes(itineraryId)) {
       return res.status(400).json({ message: "Feedback already given" });
     }
 
@@ -147,7 +148,7 @@ exports.giveItineraryFeedback = async (req, res) => {
       return res
         .status(400)
         .json({ message: "No valid past itinerary booking found" });
-    }
+    }*/
 
     const itinerary = await Itinerary.findById(itineraryId);
     if (!itinerary) {
