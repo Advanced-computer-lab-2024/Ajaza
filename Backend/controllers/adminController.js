@@ -41,7 +41,7 @@ exports.getAdminById = async (req, res) => {
   try {
     const admin = await Admin.findById(req.params.id);
     if (!admin) {
-      return res.status(404).json({ message: 'Admin not found' });
+      return res.status(404).json({ message: "Admin not found" });
     }
     res.status(200).json(admin);
   } catch (error) {
@@ -52,9 +52,13 @@ exports.getAdminById = async (req, res) => {
 // Update admin by ID
 exports.updateAdmin = async (req, res) => {
   try {
-    const updatedAdmin = await Admin.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedAdmin = await Admin.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
     if (!updatedAdmin) {
-      return res.status(404).json({ message: 'Admin not found' });
+      return res.status(404).json({ message: "Admin not found" });
     }
     res.status(200).json(updatedAdmin);
   } catch (error) {
@@ -67,9 +71,9 @@ exports.deleteAdmin = async (req, res) => {
   try {
     const deletedAdmin = await Admin.findByIdAndDelete(req.params.id);
     if (!deletedAdmin) {
-      return res.status(404).json({ message: 'Admin not found' });
+      return res.status(404).json({ message: "Admin not found" });
     }
-    res.status(200).json({ message: 'Admin deleted successfully' });
+    res.status(200).json({ message: "Admin deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -78,11 +82,10 @@ exports.deleteAdmin = async (req, res) => {
 // req 17 ng
 //admin adds another admin
 exports.adminAddAdmin = async (req, res) => {
-
   const { username, pass } = req.body;
 
   if (!username || !pass) {
-    return res.status(400).json({ message: 'Username and pass are required.' });
+    return res.status(400).json({ message: "Username and pass are required." });
   }
 
   const saltRounds = 10;
@@ -94,14 +97,14 @@ exports.adminAddAdmin = async (req, res) => {
     savedadmin.pass = undefined;
     res.status(201).json(savedadmin);
   } catch (error) {
-    res.status(400).json({error: error.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
 exports.adminDeletesAdminFromSystem = async (req, res) => {
   const adminId = req.params.id;
-  if(!adminId) {
-    return res.status(400).json({ error: 'Admin ID is required' });
+  if (!adminId) {
+    return res.status(400).json({ error: "Admin ID is required" });
   }
   try {
     //removing products posted by admin
@@ -151,10 +154,27 @@ exports.adminDeletesAdminFromSystem = async (req, res) => {
 
     const deletedAdmin = await Admin.findByIdAndDelete(adminId);
     if (!deletedAdmin) {
-      return res.status(404).json({ message: 'Admin not found' });
+      return res.status(404).json({ message: "Admin not found" });
     }
-    res.status(200).json({ message: 'Admin deleted successfully', result });
-  } catch(error) {
+    res.status(200).json({ message: "Admin deleted successfully", result });
+  } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await Admin.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(req.body.pass, saltRounds);
+    user.pass = hashedPassword;
+    await user.save();
+    res.status(200).json({ message: "Password changed successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

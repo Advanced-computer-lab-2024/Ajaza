@@ -103,7 +103,6 @@ exports.deleteSeller = async (req, res) => {
 //              req5            //
 // Geuest/Seller sign up
 exports.guestSellerCreateProfile = async (req, res) => {
-
   // TODO: validation of the input data
 
   // Allowed fields
@@ -143,9 +142,11 @@ exports.sellerCreateProfile = async (req, res) => {
 
   // Allowed fields
 
-  const allowedFields = ['name', 'desc'];
+  const allowedFields = ["name", "desc"];
   if (!req.body.name || !req.body.desc) {
-    return res.status(400).json({ message: 'Name and description are required' });
+    return res
+      .status(400)
+      .json({ message: "Name and description are required" });
   }
 
   // Filter the request body
@@ -167,11 +168,15 @@ exports.sellerCreateProfile = async (req, res) => {
           "Seller is pending approval or has not accepted terms and condition",
       });
     }
-    if(seller.name || seller.desc){
-      return res.status(401).json({ message: 'Profile already exists' });
+    if (seller.name || seller.desc) {
+      return res.status(401).json({ message: "Profile already exists" });
     }
 
-    const newSeller = await Seller.findByIdAndUpdate(sellerId, {$set:filteredBody}, { new: true , runValidators: true });
+    const newSeller = await Seller.findByIdAndUpdate(
+      sellerId,
+      { $set: filteredBody },
+      { new: true, runValidators: true }
+    );
     newSeller.pass = undefined;
     res.status(201).json(newSeller);
   } catch (error) {
@@ -347,6 +352,23 @@ exports.acceptTerms = async (req, res) => {
     user.acceptedTerms = true;
     await user.save();
     res.status(200).json({ message: "Terms accepted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await Seller.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(req.body.pass, saltRounds);
+    user.pass = hashedPassword;
+    await user.save();
+    res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

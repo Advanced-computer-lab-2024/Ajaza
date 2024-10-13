@@ -6,6 +6,9 @@ const TourGuide = require("../models/Guide");
 const Seller = require("../models/Seller");
 const TourismGovernor = require("../models/Governor");
 const Admin = require("../models/Admin");
+const { sendOTP } = require("../services/emailService");
+const { generateOTP, otpStore } = require("../utils/otpUtils");
+const OTP_EXPIRY_TIME = 15 * 60 * 1000;
 
 // Utility: Verify JWT token (middleware)
 exports.verifyToken = (req, res, next) => {
@@ -133,5 +136,88 @@ exports.login = async (req, res) => {
   } catch (error) {
     console.error("Error during login:", error); // Log the error for debugging
     res.status(500).json({ message: error.message });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email, role } = req.body;
+
+    let user;
+    // Check the user type and find the user by email in the corresponding model
+    if (role === "tourist") {
+      user = await Tourist.findOne({ email });
+    } else if (role === "guide") {
+      user = await TourGuide.findOne({ email });
+    } else if (role === "advertiser") {
+      user = await Advertiser.findOne({ email });
+    } else if (role === "seller") {
+      user = await Seller.findOne({ email });
+    } else {
+      return res.status(400).json({ message: "Invalid user type" });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate OTP and store it temporarily
+    const otp = generateOTP();
+    otpStore[email] = { otp, expiresAt: Date.now() + OTP_EXPIRY_TIME };
+
+    // Send OTP via email
+    await sendOTP(email, otp);
+
+    res.status(200).json({ message: "OTP sent to your email" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Verify OTP and reset password
+exports.verifyOTP = async (req, res) => {
+  try {
+    const { email, otp, newPassword, role } = req.body;
+
+    // Check if OTP exists and is valid
+    const storedOTP = otpStore[email];
+    if (
+      !storedOTP ||
+      storedOTP.otp !== otp ||
+      Date.now() > storedOTP.expiresAt
+    ) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    // Find the user by email based on the role
+    let user;
+    if (role === "tourist") {
+      user = await Tourist.findOne({ email });
+    } else if (role === "guide") {
+      user = await Guide.findOne({ email });
+    } else if (role === "advertiser") {
+      user = await Advertiser.findOne({ email });
+    } else if (role === "seller") {
+      user = await Seller.findOne({ email });
+    } else {
+      return res.status(400).json({ message: "Invalid user role" });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Hash the new password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    user.pass = hashedPassword;
+    await user.save();
+
+    // Clear OTP after successful reset
+    delete otpStore[email];
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

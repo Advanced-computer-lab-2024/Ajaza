@@ -7,7 +7,7 @@ const uploadLogoImage = require("../middleware/uploadLogoImage");
 const validateEmail = require("../middleware/validateEmail");
 const uniqueEmail = require("../middleware/uniqueEmail");
 const uniqueUsername = require("../middleware/uniqueUsername");
-const uploadIdTaxImage = require('../middleware/uploadIdTaxImage');
+const uploadIdTaxImage = require("../middleware/uploadIdTaxImage");
 
 router.post("/", advertiserController.createAdvertiser);
 
@@ -72,6 +72,9 @@ router.delete(
 );
 
 router.patch("/acceptTerms/:id", advertiserController.acceptTerms);
+
+//change password
+router.patch("/changePassword/:id", advertiserController.changePassword);
 
 
 router.post("/uploadLogo/:advertiserId", uploadLogoImage, advertiserController.uploadAdvertiserLogo);
