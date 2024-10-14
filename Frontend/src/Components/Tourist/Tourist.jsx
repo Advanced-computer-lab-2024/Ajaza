@@ -15,10 +15,10 @@ import Products from "./Products";
 import RedeemPoints from "./RedeemPoints";
 import RedeemIcon from "@mui/icons-material/Redeem";
 import Activities from "./Activities";
-import ReportGmailerrorredOutlinedIcon from '@mui/icons-material/ReportGmailerrorredOutlined';
+import ReportGmailerrorredOutlinedIcon from "@mui/icons-material/ReportGmailerrorredOutlined";
 import FileComplaint from "./FileComplaint";
 import Complaints from "./Complaints";
-import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
+import RateReviewOutlinedIcon from "@mui/icons-material/RateReviewOutlined";
 import TouristHistory from "./TouristHistory";
 
 const Tourist = () => {
@@ -82,10 +82,37 @@ const Tourist = () => {
       label: "Feedback",
       onClick: () => navigate("TouristHistory"),
     },
-
-      
-
-
+    {
+      key: "10",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Current Bookings",
+      onClick: () => navigate("bookings"),
+    },
+    {
+      key: "11",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Booking History",
+      onClick: () => navigate("history"),
+    },
+    {
+      key: "12",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Saved Plans",
+      onClick: () => navigate("saved"),
+    },
+    {
+      key: "13",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Wishlist",
+      onClick: () => navigate("wishlist"),
+    },
+    {
+      key: "14",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Orders",
+      onClick: () => navigate("orders"),
+    },
+    // TODO put them in nested like current and past bookings ---- products,wishlist,orders
   ];
 
   return (

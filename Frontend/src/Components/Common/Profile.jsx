@@ -8,12 +8,16 @@ import {
   Button,
   Form,
   message,
+  Modal,
+  Flex,
 } from "antd";
 import {
   UserOutlined,
   EditOutlined,
   SaveOutlined,
   CloseOutlined,
+  DeleteOutlined,
+  WarningFilled,
 } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
@@ -180,8 +184,37 @@ const Profile = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
+  const confirmDelete = async (id) => {
+    Modal.confirm({
+      title: "Are you sure?",
+      content: "Do you want to request deletion of your account?",
+      okText: "Delete",
+      okType: "danger",
+      icon: <WarningFilled style={{ color: "#ff4d4f" }} />,
+      onOk: async () => {
+        try {
+          console.log("TODO");
+
+          message.success("Deletion Request Sent!");
+        } catch (error) {
+          message.error("Failed to send deletion request");
+        }
+      },
+    });
+  };
+
   return (
-    <div className="profile-page">
+    <>
+      <Flex justify="right">
+        <Button
+          style={{ marginLeft: "auto" }}
+          type="primary"
+          danger
+          icon={<DeleteOutlined />}
+          onClick={() => confirmDelete()}
+        ></Button>
+      </Flex>
+
       <Card
         style={{
           width: "100%",
@@ -454,7 +487,7 @@ const Profile = () => {
           )}
         </Space>
       </Card>
-    </div>
+    </>
   );
 };
 

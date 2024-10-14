@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, Flex, Rate } from "antd";
 import SelectCurrency from "../Tourist/SelectCurrency";
 
@@ -33,7 +34,9 @@ const BasicCard = ({
   rating,
   dateTime,
   photo,
+  navigationLink = false,
 }) => {
+  const navigate = useNavigate();
   const [avgRating, setAvgRating] = useState(rating);
   const [dateTimeFormatted, setDateTimeFormatted] = useState(null);
   const [isEditable, setIsEditable] = useState(false);
@@ -52,7 +55,7 @@ const BasicCard = ({
       title={title}
       extra={<SelectCurrency basePrice={extra} />}
       actions={actions}
-      onClick={(prev) => handleEdit}
+      onClick={() => (navigationLink ? navigate(navigationLink) : null)}
       cover={
         photo ? (
           <Flex justify="center">
