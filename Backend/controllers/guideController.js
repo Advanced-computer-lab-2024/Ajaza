@@ -75,7 +75,7 @@ exports.giveGuideFeedback = async (req, res) => {
   //validation middleware
 
   try {
-    const { touristId, itineraryId } = req.params;
+    const { touristId, guideId } = req.params;
     const { rating, comments } = req.body;
 
     if (!rating || !comments) {
@@ -87,33 +87,6 @@ exports.giveGuideFeedback = async (req, res) => {
       return res.status(404).json({ message: "Tourist not found" });
     }
 
-    // find the itinerary booking by itineraryId, to rate the guide once per every itinerary booking
-    const itineraryBooking = tourist.itineraryBookings.find(
-      (booking) =>
-        booking.itineraryId.toString() === itineraryId &&
-        booking.date < new Date()
-    );
-
-    if (!itineraryBooking) {
-      return res
-        .status(400)
-        .json({ message: "No valid past itinerary booking found" });
-    }
-
-    // find the itinerary to get the guideId
-    const itinerary = await Itinerary.findById(itineraryId);
-    if (!itinerary) {
-      return res.status(404).json({ message: "Itinerary not found" });
-    }
-
-    const guideId = itinerary.guideId;
-
-    if (tourist.gaveFeedback.includes(guideId)) {
-      return res
-        .status(400)
-        .json({ message: "Feedback already given for this guide" });
-    }
-
     // Find the guide and append feedback
     const guide = await Guide.findById(guideId);
     if (!guide) {
@@ -123,7 +96,6 @@ exports.giveGuideFeedback = async (req, res) => {
     guide.feedback.push({ rating, comments });
     tourist.gaveFeedback.push(guideId);
     await tourist.save();
-
     await guide.save();
 
     res.status(200).json({
@@ -362,6 +334,9 @@ exports.acceptTerms = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    if (user.pending) {
+      return res.status(400).json({ message: "User is pending approval" });
+    }
     user.acceptedTerms = true;
     await user.save();
     res.status(200).json({ message: "Terms accepted successfully" });
@@ -384,3 +359,84 @@ exports.uploadPhoto = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 }
+
+
+// get uploaded documents by id: returns id and certificates
+exports.getGuideDocuments = async (req, res) => {
+  try {
+    const guideId = req.params.id;
+    const guide = await Guide.findById(guideId).select('id certificates');
+
+    if (!guide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+
+    const response = {
+      message: "Documents retrieved successfully",
+      id: guide.id || null,
+      certificates: guide.certificates.length > 0 ? guide.certificates : null
+    };
+
+    if (!guide.id) {
+      response.idMessage = "No ID uploaded by this guide";
+    }
+
+    if (guide.certificates.length === 0) {
+      response.certificatesMessage = "No certificates uploaded by this guide";
+      response.certificates = null;
+    }
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+//admin accept guide
+exports.acceptGuide = async (req, res) => {
+  try {
+    const guideId = req.params.id;
+    const guide = await Guide.findById(guideId);
+
+    if (!guide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+
+    if (!guide.pending) {
+      return res.status(400).json({ message: "Guide is not in a pending state" });
+    }
+
+    guide.pending = false;
+    await guide.save();
+
+    res.status(200).json({ message: "Guide accepted successfully", guide });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//admin reject guide (deletes guide upon rejection)
+exports.rejectGuide = async (req, res) => {
+  try {
+    const guideId = req.params.id;
+    const guide = await Guide.findById(guideId);
+
+    if (!guide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+
+    if (!guide.pending) {
+      return res.status(400).json({ message: "Guide is not in a pending state" });
+    }
+
+    const deletedguide = await Guide.findByIdAndDelete(guideId);
+
+    res.status(200).json({
+      message: "Guide rejected and deleted successfully",
+      //guideId: deletedguide._id, // You can return the deleted guide's ID if needed
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

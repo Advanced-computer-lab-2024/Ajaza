@@ -38,7 +38,6 @@ const Products = () => {
   const fields = {
     Description: "desc",
     Seller: "sellerName",
-    Sales: "sales",
     "Quantity Available": "quantity",
   };
   const searchFields = ["name"];

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, Flex, Rate } from "antd";
+import SelectCurrency from "../Tourist/SelectCurrency";
 
 function formatDateTime(availableDateTime) {
   return availableDateTime.map((item) => {
@@ -14,7 +16,6 @@ function formatDateTime(availableDateTime) {
       hour: "2-digit",
       minute: "2-digit",
     });
-
     // Return an object with formatted values
     return {
       id: item._id,
@@ -33,7 +34,9 @@ const BasicCard = ({
   rating,
   dateTime,
   photo,
+  navigationLink = false,
 }) => {
+  const navigate = useNavigate();
   const [avgRating, setAvgRating] = useState(rating);
   const [dateTimeFormatted, setDateTimeFormatted] = useState(null);
   const [isEditable, setIsEditable] = useState(false);
@@ -46,12 +49,13 @@ const BasicCard = ({
   const handleEdit = (prev) => {
     if (prev != true) setIsEditable(true);
   };
+
   return (
     <Card
       title={title}
-      extra={extra ? `$${extra}` : null}
+      extra={<SelectCurrency basePrice={extra} />}
       actions={actions}
-      onClick={(prev) => handleEdit}
+      onClick={() => (navigationLink ? navigate(navigationLink) : null)}
       cover={
         photo ? (
           <Flex justify="center">
@@ -65,7 +69,7 @@ const BasicCard = ({
       }
     >
       {Object.entries(fields).map(([key, value]) => {
-        if (value) {
+        if (value !== undefined) {
           return (
             <div
               style={{
@@ -85,12 +89,10 @@ const BasicCard = ({
           <div style={{ fontWeight: "bold" }}>Dates/Times Available</div>
           {dateTimeFormatted.map((element, index) => {
             console.log(element);
-
             return <div key={index}>{element.display}</div>;
           })}
         </>
       ) : null}
-
       {rateDisplay ? (
         <Rate allowHalf disabled={!rateEnabled} value={avgRating} />
       ) : null}

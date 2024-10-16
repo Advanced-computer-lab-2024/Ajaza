@@ -109,10 +109,14 @@ const MyProducts = () => {
         // Filter out archived products
         let nonArchivedProducts = products.filter((product) => !product.archived);
 
-        let combinedArray = nonArchivedProducts.map((element) => ({
-          ...element,
-          avgRating: getAvgRating(element.feedback),
-        }));
+        combinedArray = combinedArray.map((element) => {
+          return {
+            ...element, avgRating: getAvgRating(element.feedback),
+            sales: element.sales || 0, // Ensure sales is set to 0 if not present
+          };
+        });
+
+        console.log(combinedArray);
 
         setCombinedElements(combinedArray);
       } catch (error) {

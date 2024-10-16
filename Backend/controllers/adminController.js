@@ -1,19 +1,16 @@
-const Admin = require('../models/Admin');
-const Advertiser = require('../models/Advertiser');
-const Activity = require('../models/Activity');
-const Venue = require('../models/venue');
-const Itinerary = require('../models/Itinerary');
-const Governor = require('../models/Governor');
-const Seller = require('../models/Seller');
-const Tourist = require('../models/Tourist');
-const Guide = require('../models/Guide');
-const bcrypt = require('bcrypt');
-const Product = require('../models/Product');
-const Tag = require('../models/Tag');
-const Category = require('../models/Category');
-
-
-
+const Admin = require("../models/Admin");
+const Advertiser = require("../models/Advertiser");
+const Activity = require("../models/Activity");
+const Venue = require("../models/venue");
+const Itinerary = require("../models/Itinerary");
+const Governor = require("../models/Governor");
+const Seller = require("../models/Seller");
+const Tourist = require("../models/Tourist");
+const Guide = require("../models/Guide");
+const bcrypt = require("bcrypt");
+const Product = require("../models/Product");
+const Tag = require("../models/Tag");
+const Category = require("../models/Category");
 
 // Create a new admin
 exports.createAdmin = async (req, res) => {
@@ -41,7 +38,7 @@ exports.getAdminById = async (req, res) => {
   try {
     const admin = await Admin.findById(req.params.id);
     if (!admin) {
-      return res.status(404).json({ message: 'Admin not found' });
+      return res.status(404).json({ message: "Admin not found" });
     }
     res.status(200).json(admin);
   } catch (error) {
@@ -52,9 +49,13 @@ exports.getAdminById = async (req, res) => {
 // Update admin by ID
 exports.updateAdmin = async (req, res) => {
   try {
-    const updatedAdmin = await Admin.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedAdmin = await Admin.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
     if (!updatedAdmin) {
-      return res.status(404).json({ message: 'Admin not found' });
+      return res.status(404).json({ message: "Admin not found" });
     }
     res.status(200).json(updatedAdmin);
   } catch (error) {
@@ -67,9 +68,9 @@ exports.deleteAdmin = async (req, res) => {
   try {
     const deletedAdmin = await Admin.findByIdAndDelete(req.params.id);
     if (!deletedAdmin) {
-      return res.status(404).json({ message: 'Admin not found' });
+      return res.status(404).json({ message: "Admin not found" });
     }
-    res.status(200).json({ message: 'Admin deleted successfully' });
+    res.status(200).json({ message: "Admin deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -78,11 +79,10 @@ exports.deleteAdmin = async (req, res) => {
 // req 17 ng
 //admin adds another admin
 exports.adminAddAdmin = async (req, res) => {
-
   const { username, pass } = req.body;
 
   if (!username || !pass) {
-    return res.status(400).json({ message: 'Username and pass are required.' });
+    return res.status(400).json({ message: "Username and pass are required." });
   }
 
   const saltRounds = 10;
@@ -94,14 +94,14 @@ exports.adminAddAdmin = async (req, res) => {
     savedadmin.pass = undefined;
     res.status(201).json(savedadmin);
   } catch (error) {
-    res.status(400).json({error: error.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
 exports.adminDeletesAdminFromSystem = async (req, res) => {
   const adminId = req.params.id;
-  if(!adminId) {
-    return res.status(400).json({ error: 'Admin ID is required' });
+  if (!adminId) {
+    return res.status(400).json({ error: "Admin ID is required" });
   }
   try {
     //removing products posted by admin
@@ -114,8 +114,10 @@ exports.adminDeletesAdminFromSystem = async (req, res) => {
     const result2 = await Category.find({ adminId: adminId });
     const categoriesToRemove = result2.map((category) => category.category);
     let activities = await Activity.find({});
-    const filteredActivities = activities.filter(activity => 
-      activity.category.some(category => categoriesToRemove.includes(category))
+    const filteredActivities = activities.filter((activity) =>
+      activity.category.some((category) =>
+        categoriesToRemove.includes(category)
+      )
     );
     for (let activity of filteredActivities) {
       await Activity.deleteOne({ _id: activity._id });
@@ -144,17 +146,19 @@ exports.adminDeletesAdminFromSystem = async (req, res) => {
     }
     const itineraries = await Itinerary.find({});
     for (let itinerary of itineraries) {
-      itinerary.tags = itinerary.tags.filter((tag) => !tagsToRemove.includes(tag));
+      itinerary.tags = itinerary.tags.filter(
+        (tag) => !tagsToRemove.includes(tag)
+      );
       await itinerary.save();
     }
     await Tag.deleteMany({ adminId: adminId });
 
     const deletedAdmin = await Admin.findByIdAndDelete(adminId);
     if (!deletedAdmin) {
-      return res.status(404).json({ message: 'Admin not found' });
+      return res.status(404).json({ message: "Admin not found" });
     }
-    res.status(200).json({ message: 'Admin deleted successfully', result });
-  } catch(error) {
+    res.status(200).json({ message: "Admin deleted successfully", result });
+  } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };
