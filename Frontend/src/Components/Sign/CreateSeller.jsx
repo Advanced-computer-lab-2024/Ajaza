@@ -27,13 +27,13 @@ const CreateSeller = () => {
 
       console.log("Values:", values);
 
-      // if (values.document1 && values.document1.length > 0) {
-      //   formData.append('id', values.document1[0].originFileObj);
-      // }
+      if (values.document1 && values.document1.length > 0) {
+        formData.append('id', values.document1[0].originFileObj);
+      }
 
-      // if (values.document2 && values.document2.length > 0) {
-      //   formData.append('taxationRegCard', values.document2[0].originFileObj);
-      // }
+      if (values.document2 && values.document2.length > 0) {
+        formData.append('taxationRegCard', values.document2[0].originFileObj);
+      }
 
       const response = await axios.post(
         "http://localhost:5000/seller/guestSellerCreateProfile",
