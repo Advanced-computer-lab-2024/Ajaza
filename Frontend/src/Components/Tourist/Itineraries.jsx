@@ -8,6 +8,14 @@ import {
 } from "../Common/Constants";
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
+import { jwtDecode } from "jwt-decode";
+
+const token = localStorage.getItem("token");
+let decodedToken = null;
+if (token) {
+  decodedToken = jwtDecode(token);
+}
+const userid = decodedToken ? decodedToken.userId : null;
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -202,6 +210,39 @@ const Itineraries = () => {
         console.error("Error fetching data:", error);
       }
     };
+
+    //    This will be in the card view of each iten
+    //   const handleBookIten = async () => {
+    //     try {
+    //       const touristId = userid;
+    //       const itineraryId = element.id;
+    //       await axios.post(`${apiUrl}/${touristId}/itinerary/${itineraryId}/book`);
+    //       alert("Itinerary booked successfully!");
+    //     } catch (error) {
+    //       console.error("Error booking Itinerary:", error);
+    //       alert("Error booking Itinerary:", error);
+    //     }
+    //   };
+    //       <button onClick={handleBookIten} className="book-button">
+    //         Book
+    //       </button>
+
+    
+    //   This will be in the card view of the bookings of each user
+    // const handleCancelBooking = async () => {
+    //   try {
+    //     const touristId = userid;
+    //     const itineraryId = element.id;
+    //     await axios.delete(`${apiUrl}/${touristId}/itinerary/${itineraryId}/cancel`);
+    //     alert("Itinerary booking canceled successfully!");
+    //   } catch (error) {
+    //     console.error("Error canceling itinerary booking:", error);
+    //     alert("Failed to cancel the booking. Please try again.");
+    //   }
+    // };
+    //       <button onClick={handleCancelBooking} className="cancel-button">
+    //         Cancel
+    //       </button>
 
     fetchData();
   }, []);
