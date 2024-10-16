@@ -40,14 +40,15 @@ const convertTagsToValues = (tagsArray) => {
   });
 };
 
-const handleUpdate = async () => {};
-
 const MyProducts = () => {
   const [combinedElements, setCombinedElements] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
+  const [archivingProductId, setArchivingProductId] = useState(null);
+  const [archivedProducts, setArchivedProducts] = useState([]);
   const [userId, setUserId] = useState(null);
   const [refreshElements, setRefreshElements] = useState(false);
+  const [isArchiveModalVisible, setIsArchiveModalVisible] = useState(false);
 
   const propMapping = {
     title: "name",
@@ -62,7 +63,21 @@ const MyProducts = () => {
     "Quantity Available": "quantity",
   };
   const searchFields = ["name"];
-  const constProps = { rateDisplay: true };
+  const constProps = {
+    rateDisplay: true,
+    // actions:
+    //   [
+    //     <EditOutlined
+    //       key="edit"
+    //       onClick={() => showEditModal(element)}
+    //     />,
+    //     <ArchiveIcon
+    //       key="archive"
+    //       onClick={() => showArchiveModal(element)}
+    //     />,
+    //   ],
+
+  };
   const sortFields = ["avgRating", "price"];
   const [filterFields, setfilterFields] = useState({
     price: {
@@ -77,7 +92,6 @@ const MyProducts = () => {
         comparePriceRange(filterCriteria, element),
     },
   });
-
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem("token");
@@ -89,17 +103,17 @@ const MyProducts = () => {
       setUserId(userId);
 
       try {
-        const [productResponse] = await Promise.all([
-          axios.get(`${apiUrl}product/viewMyProducts/${userId}`),
-        ]);
+        const productResponse = await axios.get(`${apiUrl}product/viewMyProducts/${userId}`);
         let products = productResponse.data;
 
-        let combinedArray = products;
+        // Filter out archived products
+        let nonArchivedProducts = products.filter((product) => !product.archived);
 
         combinedArray = combinedArray.map((element) => {
-          return { ...element, avgRating: getAvgRating(element.feedback),
+          return {
+            ...element, avgRating: getAvgRating(element.feedback),
             sales: element.sales || 0, // Ensure sales is set to 0 if not present
-           };
+          };
         });
 
         console.log(combinedArray);
@@ -110,21 +124,64 @@ const MyProducts = () => {
       }
     };
 
+
     fetchData();
   }, [refreshElements]);
+
+  const archiveProduct = async (productId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const decodedToken = jwtDecode(token);
+      const userId = decodedToken.userDetails["_id"];
+
+      const response = await axios.patch(`${apiUrl}product/${userId}/product/${productId}/adminSellerArchiveProduct`, {
+        archived: true,
+      });
+      console.log("API Response:", response.data);
+      console.log("inside prodID", productId);
+      console.log("inside userID", userId);
+
+      message.success("Product archived successfully!");
+      setRefreshElements((prev) => !prev); // Refresh elements
+
+    } catch (error) {
+      message.error(`Failed to archive product: ${error.response?.data?.message || error.message}`);
+    }
+  };
+
+
+  const createOnclick2 = (product) => {
+    if (product && product._id) {
+      archiveProduct(product._id); // Directly archive the product without showing a modal
+    } else {
+      console.error("No product or product ID provided");
+    }
+  };
+
 
   const createOnclick = () => {
     setEditingProductId(null);
     setIsModalVisible(true);
   };
 
+
+  useEffect(() => {
+    console.log("NOURSALAH arch", archivingProductId);
+    console.log("NOURSALAH user", userId);
+  }, [archivingProductId, userId]);
+
+
   return (
+
     <>
+
       <CustomButton
         size={"s"}
         value={"Create Product"}
         onClick={createOnclick}
       />
+
+
       <SearchFilterSortContainerEditCreate
         cardComponent={BasicCard}
         elements={combinedElements}
@@ -136,11 +193,32 @@ const MyProducts = () => {
         filterFields={filterFields}
         editingProductId={editingProductId}
         setEditingProductId={setEditingProductId}
+        setArchivingProductId={setArchivingProductId}
         isModalVisible={isModalVisible}
         setIsModalVisible={setIsModalVisible}
         userId={userId}
         setRefreshElements={setRefreshElements}
+        archivingProductId={archivingProductId}
+        setArchiveProductId={setArchivingProductId}
+        setIsArchiveModalVisible={setIsArchiveModalVisible} // Pass this as a prop
+        onArchive={archiveProduct}
       />
+
+      <Modal
+        title="Confirm Archive"
+        open={isArchiveModalVisible}
+        onOk={() => {
+          if (archivingProductId) {
+            archiveProduct(archivingProductId); // Pass the archiving product ID to the archive function
+          } else {
+            message.error("No product selected for archiving.");
+          }
+        }}
+        onCancel={() => setIsArchiveModalVisible(false)}
+      >
+        <p>Are you sure you want to archive this product?</p>
+      </Modal>;
+
     </>
   );
 };

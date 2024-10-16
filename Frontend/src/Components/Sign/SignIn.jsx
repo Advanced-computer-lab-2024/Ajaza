@@ -65,10 +65,19 @@ const SignIn = () => {
 
           const token = apiResponse.data.token;
           const decodedToken = jwtDecode(token);
-          if (decodedToken?.userDetails?.pending) {
+          if (decodedToken?.userDetails?.pending && !decodedToken?.userDetails?.acceptedTerms) {
+            // Redirect to Terms and Conditions page
+            navigate(`/auth/terms-and-conditions?role=${decodedToken.role}`);
+            return;
+          } else if (decodedToken?.userDetails?.pending) {
             message.error("Account is still pending");
             return;
-          } else if (decodedToken?.userDetails?.acceptedTerms == false) {
+          }
+          // if (decodedToken?.userDetails?.pending) {
+          //   message.error("Account is still pending");
+          //   return;
+          // }
+          else if (decodedToken?.userDetails?.acceptedTerms == false) {
             message.error(
               "Account has not yet accepted the terms of services (TODO redirect to term)"
             );
