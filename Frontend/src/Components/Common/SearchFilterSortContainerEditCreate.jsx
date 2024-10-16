@@ -482,7 +482,7 @@ const SearchFilterSortContainerEditCreate = ({
                     key="edit"
                     onClick={() => showEditModal(element)}
                   />,
-                  archivingProductId ? <ArchiveIcon
+                  setArchivingProductId ? <ArchiveIcon
                     key="archive"
                     onClick={() => showArchiveModal(element)}
                   /> : null,
