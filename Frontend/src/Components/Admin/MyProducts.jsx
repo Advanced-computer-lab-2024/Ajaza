@@ -108,7 +108,7 @@ const MyProducts = () => {
 
         // Filter out archived products
         let nonArchivedProducts = products.filter((product) => !product.archived);
-
+        let combinedArray = nonArchivedProducts;
         combinedArray = combinedArray.map((element) => {
           return {
             ...element, avgRating: getAvgRating(element.feedback),
@@ -141,7 +141,6 @@ const MyProducts = () => {
       console.log("inside prodID", productId);
       console.log("inside userID", userId);
 
-      message.success("Product archived successfully!");
       setRefreshElements((prev) => !prev); // Refresh elements
 
     } catch (error) {

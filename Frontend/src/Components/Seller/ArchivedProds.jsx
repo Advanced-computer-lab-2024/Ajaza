@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Modal, message, Card } from "antd";
+import { Modal, message, Card, Row, Col } from "antd";
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
 import { jwtDecode } from "jwt-decode";
 import { apiUrl } from "../Common/Constants";
@@ -61,13 +61,20 @@ const ArchivedProducts = () => {
             <h2>Archived Products</h2>
             {archivedProducts.length === 0 ? (
                 <p>No archived products available</p>
+                //empty men antd
             ) : (
-                archivedProducts.map((product) => (
-                    <Card key={product._id} title={product.name} extra={<UnarchiveIcon onClick={() => showUnarchiveModal(product)} />} >
-                        <p>{product.desc}</p>
-                        <p>Price: {product.price}</p>
-                    </Card>
-                ))
+                <Row gutter={[10, 5]}>
+                    {archivedProducts.map((product) => (
+                        <Col span={6} key={product["_id"]}>
+                            <Card
+                                key={product._id} title={product.name} extra={<UnarchiveIcon onClick={() => showUnarchiveModal(product)} />} >
+                                <p>{product.desc}</p>
+                                <p>Price: {product.price}</p>
+                            </Card>
+                        </Col>
+                    ))
+                    }
+                </Row>
             )}
 
             <Modal
