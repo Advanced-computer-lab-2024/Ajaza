@@ -1,0 +1,27 @@
+.feedbackCard .ant-card-body {
+  height: 100%;
+}
+
+.desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.slick-prev,
+.slick-next {
+  color: var(--grey-800) !important; /* Set your desired color */
+}
+
+.slick-dots li button {
+  background-color: var(--grey-600) !important; /* Change dot color */
+  width: 12px; /* Change dot size */
+  height: 12px;
+  border-radius: 50%; /* Make dots circular */
+}
+
+/* Customize the active dot */
+.slick-dots li.slick-active button {
+  background-color: var(--grey-700) !important; /* Change active dot color */
+}

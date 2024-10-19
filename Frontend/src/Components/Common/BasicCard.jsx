@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, Flex, Rate } from "antd";
 import SelectCurrency from "../Tourist/SelectCurrency";
+import styles from "./BasicCard.module.css";
 
 function formatDateTime(availableDateTime) {
   return availableDateTime.map((item) => {
@@ -34,7 +35,7 @@ const BasicCard = ({
   rating,
   dateTime,
   photo,
-  navigationLink = false,
+  onClick,
 }) => {
   const navigate = useNavigate();
   const [avgRating, setAvgRating] = useState(rating);
@@ -55,7 +56,7 @@ const BasicCard = ({
       title={title}
       extra={<SelectCurrency basePrice={extra} />}
       actions={actions}
-      onClick={() => (navigationLink ? navigate(navigationLink) : null)}
+      onClick={onClick}
       cover={
         photo ? (
           <Flex justify="center">
@@ -67,6 +68,7 @@ const BasicCard = ({
           </Flex>
         ) : null
       }
+      className={styles.card}
     >
       {Object.entries(fields).map(([key, value]) => {
         if (value !== undefined) {
