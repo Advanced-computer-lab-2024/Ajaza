@@ -12,6 +12,7 @@ import Profile from "../Common/Profile";
 import Plans from "./Plans";
 import Venues from "./Venues";
 import Products from "./Products";
+import Product from "../Common/Product";
 import RedeemPoints from "./RedeemPoints";
 import RedeemIcon from "@mui/icons-material/Redeem";
 import Activities from "./Activities";
@@ -70,6 +71,7 @@ const Tourist = () => {
         <Route path="venues" element={<Venues />} />
         <Route path="activities" element={<Activities />} />
         <Route path="products" element={<Products />} />
+        <Route path="products/:id" element={<Product />} />
         <Route path="redeemPoints" element={<RedeemPoints />} />
       </Routes>
     </CustomLayout>

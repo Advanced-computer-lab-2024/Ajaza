@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, Flex, Rate } from "antd";
+import styles from "./BasicCard.module.css";
 
 function formatDateTime(availableDateTime) {
   return availableDateTime.map((item) => {
@@ -33,6 +34,7 @@ const BasicCard = ({
   rating,
   dateTime,
   photo,
+  onClick,
 }) => {
   const [avgRating, setAvgRating] = useState(rating);
   const [dateTimeFormatted, setDateTimeFormatted] = useState(null);
@@ -51,7 +53,7 @@ const BasicCard = ({
       title={title}
       extra={extra ? `$${extra}` : null}
       actions={actions}
-      onClick={(prev) => handleEdit}
+      onClick={onClick}
       cover={
         photo ? (
           <Flex justify="center">
@@ -63,6 +65,7 @@ const BasicCard = ({
           </Flex>
         ) : null
       }
+      className={styles.card}
     >
       {Object.entries(fields).map(([key, value]) => {
         if (value) {

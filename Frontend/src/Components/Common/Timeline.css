@@ -1,0 +1,3 @@
+.timeline-container .ant-timeline-item-head {
+  border-color: var(--primary-color) !important;
+}

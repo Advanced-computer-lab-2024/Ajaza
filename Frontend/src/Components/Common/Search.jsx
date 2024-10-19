@@ -45,9 +45,9 @@ const Search = ({
 
   // console.log(activateHover & !hover ? "none" : "block");
 
-  let formStyle = { backgroundColor: Colors.grey[50] };
+  let formStyle = { backgroundColor: Colors.grey[100] };
   let inputStyle = {
-    backgroundColor: Colors.grey[50],
+    backgroundColor: Colors.grey[100],
     display: booleanHover ? "none" : "block",
     color: textColor,
     padding: "0 20px",

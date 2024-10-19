@@ -1,10 +1,8 @@
 const Itinerary = require("../models/Itinerary");
 const Tourist = require("../models/Tourist");
-const Guide = require('../models/Guide');
-const Activity = require('../models/Activity');
-const Venue = require('../models/venue');
-
-
+const Guide = require("../models/Guide");
+const Activity = require("../models/Activity");
+const Venue = require("../models/venue");
 
 // Create a new itinerary
 exports.createItinerary = async (req, res) => {
@@ -20,7 +18,8 @@ exports.createItinerary = async (req, res) => {
 // Get all itineraries
 exports.getAllItineraries = async (req, res) => {
   try {
-    const itineraries = await Itinerary.find().populate("guideId");14
+    const itineraries = await Itinerary.find().populate("guideId");
+    14;
     res.status(200).json(itineraries);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -29,10 +28,40 @@ exports.getAllItineraries = async (req, res) => {
 
 // Get all itineraries not hidden
 exports.getAllItinerariesNH = async (req, res) => {
+  console.log("\n\n\n\n");
+
   try {
     const currentDate = new Date();
-    const itineraries = await Itinerary.find({hidden: { $ne: true }, active: { $ne: false }, availableDateTime: {$elemMatch: { date: { $gt: currentDate } }}}).populate("guideId");
-    res.status(200).json(itineraries);
+    const itineraries = await Itinerary.find({
+      hidden: { $ne: true },
+      active: { $ne: false },
+      availableDateTime: { $elemMatch: { date: { $gt: currentDate } } },
+    }).populate("guideId");
+
+    const updatedItineraries = await Promise.all(
+      itineraries.map(async (itinerary) => {
+        const itineraryObj = itinerary.toObject(); // Convert to plain object
+
+        // Modify the timeline for each itinerary
+        for (const item of itineraryObj.timeline) {
+          console.log("Item ID:", item.id);
+
+          if (item.type === "Activity") {
+            const activity = await Activity.findById(item.id);
+            console.log("Activity Found:", activity);
+            item.id = activity; // Replace ObjectId with full document
+          } else if (item.type === "Venue") {
+            const venue = await Venue.findById(item.id);
+            console.log("Venue Found:", venue);
+            item.id = venue; // Replace ObjectId with full document
+          }
+        }
+
+        return itineraryObj; // Return the modified itinerary object
+      })
+    );
+
+    res.status(200).json(updatedItineraries);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -41,20 +70,21 @@ exports.getAllItinerariesNH = async (req, res) => {
 exports.getItinerariesByIds = async (req, res) => {
   try {
     const { itineraryIds } = req.body;
-    const itineraries = await Itinerary.find({ _id: { $in: itineraryIds } }).populate("guideId");
+    const itineraries = await Itinerary.find({
+      _id: { $in: itineraryIds },
+    }).populate("guideId");
     res.status(200).json(itineraries);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-
-
 // Get itinerary by ID
 exports.getItineraryById = async (req, res) => {
   try {
-    const itinerary = await Itinerary.findById(req.params.id)
-      .populate("guideId")
+    const itinerary = await Itinerary.findById(req.params.id).populate(
+      "guideId"
+    );
     if (!itinerary) {
       return res.status(404).json({ message: "Itinerary not found" });
     }
@@ -170,7 +200,6 @@ exports.giveItineraryFeedback = async (req, res) => {
   }
 };
 
-
 //--req 20---
 exports.createSpecifiedItinerary = async (req, res) => {
   try {
@@ -180,34 +209,40 @@ exports.createSpecifiedItinerary = async (req, res) => {
       timeline, // haykhod array of activities/venues
       language,
       price,
-      availableDateTime, 
+      availableDateTime,
       accessibility,
       pickUp,
       dropOff,
       tags,
-      maxTourists
+      maxTourists,
     } = req.body;
     const guide = await Guide.findById(guideId);
     if (!guide) {
-      return res.status(404).json({ message: 'Guide not found' });
+      return res.status(404).json({ message: "Guide not found" });
     }
     if (guide.requestingDeletion) {
-      return res.status(400).json({ message: 'There is a deletion request. Cant Create Itinerary' });
+      return res.status(400).json({
+        message: "There is a deletion request. Cant Create Itinerary",
+      });
     }
-    if ( guide.pending) {
-      return res.status(400).json({ message: 'The profile is still pending approval.' });
+    if (guide.pending) {
+      return res
+        .status(400)
+        .json({ message: "The profile is still pending approval." });
     }
     if (!guide.acceptedTerms) {
-      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+      return res
+        .status(400)
+        .json({ message: "Terms and conditions must be accepted" });
     }
-    
+
     const newItinerary = new Itinerary({
       guideId,
       name,
       timeline, // array of objects with start, id, type, and duration
       language,
       price,
-      availableDateTime, 
+      availableDateTime,
       accessibility,
       pickUp,
       dropOff,
@@ -217,7 +252,7 @@ exports.createSpecifiedItinerary = async (req, res) => {
       tags,
     });
     //const newItinerary = new Itinerary(req.body);
-    
+
     newItinerary.save();
 
     res.status(201).json(newItinerary);
@@ -232,13 +267,17 @@ exports.readItinerariesOfGuide = async (req, res) => {
     const itineraries = await Itinerary.find({ guideId, hidden: false });
     const guide = await Guide.findById(guideId);
     if (!guide) {
-      return res.status(404).json({ message: 'Guide not found' });
+      return res.status(404).json({ message: "Guide not found" });
     }
     if (!guide.acceptedTerms) {
-      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+      return res
+        .status(400)
+        .json({ message: "Terms and conditions must be accepted" });
     }
-    if ( guide.pending) {
-      return res.status(400).json({ message: 'The profile is still pending approval.' });
+    if (guide.pending) {
+      return res
+        .status(400)
+        .json({ message: "The profile is still pending approval." });
     }
     if (!itineraries || itineraries.length === 0) {
       //return res.status(404).json({ message: 'No itineraries found for this guide.' });
@@ -252,7 +291,7 @@ exports.readItinerariesOfGuide = async (req, res) => {
 
 exports.updateItineraryFilteredFields = async (req, res) => {
   try {
-    const { guideId, itineraryId } = req.params; 
+    const { guideId, itineraryId } = req.params;
     const {
       name,
       timeline,
@@ -263,24 +302,30 @@ exports.updateItineraryFilteredFields = async (req, res) => {
       pickUp,
       dropOff,
       tags,
-      maxTourists
-    } = req.body; 
+      maxTourists,
+    } = req.body;
     const guide = await Guide.findById(guideId);
     if (!guide) {
-      return res.status(404).json({ message: 'Guide not found' });
+      return res.status(404).json({ message: "Guide not found" });
     }
     if (!guide.acceptedTerms) {
-      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+      return res
+        .status(400)
+        .json({ message: "Terms and conditions must be accepted" });
     }
-    if ( guide.pending) {
-      return res.status(400).json({ message: 'The profile is still pending approval.' });
+    if (guide.pending) {
+      return res
+        .status(400)
+        .json({ message: "The profile is still pending approval." });
     }
     const itinerary = await Itinerary.findOne({ _id: itineraryId, guideId });
     if (!itinerary) {
-      return res.status(404).json({ message: 'Itinerary not found or you are not authorized to update it.' });
+      return res.status(404).json({
+        message: "Itinerary not found or you are not authorized to update it.",
+      });
     }
 
-    // e3ml update to only the allowed fields 
+    // e3ml update to only the allowed fields
     if (name) itinerary.name = name;
     if (timeline) itinerary.timeline = timeline;
     if (language) itinerary.language = language;
@@ -291,7 +336,7 @@ exports.updateItineraryFilteredFields = async (req, res) => {
     if (dropOff) itinerary.dropOff = dropOff;
     if (maxTourists) itinerary.maxTourists = maxTourists;
     if (tags) itinerary.tags = tags;
-    
+
     const updatedItinerary = await itinerary.save();
 
     res.status(200).json(updatedItinerary);
@@ -302,21 +347,27 @@ exports.updateItineraryFilteredFields = async (req, res) => {
 
 exports.deleteSpecificItinerary = async (req, res) => {
   try {
-    const { guideId, itineraryId } = req.params; 
+    const { guideId, itineraryId } = req.params;
 
     const itinerary = await Itinerary.findOne({ _id: itineraryId, guideId });
-        const guide = await Guide.findById(guideId);
+    const guide = await Guide.findById(guideId);
     if (!guide) {
-      return res.status(404).json({ message: 'Guide not found' });
+      return res.status(404).json({ message: "Guide not found" });
     }
     if (!guide.acceptedTerms) {
-      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+      return res
+        .status(400)
+        .json({ message: "Terms and conditions must be accepted" });
     }
-    if ( guide.pending) {
-      return res.status(400).json({ message: 'The profile is still pending approval.' });
+    if (guide.pending) {
+      return res
+        .status(400)
+        .json({ message: "The profile is still pending approval." });
     }
     if (!itinerary) {
-      return res.status(404).json({ message: 'Itinerary not found or you are not authorized to delete it.' });
+      return res.status(404).json({
+        message: "Itinerary not found or you are not authorized to delete it.",
+      });
     }
 
     const tourists = await Tourist.find();
@@ -326,19 +377,22 @@ exports.deleteSpecificItinerary = async (req, res) => {
       );
 
       if (hasBooking) {
-        return res.status(400).json({ message: 'Cannot delete itinerary; there are existing bookings.' });
+        return res.status(400).json({
+          message: "Cannot delete itinerary; there are existing bookings.",
+        });
       }
     }
 
-    itinerary.hidden = true; //mark as hidden 
+    itinerary.hidden = true; //mark as hidden
     await itinerary.save();
 
-    res.status(200).json({ message: 'Itinerary has been successfully removed.' });
+    res
+      .status(200)
+      .json({ message: "Itinerary has been successfully removed." });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 //req44
 exports.getUpcomingItineraries = async (req, res) => {
@@ -357,7 +411,7 @@ exports.getUpcomingItineraries = async (req, res) => {
         },
       });
 
-    if(!itineraries || itineraries.length === 0) {
+    if (!itineraries || itineraries.length === 0) {
       //return res.status(404).json({ message: "No upcoming itineraries found" });
     }
 
@@ -376,10 +430,10 @@ exports.fetchOptions = async (req, res) => {
     const options = activities.concat(venues).map((option) => ({
       id: option._id,
       name: option.name,
-      type: option.governorId? "Venue" : "Activity",
+      type: option.governorId ? "Venue" : "Activity",
     }));
     res.status(200).json(options);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
