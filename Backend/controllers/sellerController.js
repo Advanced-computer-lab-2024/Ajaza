@@ -103,7 +103,6 @@ exports.deleteSeller = async (req, res) => {
 //              req5            //
 // Geuest/Seller sign up
 exports.guestSellerCreateProfile = async (req, res) => {
-
   // TODO: validation of the input data
 
   // Allowed fields
@@ -143,9 +142,11 @@ exports.sellerCreateProfile = async (req, res) => {
 
   // Allowed fields
 
-  const allowedFields = ['name', 'desc'];
+  const allowedFields = ["name", "desc"];
   if (!req.body.name || !req.body.desc) {
-    return res.status(400).json({ message: 'Name and description are required' });
+    return res
+      .status(400)
+      .json({ message: "Name and description are required" });
   }
 
   // Filter the request body
@@ -167,11 +168,15 @@ exports.sellerCreateProfile = async (req, res) => {
           "Seller is pending approval or has not accepted terms and condition",
       });
     }
-    if(seller.name || seller.desc){
-      return res.status(401).json({ message: 'Profile already exists' });
+    if (seller.name || seller.desc) {
+      return res.status(401).json({ message: "Profile already exists" });
     }
 
-    const newSeller = await Seller.findByIdAndUpdate(sellerId, {$set:filteredBody}, { new: true , runValidators: true });
+    const newSeller = await Seller.findByIdAndUpdate(
+      sellerId,
+      { $set: filteredBody },
+      { new: true, runValidators: true }
+    );
     newSeller.pass = undefined;
     res.status(201).json(newSeller);
   } catch (error) {
@@ -344,6 +349,9 @@ exports.acceptTerms = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    if (user.pending) {
+      return res.status(400).json({ message: "User is pending approval" });
+    }
     user.acceptedTerms = true;
     await user.save();
     res.status(200).json({ message: "Terms accepted successfully" });
@@ -367,3 +375,85 @@ exports.uploadSellerLogo = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+// get seller documents
+exports.getSellerDocuments = async (req, res) => {
+  try {
+    const seller = await Seller.findById(req.params.id).select("id taxationRegCard");
+
+    if (!seller) {
+      return res.status(404).json({ message: "Seller not found" });
+    }
+
+    const response = {
+      message: "Documents retrieved successfully",
+      id: seller.id || null,
+      taxationRegCard: seller.taxationRegCard || null
+    };
+
+    if (!seller.id) {
+      response.idMessage = "No ID uploaded by this seller";
+    }
+
+    if (!seller.taxationRegCard) {
+      response.taxationRegCardMessage = "No taxation registration card uploaded by this seller";
+      response.taxationRegCard = null;
+    }
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//admin accept seller
+exports.acceptSeller = async (req, res) => {
+  try {
+    const sellerId = req.params.id;
+    const seller = await Seller.findById(sellerId);
+
+    if (!seller) {
+      return res.status(404).json({ message: "Seller not found" });
+    }
+
+    if (!seller.pending) {
+      return res.status(400).json({ message: "Seller is not in a pending state" });
+    }
+
+    seller.pending = false;
+    await seller.save();
+
+    res.status(200).json({ message: "Seller accepted successfully", seller });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//admin reject seller (deletes seller upon rejection)
+exports.rejectSeller = async (req, res) => {
+  try {
+    const sellerId = req.params.id;
+    const seller = await Seller.findById(sellerId);
+
+    if (!seller) {
+      return res.status(404).json({ message: "Seller not found" });
+    }
+
+    if (!seller.pending) {
+      return res.status(400).json({ message: "Seller is not in a pending state" });
+    }
+
+    const deletedSeller = await Seller.findByIdAndDelete(sellerId);
+
+    res.status(200).json({
+      message: "Seller rejected and deleted successfully",
+      //sellerId: deletedSeller._id, // You can return the deleted seller's ID if needed
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+

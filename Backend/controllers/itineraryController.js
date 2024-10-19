@@ -162,7 +162,8 @@ exports.giveItineraryFeedback = async (req, res) => {
       return res.status(404).json({ message: "Tourist not found" });
     }
 
-    if (tourist.gaveFeedback.includes(itineraryId)) {
+    //these conditions are no longer needed since button for feedback will only appear if allowed
+    /*if (tourist.gaveFeedback.includes(itineraryId)) {
       return res.status(400).json({ message: "Feedback already given" });
     }
 
@@ -177,7 +178,7 @@ exports.giveItineraryFeedback = async (req, res) => {
       return res
         .status(400)
         .json({ message: "No valid past itinerary booking found" });
-    }
+    }*/
 
     const itinerary = await Itinerary.findById(itineraryId);
     if (!itinerary) {
@@ -301,6 +302,7 @@ exports.updateItineraryFilteredFields = async (req, res) => {
       accessibility,
       pickUp,
       dropOff,
+      active,
       tags,
       maxTourists,
     } = req.body;
@@ -335,6 +337,7 @@ exports.updateItineraryFilteredFields = async (req, res) => {
     if (pickUp) itinerary.pickUp = pickUp;
     if (dropOff) itinerary.dropOff = dropOff;
     if (maxTourists) itinerary.maxTourists = maxTourists;
+    if (active !== undefined) itinerary.active = active;
     if (tags) itinerary.tags = tags;
 
     const updatedItinerary = await itinerary.save();
