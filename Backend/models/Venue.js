@@ -5,7 +5,7 @@ const venueSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: "Governor",
-  }, // Reference to the governor who created the venue
+  }, // Reference to the governor who created the venue 
   name: { type: String, required: true }, // Name of the venue
   desc: { type: String, required: true }, // Description of the venue
   pictures: [

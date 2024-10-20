@@ -54,16 +54,22 @@ router.delete(
 
 router.patch("/acceptTerms/:id", sellerController.acceptTerms);
 
-router.post("/uploadLogo/:sellerId", uploadLogoImage, sellerController.uploadSellerLogo);
+router.post(
+  "/uploadLogo/:sellerId",
+  uploadLogoImage,
+  sellerController.uploadSellerLogo
+);
 
 //for admin to view uploaded documents of a seller
-router.get('/getDocuments/:id', sellerController.getSellerDocuments);
+router.get("/getDocuments/:id", sellerController.getSellerDocuments);
 
 //accept seller
-router.put('/accept/:id', sellerController.acceptSeller);
+router.put("/accept/:id", sellerController.acceptSeller);
 
 //reject seller
-router.delete('/reject/:id', sellerController.rejectSeller);
+router.delete("/reject/:id", sellerController.rejectSeller);
 
+//request deletion
+router.patch("/requestDeletion/:id", sellerController.requestDeletion);
 
 module.exports = router;

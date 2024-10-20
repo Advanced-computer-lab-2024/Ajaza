@@ -153,8 +153,16 @@ exports.forgotPassword = async (req, res) => {
       user = await Advertiser.findOne({ email });
     } else if (role === "seller") {
       user = await Seller.findOne({ email });
+    } else if (role === "governor") {
+      user = await TourismGovernor.findOne({
+        email,
+      });
+    } else if (role === "admin") {
+      user = await Admin.findOne({
+        email,
+      });
     } else {
-      return res.status(400).json({ message: "Invalid user type" });
+      return res.status(400).json({ message: "Invalid user role" });
     }
 
     if (!user) {
@@ -199,6 +207,14 @@ exports.verifyOTP = async (req, res) => {
       user = await Advertiser.findOne({ email });
     } else if (role === "seller") {
       user = await Seller.findOne({ email });
+    } else if (role === "governor") {
+      user = await TourismGovernor.findOne({
+        email,
+      });
+    } else if (role === "admin") {
+      user = await Admin.findOne({
+        email,
+      });
     } else {
       return res.status(400).json({ message: "Invalid user role" });
     }

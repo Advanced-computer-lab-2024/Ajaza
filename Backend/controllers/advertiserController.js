@@ -2,6 +2,7 @@ const Advertiser = require("../models/Advertiser");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Activity = require("../models/Activity");
+const Tourist = require("../models/Tourist");
 
 // Create a new advertiser
 exports.createAdvertiser = async (req, res) => {
@@ -333,7 +334,9 @@ exports.uploadAdvertiserLogo = async (req, res) => {
 exports.getAdvertiserDocuments = async (req, res) => {
   try {
     const { advertiserId } = req.params;
-    const advertiser = await Advertiser.findById(advertiserId).select('id taxationRegCard');
+    const advertiser = await Advertiser.findById(advertiserId).select(
+      "id taxationRegCard"
+    );
 
     if (!advertiser) {
       return res.status(404).json({ message: "Advertiser not found" });
@@ -342,7 +345,7 @@ exports.getAdvertiserDocuments = async (req, res) => {
     const response = {
       message: "Documents retrieved successfully",
       id: advertiser.id || null,
-      taxationRegCard: advertiser.taxationRegCard || null
+      taxationRegCard: advertiser.taxationRegCard || null,
     };
 
     if (!advertiser.id) {
@@ -350,7 +353,8 @@ exports.getAdvertiserDocuments = async (req, res) => {
     }
 
     if (!advertiser.taxationRegCard) {
-      response.taxationRegCardMessage = "No taxation registration card uploaded by this advertiser";
+      response.taxationRegCardMessage =
+        "No taxation registration card uploaded by this advertiser";
       response.taxationRegCard = null;
     }
 
@@ -359,7 +363,6 @@ exports.getAdvertiserDocuments = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 //admin accept advertiser
 exports.acceptAdvertiser = async (req, res) => {
@@ -372,13 +375,17 @@ exports.acceptAdvertiser = async (req, res) => {
     }
 
     if (!advertiser.pending) {
-      return res.status(400).json({ message: "Advertiser is not in a pending state" });
+      return res
+        .status(400)
+        .json({ message: "Advertiser is not in a pending state" });
     }
 
     advertiser.pending = false;
     await advertiser.save();
 
-    res.status(200).json({ message: "Advertiser accepted successfully", advertiser });
+    res
+      .status(200)
+      .json({ message: "Advertiser accepted successfully", advertiser });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -395,7 +402,9 @@ exports.rejectAdvertiser = async (req, res) => {
     }
 
     if (!advertiser.pending) {
-      return res.status(400).json({ message: "Advertiser is not in a pending state" });
+      return res
+        .status(400)
+        .json({ message: "Advertiser is not in a pending state" });
     }
 
     const deletedAdvertiser = await Advertiser.findByIdAndDelete(advertiserId);
@@ -403,6 +412,68 @@ exports.rejectAdvertiser = async (req, res) => {
     res.status(200).json({
       message: "Advertiser rejected and deleted successfully",
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.requestDeletion = async (req, res) => {
+  try {
+    const advertiserId = req.params.id; // Assuming advertiser ID is passed as a parameter
+
+    // Find the advertiser by ID
+    const advertiser = await Advertiser.findById(advertiserId);
+    if (!advertiser) {
+      return res.status(404).json({ message: "Advertiser not found" });
+    }
+
+    // Find activities related to the advertiser
+    const activities = await Activity.find({ advertiserId });
+
+    let hasUpcomingActivity = false;
+
+    // Check for upcoming activities
+    for (const activity of activities) {
+      // Find tourists who have booked this activity
+      const tourists = await Tourist.find({
+        "activityBookings.activityId": activity._id,
+      });
+
+      for (const tourist of tourists) {
+        for (const booking of tourist.activityBookings) {
+          if (
+            booking.activityId.toString() === activity._id.toString() &&
+            new Date(activity.date) > new Date()
+          ) {
+            hasUpcomingActivity = true;
+            console.log("Upcoming activity found");
+            break;
+          }
+        }
+        if (hasUpcomingActivity) break;
+      }
+      if (hasUpcomingActivity) break;
+    }
+
+    if (!hasUpcomingActivity) {
+      // Set isOpen attribute in all related activities to false
+      for (const activity of activities) {
+        activity.isOpen = false;
+        await activity.save();
+      }
+
+      // Set requestingDeletion in Advertiser to true
+      advertiser.requestingDeletion = true;
+      await advertiser.save();
+
+      return res.status(200).json({
+        message: "Account has been marked for deletion successfully.",
+      });
+    } else {
+      return res.status(400).json({
+        message: "Still has upcoming activities, can't request deletion.",
+      });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
