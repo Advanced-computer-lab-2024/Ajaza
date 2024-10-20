@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { Col, Row, Card, Avatar, Flex } from "antd";
 import {
   EditOutlined,
@@ -156,6 +158,8 @@ const SearchFilterSortContainer = ({
   const [filterFn, setFilterFn] = useState(() => {});
   const [filterCriteria, setFilterCriteria] = useState(null);
   const [filterField, setFilterField] = useState(null);
+
+  const navigate = useNavigate();
 
   const span = 24 / cardsPerRow;
 
@@ -370,7 +374,14 @@ const SearchFilterSortContainer = ({
           return (
             <Col span={span} key={element["_id"]}>
               {/* set element.name this to id */}
-              <CardComponent {...combinedProps} fields={mappedFields} />
+              <CardComponent
+                {...combinedProps}
+                fields={mappedFields}
+                onClick={() => {
+                  console.log("hi");
+                  navigate(element["_id"]);
+                }}
+              />
             </Col>
           );
         })}

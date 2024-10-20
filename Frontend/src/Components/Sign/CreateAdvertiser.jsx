@@ -70,13 +70,13 @@ const Advertiser = () => {
       formData.append("pass", values.password);
       formData.append("email", values.email);
 
-      // if (values.document1) {
-      //   formData.append('id', values.document1[0].originFileObj);
-      // }
+      if (values.document1) {
+        formData.append('id', values.document1[0].originFileObj);
+      }
 
-      // if (values.document2) {
-      //   formData.append('taxationRegCard', values.document2[0].originFileObj);
-      // }
+      if (values.document2) {
+        formData.append('taxationRegCard', values.document2[0].originFileObj);
+      }
       const response = await axios.post(
         "http://localhost:5000/advertiser/guestAdvertiserCreateProfile",
         formData,

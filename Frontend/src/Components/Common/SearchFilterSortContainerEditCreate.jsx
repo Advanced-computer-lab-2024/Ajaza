@@ -21,11 +21,13 @@ import {
   SettingOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
+import ArchiveIcon from '@mui/icons-material/Archive';
 import Search from "./Search";
 import { DownOutlined, InboxOutlined } from "@ant-design/icons";
 import { apiUrl } from "./Constants";
 import axios from "axios";
 import CustomButton from "./CustomButton";
+
 
 function mapPropsToValues(element, propMapping) {
   if (!propMapping || !element) {
@@ -168,6 +170,10 @@ const SearchFilterSortContainerEditCreate = ({
   // Edit
   editingProductId,
   setEditingProductId,
+  archivingProductId,
+  setArchivingProductId,
+  setIsArchiveModalVisible,
+  onArchive,
   isModalVisible,
   setIsModalVisible,
   setRefreshElements,
@@ -178,7 +184,7 @@ const SearchFilterSortContainerEditCreate = ({
   const [searchValue, setSearchValue] = useState("");
   const [sortField, setSortField] = useState(null);
   const [sortAsc, setSortAsc] = useState(true);
-  const [filterFn, setFilterFn] = useState(() => {});
+  const [filterFn, setFilterFn] = useState(() => { });
   const [filterCriteria, setFilterCriteria] = useState(null);
   const [filterField, setFilterField] = useState(null);
   const [form] = Form.useForm();
@@ -214,17 +220,34 @@ const SearchFilterSortContainerEditCreate = ({
   //   setDisplayedElements(temp);
   // }, [sortAsc]);
 
-  useEffect(() => {
-    let temp = filterSearchArray(elements, searchValue, searchFields);
-    temp = sortElements(temp, sortField, sortAsc);
-    if (filterCriteria && filterField && filterFn) {
-      temp = temp.filter((element) => {
-        let returnValue = filterFn(filterCriteria, element);
-        return returnValue;
-      });
-    }
-    setDisplayedElements(temp);
-  }, [searchValue, sortField, sortAsc, filterField, filterCriteria, filterFn]);
+  // useEffect(() => {
+  //   let temp = filterSearchArray(elements, searchValue, searchFields);
+  //   temp = sortElements(temp, sortField, sortAsc);
+  //   if (filterCriteria && filterField && filterFn) {
+  //     temp = temp.filter((element) => {
+  //       let returnValue = filterFn(filterCriteria, element);
+  //       return returnValue;
+  //     });
+  //   }
+  //   setDisplayedElements(temp);
+  // }, [searchValue, sortField, sortAsc, filterField, filterCriteria, filterFn]);
+
+  // useEffect(() => {
+  //   let temp = filterSearchArray(elements, searchValue, searchFields);
+  //   temp = sortElements(temp, sortField, sortAsc);
+
+  //   // Filter out archived products
+  //   temp = temp.filter(element => !element.isArchived); // Ensure 'isArchived' is correctly mapped from your data
+
+  //   if (filterCriteria && filterField && filterFn) {
+  //     temp = temp.filter((element) => {
+  //       let returnValue = filterFn(filterCriteria, element);
+  //       return returnValue;
+  //     });
+  //   }
+  //   setDisplayedElements(temp);
+  // }, [searchValue, sortField, sortAsc, filterField, filterCriteria, filterFn, elements]);
+
 
   // useEffect(() => {
   //   console.log(displayedElements);
@@ -302,6 +325,10 @@ const SearchFilterSortContainerEditCreate = ({
     console.log(editingProductId);
   }, [editingProductId]);
 
+  useEffect(() => {
+    console.log(archivingProductId);
+  }, [archivingProductId]);
+
   // Edit part
   const handleCancel = () => {
     setIsModalVisible(false);
@@ -319,6 +346,8 @@ const SearchFilterSortContainerEditCreate = ({
     });
     setEditingProductId(product._id);
   };
+
+
 
   const createProduct = async (formValues) => {
     try {
@@ -372,6 +401,19 @@ const SearchFilterSortContainerEditCreate = ({
     }
   };
 
+  const showArchiveModal = (product) => {
+    Modal.confirm({
+      title: "Are you sure you want to archive this product?",
+      onOk: () => {
+        setArchivingProductId(product._id); // Set the ID of the product being archived
+        onArchive(product._id); // Call the onArchive function
+        message.success(`${product.name} has been archived.`); // Optional: success message
+      },
+    });
+  };
+
+
+
   const normFile = (e) => {
     if (Array.isArray(e)) {
       return e;
@@ -380,6 +422,8 @@ const SearchFilterSortContainerEditCreate = ({
   };
   const handleFileChange = ({ fileList: newFileList }) =>
     setFileList(newFileList);
+
+
 
   filterItems = generateFilterItems(filterFields);
   return (
@@ -438,12 +482,17 @@ const SearchFilterSortContainerEditCreate = ({
                     key="edit"
                     onClick={() => showEditModal(element)}
                   />,
+                  setArchivingProductId ? <ArchiveIcon
+                    key="archive"
+                    onClick={() => showArchiveModal(element)}
+                  /> : null,
                 ]}
               />
             </Col>
           );
         })}
       </Row>
+
 
       <Modal
         title={editingProductId ? "Edit Product" : "Create Product"}
