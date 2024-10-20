@@ -355,14 +355,13 @@ exports.uploadPhoto = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
-
+};
 
 // get uploaded documents by id: returns id and certificates
 exports.getGuideDocuments = async (req, res) => {
   try {
     const guideId = req.params.id;
-    const guide = await Guide.findById(guideId).select('id certificates');
+    const guide = await Guide.findById(guideId).select("id certificates");
 
     if (!guide) {
       return res.status(404).json({ message: "Guide not found" });
@@ -371,7 +370,7 @@ exports.getGuideDocuments = async (req, res) => {
     const response = {
       message: "Documents retrieved successfully",
       id: guide.id || null,
-      certificates: guide.certificates.length > 0 ? guide.certificates : null
+      certificates: guide.certificates.length > 0 ? guide.certificates : null,
     };
 
     if (!guide.id) {
@@ -389,7 +388,6 @@ exports.getGuideDocuments = async (req, res) => {
   }
 };
 
-
 //admin accept guide
 exports.acceptGuide = async (req, res) => {
   try {
@@ -401,7 +399,9 @@ exports.acceptGuide = async (req, res) => {
     }
 
     if (!guide.pending) {
-      return res.status(400).json({ message: "Guide is not in a pending state" });
+      return res
+        .status(400)
+        .json({ message: "Guide is not in a pending state" });
     }
 
     guide.pending = false;
@@ -424,7 +424,9 @@ exports.rejectGuide = async (req, res) => {
     }
 
     if (!guide.pending) {
-      return res.status(400).json({ message: "Guide is not in a pending state" });
+      return res
+        .status(400)
+        .json({ message: "Guide is not in a pending state" });
     }
 
     const deletedguide = await Guide.findByIdAndDelete(guideId);
@@ -433,6 +435,67 @@ exports.rejectGuide = async (req, res) => {
       message: "Guide rejected and deleted successfully",
       //guideId: deletedguide._id, // You can return the deleted guide's ID if needed
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.requestDeletion = async (req, res) => {
+  try {
+    const guideId = req.params.id; // Assuming guide ID is passed as a parameter
+
+    // Find the guide by ID
+    const guide = await Guide.findById(guideId);
+    if (!guide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+
+    // Find itineraries related to the guide
+    const itineraries = await Itinerary.find({ guideId });
+
+    let hasUpcomingItinerary = false;
+
+    // Check for upcoming itineraries
+    for (const itinerary of itineraries) {
+      // Find tourists who have booked this itinerary
+      const tourists = await Tourist.find({
+        "itineraryBookings.itineraryId": itinerary._id,
+      });
+
+      for (const tourist of tourists) {
+        for (const booking of tourist.itineraryBookings) {
+          if (
+            booking.itineraryId.toString() === itinerary._id.toString() &&
+            new Date(booking.date) > new Date()
+          ) {
+            hasUpcomingItinerary = true;
+            break;
+          }
+        }
+        if (hasUpcomingItinerary) break;
+      }
+      if (hasUpcomingItinerary) break;
+    }
+
+    if (!hasUpcomingItinerary) {
+      // Set active attribute in all related itineraries to false
+      for (const itinerary of itineraries) {
+        itinerary.active = false;
+        await itinerary.save();
+      }
+
+      // Set requestingDeletion in Guide to true
+      guide.requestingDeletion = true;
+      await guide.save();
+
+      return res.status(200).json({
+        message: "Account has been marked for deletion successfully.",
+      });
+    } else {
+      return res.status(400).json({
+        message: "Still has upcoming itineraries, can't request deletion.",
+      });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

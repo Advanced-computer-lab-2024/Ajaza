@@ -78,4 +78,7 @@ router.put("/accept/:id", guideController.acceptGuide);
 //reject guide
 router.delete("/reject/:id", guideController.rejectGuide);
 
+//request deletion
+router.patch("/requestDeletion/:id", guideController.requestDeletion);
+
 module.exports = router;

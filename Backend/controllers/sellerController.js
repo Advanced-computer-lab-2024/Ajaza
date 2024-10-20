@@ -376,7 +376,9 @@ exports.uploadSellerLogo = async (req, res) => {
 // get seller documents
 exports.getSellerDocuments = async (req, res) => {
   try {
-    const seller = await Seller.findById(req.params.id).select("id taxationRegCard");
+    const seller = await Seller.findById(req.params.id).select(
+      "id taxationRegCard"
+    );
 
     if (!seller) {
       return res.status(404).json({ message: "Seller not found" });
@@ -385,7 +387,7 @@ exports.getSellerDocuments = async (req, res) => {
     const response = {
       message: "Documents retrieved successfully",
       id: seller.id || null,
-      taxationRegCard: seller.taxationRegCard || null
+      taxationRegCard: seller.taxationRegCard || null,
     };
 
     if (!seller.id) {
@@ -393,7 +395,8 @@ exports.getSellerDocuments = async (req, res) => {
     }
 
     if (!seller.taxationRegCard) {
-      response.taxationRegCardMessage = "No taxation registration card uploaded by this seller";
+      response.taxationRegCardMessage =
+        "No taxation registration card uploaded by this seller";
       response.taxationRegCard = null;
     }
 
@@ -414,7 +417,9 @@ exports.acceptSeller = async (req, res) => {
     }
 
     if (!seller.pending) {
-      return res.status(400).json({ message: "Seller is not in a pending state" });
+      return res
+        .status(400)
+        .json({ message: "Seller is not in a pending state" });
     }
 
     seller.pending = false;
@@ -437,7 +442,9 @@ exports.rejectSeller = async (req, res) => {
     }
 
     if (!seller.pending) {
-      return res.status(400).json({ message: "Seller is not in a pending state" });
+      return res
+        .status(400)
+        .json({ message: "Seller is not in a pending state" });
     }
 
     const deletedSeller = await Seller.findByIdAndDelete(sellerId);
@@ -451,6 +458,22 @@ exports.rejectSeller = async (req, res) => {
   }
 };
 
+exports.requestDeletion = async (req, res) => {
+  try {
+    const sellerId = req.params.id; // Assuming seller ID is passed as a parameter
 
+    // Find the seller by ID
+    const seller = await Seller.findById(sellerId);
+    if (!seller) {
+      return res.status(404).json({ message: "Seller not found" });
+    }
 
+    // Set the requestingDeletion field to true
+    seller.requestingDeletion = true;
+    await seller.save();
 
+    res.status(200).json({ message: "Seller deletion requested successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

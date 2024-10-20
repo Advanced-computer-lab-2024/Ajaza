@@ -1,9 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const cron = require('node-cron');
-const Tourist = require('./models/Tourist');
-const touristController = require('./controllers/touristController');
+const cron = require("node-cron");
+const Tourist = require("./models/Tourist");
+const touristController = require("./controllers/touristController");
 
 const nodemailer = require("nodemailer");
 require("dotenv").config();
@@ -88,11 +88,10 @@ connection.once("open", () => {
   console.log("MongoDB database connection established successfully");
 });
 
-
 //first zero is minutes, second zero is hours of when will daily birth checks be held. //change zeroes for testing
-cron.schedule('0 0 * * *', () => {
-  if (process.env.BIRTHDAYS === 'true') {
-    console.log('Running daily birthday check...');
+cron.schedule("0 0 * * *", () => {
+  if (process.env.BIRTHDAYS === "true") {
+    console.log("Running daily birthday check...");
     checkBirthdaysToday();
   }
 });
@@ -103,7 +102,7 @@ app.listen(port, () => {
 
 async function checkBirthdaysToday() {
   //sign up was saving dob as string, this function will update all dob fields to date. However I changed the sign up to store dob as date so this call may not be needed -AA
-  updateDobFields(); 
+  updateDobFields();
   try {
     const today = new Date();
     const todayDay = today.getDate();
@@ -112,14 +111,17 @@ async function checkBirthdaysToday() {
     const usersWithBirthdayToday = await Tourist.find({
       $expr: {
         $and: [
-          { $eq: [{ $dayOfMonth: '$dob' }, todayDay] },
-          { $eq: [{ $month: '$dob' }, todayMonth] }
-        ]
-      }
-    }).select('_id');
+          { $eq: [{ $dayOfMonth: "$dob" }, todayDay] },
+          { $eq: [{ $month: "$dob" }, todayMonth] },
+        ],
+      },
+    }).select("_id");
 
     if (usersWithBirthdayToday.length > 0) {
-      console.log("Users with birthdays today: ", usersWithBirthdayToday.length);
+      console.log(
+        "Users with birthdays today: ",
+        usersWithBirthdayToday.length
+      );
       await touristController.birthdayEventTriggered(usersWithBirthdayToday);
     } else {
       console.log("No users have birthdays today.");
@@ -129,10 +131,11 @@ async function checkBirthdaysToday() {
   }
 }
 
-
 async function updateDobFields() {
   try {
-    const touristsWithStringDob = await Tourist.find({ dob: { $type: "string" } });
+    const touristsWithStringDob = await Tourist.find({
+      dob: { $type: "string" },
+    });
 
     if (touristsWithStringDob.length === 0) {
       return;
@@ -151,7 +154,6 @@ async function updateDobFields() {
         { $set: { dob: dobAsDate } }
       );
     }
-
   } catch (error) {
     console.error("Error updating DOB fields:", error);
   }
