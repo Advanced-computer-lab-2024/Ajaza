@@ -75,11 +75,11 @@ const TermsAndConditions = () => {
     const acceptTerms = async () => {
         try {
             ///acceptTerms/:id
-            await axios.patch(`${apiUrl}/${role}/acceptTerms/${userId}`, {
+            await axios.patch(`${apiUrl}${role}/acceptTerms/${userId}`, {
                 acceptedTerms: true,
             });
             message.success("Terms accepted. Redirecting to seller dashboard...");
-            navigate('/${role}');
+            navigate(`/${role}`);
         } catch (error) {
             message.error(`Error accepting terms: ${error.response?.data?.message || error.message}`);
         }
