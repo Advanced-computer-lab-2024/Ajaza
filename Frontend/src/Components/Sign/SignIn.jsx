@@ -78,12 +78,12 @@ const SignIn = () => {
           //   return;
           // }
           else if (decodedToken?.userDetails?.acceptedTerms == false) {
-            message.error(
-              "Account has not yet accepted the terms of services (TODO redirect to term)"
-            );
+            // message.error(
+            //   "Account has not yet accepted the terms of services (TODO redirect to term)"
+            // );
             localStorage.setItem("token", apiResponse.data.token); // TODO
-            // navigate(`/auth/terms-and-conditions?role=${decodedToken.role}`);
-            // return;
+            navigate(`/auth/terms-and-conditions?role=${decodedToken.role}`);
+            return;
             //TODO: tatos
           } else {
             localStorage.setItem("token", apiResponse.data.token);
