@@ -159,8 +159,16 @@ const CreateSeller = () => {
             </Upload>
           </Form.Item>
 
+          {/* Submit Button */}
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <CustomButton type="primary" htmlType="submit" value="Register" />
+            <CustomButton
+              type="primary"
+              htmlType="submit"
+              size="s"
+              value="Register"
+              rounded={true}
+              loading={false}
+            />
           </Form.Item>
         </Form>
       </div>
