@@ -331,20 +331,25 @@ exports.acceptTerms = async (req, res) => {
   try {
     const id = req.params.id;
     const user = await Guide.findById(id);
+    const value = req.body.acceptedTerms;
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
     if (user.pending) {
       return res.status(400).json({ message: "User is pending approval" });
     }
-    if (user.acceptedTerms) {
+    if (user.acceptedTerms && value === true) {
       return res.status(400).json({ message: "User has already accepted terms" });
     }
-    else{
+    if (value === false) {
+      user.acceptedTerms = false;
+      await user.save();
+      return res.status(200).json({ message: "Terms declined successfully" });
+    }
+
     user.acceptedTerms = true;
     await user.save();
     res.status(200).json({ message: "Terms accepted successfully" });
-    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
