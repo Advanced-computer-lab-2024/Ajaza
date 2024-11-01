@@ -78,8 +78,16 @@ const TermsAndConditions = () => {
             await axios.patch(`${apiUrl}${role}/acceptTerms/${userId}`, {
                 acceptedTerms: true,
             });
-            message.success("Terms accepted. Redirecting to seller dashboard...");
-            navigate(`/${role}`);
+            if (role === 'advertiser') {
+                message.success("Terms accepted. Redirecting to Advertiser dashboard...");
+            } else if (role === 'seller') {
+                message.success("Terms accepted. Redirecting to Seller dashboard...");
+            } else {
+                message.success("Terms accepted. Redirecting to Guide dashboard...");
+            }
+            setTimeout(() => {
+                navigate(`/${role}`);
+            }, 500); // Wait for 0.5 second before navigating
         } catch (error) {
             message.error(`Error accepting terms: ${error.response?.data?.message || error.message}`);
         }
