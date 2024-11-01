@@ -104,6 +104,16 @@ const SignIn = () => {
     fetchData();
   };
 
+  const handleKeyDown = (event) => {  // function to enable pressing enter after entering credentials to sign in
+    if (event.key === "Enter") {
+      const username = form.getFieldValue("username");
+      const password = form.getFieldValue("password");
+      if (username && password) {
+        signIn();
+      }
+    }
+  };
+
   return (
     <>
       <Box
@@ -138,6 +148,7 @@ const SignIn = () => {
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
             autoComplete="off"
+            onKeyDown={handleKeyDown} // Add the onKeyDown event listener here
           >
             <Form.Item
               name="username"
