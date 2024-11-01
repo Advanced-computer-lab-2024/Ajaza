@@ -337,9 +337,14 @@ exports.acceptTerms = async (req, res) => {
     if (user.pending) {
       return res.status(400).json({ message: "User is pending approval" });
     }
+    if (user.acceptedTerms) {
+      return res.status(400).json({ message: "User has already accepted terms" });
+    }
+    else{
     user.acceptedTerms = true;
     await user.save();
     res.status(200).json({ message: "Terms accepted successfully" });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
