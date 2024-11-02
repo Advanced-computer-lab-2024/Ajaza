@@ -8,19 +8,20 @@ const CX = process.env.CX;
 
 async function main() {
     try {
-        const response = await axios.get('https://www.googleapis.com/customsearch/v1', {
+      const response = await axios.get('https://booking-com15.p.rapidapi.com/api/v1/hotels/searchDestination', {
+        headers: {
+            'X-RapidAPI-Key': process.env.RAPID_API_KEY,
+            'X-RapidAPI-Host': 'booking-com15.p.rapidapi.com',
+        },
         params: {
-          key: GOOGLE_API_KEY,
-          cx: CX,
-          q: "cat",
-          searchType: 'image',
-          num: 3,
+            query: 'Munich',
         },
       });
-  
-      const images = response.data.items.map(item => item.link);
-      console.log(images);
-      return images;
+
+      console.log(response.data);
+
+      return response.data;
+
     }
     catch (error) {
       console.error('Error fetching images:', error);
