@@ -154,19 +154,19 @@ exports.guestAdvertiserCreateProfile = async (req, res) => {
 
   try {
     // Validate email
-    const emailValidation = validateEmail(email);
+    const emailValidation = validateEmail(filteredBody.email);
     if (!emailValidation.isValid) {
       return res.status(400).json({ error: emailValidation.message });
     }
 
     // Check for unique email
-    const emailAvailability = await checkEmailAvailability(email);
+    const emailAvailability = await checkEmailAvailability(filteredBody.email);
     if (!emailAvailability.isAvailable) {
       return res.status(400).json({ message: emailAvailability.message });
     }
 
     // Check for unique username
-    const usernameAvailability = await checkUsernameAvailability(username);
+    const usernameAvailability = await checkUsernameAvailability(filteredBody.username);
     if (!usernameAvailability.isAvailable) {
       return res.status(400).json({ message: usernameAvailability.message });
     }
