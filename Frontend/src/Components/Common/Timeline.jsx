@@ -9,8 +9,6 @@ const Timeline = ({ timelineItems, fieldName }) => {
     setMode(e.target.value);
   };
 
-  console.log(timelineItems);
-
   useEffect(() => {
     let temp = timelineItems;
     if (fieldName == "timeline") {
@@ -33,7 +31,6 @@ const Timeline = ({ timelineItems, fieldName }) => {
     }
 
     setTimelineItemsAdjusted(temp);
-    console.log(temp);
   }, [timelineItems]);
 
   return (

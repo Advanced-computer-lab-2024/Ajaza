@@ -13,6 +13,7 @@ import Plans from "./Plans";
 import Venues from "./Venues";
 import Products from "./Products";
 import Product from "../Common/Product";
+import Venue from "../Common/Venue";
 import RedeemPoints from "./RedeemPoints";
 import RedeemIcon from "@mui/icons-material/Redeem";
 import Activities from "./Activities";
@@ -21,6 +22,7 @@ import FileComplaint from "./FileComplaint";
 import Complaints from "./Complaints";
 import RateReviewOutlinedIcon from "@mui/icons-material/RateReviewOutlined";
 import TouristHistory from "./TouristHistory";
+import Activity from "../Common/Activity";
 
 const Tourist = () => {
   const [response, setResponse] = useState([]);
@@ -123,7 +125,10 @@ const Tourist = () => {
         <Route path="profile" element={<Profile />} />
         <Route path="itineraries" element={<Itineraries />} />
         <Route path="venues" element={<Venues />} />
+        <Route path="venues/:id" element={<Venue />} />
         <Route path="activities" element={<Activities />} />
+        <Route path="activities/:id" element={<Activity />} />
+
         <Route path="products" element={<Products />} />
         <Route path="products/:id" element={<Product />} />
         <Route path="redeemPoints" element={<RedeemPoints />} />

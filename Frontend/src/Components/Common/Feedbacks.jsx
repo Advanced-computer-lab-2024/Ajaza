@@ -44,8 +44,6 @@ const Feedbacks = ({
     writeReviewForm.resetFields();
   };
 
-  console.log(writeReviewForm);
-
   return (
     <>
       <Flex justify="right">
@@ -124,7 +122,7 @@ const Feedbacks = ({
       {writeReviewForm ? (
         <Modal
           title={"Write your Review"}
-          visible={isModalVisible}
+          open={isModalVisible}
           onCancel={handleCancel}
           footer={null}
         >
@@ -149,7 +147,13 @@ const Feedbacks = ({
             </Form.Item>
             <Form.Item style={{ marginBottom: "10px" }}>
               <Flex justify="center">
-                <AntButton type="primary" htmlType="submit">
+                <AntButton
+                  htmlType="submit"
+                  style={{
+                    backgroundColor: Colors.primary.default,
+                    color: "white",
+                  }}
+                >
                   Review
                 </AntButton>
               </Flex>
