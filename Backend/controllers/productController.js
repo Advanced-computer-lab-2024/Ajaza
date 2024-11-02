@@ -135,7 +135,7 @@ exports.giveFeedback = async (req, res) => {
     const updatedProduct = await Product.findByIdAndUpdate(
       productId,
       {
-        $push: { feedback: { rating, comments } },
+        $push: { feedback: { touristId, rating, comments } },
       },
       { new: true }
     );

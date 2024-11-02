@@ -156,7 +156,7 @@ exports.giveActivityFeedback = async (req, res) => {
     }
 
     // append the feedback to the activity
-    activity.feedback.push({ rating, comments });
+    activity.feedback.push({ touristId, rating, comments });
     tourist.gaveFeedback.push(activityId);
     await tourist.save();
 

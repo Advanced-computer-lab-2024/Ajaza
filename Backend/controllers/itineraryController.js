@@ -186,7 +186,7 @@ exports.giveItineraryFeedback = async (req, res) => {
     }
 
     // append the feedback to the itinerary
-    itinerary.feedback.push({ rating, comments });
+    itinerary.feedback.push({ touristId, rating, comments });
     tourist.gaveFeedback.push(itineraryId);
     await tourist.save();
 

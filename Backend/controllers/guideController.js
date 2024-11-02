@@ -93,7 +93,7 @@ exports.giveGuideFeedback = async (req, res) => {
       return res.status(404).json({ message: "Guide not found" });
     }
 
-    guide.feedback.push({ rating, comments });
+    guide.feedback.push({ touristId, rating, comments });
     tourist.gaveFeedback.push(guideId);
     await tourist.save();
     await guide.save();
