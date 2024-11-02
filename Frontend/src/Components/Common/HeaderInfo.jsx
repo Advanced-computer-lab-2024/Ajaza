@@ -1,13 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Carousel, Row, Col, Rate, Flex } from "antd";
-import { Colors } from "./Constants";
+import { Colors, apiUrl } from "./Constants";
 import CustomButton from "./CustomButton";
+import axios from "axios";
 import {
   ShareAltOutlined,
   HeartOutlined,
   HeartFilled,
 } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
+
+const token = localStorage.getItem("token");
+let decodedToken = null;
+if (token) {
+  decodedToken = jwtDecode(token);
+}
+const userid = decodedToken ? decodedToken.userId : null;
 
 const contentStyle = {
   margin: 0,
@@ -54,9 +62,48 @@ const HeaderInfo = ({
 
   // product wishlist
 
-  const bookItem = () => {};
+  const updateTokenInLocalStorage = (newToken) => {
+    localStorage.setItem("token", newToken);
+  };
 
-  const cancelBookingItem = () => {};
+  const bookItem = async () => {
+    try {
+      const touristId = userid;
+      const endpoint = type === "Activity"
+        ? `${apiUrl}/${touristId}/activity/${id}/book`
+        : `${apiUrl}/${touristId}/itinerary/${id}/book`;
+
+      const response = await axios.post(endpoint);
+      alert(`${type} booked successfully!`);
+
+      if (response.data.token) {
+        updateTokenInLocalStorage(response.data.token);
+      }
+    } catch (error) {
+      console.error(`Error booking ${type}:`, error);
+      alert(`Error booking ${type}: ${error.message}`);
+    }
+  };
+
+  const cancelBookingItem = async () => {
+    try {
+      const touristId = userid;
+      const endpoint = type === "Activity"
+        ? `${apiUrl}/${touristId}/activity/${id}/cancel`
+        : `${apiUrl}/${touristId}/itinerary/${id}/cancel`;
+
+      const response = await axios.delete(endpoint);
+      alert(`${type} booking canceled successfully!`);
+
+      if (response.data.token) {
+        updateTokenInLocalStorage(response.data.token);
+      }
+    } catch (error) {
+      console.error(`Error canceling ${type} booking:`, error);
+      alert(`Failed to cancel the booking. Please try again.`);
+    }
+  };
+
 
   const save = () => {
     // add to saved items
