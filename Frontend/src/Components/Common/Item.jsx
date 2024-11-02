@@ -1,12 +1,14 @@
-import React, { Modal } from "react";
+import React, { Modal, useEffect, useState } from "react";
 import { Flex, Row, Col } from "antd";
 import Feedbacks from "./Feedbacks";
 import Timeline from "./Timeline";
 import { camelCaseToNormalText, Colors } from "./Constants";
-import CustomButton from "./CustomButton";
-import { ShareAltOutlined } from "@ant-design/icons";
+import HeaderInfo from "./HeaderInfo";
+import { jwtDecode } from "jwt-decode";
 
 const Item = ({
+  name,
+  photos,
   timelineItems,
   setTimeline,
   feedbacks,
@@ -15,17 +17,37 @@ const Item = ({
   onSubmitWriteReview,
   bookItem,
   cancelBookingItem,
+  type, // Activity, Venue, Itinerary, Product, etc
+  tags,
+  price,
+  category,
 }) => {
-  const shareItem = () => {};
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const decodedToken = jwtDecode(token);
+    setUser(decodedToken.userDetails);
+  }, []);
+
   return (
     <>
+      <HeaderInfo
+        name={name}
+        photos={photos}
+        bookItem={bookItem}
+        cancelBookingItem={cancelBookingItem}
+        type={type}
+        user={user}
+        tags={tags}
+        price={price}
+        category={category}
+      />
       {
         <Row justify="center">
           {Object.entries(timelineItems).map(([key, value]) => {
-            console.log(value);
-
             return (
-              <Col span={12}>
+              <Col span={12} key={key}>
                 <h3>{camelCaseToNormalText(key)}</h3>
                 <Timeline key={key} timelineItems={value} fieldName={key} />
               </Col>
@@ -39,20 +61,6 @@ const Item = ({
         onSubmitWriteReview={onSubmitWriteReview}
         feedbacks={feedbacks}
         setFeedbacks={setFeedbacks}
-      />
-      <CustomButton size={"m"} value={"Book"} onClick={bookItem} />
-      <CustomButton
-        size={"m"}
-        style={{ width: "200px", backgroundColor: Colors.warning }}
-        value={"Cancel Booking"}
-        onClick={cancelBookingItem}
-      />
-      <CustomButton
-        size={"s"}
-        style={{ width: "40px" }}
-        icon={
-          <ShareAltOutlined style={{ fontSize: "23px" }} onClick={shareItem} />
-        }
       />
     </>
   );

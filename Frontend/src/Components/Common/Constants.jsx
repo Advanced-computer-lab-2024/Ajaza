@@ -13,7 +13,8 @@ export const Colors = {
   },
   primary: {
     default: "#1b696a",
-    light: "#6c9c88",
+    light: "#5b8b77",
+    lighter: "#a9f1d3",
   },
   warning: "#ff4545",
 };

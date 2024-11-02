@@ -47,6 +47,8 @@ const CustomButton = ({
     margin = "20px";
   }
 
+  console.log(style);
+
   return (
     <AntdButton
       type="primary"

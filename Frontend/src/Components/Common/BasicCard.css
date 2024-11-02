@@ -1,0 +1,7 @@
+.myCard:hover {
+  cursor: pointer;
+}
+
+.myCard .ant-card-body {
+  padding: 0 !important;
+}
