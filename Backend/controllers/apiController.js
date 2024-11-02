@@ -3,6 +3,8 @@
 const axios = require('axios');
 const qs = require('qs');
 const express = require('express');
+const HotelBooking = require('../models/HotelBooking');
+const FlightBooking = require('../models/FlightBooking');
 require('dotenv').config();
 
 const clientId = process.env.AMADEUS_API_KEY;
@@ -75,8 +77,23 @@ exports.searchFlights = async (req,res) => {
 };
 
 exports.bookFlight = async (req,res) => {
-    const {details, grandTotal, currency} = req.body;
-    res.status(200).json({ message:"Flight temporarily booked successfuly, proceed to payment to confirm", grandTotal:grandTotal, currency:currency, details:details });
+    const { touristId } = req.params;
+    const { origin, destination, departureDate, count } = req.body;
+
+    try {
+        const flightBooking = new FlightBooking({
+            touristId,
+            origin,
+            destination,
+            departureDate,
+            count,
+        });
+
+        await flightBooking.save();
+        res.status(200).json(flightBooking);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 }
 
 /*search engine id 
@@ -177,6 +194,24 @@ exports.searchHotels = async (req,res) => {
 };
 
 exports.bookHotel = async (req,res) => {
-    const {details, grandTotal, currency} = req.body;
-    res.status(200).json({ message:"Hotel temporarily booked successfuly, proceed to payment to confirm",grandTotal:grandTotal, currency: currency, details:details });
+    const { touristId } = req.params;
+    const { hotelName, city, price, currency, checkin, checkout, score } = req.body;
+
+    try {
+        const hotelBooking = new HotelBooking({
+            touristId,
+            hotelName,
+            city,
+            price,
+            currency,
+            checkin,
+            checkout,
+            score,
+        });
+
+        await hotelBooking.save();
+        res.status(200).json(hotelBooking);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 }
