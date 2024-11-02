@@ -201,7 +201,7 @@ exports.guestSellerCreateProfile = async (req, res) => {
     }
 
     // Check for unique username
-    const usernameAvailability = await checkUsernameAvailability(filteredbody.username);
+    const usernameAvailability = await checkUsernameAvailability(filteredBody.username);
     if (!usernameAvailability.isAvailable) {
       return res.status(400).json({ message: usernameAvailability.message });
     }
