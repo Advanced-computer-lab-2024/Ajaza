@@ -149,6 +149,7 @@ const CreateTourGuide = () => {
             name="document1"
             valuePropName="fileList"
             getValueFromEvent={normFile}
+            rules={[{ required: true, message: "Please upload your ID!" }]}
             extra="Upload your ID."
           >
             <Upload
@@ -167,6 +168,7 @@ const CreateTourGuide = () => {
             name="document2"
             valuePropName="fileList"
             getValueFromEvent={normFile}
+            rules={[{ required: true, message: "Please upload your certificates!" }]}
             extra="Upload your certificates."
           >
             <Upload name="doc2" listType="text" beforeUpload={() => false}>

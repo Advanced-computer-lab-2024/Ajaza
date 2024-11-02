@@ -175,6 +175,7 @@ const Advertiser = () => {
             name="document1"
             valuePropName="fileList"
             getValueFromEvent={normFile}
+            rules={[{ required: true, message: "Please upload your ID!" }]}
             extra="Upload your ID."
           >
             <Upload name="doc1" listType="text" beforeUpload={() => false}>
@@ -188,6 +189,7 @@ const Advertiser = () => {
             name="document2"
             valuePropName="fileList"
             getValueFromEvent={normFile}
+            rules={[{ required: true, message: "Please upload your Taxation Registry Card!" }]}
             extra="Upload the taxation registry card."
           >
             <Upload name="doc2" listType="text" beforeUpload={() => false}>
