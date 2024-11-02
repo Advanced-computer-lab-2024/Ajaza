@@ -9,6 +9,8 @@ require('dotenv').config();
 
 const clientId = process.env.AMADEUS_API_KEY;
 const clientSecret = process.env.AMADEUS_API_SECRET;
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const CX = process.env.CX;
 
 async function getAccessToken() {
   try {
@@ -105,38 +107,53 @@ service account id
 ajaza-577@friendly-hangar-437717-q8.iam.gserviceaccount.com
 */
 
-async function fetchImages(hotelName) {
-  try {
-    const API_KEY = process.env.GOOGLE_API_KEY;
-    const CX = process.env.CX;
+const axiosInstance = axios.create({
+  timeout: 10000000, //  seconds timeout
+});
 
-    const response = await axios.get('https://www.googleapis.com/customsearch/v1', {
+exports.getHotelDetails = async (req,res) => {
+  try {
+    const { hotelName, checkin, checkout, count, dest_id, city, currency, score } = req.body;
+    const images = await fetchImages(hotelName);
+    res.status(200).json({images, hotelName, checkin, checkout, count, dest_id, city, currency, score});
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
+async function fetchImages(hotelName) {
+    try {
+      const response = await axiosInstance.get('https://www.googleapis.com/customsearch/v1', {
       params: {
-        key: API_KEY,
+        key: GOOGLE_API_KEY,
         cx: CX,
-        q: hotelName,
+        q: hotelName + " rooms",
         searchType: 'image',
-        num: 3,
+        num: 10,
       },
     });
 
     const images = response.data.items.map(item => item.link);
-
+    console.log(images);
     return images;
   }
   catch (error) {
-    console.error('Error fetching images:', error);
-    return null;
+    if (error.code === 'ECONNABORTED') {
+        console.error("Request timed out");
+    } else {
+        console.error('Error fetching images:', error);
+    }
+    return null
   }
 }
 
-function filterHotelFields(hotel) {
+async function filterHotelFields(hotel) {
     // Extract price from the accessibilityLabel string
     const priceMatch = hotel.accessibilityLabel.match(/Current price (\d+) USD/);
     const priceMatchb = hotel.accessibilityLabel.match(/Current price (\d+)/);
 
     const price = priceMatch ? priceMatch[1] : (priceMatchb ? priceMatchb[1] : 1000);
-    //const images = null; //await fetchImages(hotel.property.name)
 
     return {
         name: hotel.property.name,
@@ -146,9 +163,9 @@ function filterHotelFields(hotel) {
         checkin: hotel.property.checkinDate,
         checkout: hotel.property.checkoutDate,
         score: hotel.property.reviewScore,
-        //images: images,
     };
 };
+
 
 //known prague = '-553173'
 async function searchHotels(dest_id , checkInDate, checkOutDate , count = 1) {

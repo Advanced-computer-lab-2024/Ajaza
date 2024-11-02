@@ -87,6 +87,8 @@ router.post('/flights/bookFlight/:id', apiController.bookFlight);
 // req41
 router.get('/hotels/searchHotels', apiController.searchHotels);
 router.post('/hotels/bookHotel/:id', apiController.bookHotel);
+//helper for req41 to get images
+router.get('/hotels/getImages', apiController.getHotelDetails);
 
 // req61
 router.delete(
