@@ -873,28 +873,14 @@ exports.getHistory = async (req, res) => {
   try {
     const tourist = await Tourist.findById(req.params.id)
       .populate("activityBookings.activityId")
-      .populate("itineraryBookings.itineraryId");
+      .populate("itineraryBookings.itineraryId")
+      .populate("orders.products.productId");
 
     if (!tourist) {
       throw new Error("Tourist not found");
     }
 
     const currentDate = new Date();
-    /*
-      activity ids
-      66f6ac560f0094718a1e9e73
-      66f6ac560f0094718a1e9e74
-      66f6ac560f0094718a1e9e75
-      670433de2aa613b75f8e4935
-    */
-    /*
-      itinerary ids
-      66f6adef0f0094718a1f6050
-      66f6adef0f0094718a1f6051
-      66f6adef0f0094718a1f6052
-      66f6adef0f0094718a1f6053
-    */
-    /*guide 66f6ad970f0094718a1f366a*/
     let activities = [];
     for (let i = 0; i < tourist.activityBookings.length; i++) {
       if (tourist.activityBookings[i].activityId.date < currentDate) {
@@ -959,10 +945,27 @@ exports.getHistory = async (req, res) => {
       }
     }
 
+    let products = [];
+    for (let i = 0; i < tourist.orders.length; i++) {
+      if(tourist.orders[i].date < currentDate && tourist.orders[i].status != "Cancelled") {
+        for (let j = 0; j < tourist.orders[i].products.length; j++) {
+          products.push({
+            productId: tourist.orders[i].products[j].productId._id,
+            name: tourist.orders[i].products[j].productId.name,
+            date: tourist.orders[i].date,
+            gaveFeedback: tourist.gaveFeedback.includes(
+              tourist.orders[i].products[j].productId
+            ),
+          });
+        }
+      }
+    }
+//66f6ae2a0f0094718a1f7d82 some product id to test
     res.status(200).json({
       activities: activities,
       itineraries: itineraries,
       guides: guides,
+      products: products,
     });
   } catch (error) {
     console.error("Error retrieving past activity bookings:", error);
