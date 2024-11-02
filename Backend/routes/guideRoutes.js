@@ -43,9 +43,6 @@ router.patch(
 //req5  -- Tatos
 router.post(
   "/guestGuideCreateProfile",
-  validateEmail,
-  uniqueUsername,
-  uniqueEmail,
   uploadIdCertificatesImage,
   guideController.guestGuideCreateProfile
 ); // Guest Guide sign up

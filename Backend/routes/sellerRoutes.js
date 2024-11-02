@@ -25,9 +25,6 @@ router.delete(
 //req5
 router.post(
   "/guestSellerCreateProfile",
-  validateEmail,
-  uniqueEmail,
-  uniqueUsername,
   uploadIdTaxImage,
   sellerController.guestSellerCreateProfile
 ); // Guest Seller sign up

@@ -28,9 +28,6 @@ router.delete(
 //req5  -- Tatos
 router.post(
   "/guestAdvertiserCreateProfile",
-  validateEmail,
-  uniqueUsername,
-  uniqueEmail,
   uploadIdTaxImage,
   advertiserController.guestAdvertiserCreateProfile
 ); // Guest Advertiser sign up
