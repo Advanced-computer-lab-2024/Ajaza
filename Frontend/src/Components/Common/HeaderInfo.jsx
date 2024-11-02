@@ -46,9 +46,23 @@ const HeaderInfo = ({
 
   useEffect(() => {
     // check user
-    // get if this item is booked setIsBooked accordingly
+    // get if this item is booked setIsBooked accordingly:
+    const checkIfBooked = () => {
+      if (user) {
+        const isItemBooked =
+          type === "Activity"
+            ? user.activityBookings.some((booking) => booking.activityId === id)
+            : user.itineraryBookings.some(
+                (booking) => booking.itineraryId === id
+              );
+
+        setIsBooked(isItemBooked);
+      }
+    };
+
+    checkIfBooked();
     // get if this item is saved: wishlist (if product), bookmarked (if not) setIsSaved
-  }, [user]);
+  }, [id, type, user]);
 
   useEffect(() => {
     if (photos?.length > 0) {
@@ -69,11 +83,20 @@ const HeaderInfo = ({
   const bookItem = async () => {
     try {
       const touristId = userid;
-      const endpoint = type === "Activity"
-        ? `${apiUrl}/${touristId}/activity/${id}/book`
-        : `${apiUrl}/${touristId}/itinerary/${id}/book`;
+      const useWallet = user.wallet > 0;
+      const date = ""; // date of the booking or the date of the event? and add it only in iten why?
+      //const total = type === "Activity" ? price : price; // mehtag ashoof ma3 ahmed, iten has price bas activity laa
+      const promoCode = ""; //input from user??
+      const endpoint =
+        type === "Activity"
+          ? `${apiUrl}/${touristId}/activity/${id}/book`
+          : `${apiUrl}/${touristId}/itinerary/${id}/book`;
 
-      const response = await axios.post(endpoint);
+      const response = await axios.post(endpoint, {
+        useWallet,
+        //total,
+        promoCode,
+      });
       alert(`${type} booked successfully!`);
 
       if (response.data.token) {
@@ -88,22 +111,28 @@ const HeaderInfo = ({
   const cancelBookingItem = async () => {
     try {
       const touristId = userid;
-      const endpoint = type === "Activity"
-        ? `${apiUrl}/${touristId}/activity/${id}/cancel`
-        : `${apiUrl}/${touristId}/itinerary/${id}/cancel`;
+      const endpoint =
+        type === "Activity"
+          ? `${apiUrl}/${touristId}/activity/${id}/cancel`
+          : `${apiUrl}/${touristId}/itinerary/${id}/cancel`;
 
       const response = await axios.delete(endpoint);
-      alert(`${type} booking canceled successfully!`);
+      //alert(`${type} booking canceled successfully!`);
+      if (response.status === 200) {
+        alert(`${type} booking canceled successfully!`);
+      } else {
+        alert(`Failed to cancel the booking: ${response.data.message}`);
+      }
 
       if (response.data.token) {
         updateTokenInLocalStorage(response.data.token);
       }
     } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Please try again.';
       console.error(`Error canceling ${type} booking:`, error);
-      alert(`Failed to cancel the booking. Please try again.`);
+      alert(`Failed to cancel the booking: ${errorMessage}`);
     }
   };
-
 
   const save = () => {
     // add to saved items
