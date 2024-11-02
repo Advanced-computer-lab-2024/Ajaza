@@ -205,41 +205,6 @@ const Activities = () => {
         console.error("Error fetching data:", error);
       }
     };
-
-    //    This will be in the card view of each activity
-    //   const handleBookActivity = async () => {
-    //     try {
-    //       const touristId = userid;
-    //       const activityId = element.id;
-    //       await axios.post(`${apiUrl}/${touristId}/activity/${activityId}/book`);
-    //       alert("Activity booked successfully!");
-    //     } catch (error) {
-    //       console.error("Error booking activity:", error);
-    //       alert("Error booking activity:", error);
-    //     }
-    //   };
-    //       <button onClick={handleBookActivity} className="book-button">
-    //         Book
-    //       </button>
-    
-
-    //   This will be in the card view of the bookings of each user
-    // const handleCancelBooking = async () => {
-    //   try {
-    //     const touristId = userid;
-    //     const activityId = element.id;
-    //     await axios.delete(`/api/${touristId}/activity/${activityId}/cancel`);
-    //     alert("Activity booking canceled successfully!");
-    //   } catch (error) {
-    //     console.error("Error canceling activity booking:", error);
-    //     alert("Failed to cancel the booking. Please try again.");
-    //   }
-    // };
-    //       <button onClick={handleCancelBooking} className="cancel-button">
-    //         Cancel
-    //       </button>
-
-
     fetchData();
   }, []);
   return (
