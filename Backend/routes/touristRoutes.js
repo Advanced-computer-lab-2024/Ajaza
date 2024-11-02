@@ -85,7 +85,7 @@ router.patch("/redeemPoints/:id", touristController.redeemPoints);
 router.get("/flights/searchFlights", apiController.searchFlights);
 //router.post('/flights/bookFlight', apiController.bookFlight);
 // req41
-//router.get('/hotels/searchHotels', apiController.searchHotels);
+router.get('/hotels/searchHotels', apiController.searchHotels);
 //router.post('/hotels/bookHotel', apiController.bookHotel);
 
 // req61

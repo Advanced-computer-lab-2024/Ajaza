@@ -79,12 +79,47 @@ exports.bookFlight = async (req,res) => {
     res.status(200).json({ message:"Flight temporarily booked successfuly, proceed to payment to confirm", grandTotal:grandTotal, currency:currency, details:details });
 }
 
+/*search engine id 
+<script async src="https://cse.google.com/cse.js?cx=13d3f24ae48c74537">
+</script>
+<div class="gcse-search"></div>
+
+service account id
+ajaza-577@friendly-hangar-437717-q8.iam.gserviceaccount.com
+*/
+
+async function fetchImages(hotelName) {
+  try {
+    const API_KEY = process.env.GOOGLE_API_KEY;
+    const CX = process.env.CX;
+
+    const response = await axios.get('https://www.googleapis.com/customsearch/v1', {
+      params: {
+        key: API_KEY,
+        cx: CX,
+        q: hotelName,
+        searchType: 'image',
+        num: 3,
+      },
+    });
+
+    const images = response.data.items.map(item => item.link);
+
+    return images;
+  }
+  catch (error) {
+    console.error('Error fetching images:', error);
+    return null;
+  }
+}
+
 function filterHotelFields(hotel) {
     // Extract price from the accessibilityLabel string
     const priceMatch = hotel.accessibilityLabel.match(/Current price (\d+) USD/);
     const priceMatchb = hotel.accessibilityLabel.match(/Current price (\d+)/);
 
     const price = priceMatch ? priceMatch[1] : (priceMatchb ? priceMatchb[1] : 1000);
+    //const images = null; //await fetchImages(hotel.property.name)
 
     return {
         name: hotel.property.name,
@@ -94,10 +129,12 @@ function filterHotelFields(hotel) {
         checkin: hotel.property.checkinDate,
         checkout: hotel.property.checkoutDate,
         score: hotel.property.reviewScore,
+        //images: images,
     };
 };
 
-async function searchHotels(dest_id = '-553173', checkInDate, checkOutDate , count = 1) {
+//known prague = '-553173'
+async function searchHotels(dest_id , checkInDate, checkOutDate , count = 1) {
     try {
         const response = await axios.get('https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels', {
             headers: {
@@ -118,11 +155,9 @@ async function searchHotels(dest_id = '-553173', checkInDate, checkOutDate , cou
         });
 
         const filteredHotels = response.data.data.hotels.map(filterHotelFields);
-        console.log(filteredHotels);
         return filteredHotels;  // Return the filtered hotels
     } catch (error) {
         console.error("Error fetching hotels:", error);
-        throw error;  // Optionally rethrow the error if you want to handle it later
     }
 }
 
@@ -133,7 +168,8 @@ exports.searchHotels = async (req,res) => {
         res.status(500).json({ error:"Missing params" });
     }
     try {
-        const returned = searchHotels(checkInDate,checkOutDate,count);
+        const returned = await searchHotels(dest_id, checkInDate,checkOutDate,count);
+        console.log(returned);
         res.status(200).json(returned);
     } catch(error) {
         res.status(500).json({ error: error.message });
