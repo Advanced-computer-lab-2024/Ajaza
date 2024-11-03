@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Carousel, Row, Col, Rate, Flex } from "antd";
-import { Colors } from "./Constants";
+import { Carousel, Row, Col, Rate, Flex, Select, Modal, Input } from "antd";
+import { Colors, apiUrl } from "./Constants";
 import CustomButton from "./CustomButton";
+import axios from "axios";
 import {
   ShareAltOutlined,
   HeartOutlined,
   HeartFilled,
 } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
+
+const { Option } = Select;
+
+const token = localStorage.getItem("token");
+let decodedToken = null;
+if (token) {
+  decodedToken = jwtDecode(token);
+}
+const userid = decodedToken ? decodedToken.userId : null;
 
 const contentStyle = {
   margin: 0,
@@ -30,17 +40,34 @@ const HeaderInfo = ({
   tags,
   price,
   category,
+  availableDateTime,
 }) => {
   const [multiplePhotos, setMultiplePhotos] = useState(false);
   const [photosDetailsSpan, setPhotosDetailsSpan] = useState(16);
   const [isBooked, setIsBooked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
+  const [selectedDate, setSelectedDate] = useState(null);
 
   useEffect(() => {
     // check user
-    // get if this item is booked setIsBooked accordingly
+    // get if this item is booked setIsBooked accordingly:
+    const checkIfBooked = () => {
+      if (user) {
+        const isItemBooked =
+          type === "Activity"
+            ? user.activityBookings.some((booking) => booking.activityId === id)
+            : user.itineraryBookings.some(
+                (booking) => booking.itineraryId === id
+              );
+
+        setIsBooked(isItemBooked);
+      }
+    };
+
+    checkIfBooked();
     // get if this item is saved: wishlist (if product), bookmarked (if not) setIsSaved
-  }, [user]);
+  }, [id, type, user]);
 
   useEffect(() => {
     if (photos?.length > 0) {
@@ -54,9 +81,98 @@ const HeaderInfo = ({
 
   // product wishlist
 
-  const bookItem = () => {};
+  const updateTokenInLocalStorage = (newToken) => {
+    localStorage.setItem("token", newToken);
+  };
 
-  const cancelBookingItem = () => {};
+  const bookItem = async () => {
+    try {
+      const touristId = userid;
+      const Wallet = user.wallet > 0;
+      const date = ""; // date of the booking or the date of the event? and add it only in iten why?
+      //const total = type === "Activity" ? price : price; // mehtag ashoof ma3 ahmed, iten has price bas activity laa
+      const endpoint =
+        type === "Activity"
+          ? `${apiUrl}/${touristId}/activity/${id}/book`
+          : `${apiUrl}/${touristId}/itinerary/${id}/book`;
+
+      const response = await axios.post(endpoint, {
+        Wallet,
+        total: price,
+        date: selectedDate,
+        promoCode: promoCode || null,
+      });
+      alert(`${type} booked successfully!`);
+
+      if (response.data.token) {
+        updateTokenInLocalStorage(response.data.token);
+      }
+      //setIsBooked(true); do i need it?
+    } catch (error) {
+      console.error(`Error booking ${type}:`, error);
+      alert(`Error booking ${type}: ${error.message}`);
+    }
+  };
+
+  const showBookingModal = () => {
+    Modal.confirm({
+      title: `Confirm Booking for ${name}`,
+      content: (
+        <div>
+          {type === "Itinerary" && availableDateTime?.length > 0 && (
+            <Select
+              placeholder="Select booking date"
+              onChange={setSelectedDate}
+              style={{ width: "100%", marginBottom: 10 }}
+            >
+              {availableDateTime.map((slot, index) => (
+                <Option key={index} value={slot.date}>
+                  {new Date(slot.date).toLocaleString()} - {slot.spots} spots
+                  left
+                </Option>
+              ))}
+            </Select>
+          )}
+          <Input
+            placeholder="Enter promo code"
+            onChange={(e) => setPromoCode(e.target.value)}
+            style={{ marginTop: 10 }}
+          />
+        </div>
+      ),
+      onOk: bookItem, // Call bookItem when the user confirms
+      onCancel: () => {
+        setSelectedDate(null);
+        setPromoCode("");
+      },
+    });
+  };
+
+  const cancelBookingItem = async () => {
+    try {
+      const touristId = userid;
+      const endpoint =
+        type === "Activity"
+          ? `${apiUrl}/${touristId}/activity/${id}/cancel`
+          : `${apiUrl}/${touristId}/itinerary/${id}/cancel`;
+
+      const response = await axios.delete(endpoint);
+      //alert(`${type} booking canceled successfully!`);
+      if (response.status === 200) {
+        alert(`${type} booking canceled successfully!`);
+      } else {
+        alert(`Failed to cancel the booking: ${response.data.message}`);
+      }
+
+      if (response.data.token) {
+        updateTokenInLocalStorage(response.data.token);
+      }
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Please try again.";
+      console.error(`Error canceling ${type} booking:`, error);
+      alert(`Failed to cancel the booking: ${errorMessage}`);
+    }
+  };
 
   const save = () => {
     // add to saved items
@@ -174,7 +290,8 @@ const HeaderInfo = ({
                   size={"s"}
                   style={{ fontSize: "16px", fontWeight: "bold" }}
                   value={"Book"}
-                  onClick={bookItem}
+                  //onClick={bookItem}
+                  onClick={showBookingModal}
                 />
               )}
             </Flex>

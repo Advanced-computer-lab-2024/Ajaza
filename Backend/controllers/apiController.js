@@ -3,10 +3,14 @@
 const axios = require('axios');
 const qs = require('qs');
 const express = require('express');
+const HotelBooking = require('../models/HotelBooking');
+const FlightBooking = require('../models/FlightBooking');
 require('dotenv').config();
 
 const clientId = process.env.AMADEUS_API_KEY;
 const clientSecret = process.env.AMADEUS_API_SECRET;
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const CX = process.env.CX;
 
 async function getAccessToken() {
   try {
@@ -75,11 +79,76 @@ exports.searchFlights = async (req,res) => {
 };
 
 exports.bookFlight = async (req,res) => {
-    const {details, grandTotal, currency} = req.body;
-    res.status(200).json({ message:"Flight temporarily booked successfuly, proceed to payment to confirm", grandTotal:grandTotal, currency:currency, details:details });
+    const { touristId } = req.params;
+    const { origin, destination, departureDate, count } = req.body;
+
+    try {
+        const flightBooking = new FlightBooking({
+            touristId,
+            origin,
+            destination,
+            departureDate,
+            count,
+        });
+
+        await flightBooking.save();
+        res.status(200).json(flightBooking);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 }
 
-function filterHotelFields(hotel) {
+/*search engine id 
+<script async src="https://cse.google.com/cse.js?cx=13d3f24ae48c74537">
+</script>
+<div class="gcse-search"></div>
+
+service account id
+ajaza-577@friendly-hangar-437717-q8.iam.gserviceaccount.com
+*/
+
+const axiosInstance = axios.create({
+  timeout: 10000000, //  seconds timeout
+});
+
+exports.getHotelDetails = async (req,res) => {
+  try {
+    const { hotelName, checkin, checkout, count, dest_id, city, currency, score } = req.body;
+    const images = await fetchImages(hotelName);
+    res.status(200).json({images, hotelName, checkin, checkout, count, dest_id, city, currency, score});
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
+async function fetchImages(hotelName) {
+    try {
+      const response = await axiosInstance.get('https://www.googleapis.com/customsearch/v1', {
+      params: {
+        key: GOOGLE_API_KEY,
+        cx: CX,
+        q: hotelName + " rooms",
+        searchType: 'image',
+        num: 10,
+      },
+    });
+
+    const images = response.data.items.map(item => item.link);
+    console.log(images);
+    return images;
+  }
+  catch (error) {
+    if (error.code === 'ECONNABORTED') {
+        console.error("Request timed out");
+    } else {
+        console.error('Error fetching images:', error);
+    }
+    return null
+  }
+}
+
+async function filterHotelFields(hotel) {
     // Extract price from the accessibilityLabel string
     const priceMatch = hotel.accessibilityLabel.match(/Current price (\d+) USD/);
     const priceMatchb = hotel.accessibilityLabel.match(/Current price (\d+)/);
@@ -97,7 +166,9 @@ function filterHotelFields(hotel) {
     };
 };
 
-async function searchHotels(dest_id = '-553173', checkInDate, checkOutDate , count = 1) {
+
+//known prague = '-553173'
+async function searchHotels(dest_id , checkInDate, checkOutDate , count = 1) {
     try {
         const response = await axios.get('https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels', {
             headers: {
@@ -118,11 +189,9 @@ async function searchHotels(dest_id = '-553173', checkInDate, checkOutDate , cou
         });
 
         const filteredHotels = response.data.data.hotels.map(filterHotelFields);
-        console.log(filteredHotels);
         return filteredHotels;  // Return the filtered hotels
     } catch (error) {
         console.error("Error fetching hotels:", error);
-        throw error;  // Optionally rethrow the error if you want to handle it later
     }
 }
 
@@ -133,7 +202,8 @@ exports.searchHotels = async (req,res) => {
         res.status(500).json({ error:"Missing params" });
     }
     try {
-        const returned = searchHotels(checkInDate,checkOutDate,count);
+        const returned = await searchHotels(dest_id, checkInDate,checkOutDate,count);
+        console.log(returned);
         res.status(200).json(returned);
     } catch(error) {
         res.status(500).json({ error: error.message });
@@ -141,6 +211,24 @@ exports.searchHotels = async (req,res) => {
 };
 
 exports.bookHotel = async (req,res) => {
-    const {details, grandTotal, currency} = req.body;
-    res.status(200).json({ message:"Hotel temporarily booked successfuly, proceed to payment to confirm",grandTotal:grandTotal, currency: currency, details:details });
+    const { touristId } = req.params;
+    const { hotelName, city, price, currency, checkin, checkout, score } = req.body;
+
+    try {
+        const hotelBooking = new HotelBooking({
+            touristId,
+            hotelName,
+            city,
+            price,
+            currency,
+            checkin,
+            checkout,
+            score,
+        });
+
+        await hotelBooking.save();
+        res.status(200).json(hotelBooking);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 }

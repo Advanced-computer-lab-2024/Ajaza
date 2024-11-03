@@ -23,6 +23,8 @@ import Complaints from "./Complaints";
 import RateReviewOutlinedIcon from "@mui/icons-material/RateReviewOutlined";
 import TouristHistory from "./TouristHistory";
 import Activity from "../Common/Activity";
+import RedeemIcon from '@mui/icons-material/Redeem';
+import RedeemPoints from "./RedeemPoints";
 
 const Tourist = () => {
   const [response, setResponse] = useState([]);
