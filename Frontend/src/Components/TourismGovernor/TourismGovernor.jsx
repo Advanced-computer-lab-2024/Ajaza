@@ -4,6 +4,8 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import Venues from "../Venues";
 import { CalendarOutlined, ContainerOutlined } from "@ant-design/icons";
 import Profile from "../Common/Profile";
+import ChangePasswordForm from "../Common/changePassword"; 
+
 
 const TourismGovernor = () => {
   const navigate = useNavigate();
@@ -33,6 +35,7 @@ const TourismGovernor = () => {
       <Routes>
         <Route path="/" element={<Venues />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="change-password"  element={<ChangePasswordForm />}  />
       </Routes>
     </CustomLayout>
   );

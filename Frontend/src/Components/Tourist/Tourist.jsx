@@ -23,6 +23,7 @@ import Complaints from "./Complaints";
 import RateReviewOutlinedIcon from "@mui/icons-material/RateReviewOutlined";
 import TouristHistory from "./TouristHistory";
 import Activity from "../Common/Activity";
+import ChangePasswordForm from "../Common/changePassword";  
 
 const Tourist = () => {
   const [response, setResponse] = useState([]);
@@ -123,6 +124,7 @@ const Tourist = () => {
       <Routes>
         <Route path="/" element={<Plans />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="change-password"  element={<ChangePasswordForm />}  />
         <Route path="itineraries" element={<Itineraries />} />
         <Route path="venues" element={<Venues />} />
         <Route path="venues/:id" element={<Venue />} />
