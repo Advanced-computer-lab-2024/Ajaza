@@ -55,7 +55,7 @@ const CreateSeller = () => {
     } catch (error) {
       console.error("Error creating seller:", error);
       const errorDetails =
-        error.response?.data?.error || "Failed to create seller.";
+        error.response?.data?.message || error.response?.data?.error || "Failed to create seller.";
       // Display the error message with the custom prefix
       message.error(`Failed to create seller: ${errorDetails}`);
     }
@@ -130,6 +130,7 @@ const CreateSeller = () => {
             name="document1"
             valuePropName="fileList"
             getValueFromEvent={normFile}
+            rules={[{ required: true, message: "Please upload your ID!" }]}
             extra="Upload the ID."
           >
             <Upload
@@ -147,6 +148,7 @@ const CreateSeller = () => {
             name="document2"
             valuePropName="fileList"
             getValueFromEvent={normFile}
+            rules={[{ required: true, message: "Please upload your Taxation Registry Card!" }]}
             extra="Upload the taxation registery card."
           >
             <Upload
