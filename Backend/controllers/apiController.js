@@ -60,11 +60,14 @@ async function filterFlightsOutput(data) {
   });
 }
 
+const axiosInstance1 = axios.create({
+  timeout: 10000000, //  seconds timeout
+});
 
 // Function to search flights
 async function searchFlights(accessToken,origin,destination,departureDate,count) {
   try {
-    const response = await axios.get('https://test.api.amadeus.com/v2/shopping/flight-offers', {
+    const response = await axiosInstance1.get('https://test.api.amadeus.com/v2/shopping/flight-offers', {
       headers: {
         Authorization: `Bearer ${accessToken}`
       },
@@ -76,17 +79,15 @@ async function searchFlights(accessToken,origin,destination,departureDate,count)
       }
     });
 
-    return response.data;
-
-    //console.log('Flight Offers:', response.data);
+    return filterFlightsOutput(response.data);
   } catch (error) {
-    //return (error.response ? error.response.data : error.message)
     console.error('Error searching for flights:', error.response ? error.response.data : error.message);
+    return {};
   }
 }
 
 exports.searchFlights = async (req,res) => {
-    const accessToken = getAccessToken();
+    const accessToken = await getAccessToken();
     const {origin,destination,departureDate,count} = req.body;
 
     if(!accessToken) {
@@ -98,7 +99,7 @@ exports.searchFlights = async (req,res) => {
     }
 
     try {
-        const returned = searchFlights(accessToken,origin,destination,departureDate,count);
+        const returned = await searchFlights(accessToken,origin,destination,departureDate,count);
         res.status(200).json(returned);
     } catch(error) {
         res.status(500).json({ error: error.message });
