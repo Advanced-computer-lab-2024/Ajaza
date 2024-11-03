@@ -45,7 +45,7 @@ const touristSchema = new mongoose.Schema({
   ],
   orders: [
     {
-      products: [{ productId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Itinerary'}, quantity: { type: Number, required: false } }],
+      products: [{ productId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Product'}, quantity: { type: Number, required: false } }],
       date: { type: Date, default: Date.now },
       cod: { type: Boolean, required: false },
       total: { type: Number, required: false },
