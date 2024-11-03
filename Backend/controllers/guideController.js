@@ -4,6 +4,11 @@ const Itinerary = require("../models/Itinerary");
 const jwt = require("jsonwebtoken"); // For decoding the JWT
 const bcrypt = require("bcrypt"); // For hashing passwords
 
+const Admin = require('../models/Admin'); // Adjust path as necessary
+const Advertiser = require('../models/Advertiser'); // Adjust path as necessary
+const Seller = require('../models/Seller'); // Adjust path as necessary
+const Governor = require('../models/Governor'); // Adjust path as necessary
+
 // Create a new guide
 exports.createGuide = async (req, res) => {
   try {
@@ -107,6 +112,68 @@ exports.giveGuideFeedback = async (req, res) => {
   }
 };
 
+
+// Middleware logic moved to controller
+const validateEmail = (email) => {
+  if (!email) {
+    return { isValid: false, message: 'Email is required' };
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(email)) {
+    return { isValid: false, message: 'Invalid email format' };
+  }
+
+  return { isValid: true };
+};
+
+const checkEmailAvailability = async (email) => {
+  if (!email) {
+    return { isAvailable: false, message: 'Email is required' };
+  }
+
+  try {
+    // Check each collection for the email
+    const touristExists = await Tourist.exists({ email });
+    const advertiserExists = await Advertiser.exists({ email });
+    const sellerExists = await Seller.exists({ email });
+    const guideExists = await Guide.exists({ email });
+
+    if (touristExists || advertiserExists || sellerExists || guideExists) {
+      return { isAvailable: false, message: 'Email is already associated with an account' };
+    }
+
+    return { isAvailable: true };
+  } catch (error) {
+    return { isAvailable: false, message: error.message };
+  }
+};
+
+const checkUsernameAvailability = async (username) => {
+  if (!username) {
+    return { isAvailable: false, message: 'Username is required' };
+  }
+
+  try {
+    // Check each collection for the username
+    const adminExists = await Admin.exists({ username });
+    const touristExists = await Tourist.exists({ username });
+    const advertiserExists = await Advertiser.exists({ username });
+    const sellerExists = await Seller.exists({ username });
+    const guideExists = await Guide.exists({ username });
+    const governorExists = await Governor.exists({ username });
+
+    if (adminExists || touristExists || advertiserExists || sellerExists || guideExists || governorExists) {
+      return { isAvailable: false, message: 'Username is already taken' };
+    }
+
+    return { isAvailable: true };
+  } catch (error) {
+    return { isAvailable: false, message: error.message };
+  }
+};
+
 //              req5 -- Tatos           //
 // Guest/Guide sign up
 exports.guestGuideCreateProfile = async (req, res) => {
@@ -126,11 +193,32 @@ exports.guestGuideCreateProfile = async (req, res) => {
   });
 
   try {
+    
+    // Validate email
+    const emailValidation = validateEmail(filteredBody.email);
+    if (!emailValidation.isValid) {
+      return res.status(400).json({ error: emailValidation.message });
+    }
+
+    // Check for unique email
+    const emailAvailability = await checkEmailAvailability(filteredBody.email);
+    if (!emailAvailability.isAvailable) {
+      return res.status(400).json({ message: emailAvailability.message });
+    }
+
+    // Check for unique username
+    const usernameAvailability = await checkUsernameAvailability(filteredBody.username);
+    if (!usernameAvailability.isAvailable) {
+      return res.status(400).json({ message: usernameAvailability.message });
+    }
+
+    // Hash password
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(filteredBody.pass, saltRounds);
 
     filteredBody.pass = hashedPassword;
 
+    // Create new guide
     const guide = new Guide(filteredBody);
     const savedguide = await guide.save();
     savedguide.pass = undefined;

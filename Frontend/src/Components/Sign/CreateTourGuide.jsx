@@ -72,7 +72,7 @@ const CreateTourGuide = () => {
 
       console.error("Error creating tour guide:", error);
       const errorDetails =
-        error.response?.data?.error || "Failed to create tour guide.";
+        error.response?.data?.message || error.response?.data?.error || "Failed to create tour guide.";
       // Display the error message with the custom prefix
       message.error(`Failed to create tour guide: ${errorDetails}`);
     }
@@ -149,6 +149,7 @@ const CreateTourGuide = () => {
             name="document1"
             valuePropName="fileList"
             getValueFromEvent={normFile}
+            rules={[{ required: true, message: "Please upload your ID!" }]}
             extra="Upload your ID."
           >
             <Upload
@@ -167,6 +168,7 @@ const CreateTourGuide = () => {
             name="document2"
             valuePropName="fileList"
             getValueFromEvent={normFile}
+            rules={[{ required: true, message: "Please upload your certificates!" }]}
             extra="Upload your certificates."
           >
             <Upload name="doc2" listType="text" beforeUpload={() => false}>

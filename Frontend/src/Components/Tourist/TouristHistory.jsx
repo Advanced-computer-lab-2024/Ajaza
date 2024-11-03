@@ -13,7 +13,7 @@ const TouristHistory = () => {
   const [activityId, setActivityId] = useState(null);
   const [itineraryId, setItineraryId] = useState(null);
   const [guideId, setGuideId] = useState(null); 
-
+  const [productId, setProductId] = useState(null); 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -41,6 +41,9 @@ const TouristHistory = () => {
         const itineraryIds = response.data.itineraries.map(itinerary => itinerary.itineraryId);
         setItineraryId('itinerary ids' , itineraryIds);
         console.log('itinerary ids', itineraryIds);
+        const productIds = response.data.products.map(product => product.productId);
+        setProductId('product ids' , productIds);
+        console.log('product ids', productIds);
       } catch (error) {
         console.error('Failed to fetch history:', error);
       } finally {
@@ -133,6 +136,28 @@ const TouristHistory = () => {
             )}
           </Card>
         ))}
+
+      {history.products.map((product) => (
+                <Card
+                  key={product.productId}
+                  title={product.name}
+                  style={{ width: '300px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}
+                >
+                  <p><strong>Date:</strong> {new Date(product.date).toLocaleDateString()}</p>
+                  {product.gaveFeedback? (
+                      <p>Thanks for your feedback!</p>
+                  ):(
+                    <Feedback
+                      type="product"
+                      touristId={touristId}
+                      id={product.productId}
+                      name={product.name}
+                      onSubmit={() => {}}
+                    />
+                  )}
+                </Card>
+              ))}
+
       </div>
     </div>
   );

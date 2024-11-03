@@ -9,6 +9,7 @@ import {
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
 import { jwtDecode } from "jwt-decode";
+import SelectCurrency from "./SelectCurrency";
 
 const token = localStorage.getItem("token");
 let decodedToken = null;
@@ -35,6 +36,12 @@ const convertTagsToValues = (tagsArray) => {
   });
 };
 
+const currencyRates = {
+  EGP: 48.58,
+  USD: 1,
+  EUR: 0.91,
+};
+
 const Itineraries = () => {
   const [combinedElements, setCombinedElements] = useState([]);
   // propName:fieldName
@@ -51,9 +58,15 @@ const Itineraries = () => {
     "Drop off": "dropOff",
     Tags: "tags",
   };
+  const [currency, setCurrency] = useState("USD");
   const searchFields = ["name"];
-  const constProps = { rateDisplay: true };
+  const constProps = { rateDisplay: true , currency, currencyRates};
   const sortFields = ["avgRating", "price"];
+
+
+ 
+
+
   const [filterFields, setfilterFields] = useState({
     tags: {
       displayName: "Tags",
@@ -210,44 +223,19 @@ const Itineraries = () => {
         console.error("Error fetching data:", error);
       }
     };
-
-    //    This will be in the card view of each iten
-    //   const handleBookIten = async () => {
-    //     try {
-    //       const touristId = userid;
-    //       const itineraryId = element.id;
-    //       await axios.post(`${apiUrl}/${touristId}/itinerary/${itineraryId}/book`);
-    //       alert("Itinerary booked successfully!");
-    //     } catch (error) {
-    //       console.error("Error booking Itinerary:", error);
-    //       alert("Error booking Itinerary:", error);
-    //     }
-    //   };
-    //       <button onClick={handleBookIten} className="book-button">
-    //         Book
-    //       </button>
-
-    
-    //   This will be in the card view of the bookings of each user
-    // const handleCancelBooking = async () => {
-    //   try {
-    //     const touristId = userid;
-    //     const itineraryId = element.id;
-    //     await axios.delete(`${apiUrl}/${touristId}/itinerary/${itineraryId}/cancel`);
-    //     alert("Itinerary booking canceled successfully!");
-    //   } catch (error) {
-    //     console.error("Error canceling itinerary booking:", error);
-    //     alert("Failed to cancel the booking. Please try again.");
-    //   }
-    // };
-    //       <button onClick={handleCancelBooking} className="cancel-button">
-    //         Cancel
-    //       </button>
-
     fetchData();
   }, []);
 
+  const handleCurrencyChange = (selectedCurrency) => {
+    setCurrency(selectedCurrency);
+  };
+
+
   return (
+  <div>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+    <SelectCurrency basePrice={null} currency={currency} onCurrencyChange={handleCurrencyChange} />
+  </div>
     <SearchFilterSortContainer
       cardComponent={BasicCard}
       elements={combinedElements}
@@ -258,6 +246,7 @@ const Itineraries = () => {
       sortFields={sortFields}
       filterFields={filterFields}
     />
+    </div>
   );
 };
 
