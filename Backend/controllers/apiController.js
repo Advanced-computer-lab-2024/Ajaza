@@ -135,15 +135,6 @@ exports.bookFlight = async (req,res) => {
     }
 }
 
-/*search engine id 
-<script async src="https://cse.google.com/cse.js?cx=13d3f24ae48c74537">
-</script>
-<div class="gcse-search"></div>
-
-service account id
-ajaza-577@friendly-hangar-437717-q8.iam.gserviceaccount.com
-*/
-
 const axiosInstance = axios.create({
   timeout: 10000000, //  seconds timeout
 });
@@ -207,7 +198,7 @@ async function filterHotelFields(hotel) {
 //known prague = '-553173'
 async function searchHotels(dest_id , checkInDate, checkOutDate , count = 1) {
     try {
-        const response = await axios.get('https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels', {
+        const response = await axiosInstance.get('https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels', {
             headers: {
                 'X-RapidAPI-Key': process.env.RAPID_API_KEY,
                 'X-RapidAPI-Host': 'booking-com15.p.rapidapi.com',
@@ -296,20 +287,24 @@ function filterTransferOffer(data) {
 
 async function searchTransportation(accessToken,requestBody) {
   try {
-    const response = await axios.post('https://test.api.amadeus.com/v1/shopping/transfer-offers', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      },
-      params: {
-        body: requestBody
+    console.log(requestBody);
+    console.log(accessToken);
+    const response = await axiosInstance.post('https://test.api.amadeus.com/v1/shopping/transfer-offers', 
+      requestBody, 
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
       }
-    });
+    );
+    console.log(response.data);
 
     return filterTransferOffer(response.data);
   } catch (error) {
     console.error('Error searching for transportation:', error.response ? error.response.data : error.message);
   }
 }
+
 exports.searchTransportation = async (req, res) => {
   try {
     const { IATA, startDateTime, transferType, endGeoCode, passengers } = req.body;
@@ -332,14 +327,14 @@ exports.searchTransportation = async (req, res) => {
         passengerCharacteristics
     };
 
-    const accessToken = getAccessToken();
+    const accessToken = await getAccessToken();
 
     if(!accessToken) {
         res.status(500).json({ error: "error getting access token" });
     }
-
+    console.log(accessToken);
     try {
-        const returned = searchTransportation(accessToken,requestBody);
+        const returned = await searchTransportation(accessToken,requestBody);
         res.status(200).json(returned);
     } catch(error) {
         res.status(500).json({ error: error.message });
