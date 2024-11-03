@@ -1,9 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Item from "./Item";
 import Timeline from "./Timeline";
 import { Form } from "antd";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import { apiUrl } from "./Constants";
 
 const Product = () => {
+  let { id } = useParams();
+
+  const [product, setProduct] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const productResponse = await axios.get(`${apiUrl}product/${id}`);
+        let product = productResponse.data;
+        setProduct(product);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      }
+    };
+
+    fetchData();
+  });
+
   const [feedbacks, setFeedbacks] = useState([
     {
       rating: 4,
@@ -115,6 +136,14 @@ const Product = () => {
     ],
   });
 
+  const photos = ["6702b737bc1f3e9c8fc16972", "67043c885702c8d4426147c9"];
+
+  const tags = ["fun", "food", "monuments", "skiing", "test", "extra"];
+  const category = ["fun", "food", "monuments", "skiing", "test", "extra"];
+
+  const price = 124; // TODO mariem's conversion
+  const name = "Product1";
+
   // If tourist can not review this either set writeReviewForm to null or dont pass the prop
 
   const [writeReviewForm] = Form.useForm();
@@ -126,11 +155,17 @@ const Product = () => {
   return (
     <>
       <Item
+        // name={product?.name}
+        name={name}
+        photos={photos}
         feedbacks={feedbacks}
         setFeedback={setFeedbacks}
         timelineItems={timelineItems}
         writeReviewForm={writeReviewForm}
         onSubmitWriteReview={onSubmitWriteReview}
+        tags={tags}
+        price={price}
+        category={category}
       />
     </>
   );

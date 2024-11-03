@@ -29,3 +29,26 @@ input[type="search"]::-webkit-search-results-decoration {
 .hover:hover {
   cursor: pointer;
 }
+
+#logo:hover {
+  cursor: pointer;
+}
+
+.scrollModern::-webkit-scrollbar {
+  height: 5px;
+  width: 10px;
+}
+
+/* Track */
+.scrollModern ::-webkit-scrollbar-track,
+::-webkit-scrollbar-track {
+  background-color: var(--grey-100);
+  border-radius: 10px;
+}
+
+/* Handle */
+.scrollModern ::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb {
+  background: var(--grey-300);
+  border-radius: 10px;
+}
