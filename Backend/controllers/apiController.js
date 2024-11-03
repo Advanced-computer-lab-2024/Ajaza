@@ -1,5 +1,3 @@
-
-
 const axios = require('axios');
 const qs = require('qs');
 const express = require('express');
@@ -29,9 +27,39 @@ async function getAccessToken() {
     return response.data.access_token;
   } catch (error) {
     console.error('Error generating access token:', error.response ? error.response.data : error.message);
-    throw error;
   }
 }
+
+async function filterFlightsOutput(data) {
+    return data.data.map((offer) => {
+      const { price, itineraries } = offer;
+
+      const itinerary = itineraries[0]; 
+
+      const totalDuration = itinerary.duration;
+
+      const departureSegment = itinerary.segments[0];
+
+      const arrivalSegment = itinerary.segments[itinerary.segments.length - 1];
+
+      return {
+          price: price.grandTotal,
+          currency: price.currency,
+          totalDuration,
+          departureAirport: departureSegment.departure.iataCode,
+          departureTime: departureSegment.departure.at,
+          departureTerminal: departureSegment.departure.terminal,
+          arrivalAirport: arrivalSegment.arrival.iataCode,
+          arrivalTime: arrivalSegment.arrival.at,
+          arrivalTerminal: arrivalSegment.arrival.terminal || "N/A",
+          carrier: data.dictionaries.carriers[departureSegment.carrierCode],
+          flightNumber: departureSegment.number,
+          airCraft: data.dictionaries.aircraft[departureSegment.aircraft.code],
+          stops: departureSegment.numberOfStops
+      };
+  });
+}
+
 
 // Function to search flights
 async function searchFlights(accessToken,origin,destination,departureDate,count) {
@@ -54,7 +82,6 @@ async function searchFlights(accessToken,origin,destination,departureDate,count)
   } catch (error) {
     //return (error.response ? error.response.data : error.message)
     console.error('Error searching for flights:', error.response ? error.response.data : error.message);
-    throw error;
   }
 }
 
@@ -232,3 +259,83 @@ exports.bookHotel = async (req,res) => {
         res.status(500).json({ error: error.message });
     }
 }
+
+//Transportation
+
+function filterTransferOffer(data) {
+  return data.data.map((offer) => {
+      const { transferType, start, end, vehicle, quotation } = offer;
+
+      return {
+          transferType,
+          startLocation: start.locationCode,
+          startDateTime: start.dateTime,
+          endLocation: {
+              address: end.address.line,
+              city: end.address.cityName,
+              countryCode: end.address.countryCode,
+              latitude: end.address.latitude,
+              longitude: end.address.longitude,
+          },
+          distance: distance.value + ' ' + distance.unit,
+          vehicle: vehicle.description,
+          price: quotation.monetaryAmount + ' ' + quotation.currencyCode,
+      };
+  });
+}
+
+async function searchTransportation(accessToken,requestBody) {
+  try {
+    const response = await axios.post('https://test.api.amadeus.com/v1/shopping/transfer-offers', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      },
+      params: {
+        body: requestBody
+      }
+    });
+
+    return filterTransferOffer(response.data);
+  } catch (error) {
+    console.error('Error searching for transportation:', error.response ? error.response.data : error.message);
+  }
+}
+exports.searchTransportation = async (req, res) => {
+  try {
+    const { IATA, startDateTime, transferType, endGeoCode, passengers } = req.body;
+
+    if (!IATA || !startDateTime || !transferType || !endGeoCode || !passengers) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const passengerCharacteristics = Array.from({ length: passengers }, () => ({
+        passengerTypeCode: 'ADT',
+        age: 30
+    }));
+
+    const requestBody = {
+        startLocationCode: IATA,
+        startDateTime,
+        transferType,
+        endGeoCode,
+        passengers,
+        passengerCharacteristics
+    };
+
+    const accessToken = getAccessToken();
+
+    if(!accessToken) {
+        res.status(500).json({ error: "error getting access token" });
+    }
+
+    try {
+        const returned = searchTransportation(accessToken,requestBody);
+        res.status(200).json(returned);
+    } catch(error) {
+        res.status(500).json({ error: error.message });
+    }
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
