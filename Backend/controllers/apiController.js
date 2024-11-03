@@ -108,15 +108,24 @@ exports.searchFlights = async (req,res) => {
 
 exports.bookFlight = async (req,res) => {
     const { touristId } = req.params;
-    const { origin, destination, departureDate, count } = req.body;
+    const { departureAirport, totalDuration, currency, price, departureTime, departureTerminal, arrivalAirport, arrivalTime, arrivalTerminal, carrier, flightNumber, aircraft, stops } = req.body;
 
     try {
         const flightBooking = new FlightBooking({
             touristId,
-            origin,
-            destination,
-            departureDate,
-            count,
+            departureAirport,
+            totalDuration,
+            currency,
+            price,
+            departureTime,
+            departureTerminal,
+            arrivalAirport,
+            arrivalTime,
+            arrivalTerminal,
+            carrier,
+            flightNumber,
+            aircraft,
+            stops,
         });
 
         await flightBooking.save();
