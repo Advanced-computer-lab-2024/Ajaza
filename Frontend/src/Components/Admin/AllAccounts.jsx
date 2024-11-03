@@ -160,7 +160,7 @@ const AllAccounts = () => {
         await axios.delete(deleteUrl);
   
         // Update the UI state by removing the deleted account
-        setAccounts(accounts.filter((account) => account.id !== accountId));
+        //setAccounts(accounts.filter((account) => account._id !== accountId));
         await fetchAccounts();
 
         message.success("Account deleted successfully");

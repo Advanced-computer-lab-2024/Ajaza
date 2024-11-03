@@ -110,7 +110,7 @@ const AdminCustomLayout = ({ children }) => {
             borderRadius: borderRadiusLG,
           }}
         >
-           {children} 
+             {children}   
           
           
         </Content>

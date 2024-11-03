@@ -17,7 +17,7 @@ const { Content } = Layout;
 
 const Admin = () => {
   return (
-    <AdminCustomLayout>
+   <AdminCustomLayout>
       <Content style={{ padding: "24px", minHeight: "280px" }}>
         <Routes>
           

@@ -3,6 +3,7 @@ import axios from "axios";
 import { Card, Button, Typography, Modal, Input, message } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { apiUrl } from "../Common/Constants";
+import AdminCustomLayout from "./AdminCustomLayout";
 
 const { Title } = Typography;
 
@@ -102,6 +103,7 @@ const ManageActivityCategories = () => {
   };
 
   return (
+    
     <div>
       <Title level={2} style={{ display: "inline-block" }}>
         Activity Categories
@@ -185,6 +187,7 @@ const ManageActivityCategories = () => {
         />
       </Modal>
     </div>
+  
   );
 };
 
