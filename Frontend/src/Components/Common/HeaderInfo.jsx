@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Carousel, Row, Col, Rate, Flex } from "antd";
+import { Carousel, Row, Col, Rate, Flex, Select, Modal, Input } from "antd";
 import { Colors, apiUrl } from "./Constants";
 import CustomButton from "./CustomButton";
 import axios from "axios";
@@ -9,6 +9,8 @@ import {
   HeartFilled,
 } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
+
+const { Option } = Select;
 
 const token = localStorage.getItem("token");
 let decodedToken = null;
@@ -38,11 +40,14 @@ const HeaderInfo = ({
   tags,
   price,
   category,
+  availableDateTime,
 }) => {
   const [multiplePhotos, setMultiplePhotos] = useState(false);
   const [photosDetailsSpan, setPhotosDetailsSpan] = useState(16);
   const [isBooked, setIsBooked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
+  const [selectedDate, setSelectedDate] = useState(null);
 
   useEffect(() => {
     // check user
@@ -83,29 +88,64 @@ const HeaderInfo = ({
   const bookItem = async () => {
     try {
       const touristId = userid;
-      const useWallet = user.wallet > 0;
+      const Wallet = user.wallet > 0;
       const date = ""; // date of the booking or the date of the event? and add it only in iten why?
       //const total = type === "Activity" ? price : price; // mehtag ashoof ma3 ahmed, iten has price bas activity laa
-      const promoCode = ""; //input from user??
       const endpoint =
         type === "Activity"
           ? `${apiUrl}/${touristId}/activity/${id}/book`
           : `${apiUrl}/${touristId}/itinerary/${id}/book`;
 
       const response = await axios.post(endpoint, {
-        useWallet,
-        //total,
-        promoCode,
+        Wallet,
+        total: price,
+        date: selectedDate,
+        promoCode: promoCode || null,
       });
       alert(`${type} booked successfully!`);
 
       if (response.data.token) {
         updateTokenInLocalStorage(response.data.token);
       }
+      //setIsBooked(true); do i need it?
     } catch (error) {
       console.error(`Error booking ${type}:`, error);
       alert(`Error booking ${type}: ${error.message}`);
     }
+  };
+
+  const showBookingModal = () => {
+    Modal.confirm({
+      title: `Confirm Booking for ${name}`,
+      content: (
+        <div>
+          {type === "Itinerary" && availableDateTime?.length > 0 && (
+            <Select
+              placeholder="Select booking date"
+              onChange={setSelectedDate}
+              style={{ width: "100%", marginBottom: 10 }}
+            >
+              {availableDateTime.map((slot, index) => (
+                <Option key={index} value={slot.date}>
+                  {new Date(slot.date).toLocaleString()} - {slot.spots} spots
+                  left
+                </Option>
+              ))}
+            </Select>
+          )}
+          <Input
+            placeholder="Enter promo code"
+            onChange={(e) => setPromoCode(e.target.value)}
+            style={{ marginTop: 10 }}
+          />
+        </div>
+      ),
+      onOk: bookItem, // Call bookItem when the user confirms
+      onCancel: () => {
+        setSelectedDate(null);
+        setPromoCode("");
+      },
+    });
   };
 
   const cancelBookingItem = async () => {
@@ -128,7 +168,7 @@ const HeaderInfo = ({
         updateTokenInLocalStorage(response.data.token);
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Please try again.';
+      const errorMessage = error.response?.data?.message || "Please try again.";
       console.error(`Error canceling ${type} booking:`, error);
       alert(`Failed to cancel the booking: ${errorMessage}`);
     }
@@ -250,7 +290,8 @@ const HeaderInfo = ({
                   size={"s"}
                   style={{ fontSize: "16px", fontWeight: "bold" }}
                   value={"Book"}
-                  onClick={bookItem}
+                  //onClick={bookItem}
+                  onClick={showBookingModal}
                 />
               )}
             </Flex>
