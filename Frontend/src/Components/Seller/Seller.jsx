@@ -8,6 +8,7 @@ import SearchFilterSortContainerEditCreate from "../Common/SearchFilterSortConta
 import Profile from "../Common/Profile";
 import Products from "../Tourist/Products";
 import MyProducts from "../Admin/MyProducts";
+import ArchivedProds from "../Seller/ArchivedProds";
 
 const Seller = () => {
   const navigate = useNavigate();
@@ -29,6 +30,14 @@ const Seller = () => {
         navigate("myProducts");
       },
     },
+    {
+      key: "3",
+      icon: <ContainerOutlined />,
+      label: "Archived Products",
+      onClick: () => {
+        navigate("archive");
+      },
+    },
   ];
 
   return (
@@ -36,6 +45,7 @@ const Seller = () => {
       <Routes>
         <Route path="/" element={<Products />} />
         <Route path="myProducts" element={<MyProducts />} />
+        <Route path="archive" element={<ArchivedProds />} />
         <Route path="profile" element={<Profile />} />
       </Routes>
     </CustomLayout>

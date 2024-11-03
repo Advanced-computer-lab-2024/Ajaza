@@ -22,6 +22,7 @@ import CreateFormPage from "./Components/Seller/CreateSeller";
 import SellerForm from "./Components/Seller/SellerForm";
 import Product from "./Components/Seller/SellerProduct";
 import DisplayForm from "./Components/Seller/DisplayProduct";
+import TermsAndConditions from "./Components/Seller/TermsAndConditions";
 
 //import ManageAccounts from "./manageAccounts";
 //import AddAccounts from "./addAccounts";
@@ -74,6 +75,7 @@ function App() {
                   <Routes>
                     <Route path="signin" element={<SignIn />} />
                     <Route path="signup/*" element={<SignUp />} />
+                    <Route path="terms-and-conditions" element={<TermsAndConditions />} />
                   </Routes>
                 </AuthLayout>
               }
@@ -83,6 +85,7 @@ function App() {
             <Route path="/advertiser/*" element={<Advertiser />} />
             <Route path="/admin/*" element={<Admin />} />
             <Route path="/profile" element={<Profile />} />
+
 
             <Route path="/governor/*" element={<TourismGovernor />} />
             <Route path="/seller/*" element={<Seller />} />

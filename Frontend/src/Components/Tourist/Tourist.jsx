@@ -12,13 +12,17 @@ import Profile from "../Common/Profile";
 import Plans from "./Plans";
 import Venues from "./Venues";
 import Products from "./Products";
+import Product from "../Common/Product";
+import Venue from "../Common/Venue";
 import RedeemPoints from "./RedeemPoints";
 import RedeemIcon from "@mui/icons-material/Redeem";
 import Activities from "./Activities";
-import ReportGmailerrorredOutlinedIcon from '@mui/icons-material/ReportGmailerrorredOutlined';
+import ReportGmailerrorredOutlinedIcon from "@mui/icons-material/ReportGmailerrorredOutlined";
 import FileComplaint from "./FileComplaint";
 import Complaints from "./Complaints";
-
+import RateReviewOutlinedIcon from "@mui/icons-material/RateReviewOutlined";
+import TouristHistory from "./TouristHistory";
+import Activity from "../Common/Activity";
 import RedeemIcon from '@mui/icons-material/Redeem';
 import RedeemPoints from "./RedeemPoints";
 
@@ -77,7 +81,43 @@ const Tourist = () => {
       label: "My Complaints",
       onClick: () => navigate("Complaints"),
     },
-
+    {
+      key: "9",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Feedback",
+      onClick: () => navigate("TouristHistory"),
+    },
+    {
+      key: "10",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Current Bookings",
+      onClick: () => navigate("bookings"),
+    },
+    {
+      key: "11",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Booking History",
+      onClick: () => navigate("history"),
+    },
+    {
+      key: "12",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Saved Plans",
+      onClick: () => navigate("saved"),
+    },
+    {
+      key: "13",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Wishlist",
+      onClick: () => navigate("wishlist"),
+    },
+    {
+      key: "14",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Orders",
+      onClick: () => navigate("orders"),
+    },
+    // TODO put them in nested like current and past bookings ---- products,wishlist,orders
   ];
 
   return (
@@ -87,11 +127,16 @@ const Tourist = () => {
         <Route path="profile" element={<Profile />} />
         <Route path="itineraries" element={<Itineraries />} />
         <Route path="venues" element={<Venues />} />
+        <Route path="venues/:id" element={<Venue />} />
         <Route path="activities" element={<Activities />} />
+        <Route path="activities/:id" element={<Activity />} />
+
         <Route path="products" element={<Products />} />
+        <Route path="products/:id" element={<Product />} />
         <Route path="redeemPoints" element={<RedeemPoints />} />
         <Route path="fileComplaint" element={<FileComplaint />} />
         <Route path="complaints" element={<Complaints />} />
+        <Route path="touristHistory" element={<TouristHistory />} />
       </Routes>
     </CustomLayout>
   );

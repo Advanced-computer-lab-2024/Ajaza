@@ -8,6 +8,15 @@ import {
 } from "../Common/Constants";
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
+import { jwtDecode } from "jwt-decode";
+import SelectCurrency from "./SelectCurrency";
+
+const token = localStorage.getItem("token");
+let decodedToken = null;
+if (token) {
+  decodedToken = jwtDecode(token);
+}
+const userid = decodedToken ? decodedToken.userId : null;
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -27,6 +36,12 @@ const convertTagsToValues = (tagsArray) => {
   });
 };
 
+const currencyRates = {
+  EGP: 48.58,
+  USD: 1,
+  EUR: 0.91,
+};
+
 const Itineraries = () => {
   const [combinedElements, setCombinedElements] = useState([]);
   // propName:fieldName
@@ -43,9 +58,15 @@ const Itineraries = () => {
     "Drop off": "dropOff",
     Tags: "tags",
   };
+  const [currency, setCurrency] = useState("USD");
   const searchFields = ["name"];
-  const constProps = { rateDisplay: true };
+  const constProps = { rateDisplay: true , currency, currencyRates};
   const sortFields = ["avgRating", "price"];
+
+
+ 
+
+
   const [filterFields, setfilterFields] = useState({
     tags: {
       displayName: "Tags",
@@ -202,11 +223,19 @@ const Itineraries = () => {
         console.error("Error fetching data:", error);
       }
     };
-
     fetchData();
   }, []);
 
+  const handleCurrencyChange = (selectedCurrency) => {
+    setCurrency(selectedCurrency);
+  };
+
+
   return (
+  <div>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+    <SelectCurrency basePrice={null} currency={currency} onCurrencyChange={handleCurrencyChange} />
+  </div>
     <SearchFilterSortContainer
       cardComponent={BasicCard}
       elements={combinedElements}
@@ -217,6 +246,7 @@ const Itineraries = () => {
       sortFields={sortFields}
       filterFields={filterFields}
     />
+    </div>
   );
 };
 

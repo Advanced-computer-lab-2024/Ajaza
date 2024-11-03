@@ -8,13 +8,15 @@ export const Colors = {
     400: "#999999",
     300: "#b3b3b3",
     200: "#cccccc",
-    100: "#e6e6e6",
-    50: "#f2f2f2",
+    100: "#f2f2f2",
+    50: "#f7f7f7",
   },
   primary: {
     default: "#1b696a",
-    light: "#6c9c88",
+    light: "#5b8b77",
+    lighter: "#a9f1d3",
   },
+  warning: "#ff4545",
 };
 
 export const apiUrl = "http://localhost:5000/";
@@ -74,4 +76,14 @@ export const comparePriceRange = (filterCriteria, element) => {
   console.log("barra");
 
   return element?.price >= min && element.price <= max; // inclusive range
+};
+
+export const camelCaseToNormalText = (camelCaseStr) => {
+  // Add spaces before each capital letter and convert the whole string to lowercase
+  const spacedText = camelCaseStr.replace(/([A-Z])/g, " $1").toLowerCase();
+
+  // Capitalize the first letter of each word
+  const normalText = spacedText.replace(/\b\w/g, (char) => char.toUpperCase());
+
+  return normalText;
 };

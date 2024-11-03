@@ -4,6 +4,11 @@ const Itinerary = require("../models/Itinerary");
 const jwt = require("jsonwebtoken"); // For decoding the JWT
 const bcrypt = require("bcrypt"); // For hashing passwords
 
+const Admin = require('../models/Admin'); // Adjust path as necessary
+const Advertiser = require('../models/Advertiser'); // Adjust path as necessary
+const Seller = require('../models/Seller'); // Adjust path as necessary
+const Governor = require('../models/Governor'); // Adjust path as necessary
+
 // Create a new guide
 exports.createGuide = async (req, res) => {
   try {
@@ -93,7 +98,7 @@ exports.giveGuideFeedback = async (req, res) => {
       return res.status(404).json({ message: "Guide not found" });
     }
 
-    guide.feedback.push({ rating, comments });
+    guide.feedback.push({ touristId, rating, comments });
     tourist.gaveFeedback.push(guideId);
     await tourist.save();
     await guide.save();
@@ -104,6 +109,68 @@ exports.giveGuideFeedback = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+
+// Middleware logic moved to controller
+const validateEmail = (email) => {
+  if (!email) {
+    return { isValid: false, message: 'Email is required' };
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(email)) {
+    return { isValid: false, message: 'Invalid email format' };
+  }
+
+  return { isValid: true };
+};
+
+const checkEmailAvailability = async (email) => {
+  if (!email) {
+    return { isAvailable: false, message: 'Email is required' };
+  }
+
+  try {
+    // Check each collection for the email
+    const touristExists = await Tourist.exists({ email });
+    const advertiserExists = await Advertiser.exists({ email });
+    const sellerExists = await Seller.exists({ email });
+    const guideExists = await Guide.exists({ email });
+
+    if (touristExists || advertiserExists || sellerExists || guideExists) {
+      return { isAvailable: false, message: 'Email is already associated with an account' };
+    }
+
+    return { isAvailable: true };
+  } catch (error) {
+    return { isAvailable: false, message: error.message };
+  }
+};
+
+const checkUsernameAvailability = async (username) => {
+  if (!username) {
+    return { isAvailable: false, message: 'Username is required' };
+  }
+
+  try {
+    // Check each collection for the username
+    const adminExists = await Admin.exists({ username });
+    const touristExists = await Tourist.exists({ username });
+    const advertiserExists = await Advertiser.exists({ username });
+    const sellerExists = await Seller.exists({ username });
+    const guideExists = await Guide.exists({ username });
+    const governorExists = await Governor.exists({ username });
+
+    if (adminExists || touristExists || advertiserExists || sellerExists || guideExists || governorExists) {
+      return { isAvailable: false, message: 'Username is already taken' };
+    }
+
+    return { isAvailable: true };
+  } catch (error) {
+    return { isAvailable: false, message: error.message };
   }
 };
 
@@ -126,11 +193,32 @@ exports.guestGuideCreateProfile = async (req, res) => {
   });
 
   try {
+    
+    // Validate email
+    const emailValidation = validateEmail(filteredBody.email);
+    if (!emailValidation.isValid) {
+      return res.status(400).json({ error: emailValidation.message });
+    }
+
+    // Check for unique email
+    const emailAvailability = await checkEmailAvailability(filteredBody.email);
+    if (!emailAvailability.isAvailable) {
+      return res.status(400).json({ message: emailAvailability.message });
+    }
+
+    // Check for unique username
+    const usernameAvailability = await checkUsernameAvailability(filteredBody.username);
+    if (!usernameAvailability.isAvailable) {
+      return res.status(400).json({ message: usernameAvailability.message });
+    }
+
+    // Hash password
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(filteredBody.pass, saltRounds);
 
     filteredBody.pass = hashedPassword;
 
+    // Create new guide
     const guide = new Guide(filteredBody);
     const savedguide = await guide.save();
     savedguide.pass = undefined;
@@ -331,9 +419,22 @@ exports.acceptTerms = async (req, res) => {
   try {
     const id = req.params.id;
     const user = await Guide.findById(id);
+    const value = req.body.acceptedTerms;
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    if (user.pending) {
+      return res.status(400).json({ message: "User is pending approval" });
+    }
+    if (user.acceptedTerms && value === true) {
+      return res.status(400).json({ message: "User has already accepted terms" });
+    }
+    if (value === false) {
+      user.acceptedTerms = false;
+      await user.save();
+      return res.status(200).json({ message: "Terms declined successfully" });
+    }
+
     user.acceptedTerms = true;
     await user.save();
     res.status(200).json({ message: "Terms accepted successfully" });
@@ -355,4 +456,148 @@ exports.uploadPhoto = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
+
+// get uploaded documents by id: returns id and certificates
+exports.getGuideDocuments = async (req, res) => {
+  try {
+    const guideId = req.params.id;
+    const guide = await Guide.findById(guideId).select("id certificates");
+
+    if (!guide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+
+    const response = {
+      message: "Documents retrieved successfully",
+      id: guide.id || null,
+      certificates: guide.certificates.length > 0 ? guide.certificates : null,
+    };
+
+    if (!guide.id) {
+      response.idMessage = "No ID uploaded by this guide";
+    }
+
+    if (guide.certificates.length === 0) {
+      response.certificatesMessage = "No certificates uploaded by this guide";
+      response.certificates = null;
+    }
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//admin accept guide
+exports.acceptGuide = async (req, res) => {
+  try {
+    const guideId = req.params.id;
+    const guide = await Guide.findById(guideId);
+
+    if (!guide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+
+    if (!guide.pending) {
+      return res
+        .status(400)
+        .json({ message: "Guide is not in a pending state" });
+    }
+
+    guide.pending = false;
+    await guide.save();
+
+    res.status(200).json({ message: "Guide accepted successfully", guide });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//admin reject guide (deletes guide upon rejection)
+exports.rejectGuide = async (req, res) => {
+  try {
+    const guideId = req.params.id;
+    const guide = await Guide.findById(guideId);
+
+    if (!guide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+
+    if (!guide.pending) {
+      return res
+        .status(400)
+        .json({ message: "Guide is not in a pending state" });
+    }
+
+    const deletedguide = await Guide.findByIdAndDelete(guideId);
+
+    res.status(200).json({
+      message: "Guide rejected and deleted successfully",
+      //guideId: deletedguide._id, // You can return the deleted guide's ID if needed
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.requestDeletion = async (req, res) => {
+  try {
+    const guideId = req.params.id; // Assuming guide ID is passed as a parameter
+
+    // Find the guide by ID
+    const guide = await Guide.findById(guideId);
+    if (!guide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+
+    // Find itineraries related to the guide
+    const itineraries = await Itinerary.find({ guideId });
+
+    let hasUpcomingItinerary = false;
+
+    // Check for upcoming itineraries
+    for (const itinerary of itineraries) {
+      // Find tourists who have booked this itinerary
+      const tourists = await Tourist.find({
+        "itineraryBookings.itineraryId": itinerary._id,
+      });
+
+      for (const tourist of tourists) {
+        for (const booking of tourist.itineraryBookings) {
+          if (
+            booking.itineraryId.toString() === itinerary._id.toString() &&
+            new Date(booking.date) > new Date()
+          ) {
+            hasUpcomingItinerary = true;
+            break;
+          }
+        }
+        if (hasUpcomingItinerary) break;
+      }
+      if (hasUpcomingItinerary) break;
+    }
+
+    if (!hasUpcomingItinerary) {
+      // Set active attribute in all related itineraries to false
+      for (const itinerary of itineraries) {
+        itinerary.active = false;
+        await itinerary.save();
+      }
+
+      // Set requestingDeletion in Guide to true
+      guide.requestingDeletion = true;
+      await guide.save();
+
+      return res.status(200).json({
+        message: "Account has been marked for deletion successfully.",
+      });
+    } else {
+      return res.status(400).json({
+        message: "Still has upcoming itineraries, can't request deletion.",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

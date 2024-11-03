@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, Flex, Rate } from "antd";
 import SelectCurrency from "../Tourist/SelectCurrency";
+import styles from "./BasicCard.module.css";
+import "./BasicCard.css";
+
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
 function formatDateTime(availableDateTime) {
   return availableDateTime.map((item) => {
@@ -15,7 +20,6 @@ function formatDateTime(availableDateTime) {
       hour: "2-digit",
       minute: "2-digit",
     });
-
     // Return an object with formatted values
     return {
       id: item._id,
@@ -34,11 +38,18 @@ const BasicCard = ({
   rating,
   dateTime,
   photo,
+  onClick,
+  hoverable,
+  currency,
+  currencyRates,
 }) => {
+  const navigate = useNavigate();
   const [avgRating, setAvgRating] = useState(rating);
   const [dateTimeFormatted, setDateTimeFormatted] = useState(null);
   const [isEditable, setIsEditable] = useState(false);
   const [img, setImg] = useState(null);
+
+  const convertedPrice = ((extra || 0) * (currencyRates?.[currency] || 1)).toFixed(2);
 
   useEffect(() => {
     if (dateTime) setDateTimeFormatted(formatDateTime(dateTime));
@@ -47,15 +58,16 @@ const BasicCard = ({
   const handleEdit = (prev) => {
     if (prev != true) setIsEditable(true);
   };
+
   return (
     <Card
-      title={title}
-      extra={<SelectCurrency basePrice={extra} />}
+      title={<div onClick={onClick}>{title}</div>}
+      extra={<div>{`${convertedPrice} ${currency}`}</div>}
       actions={actions}
-      onClick={(prev) => handleEdit}
+      // onClick={onClick}
       cover={
         photo ? (
-          <Flex justify="center">
+          <Flex justify="center" onClick={onClick}>
             <img
               alt={photo}
               style={{ height: "150px", width: "80%" }}
@@ -64,37 +76,40 @@ const BasicCard = ({
           </Flex>
         ) : null
       }
+      className={"myCard"}
+      hoverable={hoverable}
     >
-      {Object.entries(fields).map(([key, value]) => {
-        if (value) {
-          return (
-            <div
-              style={{
-                width: "100%",
-                textOverflow: "ellipsis",
-                overflowX: "hidden",
-              }}
-              key={key}
-            >
-              <span style={{ fontWeight: "bold" }}>{key}</span>: {String(value)}
-            </div>
-          );
-        }
-      })}
-      {dateTime && dateTimeFormatted ? (
-        <>
-          <div style={{ fontWeight: "bold" }}>Dates/Times Available</div>
-          {dateTimeFormatted.map((element, index) => {
-            console.log(element);
-
-            return <div key={index}>{element.display}</div>;
-          })}
-        </>
-      ) : null}
-
-      {rateDisplay ? (
-        <Rate allowHalf disabled={!rateEnabled} value={avgRating} />
-      ) : null}
+      <div onClick={onClick} style={{ padding: "24px" }}>
+        {Object.entries(fields).map(([key, value]) => {
+          if (value !== undefined) {
+            return (
+              <div
+                style={{
+                  width: "100%",
+                  textOverflow: "ellipsis",
+                  overflowX: "hidden",
+                }}
+                key={key}
+              >
+                <span style={{ fontWeight: "bold" }}>{key}</span>:{" "}
+                {String(value)}
+              </div>
+            );
+          }
+        })}
+        {dateTime && dateTimeFormatted ? (
+          <>
+            <div style={{ fontWeight: "bold" }}>Dates/Times Available</div>
+            {dateTimeFormatted.map((element, index) => {
+              console.log(element);
+              return <div key={index}>{element.display}</div>;
+            })}
+          </>
+        ) : null}
+        {rateDisplay ? (
+          <Rate allowHalf disabled={!rateEnabled} value={avgRating} />
+        ) : null}
+      </div>
     </Card>
   );
 };

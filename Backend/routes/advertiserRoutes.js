@@ -7,7 +7,7 @@ const uploadLogoImage = require("../middleware/uploadLogoImage");
 const validateEmail = require("../middleware/validateEmail");
 const uniqueEmail = require("../middleware/uniqueEmail");
 const uniqueUsername = require("../middleware/uniqueUsername");
-const uploadIdTaxImage = require('../middleware/uploadIdTaxImage');
+const uploadIdTaxImage = require("../middleware/uploadIdTaxImage");
 
 router.post("/", advertiserController.createAdvertiser);
 
@@ -28,9 +28,6 @@ router.delete(
 //req5  -- Tatos
 router.post(
   "/guestAdvertiserCreateProfile",
-  validateEmail,
-  uniqueUsername,
-  uniqueEmail,
   uploadIdTaxImage,
   advertiserController.guestAdvertiserCreateProfile
 ); // Guest Advertiser sign up
@@ -46,7 +43,8 @@ router.get(
 
 // Update the profile of the authenticated advertiser
 router.patch(
-  "/advertiserUpdateProfile/:id", uploadLogoImage,
+  "/advertiserUpdateProfile/:id",
+  uploadLogoImage,
   advertiserController.advertiserUpdateProfile
 );
 router.post(
@@ -73,7 +71,25 @@ router.delete(
 
 router.patch("/acceptTerms/:id", advertiserController.acceptTerms);
 
+router.post(
+  "/uploadLogo/:advertiserId",
+  uploadLogoImage,
+  advertiserController.uploadAdvertiserLogo
+);
 
-router.post("/uploadLogo/:advertiserId", uploadLogoImage, advertiserController.uploadAdvertiserLogo);
+//for admin to view uploaded documents of a advertiser
+router.get(
+  "/getDocuments/:advertiserId",
+  advertiserController.getAdvertiserDocuments
+); //id walla advertiserId
+
+//accept advertiser
+router.put("/accept/:id", advertiserController.acceptAdvertiser);
+
+//reject advertiser
+router.delete("/reject/:id", advertiserController.rejectAdvertiser);
+
+//request deletion
+router.patch("/requestDeletion/:id", advertiserController.requestDeletion);
 
 module.exports = router;

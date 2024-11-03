@@ -65,14 +65,26 @@ const SignIn = () => {
 
           const token = apiResponse.data.token;
           const decodedToken = jwtDecode(token);
-          if (decodedToken?.userDetails?.pending) {
+          if (decodedToken?.userDetails?.pending && !decodedToken?.userDetails?.acceptedTerms) {
+            // Redirect to Terms and Conditions page
+            navigate(`/auth/terms-and-conditions?role=${decodedToken.role}`);
+            return;
+          } else if (decodedToken?.userDetails?.pending) {
             message.error("Account is still pending");
             return;
-          } else if (decodedToken?.userDetails?.acceptedTerms == false) {
-            message.error(
-              "Account has not yet accepted the terms of services (TODO redirect to term)"
-            );
-            localStorage.setItem("token", apiResponse.data.token); // TODO
+          }
+          // if (decodedToken?.userDetails?.pending) {
+          //   message.error("Account is still pending");
+          //   return;
+          // }
+          else if (decodedToken?.userDetails?.acceptedTerms == false) {
+            // message.error(
+            //   "Account has not yet accepted the terms of services (TODO redirect to term)" -- DONE
+            // );
+            localStorage.setItem("token", apiResponse.data.token);
+            navigate(`/auth/terms-and-conditions?role=${decodedToken.role}`);
+            return;
+            
           } else {
             localStorage.setItem("token", apiResponse.data.token);
           }
@@ -93,6 +105,16 @@ const SignIn = () => {
       }
     };
     fetchData();
+  };
+
+  const handleKeyDown = (event) => {  // function to enable pressing enter after entering credentials to sign in
+    if (event.key === "Enter") {
+      const username = form.getFieldValue("username");
+      const password = form.getFieldValue("password");
+      if (username && password) {
+        signIn();
+      }
+    }
   };
 
   return (
@@ -129,6 +151,7 @@ const SignIn = () => {
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
             autoComplete="off"
+            onKeyDown={handleKeyDown} // Add the onKeyDown event listener here
           >
             <Form.Item
               name="username"

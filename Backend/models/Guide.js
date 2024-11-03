@@ -20,6 +20,7 @@ const guideSchema = new mongoose.Schema({
   ],
   feedback: [
     {
+      touristId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Tourist' },
       rating: { type: Number, min: 1, max: 5, required: false }, // rating between 1 and 5
       comments: { type: String, required: false },
     },

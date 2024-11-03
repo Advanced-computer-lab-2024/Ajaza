@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const touristController = require('../controllers/touristController');
-const apiController = require('../controllers/apiController');
-const validateEmail = require('../middleware/validateEmail');
-const uniqueEmail = require('../middleware/uniqueEmail');
-const validateMobile = require('../middleware/validateMobile');
+const touristController = require("../controllers/touristController");
+const apiController = require("../controllers/apiController");
+const validateEmail = require("../middleware/validateEmail");
+const uniqueEmail = require("../middleware/uniqueEmail");
+const validateMobile = require("../middleware/validateMobile");
 const uniqueUsername = require("../middleware/uniqueUsername");
 
 const axios = require("axios");
@@ -109,10 +109,16 @@ router.post(
 );
 
 //req4      --Tatos
-router.post('/guestTouristCreateProfile', validateEmail, uniqueEmail, validateMobile, uniqueUsername, touristController.guestTouristCreateProfile);    // Guest Tourist sign up
+router.post(
+  "/guestTouristCreateProfile",
+  validateEmail,
+  uniqueEmail,
+  validateMobile,
+  uniqueUsername,
+  touristController.guestTouristCreateProfile
+); // Guest Tourist sign up
 
-router.delete('/deleteSomeTourists', touristController.adminDeletesTourists);
-
+router.delete("/deleteSomeTourists", touristController.adminDeletesTourists);
 
 router.delete("/deleteSomeTourists", touristController.adminDeletesTourists);
 
@@ -125,15 +131,30 @@ router.delete(
 router.patch("/acceptTerms/:id", touristController.acceptTerms);
 
 //req 111
-router.get("/promoCodes/getApplicablePromoCodes/:id", touristController.getApplicablePromoCodes);
+router.get(
+  "/promoCodes/getApplicablePromoCodes/:id",
+  touristController.getApplicablePromoCodes
+);
 
 //req52-57
 router.get("/history/getHistory/:id", touristController.getHistory);
 
 //req63
-router.get("/future/getFutureBookings/:id", touristController.getFutureBookings);
+router.get(
+  "/future/getFutureBookings/:id",
+  touristController.getFutureBookings
+);
 
 //req65
-router.post("/bookmark/addActivityBookmark/:touristId/:activityId", touristController.addActivityBookmark);
-router.post("/bookmark/addItineraryBookmark/:touristId/:itineraryId", touristController.addItineraryBookmark);
+router.post(
+  "/bookmark/addActivityBookmark/:touristId/:activityId",
+  touristController.addActivityBookmark
+);
+router.post(
+  "/bookmark/addItineraryBookmark/:touristId/:itineraryId",
+  touristController.addItineraryBookmark
+);
+
+router.patch("/requestDeletion/:id", touristController.requestAccountDeletion);
+
 module.exports = router;

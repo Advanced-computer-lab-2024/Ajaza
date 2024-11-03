@@ -12,6 +12,7 @@ const productSchema = new mongoose.Schema({
   sales: { type: Number, default: 0 }, // Total sales count
   feedback: [
     {
+      touristId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Tourist' },
       rating: { type: Number, min: 1, max: 5, required: false }, // Rating between 1 and 5
       comments: { type: String, required: false },
     },
