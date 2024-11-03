@@ -9,6 +9,7 @@ import {
 } from "../Common/Constants";
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
+import SelectCurrency from "./SelectCurrency";
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -35,6 +36,12 @@ const structureTags = (tags) => {
   }));
 };
 
+const currencyRates = {
+  EGP: 48.58,
+  USD: 1,
+  EUR: 0.91,
+};
+
 const Venues = () => {
   const [combinedElements, setCombinedElements] = useState([]);
 
@@ -48,8 +55,10 @@ const Venues = () => {
     Description: "desc",
     Tags: "tags",
   };
+
+  const [currency, setCurrency] = useState("USD");
   const searchFields = ["name", "tags"];
-  const constProps = { rateDisplay: true };
+  const constProps = { rateDisplay: true , currency, currencyRates};
   const sortFields = ["avgRating", "price"];
   const [filterFields, setfilterFields] = useState({
     price: {
@@ -122,7 +131,15 @@ const Venues = () => {
     fetchData();
   }, []);
 
+  const handleCurrencyChange = (selectedCurrency) => {
+    setCurrency(selectedCurrency);
+  };
+
   return (
+    <div>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+    <SelectCurrency basePrice={null} currency={currency} onCurrencyChange={handleCurrencyChange} />
+  </div>
     <SearchFilterSortContainer
       cardComponent={BasicCard}
       elements={combinedElements}
@@ -133,6 +150,7 @@ const Venues = () => {
       sortFields={sortFields}
       filterFields={filterFields}
     />
+    </div>
   );
 };
 

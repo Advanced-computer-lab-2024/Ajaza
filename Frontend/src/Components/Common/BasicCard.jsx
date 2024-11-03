@@ -40,12 +40,16 @@ const BasicCard = ({
   photo,
   onClick,
   hoverable,
+  currency,
+  currencyRates,
 }) => {
   const navigate = useNavigate();
   const [avgRating, setAvgRating] = useState(rating);
   const [dateTimeFormatted, setDateTimeFormatted] = useState(null);
   const [isEditable, setIsEditable] = useState(false);
   const [img, setImg] = useState(null);
+
+  const convertedPrice = ((extra || 0) * (currencyRates?.[currency] || 1)).toFixed(2);
 
   useEffect(() => {
     if (dateTime) setDateTimeFormatted(formatDateTime(dateTime));
@@ -58,11 +62,7 @@ const BasicCard = ({
   return (
     <Card
       title={<div onClick={onClick}>{title}</div>}
-      extra={
-        <div onClick={onClick}>
-          <SelectCurrency basePrice={extra} />
-        </div>
-      }
+      extra={<div>{`${convertedPrice} ${currency}`}</div>}
       actions={actions}
       // onClick={onClick}
       cover={
