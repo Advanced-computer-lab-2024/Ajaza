@@ -247,11 +247,13 @@ const Profile = () => {
         ]}
       >
         <Space direction="vertical" align="center" style={{ width: "100%" }}>
+          <a href="image">
           <Avatar
             size={120}
             icon={<UserOutlined />}
             style={{ backgroundColor: "#87d068" }}
           />
+          </a>
           {isEditing ? (
             <Form
               form={form}
