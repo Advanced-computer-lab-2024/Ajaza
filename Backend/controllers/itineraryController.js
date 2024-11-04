@@ -458,3 +458,7 @@ exports.fetchOptions = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getItinerariesByPreferrences = async (req, res) => {
+  res.status(200).json({ null: "null" });
+}
