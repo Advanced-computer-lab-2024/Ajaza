@@ -420,7 +420,7 @@ exports.bookActivity = async (req, res) => {
     // Add the booking to the tourist's activityBookings array
     tourist.activityBookings.push({
       activityId: activity._id,
-      total: activity.price,
+      total: total,
     });
 
     if (promoCode) {
@@ -442,8 +442,8 @@ exports.bookActivity = async (req, res) => {
         newPoints = 0.5 * total;
     }
 
-    tourist.points += newPoints;
-    tourist.totalPoints += newPoints;
+    tourist.points += Math.floor(newPoints);
+    tourist.totalPoints += Math.floor(newPoints);
 
     if (tourist.totalPoints > 500000) {
       tourist.badge = 3;
@@ -569,7 +569,7 @@ exports.bookItinerary = async (req, res) => {
         newPoints = 0.5 * total;
     }
 
-    tourist.points += newPoints;
+    tourist.points += Math.floor(newPoints);
     tourist.totalPoints += newPoints;
 
     if (tourist.totalPoints > 500000) {
