@@ -216,6 +216,10 @@ const HeaderInfo = ({
       if (type.toLowerCase() === "activity") {
         FinalDate = date;
       }
+      if (spots <= 0) {
+        alert(`Error booking ${type}: No spots available.`);
+        return; // Early return if no spots are available
+      }
       const endpoint =
         type.toLowerCase() === "activity"
           ? `${apiUrl}tourist/${touristId}/activity/${id}/book`
@@ -523,7 +527,7 @@ const HeaderInfo = ({
               </Carousel>
             </Col>
           )
-        ) : location && type.toLowerCase() === "activity" ? (
+        ) : location && type === "activity" ? (
           // No photo and there is a location
 
           <Col span={colSpan}>
