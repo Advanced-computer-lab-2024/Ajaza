@@ -125,9 +125,9 @@ const HeaderInfo = ({
 
   
   //req50
-    const location = useLocation(); 
+    const locationUrl = useLocation(); 
     const copyLink = () => {
-      const pathParts = location.pathname.split("/"); 
+      const pathParts = locationUrl.pathname.split("/"); 
       const type = pathParts[2]; 
       const objectId = pathParts[3];
   
@@ -136,7 +136,7 @@ const HeaderInfo = ({
         return;
       }
   
-      const shareLink = `${window.location.origin}/tourist/${type}/${objectId}`; 
+      const shareLink = `${window.locationUrl.origin}/tourist/${type}/${objectId}`; 
       navigator.clipboard.writeText(shareLink);
       message.success("Link copied to clipboard!");
     }
@@ -154,7 +154,7 @@ const HeaderInfo = ({
           </div>
         ),
         onOk: async () => {
-          const pathParts = location.pathname.split("/"); 
+          const pathParts = locationUrl.pathname.split("/"); 
           const type = pathParts[2]; 
           const objectId = pathParts[3];
       
@@ -163,7 +163,7 @@ const HeaderInfo = ({
             return;
           }
           await new Promise((resolve) => setTimeout(resolve, 50));
-          const shareLink = `${window.location.origin}/tourist/${type}/${objectId}`;
+          const shareLink = `${window.locationUrl.origin}/tourist/${type}/${objectId}`;
           try {
             const touristId = userid;
             await axios.post(
