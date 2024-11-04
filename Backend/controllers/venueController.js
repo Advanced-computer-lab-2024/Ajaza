@@ -136,3 +136,7 @@ exports.uploadVenuePictures = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+exports.getVenuesByPreferrences = async(req,res) => {
+  res.status(200).json({message: "Not implemented yet"});
+}

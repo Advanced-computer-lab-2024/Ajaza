@@ -65,7 +65,14 @@ const SignIn = () => {
 
           const token = apiResponse.data.token;
           const decodedToken = jwtDecode(token);
-          if (decodedToken?.userDetails?.pending && !decodedToken?.userDetails?.acceptedTerms) {
+          if (decodedToken?.userDetails?.requestingDeletion) {
+            message.error(<>You have requested to delete your account</>);
+            return;
+          }
+          if (
+            decodedToken?.userDetails?.pending &&
+            !decodedToken?.userDetails?.acceptedTerms
+          ) {
             // Redirect to Terms and Conditions page
             navigate(`/auth/terms-and-conditions?role=${decodedToken.role}`);
             return;
@@ -84,7 +91,6 @@ const SignIn = () => {
             localStorage.setItem("token", apiResponse.data.token);
             navigate(`/auth/terms-and-conditions?role=${decodedToken.role}`);
             return;
-            
           } else {
             localStorage.setItem("token", apiResponse.data.token);
           }
@@ -107,7 +113,8 @@ const SignIn = () => {
     fetchData();
   };
 
-  const handleKeyDown = (event) => {  // function to enable pressing enter after entering credentials to sign in
+  const handleKeyDown = (event) => {
+    // function to enable pressing enter after entering credentials to sign in
     if (event.key === "Enter") {
       const username = form.getFieldValue("username");
       const password = form.getFieldValue("password");

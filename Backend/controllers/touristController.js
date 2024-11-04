@@ -449,9 +449,9 @@ exports.bookActivity = async (req, res) => {
     tourist.points += newPoints;
     tourist.totalPoints += newPoints;
 
-    if (totalPoints > 500000) {
+    if (tourist.totalPoints > 500000) {
       tourist.badge = 3;
-    } else if (totalPoints > 100000) {
+    } else if (tourist.totalPoints > 100000) {
       tourist.badge = 2;
     } else {
       tourist.badge = 1;
@@ -576,9 +576,9 @@ exports.bookItinerary = async (req, res) => {
     tourist.points += newPoints;
     tourist.totalPoints += newPoints;
 
-    if (totalPoints > 500000) {
+    if (tourist.totalPoints > 500000) {
       tourist.badge = 3;
-    } else if (totalPoints > 100000) {
+    } else if (tourist.totalPoints > 100000) {
       tourist.badge = 2;
     } else {
       tourist.badge = 1;
