@@ -10,6 +10,10 @@ import {
 } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 
+import MapView from "./MapView";
+import { convertDateToString, camelCaseToNormalText } from "./Constants";
+import Timeline from "./Timeline";
+
 const { Option } = Select;
 
 const token = localStorage.getItem("token");
@@ -39,15 +43,36 @@ const HeaderInfo = ({
   user,
   tags,
   price,
+  priceLower,
+  priceUpper,
   category,
   availableDateTime,
+  location,
+  sellerName,
+  sales,
+  quantity,
+  isOpen,
+  spots,
+  date,
+  creatorName,
+  discounts,
+  language,
+  pickUp,
+  dropOff,
+  timelineItems,
+  accessibility,
+  avgRating,
+  colSpan,
+  desc,
 }) => {
   const [multiplePhotos, setMultiplePhotos] = useState(false);
-  const [photosDetailsSpan, setPhotosDetailsSpan] = useState(16);
+
   const [isBooked, setIsBooked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [promoCode, setPromoCode] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [priceString, setPriceString] = useState("");
 
   useEffect(() => {
     // check user
@@ -56,8 +81,10 @@ const HeaderInfo = ({
       if (user) {
         const isItemBooked =
           type === "Activity"
-            ? user.activityBookings.some((booking) => booking.activityId === id)
-            : user.itineraryBookings.some(
+            ? user.activityBookings?.some(
+                (booking) => booking.activityId === id
+              )
+            : user.itineraryBookings?.some(
                 (booking) => booking.itineraryId === id
               );
 
@@ -70,10 +97,27 @@ const HeaderInfo = ({
   }, [id, type, user]);
 
   useEffect(() => {
-    if (photos?.length > 0) {
+    if (Array.isArray(photos) && photos.length > 0) {
       setMultiplePhotos(true);
     }
   }, [photos]);
+
+  useEffect(() => {
+    if (discounts) {
+      if (price) {
+        setPriceString(price - (discounts / 100) * price);
+      }
+
+      if (priceLower && priceUpper) {
+        const priceLowerTemp = priceLower - (discounts / 100) * priceLower;
+        const priceUpperTemp = priceUpper - (discounts / 100) * priceUpper;
+
+        setPriceString(`${priceLowerTemp} - ${priceUpperTemp}`);
+      }
+    } else {
+      setPriceString(price);
+    }
+  }, [price, priceLower, priceUpper, discounts]);
 
   const shareItem = () => {
     // i think nenazel drop down fih copy link w email
@@ -192,25 +236,167 @@ const HeaderInfo = ({
       <Flex
         align="center"
         justify="space-between"
-        style={{ marginBottom: "20px", paddingRight: "30px" }}
+        style={{ marginBottom: "10px", paddingRight: "30px" }}
       >
-        <h1 style={{ textAlign: "left" }}>{name}</h1>
-        <Flex
-          align="center"
-          style={{
-            fontSize: "25px",
-            textDecoration: "underline",
-            color: Colors.grey[700],
-          }}
-        >
-          ${price}
-        </Flex>
+        <div style={{ position: "relative" }}>
+          <Flex align="end">
+            <h1 style={{ textAlign: "left", margin: 0 }}>{name}</h1>
+            {creatorName ? (
+              <div style={{ marginLeft: "20px", fontWeight: "bold" }}>
+                Created By:{" "}
+                <span style={{ fontWeight: "normal" }}>{creatorName}</span>
+              </div>
+            ) : null}
+          </Flex>
+
+          <Flex align="center">
+            {sellerName ? (
+              <div
+                style={{
+                  fontWeight: "bold",
+                  margin: 0,
+                  textAlign: "left",
+                  paddingLeft: "10px",
+                  fontSize: "13px",
+                }}
+              >
+                Sold by:{" "}
+                <span style={{ fontWeight: "normal", fontSize: "15px" }}>
+                  {sellerName}
+                </span>
+              </div>
+            ) : null}
+            {quantity ? (
+              <div
+                style={{
+                  fontWeight: "bold",
+                  margin: 0,
+                  textAlign: "left",
+                  marginLeft: "20px",
+                  fontSize: "13px",
+                }}
+              >
+                In Stock:{" "}
+                <span style={{ fontWeight: "normal", fontSize: "15px" }}>
+                  {quantity}
+                </span>
+              </div>
+            ) : null}
+            {isOpen != null ? (
+              isOpen ? (
+                <div
+                  style={{
+                    color: Colors.positive,
+                    fontWeight: "bold",
+                    borderRadius: "5px",
+                    fontSize: "16px",
+                    paddingLeft: "4px",
+                    margin: "0",
+                  }}
+                >
+                  Open
+                </div>
+              ) : (
+                <div
+                  style={{
+                    color: Colors.warning,
+                    fontWeight: "bold",
+                    borderRadius: "5px",
+                    fontSize: "16px",
+                    paddingLeft: "4px",
+                    margin: "0",
+                  }}
+                >
+                  Closed
+                </div>
+              )
+            ) : null}
+
+            {date ? (
+              <div
+                style={{
+                  fontWeight: "bold",
+                  margin: 0,
+                  textAlign: "left",
+                  marginLeft: "20px",
+                  fontSize: "13px",
+                }}
+              >
+                Date/Time:{" "}
+                <span style={{ fontWeight: "normal" }}>
+                  {convertDateToString(date)}
+                </span>
+              </div>
+            ) : null}
+          </Flex>
+        </div>
+
+        <div style={{ position: "relative" }}>
+          <Flex
+            align="center"
+            style={{
+              fontSize: "25px",
+              textDecoration: "underline",
+              color: Colors.grey[700],
+            }}
+          >
+            ${priceString}
+          </Flex>
+          {discounts ? (
+            <Flex
+              style={{
+                position: "absolute",
+                bottom: "90%",
+                right: "-20px",
+              }}
+            >
+              <div
+                style={{
+                  color: Colors.warningDark,
+                  fontSize: "13px",
+                  textDecoration: "line-through underline",
+                  marginRight: "5px",
+                }}
+              >
+                ${price}
+              </div>
+              <div
+                style={{
+                  backgroundColor: Colors.warningDark,
+                  color: "white",
+                  padding: "2px 4px",
+                  borderRadius: "4px",
+                  fontSize: "12px",
+                }}
+              >
+                -{discounts}%
+              </div>
+            </Flex>
+          ) : null}
+          {sales ? (
+            <div style={{ fontWeight: "bold", fontSize: "14px" }}>
+              Sales:{" "}
+              <span style={{ fontWeight: "normal", fontSize: "15px" }}>
+                {sales}
+              </span>
+            </div>
+          ) : null}
+
+          {spots ? (
+            <div style={{ fontWeight: "bold", fontSize: "14px" }}>
+              Spots:{" "}
+              <span style={{ fontWeight: "normal", fontSize: "14px" }}>
+                {spots}
+              </span>
+            </div>
+          ) : null}
+        </div>
       </Flex>
 
       <Row>
         {photos ? (
           multiplePhotos ? (
-            <Col span={photosDetailsSpan}>
+            <Col span={colSpan}>
               <Carousel arrows infinite={true} style={{ marginBottom: "50px" }}>
                 {photos.map((photo, id) => {
                   return (
@@ -234,23 +420,57 @@ const HeaderInfo = ({
               </Carousel>
             </Col>
           ) : (
-            <Col span={photosDetailsSpan}>
+            <Col span={colSpan}>
               <Carousel arrows infinite={true}>
                 <div>
-                  <div style={contentStyle}></div>
-                </div>
-                <div>
-                  <div style={contentStyle}></div>
+                  <div style={contentStyle}>
+                    <img
+                      src={`/uploads/${photos}.jpg`}
+                      style={{
+                        width: "95%",
+                        height: "92%",
+                        margin: "0 auto",
+                        borderRadius: "20px",
+                      }}
+                      alt=""
+                    />
+                    {/* <div style={contentStyle}>adam</div> */}
+                  </div>
                 </div>
               </Carousel>
             </Col>
           )
+        ) : location && type === "activity" ? (
+          // No photo and there is a location
+
+          <Col span={colSpan}>
+            <MapView googleMapsLink={location} />
+          </Col>
+        ) : timelineItems ? (
+          <Col span={colSpan} style={{ marginTop: "50px" }}>
+            <Row justify="center">
+              {Object.entries(timelineItems).map(([key, value]) => {
+                console.log(timelineItems);
+
+                return (
+                  <Col
+                    span={key == "availableDateTime" ? 16 : 8}
+                    key={key}
+                    className={key}
+                  >
+                    <h3>{camelCaseToNormalText(key)}</h3>
+                    <Timeline key={key} timelineItems={value} fieldName={key} />
+                  </Col>
+                );
+              })}
+            </Row>
+          </Col>
         ) : null}
 
-        <Col span={24 - photosDetailsSpan} style={{ padding: "0 20px" }}>
+        <Col span={24 - colSpan} style={{ padding: "0 20px" }}>
           <Flex justify="space-between" align="center">
             <div>
-              <Rate value={3.5} allowHalf disabled />
+              <Rate value={avgRating} allowHalf disabled />
             </div>
             <Flex>
               {isSaved ? (
@@ -300,7 +520,6 @@ const HeaderInfo = ({
             className="scrollModern"
             style={{
               marginTop: "10px",
-              justifyContent: "space-between",
               width: "100%",
               overflow: "auto",
             }}
@@ -317,6 +536,7 @@ const HeaderInfo = ({
                         padding: "5px 10px",
                         borderRadius: "5px",
                         fontSize: "14px",
+                        textWrap: "nowrap",
                       }}
                     >{`#${tag.toUpperCase()}`}</div>
                   );
@@ -324,10 +544,111 @@ const HeaderInfo = ({
               : null}
           </Flex>
           {category ? (
-            <Flex style={{ marginTop: "10px" }}>
-              <h4>Categories</h4>
-              todo
+            <div style={{ marginTop: "15px" }}>
+              <h4 style={{ textAlign: "left" }}>Categories</h4>
+              <Flex
+                className="scrollModern"
+                style={{ marginTop: "10px", width: "100%", overflow: "auto" }}
+              >
+                {category?.map((categoryStr, id) => {
+                  return (
+                    <div
+                      style={{
+                        backgroundColor: Colors.grey[100],
+                        padding: "5px 10px",
+                        marginRight: "5px",
+                        borderRadius: "5px",
+                      }}
+                    >
+                      {categoryStr}
+                    </div>
+                  );
+                })}
+              </Flex>
+            </div>
+          ) : null}
+          {language ? (
+            <div
+              style={{
+                textAlign: "left",
+                fontWeight: "bold",
+                marginTop: "15px",
+              }}
+            >
+              <div
+                style={{
+                  fontWeight: "bold",
+                }}
+              >
+                Language:{" "}
+                <span style={{ fontWeight: "normal" }}>{language}</span>
+              </div>
+            </div>
+          ) : null}
+          {pickUp && dropOff ? (
+            <Flex justify="space-between" style={{ marginTop: "15px" }}>
+              <div
+                style={{
+                  fontWeight: "bold",
+                }}
+              >
+                PickUp: <span style={{ fontWeight: "normal" }}>{pickUp}</span>
+              </div>
+              <div
+                style={{
+                  fontWeight: "bold",
+                }}
+              >
+                DropOff: <span style={{ fontWeight: "normal" }}>{dropOff}</span>
+              </div>
             </Flex>
+          ) : null}
+          {accessibility ? (
+            <div
+              style={{
+                fontWeight: "bold",
+                textAlign: "left",
+                marginTop: "15px",
+                overflow: "hidden",
+                width: "100%",
+                textOverflow: "ellipsis",
+                textWrap: "nowrap",
+              }}
+            >
+              Accessibility:{" "}
+              <span
+                style={{
+                  fontWeight: "normal",
+                }}
+              >
+                {accessibility}
+              </span>
+            </div>
+          ) : null}
+
+          {desc ? (
+            <div
+              style={{
+                fontWeight: "bold",
+                textAlign: "left",
+                marginTop: "15px",
+                display: "-webkit-box",
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                WebkitLineClamp: 4, // Change this number to set max lines
+                textOverflow: "ellipsis",
+              }}
+            >
+              Description:{" "}
+              <span
+                style={{
+                  fontWeight: "normal",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {desc}
+              </span>
+            </div>
           ) : null}
         </Col>
       </Row>

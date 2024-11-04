@@ -21,7 +21,7 @@ import {
 import axios from "axios";
 import Button from "./Common/CustomButton";
 import { jwtDecode } from "jwt-decode";
-import { apiUrl } from "./Common/Constants";
+import { apiUrl, Colors } from "./Common/Constants";
 
 const { Option } = Select;
 
@@ -255,13 +255,17 @@ const Itineraries = () => {
           style={{
             marginBottom: "20px",
             display: "flex",
-            justifyContent: "flex-start",
+            justifyContent: "flex-end",
           }}
         >
-          <Button
-            size={"s"}
-            value={"Create Itinerary"}
-            rounded={true}
+          <AntButton
+            style={{
+              width: "30px",
+              height: "30px",
+              borderRadius: "10px",
+              backgroundColor: Colors.primary.default,
+            }}
+            icon={<PlusOutlined style={{ color: "white" }} />}
             onClick={showModal}
           />
         </div>

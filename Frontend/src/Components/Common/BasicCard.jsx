@@ -49,7 +49,9 @@ const BasicCard = ({
   const [isEditable, setIsEditable] = useState(false);
   const [img, setImg] = useState(null);
 
-  const convertedPrice = ((extra || 0) * (currencyRates?.[currency] || 1)).toFixed(2);
+  const convertedPrice = (
+    (extra || 0) * (currencyRates?.[currency] || 1)
+  ).toFixed(2);
 
   useEffect(() => {
     if (dateTime) setDateTimeFormatted(formatDateTime(dateTime));
@@ -101,7 +103,6 @@ const BasicCard = ({
           <>
             <div style={{ fontWeight: "bold" }}>Dates/Times Available</div>
             {dateTimeFormatted.map((element, index) => {
-              console.log(element);
               return <div key={index}>{element.display}</div>;
             })}
           </>

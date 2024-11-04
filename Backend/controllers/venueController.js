@@ -24,7 +24,7 @@ exports.getAllVenues = async (req, res) => {
 // Get all venues not hidden
 exports.getAllVenuesNH = async (req, res) => {
   try {
-    const venues = await Venue.find({isVisible: { $ne: false }});
+    const venues = await Venue.find({ isVisible: { $ne: false } });
     res.status(200).json(venues);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -44,7 +44,7 @@ exports.getVenuesByIds = async (req, res) => {
 // Get venue by ID
 exports.getVenueById = async (req, res) => {
   try {
-    const venue = await Venue.findById(req.params.id);
+    const venue = await Venue.findById(req.params.id).populate("governorId");
     if (!venue) {
       return res.status(404).json({ message: "Venue not found" });
     }
@@ -112,7 +112,7 @@ exports.getAllVisibleVenues = async (req, res) => {
   try {
     // Find venues where isVisible is true
     const venues = await Venue.find({ isVisible: true });
-    if(!venues || venues.length === 0) {
+    if (!venues || venues.length === 0) {
       //return res.status(404).json({ message: "No visible venues found" });
     }
     res.status(200).json(venues);
