@@ -46,7 +46,7 @@ const Feedbacks = ({
 
   return (
     <>
-      <Flex justify="right">
+      {/* <Flex justify="right">
         {writeReviewForm ? (
           <CustomButton
             value={"Review"}
@@ -54,72 +54,80 @@ const Feedbacks = ({
             onClick={() => setIsModalVisible(true)}
           />
         ) : null}
-      </Flex>
-      <Carousel arrows infinite={true}>
-        {feedbacks
-          ?.reduce((result, feedback, index) => {
-            // Group feedbacks into batches of 3
-            if (index % 3 === 0) {
-              result.push([feedback]);
-            } else {
-              result[result.length - 1].push(feedback);
-            }
-            return result;
-          }, [])
-          .map((batch, idx) => (
-            <div key={idx}>
-              <Row style={contentStyle} gutter={[20, 10]}>
-                {batch.map((feedbackItem, colIdx) => (
-                  <Col
-                    key={colIdx}
-                    span={8}
-                    style={{ height: "100%", display: "flex" }}
-                  >
-                    <Card
-                      className="feedbackCard"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        overflow: "hidden",
-                      }}
+      </Flex> */}
+      {feedbacks?.length > 0 ? (
+        <Carousel arrows infinite={true} style={{ marginTop: "30px" }}>
+          {feedbacks
+            ?.reduce((result, feedback, index) => {
+              // Group feedbacks into batches of 3
+              if (index % 3 === 0) {
+                result.push([feedback]);
+              } else {
+                result[result.length - 1].push(feedback);
+              }
+              return result;
+            }, [])
+            .map((batch, idx) => (
+              <div key={idx}>
+                <Row style={contentStyle} gutter={[20, 10]}>
+                  {batch.map((feedbackItem, colIdx) => (
+                    <Col
+                      key={colIdx}
+                      span={8}
+                      style={{ height: "100%", display: "flex" }}
                     >
-                      <div
+                      <Card
+                        className="feedbackCard"
                         style={{
-                          position: "absolute",
-                          left: 20,
-                          top: 20,
-                          height: 35,
-                          width: 35,
-                          display: "flex",
-                          justifyContent: "center",
-                          borderRadius: "50%",
-                          backgroundColor: Colors.primary.default,
+                          width: "100%",
+                          height: "100%",
+                          overflow: "hidden",
                         }}
                       >
-                        <UserOutlined
-                          style={{ fontSize: 17, color: "white" }}
-                        />
-                      </div>
-                      <Flex style={{ fontSize: 16, marginBottom: 20 }}>
-                        <div style={titleStyle}>Anonymous</div>
-                        <Rate
-                          allowHalf
-                          disabled
-                          defaultValue={0}
-                          value={feedbackItem.rating}
-                          style={{ marginLeft: "auto" }}
-                        />
-                      </Flex>
+                        <div
+                          style={{
+                            position: "absolute",
+                            left: 20,
+                            top: 20,
+                            height: 35,
+                            width: 35,
+                            display: "flex",
+                            justifyContent: "center",
+                            borderRadius: "50%",
+                            backgroundColor: Colors.primary.default,
+                          }}
+                        >
+                          <UserOutlined
+                            style={{ fontSize: 17, color: "white" }}
+                          />
+                        </div>
+                        <Flex style={{ fontSize: 16, marginBottom: 20 }}>
+                          <div style={titleStyle}>
+                            {feedbackItem?.touristId?.username ? (
+                              feedbackItem?.touristId?.username
+                            ) : (
+                              <span>Anonymous</span>
+                            )}
+                          </div>
+                          <Rate
+                            allowHalf
+                            disabled
+                            defaultValue={0}
+                            value={feedbackItem.rating}
+                            style={{ marginLeft: "auto" }}
+                          />
+                        </Flex>
 
-                      <div className="desc">{feedbackItem.comments}</div>
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
-            </div>
-          ))}
-      </Carousel>
-      {writeReviewForm ? (
+                        <div className="desc">{feedbackItem.comments}</div>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+              </div>
+            ))}
+        </Carousel>
+      ) : null}
+      {/* {writeReviewForm ? (
         <Modal
           title={"Write your Review"}
           open={isModalVisible}
@@ -160,7 +168,7 @@ const Feedbacks = ({
             </Form.Item>
           </Form>
         </Modal>
-      ) : null}
+      ) : null} */}
     </>
   );
 };

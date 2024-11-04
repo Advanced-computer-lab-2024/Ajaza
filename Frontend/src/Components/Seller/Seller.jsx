@@ -9,6 +9,7 @@ import Profile from "../Common/Profile";
 import Products from "../Tourist/Products";
 import MyProducts from "../Admin/MyProducts";
 import ArchivedProds from "../Seller/ArchivedProds";
+import ChangePasswordForm from "../Common/changePassword"; 
 
 const Seller = () => {
   const navigate = useNavigate();
@@ -47,6 +48,7 @@ const Seller = () => {
         <Route path="myProducts" element={<MyProducts />} />
         <Route path="archive" element={<ArchivedProds />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="change-password"  element={<ChangePasswordForm />}  />
       </Routes>
     </CustomLayout>
   );
