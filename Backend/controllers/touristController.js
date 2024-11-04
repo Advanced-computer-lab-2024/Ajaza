@@ -547,7 +547,7 @@ exports.bookItinerary = async (req, res) => {
     tourist.itineraryBookings.push({
       itineraryId: itinerary._id,
       date: date,
-      total: itinerary.price,
+      total: total,
     });
 
     if (promoCode) {
@@ -570,7 +570,7 @@ exports.bookItinerary = async (req, res) => {
     }
 
     tourist.points += Math.floor(newPoints);
-    tourist.totalPoints += newPoints;
+    tourist.totalPoints += Math.floor(newPoints);
 
     if (tourist.totalPoints > 500000) {
       tourist.badge = 3;
