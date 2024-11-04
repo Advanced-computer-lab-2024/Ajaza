@@ -92,4 +92,8 @@ router.delete("/reject/:id", advertiserController.rejectAdvertiser);
 //request deletion
 router.patch("/requestDeletion/:id", advertiserController.requestDeletion);
 
+
+router.post("/validateEmailUsername", advertiserController.validateEmailUsername); // New route for email and username validation
+
+
 module.exports = router;
