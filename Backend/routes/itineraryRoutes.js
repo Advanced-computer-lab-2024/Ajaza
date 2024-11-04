@@ -44,6 +44,6 @@ router.delete('/deleteSpecificItinerary/:guideId/:itineraryId', itineraryControl
 router.get('/fetchOptions/fetchOptions', itineraryController.fetchOptions);
 
 // req39
-router.get("/preferrences/:id", itineraryController.getItinerariesByPreferences);
+//router.get("/preferrences/:id", itineraryController.getItinerariesByPreferences);
 
 module.exports = router;
