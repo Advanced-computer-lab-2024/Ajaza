@@ -67,4 +67,9 @@ router.delete("/reject/:id", sellerController.rejectSeller);
 //request deletion
 router.patch("/requestDeletion/:id", sellerController.requestDeletion);
 
+
+
+router.post("/validateEmailUsername", sellerController.validateEmailUsername); // New route for email and username validation
+
+
 module.exports = router;
