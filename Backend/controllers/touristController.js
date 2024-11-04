@@ -185,15 +185,11 @@ exports.emailShare = async (req, res) => {
         '"><button>Go to link</button></a>',
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error sending email: ", error);
-      } else {
-        console.log("Email sent: ", info.response);
-      }
-    });
+    transporter.sendMail(mailOptions)
+      .then(info => console.log("Email sent: ", info.response))
+      .catch(error => console.error("Error sending email: ", error));
 
-    res.status(200).json({ message: "Email sent" });
+    res.status(200).json({ message: "Email is being sent" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
