@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Carousel, Row, Col, Rate, Flex, Select, Modal, Input,Menu,message } from "antd";
+import {
+  Carousel,
+  Row,
+  Col,
+  Rate,
+  Flex,
+  Select,
+  Modal,
+  Input,
+  Menu,
+  message,
+} from "antd";
 import { Colors, apiUrl } from "./Constants";
 import CustomButton from "./CustomButton";
 import axios from "axios";
@@ -14,7 +25,7 @@ import MapView from "./MapView";
 import { convertDateToString, camelCaseToNormalText } from "./Constants";
 import Timeline from "./Timeline";
 import { Dropdown } from "antd";
-import { useLocation } from "react-router-dom"; 
+import { useLocation } from "react-router-dom";
 const { Option } = Select;
 
 const token = localStorage.getItem("token");
@@ -79,24 +90,23 @@ const HeaderInfo = ({
   useEffect(() => {
     // check user
     // get if this item is booked setIsBooked accordingly:
-    const  checkIfBooked = () => {
+    const checkIfBooked = () => {
       if (user) {
-        let isItemBooked = false;
-    
-        if (type.toLowerCase() === "activity") {
+        let isItemBooked;
+        if (type === "activity") {
           isItemBooked = user.activityBookings?.some(
             (booking) => booking.activityId === id
           );
-        } else if (type.toLowerCase() === "itinerary") {
+        } else if (type === "itinerary") {
           isItemBooked = user.itineraryBookings?.some(
             (booking) => booking.itineraryId === id
           );
         }
-    
+
         console.log("isItemBooked:", isItemBooked);
         console.log("user.activityBookings:", user.activityBookings);
         console.log("user:", user);
-    
+
         setIsBooked(isItemBooked);
       }
     };
@@ -128,82 +138,75 @@ const HeaderInfo = ({
     }
   }, [price, priceLower, priceUpper, discounts]);
 
-  
   //req50
-    const locationUrl = useLocation(); 
-    const copyLink = () => {
-      const pathParts = locationUrl.pathname.split("/"); 
-      const type = pathParts[2]; 
-      const objectId = pathParts[3];
-  
-      if (!type || !objectId) {
-        message.error("Could not extract details from the URL");
-        return;
-      }
-  
-      const shareLink = `${window.locationUrl.origin}/tourist/${type}/${objectId}`; 
-      navigator.clipboard.writeText(shareLink);
-      message.success("Link copied to clipboard!");
+  const locationUrl = useLocation();
+  const copyLink = () => {
+    const pathParts = locationUrl.pathname.split("/");
+    const type = pathParts[2];
+    const objectId = pathParts[3];
+
+    if (!type || !objectId) {
+      message.error("Could not extract details from the URL");
+      return;
     }
 
-    const shareViaEmail = () => {
-      Modal.confirm({
-        title: `Share ${name} via Email`,
-        content: (
-          <div>
-            <Input
-              placeholder="Enter recipient's email"
-              onChange={(e) => setEmail(e.target.value)}
-              style={{ marginBottom: 10 }}
-            />
-          </div>
-        ),
-        onOk: async () => {
-          const pathParts = locationUrl.pathname.split("/"); 
-          const type = pathParts[2]; 
-          const objectId = pathParts[3];
-      
-          if (!type || !objectId) {
-            message.error("Could not extract details from the URL");
-            return;
-          }
-          await new Promise((resolve) => setTimeout(resolve, 50));
-          const shareLink = `${window.locationUrl.origin}/tourist/${type}/${objectId}`;
-          try {
-            const touristId = userid;
-            await axios.post(
-              `${apiUrl}tourist/emailShare/${touristId}`, 
-              {
-                link: shareLink,
-                email: email,
+    const shareLink = `${window.locationUrl.origin}/tourist/${type}/${objectId}`;
+    navigator.clipboard.writeText(shareLink);
+    message.success("Link copied to clipboard!");
+  };
+
+  const shareViaEmail = () => {
+    Modal.confirm({
+      title: `Share ${name} via Email`,
+      content: (
+        <div>
+          <Input
+            placeholder="Enter recipient's email"
+            onChange={(e) => setEmail(e.target.value)}
+            style={{ marginBottom: 10 }}
+          />
+        </div>
+      ),
+      onOk: async () => {
+        const pathParts = locationUrl.pathname.split("/");
+        const type = pathParts[2];
+        const objectId = pathParts[3];
+
+        if (!type || !objectId) {
+          message.error("Could not extract details from the URL");
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        const shareLink = `${window.locationUrl.origin}/tourist/${type}/${objectId}`;
+        try {
+          const touristId = userid;
+          await axios.post(
+            `${apiUrl}tourist/emailShare/${touristId}`,
+            {
+              link: shareLink,
+              email: email,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
               },
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`, 
-                },
-              }
-            );
-            message.success("Email sent successfully!");
-          } catch (error) {
-            console.error("Error sharing via email:", error);
-            message.error("Failed to send email. Please try again.");
-          }
-        },
-        onCancel: () => {
-          setEmail(""); 
-        },
-      });
-    };
-    
-
-
+            }
+          );
+          message.success("Email sent successfully!");
+        } catch (error) {
+          console.error("Error sharing via email:", error);
+          message.error("Failed to send email. Please try again.");
+        }
+      },
+      onCancel: () => {
+        setEmail("");
+      },
+    });
+  };
 
   const shareItem = () => {
-
     // i think nenazel drop down fih copy link w email
     //done fo2eha by zeina req50
-   
-
   };
 
   // product wishlist
@@ -577,34 +580,33 @@ const HeaderInfo = ({
               ) : (
                 <HeartOutlined style={{ fontSize: "20px" }} onClick={save} />
               )}
-             {/* Dropdown for sharing options */}
-             <Dropdown
+              {/* Dropdown for sharing options */}
+              <Dropdown
                 menu={{
                   items: [
                     {
-                      key: '1',
-                      label: 'Copy Link',
+                      key: "1",
+                      label: "Copy Link",
                       onClick: copyLink,
                     },
                     {
-                      key: '2',
-                      label: 'Share via Email',
+                      key: "2",
+                      label: "Share via Email",
                       onClick: shareViaEmail,
                     },
                   ],
                 }}
-                trigger={['click']}
+                trigger={["click"]}
               >
                 <ShareAltOutlined
                   style={{
-                    fontSize: '20px',
-                    marginLeft: '20px',
-                    marginRight: '20px',
-                    cursor: 'pointer',
+                    fontSize: "20px",
+                    marginLeft: "20px",
+                    marginRight: "20px",
+                    cursor: "pointer",
                   }}
                 />
               </Dropdown>
-
 
               {isBooked ? (
                 <CustomButton
