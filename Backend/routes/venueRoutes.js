@@ -28,4 +28,7 @@ router.get("/searchForThis/searchAgain", venueController.searchByNameTag);
 //upload photos to existing venue
 router.post("/uploadPhotos/:venueId", uploadVenuePictures, venueController.uploadVenuePictures);
 
+// req39
+router.get("/preferrences/:id", venueController.getVenuesByPreferences);
+
 module.exports = router;

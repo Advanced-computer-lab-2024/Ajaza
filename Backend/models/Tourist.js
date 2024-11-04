@@ -66,8 +66,8 @@ const touristSchema = new mongoose.Schema({
   usedPromoCodes: [{ type: String }],
   gaveFeedback: [{ type: mongoose.Schema.Types.ObjectId, required: false}],
   requestingDeletion: { type: Boolean, default: false },//ng added for deletion
-  preferredTags: [{ type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Tag'}],
-  preferredCategories: [{ type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Category'}],
+  preferredTags: [{ type: String }],
+  preferredCategories: [{ type: String }],
 });
 
 // Create the model
