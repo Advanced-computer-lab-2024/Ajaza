@@ -8,6 +8,7 @@ import { apiUrl } from "./Constants";
 const Activity = () => {
   const { id } = useParams();
   const [activity, setActivity] = useState(null);
+  const [advertiser, setAdvertiser] = useState(null);
 
   useEffect(() => {
     const fetchActivity = async () => {
@@ -22,6 +23,21 @@ const Activity = () => {
     fetchActivity();
   }, [id]);
 
+  useEffect(() => {
+    const fetchAdvertiser = async () => {
+      try {
+        const response = await axios.get(
+          `${apiUrl}advertiser/${activity.advertiserId}`
+        );
+        setAdvertiser(response.data);
+      } catch (error) {
+        console.error("Error fetching activity:", error);
+      }
+    };
+    if (activity) {
+      fetchAdvertiser();
+    }
+  }, [activity]);
   const [writeReviewForm] = Form.useForm();
 
   const onSubmitWriteReview = (values) => {
@@ -32,24 +48,29 @@ const Activity = () => {
     return <div>Loading activity...</div>;
   }
 
+  const discount = 10;
+
   return (
     <>
       <Item
         name={activity?.name}
-        feedbacks={activity?.feedback || []}
+        feedbacks={activity?.feedback}
         setFeedback={(newFeedback) =>
           setActivity({ ...activity, feedback: newFeedback })
         }
-        timelineItems={{ timeline: [activity] }}
-        writeReviewForm={writeReviewForm}
-        onSubmitWriteReview={onSubmitWriteReview}
         tags={activity?.tags || []}
         price={`${activity?.lower || 0} - ${activity?.upper || 0}`} // Display price range
-        category={activity?.category || []}
-        location={activity?.location || ""}
-        transportation={activity?.transportation || { from: "", to: "" }}
+        priceLower={activity?.lower}
+        priceUpper={activity?.upper}
+        category={activity?.category}
+        location={activity?.location}
+        transportation={activity?.transportation}
         date={activity?.date}
         isOpen={activity?.isOpen}
+        spots={activity?.spots}
+        discounts={activity?.discounts}
+        creatorName={advertiser?.username}
+        type={"activity"}
       />
     </>
   );
