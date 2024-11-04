@@ -305,14 +305,14 @@ exports.sellerUpdateProfile = async (req, res) => {
   const allowedFields = ["email", "name", "desc", "logo"];
 
   // Filter the request body
-  const filteredBody = {};
+  const filteredBody = req.body;/*{};
   allowedFields.forEach((field) => {
     // Loop through the allowed fields
     if (req.body[field] !== undefined) {
       // Check if the field exists in the request body
       filteredBody[field] = req.body[field]; // Add the field to the filtered body
     }
-  });
+  });*/
 
   try {
     // Retrieve the existing seller document
@@ -328,6 +328,7 @@ exports.sellerUpdateProfile = async (req, res) => {
       return res.status(401).json({ message: "Seller is pending approval" });
     }
     // Proceed with the update
+    console.log(filteredBody);
     const updatedSeller = await Seller.findByIdAndUpdate(
       sellerId,
       filteredBody,

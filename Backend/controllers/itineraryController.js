@@ -203,8 +203,10 @@ exports.giveItineraryFeedback = async (req, res) => {
       return res.status(404).json({ message: "Itinerary not found" });
     }
 
+    const touristName = tourist.username;
+
     // append the feedback to the itinerary
-    itinerary.feedback.push({ touristId, rating, comments });
+    itinerary.feedback.push({ touristName, rating, comments });
     tourist.gaveFeedback.push(itineraryId);
     await tourist.save();
 
