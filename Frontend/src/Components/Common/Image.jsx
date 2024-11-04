@@ -35,11 +35,9 @@ const { Title } = Typography;
 const Image = () => {
   const [response, setResponse] = useState(null); // Store decoded token or API data
   const [userDetails, setUserDetails] = useState(null); // Store user details from token
-  const [isEditing, setIsEditing] = useState(true); // Edit mode toggle
   const [role, setRole] = useState(""); // Store user role
   const [logo, setLogo] = useState(null); // Store logo image
   const [photo, setPhoto] = useState(null); // Store photo image
-  const [pending, setPending] = useState(false); // Store pending status
   const navigate = useNavigate(); // useNavigate hook for programmatic navigation
 
   useEffect(() => {
@@ -49,12 +47,14 @@ const Image = () => {
       decodedToken = jwtDecode(token);
       setResponse(decodedToken); // Set initial profile data
       setRole(decodedToken.role);
-      if (decodedToken.userDetails.logo) {
-        const logoPath = `/uploads/${decodedToken.userDetails.logo}.jpg`;
+      const userDetails = decodedToken.userDetails;
+      setUserDetails(userDetails);
+      if (userDetails.logo) {
+        const logoPath = `/uploads/${userDetails.logo}.jpg`;
         setLogo(logoPath);
       }
-      if (decodedToken.photo) {
-        const photoPath = `/uploads/${decodedToken.userDetails.photo}.jpg`;
+      if (userDetails.photo) {
+        const photoPath = `/uploads/${userDetails.photo}.jpg`;
         setPhoto(photoPath);
       }
     }
@@ -97,10 +97,26 @@ const Image = () => {
       console.log(apiUrl, urlExtension);
 
       if(apiResponse.status === 200) {
-        const updatedSeller = apiResponse.data; 
-        console.log("Updated Seller:", updatedSeller);
-        setLogo(`/uploads/${updatedSeller.logo}.jpg`); 
-        setPhoto(`/uploads/${updatedSeller.photo}.jpg`);
+        const newToken = apiResponse.data.token;
+        if (!newToken || typeof newToken !== "string") {
+          throw new Error("Invalid token returned from API");
+        }
+        localStorage.setItem("token", newToken);
+
+        const decodedToken = jwtDecode(newToken);
+        const responseData = apiResponse.data; 
+        setResponse(decodedToken);
+        if(role !== "guide") {
+          if(!responseData.updatedSeller) {
+            setLogo(`/uploads/${responseData.updatedAdvertiser.logo}.jpg`); 
+          } else {
+            setLogo(`/uploads/${responseData.updatedSeller.logo}.jpg`); 
+          }
+        } else {
+          setPhoto(`/uploads/${responseData.updatedGuide.photo}.jpg`);
+        }
+        
+        setUserDetails(decodedToken.userDetails);
         message.success("Profile updated successfully!");
         } else {
         message.error("Failed to update profile.");
@@ -140,7 +156,7 @@ const Image = () => {
         }}
         
       >
-        <h1>Change Logo</h1><br></br>
+        <h1>Change Image</h1><br></br>
         <Space direction="vertical" align="center" style={{ width: "100%" }}>
           {/* Display the logo if the role is seller */}
             {role === "seller" && (
@@ -149,10 +165,16 @@ const Image = () => {
                 {console.log("Logo path:", logo, "end")} {/* Check logo path */}
                 </div>
             )}
+            {role === "advertiser" && (
+                <div>
+                <img src={logo} alt="Logo" style={{ width: '100px', height: '100px' }} />
+                {console.log("Logo path:", logo, "end")} {/* Check logo path */}
+                </div>
+            )}
             {/* Display the logo if the role is seller */}
             {role === "guide" && photo && (
                 <div>
-                <img src={photo} alt="Logo" style={{ width: '100px', height: '100px' }} />
+                <img src={photo} alt="Photo" style={{ width: '100px', height: '100px' }} />
                 </div>
             )}
         <Form

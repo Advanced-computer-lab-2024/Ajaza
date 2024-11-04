@@ -298,7 +298,7 @@ exports.advertiserUpdateProfile = async (req, res) => {
 
     // Generate a new JWT token
     const token = jwt.sign(
-      { userId: advertiser._id, role: "advertiser", userDetails: advertiser }, // Include user data in the token
+      { userId: updatedAdvertiser._id, role: "advertiser", userDetails: updatedAdvertiser }, // Include user data in the token
       process.env.JWT_SECRET, // Use the environment variable
       { expiresIn: "1h" }
     );

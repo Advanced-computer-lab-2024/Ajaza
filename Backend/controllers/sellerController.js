@@ -335,7 +335,14 @@ exports.sellerUpdateProfile = async (req, res) => {
       { new: true, runValidators: true }
     );
     updatedSeller.pass = undefined;
-    res.status(200).json(updatedSeller);
+
+    const token = jwt.sign(
+      { userId: updatedSeller._id, role: "seller", userDetails: updatedSeller }, // Include user data in the token
+      process.env.JWT_SECRET, // Use the environment variable
+      { expiresIn: "1h" }
+    );
+
+    res.status(200).json({ updatedSeller, token });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
