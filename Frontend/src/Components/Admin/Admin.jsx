@@ -15,6 +15,8 @@ import AddAccounts from "./addAccounts";
 import Profile from "../Common/Profile";
 import MyProducts from "./MyProducts";
 import Products from "../Tourist/Products";
+import ChangePasswordForm from "../Common/changePassword"; 
+
 
 const { Content } = Layout;
 
@@ -33,6 +35,7 @@ const Admin = () => {
           <Route path="myProducts" element={<MyProducts />} />
           <Route path="products" element={<Products />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="change-password"  element={<ChangePasswordForm />}  />
         </Routes>
       </Content>
     </AdminCustomLayout>
