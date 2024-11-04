@@ -145,6 +145,11 @@ score
 
 // req42
 router.get('/transportation/searchTransportation', apiController.searchTransfer7);
+/*needs
+IATA,
+endAddressLine,
+startDateTime
+*/
 
 router.get('/transportation/getGeoLocation', apiController.testGeoLocation);
 
