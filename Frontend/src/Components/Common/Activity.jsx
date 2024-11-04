@@ -53,6 +53,7 @@ const Activity = () => {
   return (
     <>
       <Item
+        id={activity?._id}
         name={activity?.name}
         feedbacks={activity?.feedback}
         setFeedback={(newFeedback) =>
