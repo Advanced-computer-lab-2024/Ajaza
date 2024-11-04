@@ -344,3 +344,152 @@ exports.searchTransportation = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+const flattenTransferData = (data) => {
+  return data.data.slice(0, 10).map(entry => ({
+      transferType: entry.transferType,
+      start_dateTime: entry.start?.dateTime,
+      start_locationCode: entry.start?.locationCode,
+      end_dateTime: entry.end?.dateTime,
+      end_address_line: entry.end?.address?.line,
+      end_address_cityName: entry.end?.address?.cityName,
+      vehicle_code: entry.vehicle?.code,
+      vehicle_description: entry.vehicle?.description,
+      vehicle_seats: entry.vehicle?.seats?.[0]?.count,
+      quotation_monetaryAmount: entry.quotation?.monetaryAmount,
+      quotation_currencyCode: entry.quotation?.currencyCode,
+      distance_value: entry.distance?.value,
+      distance_unit: entry.distance?.unit,
+  }));
+};
+
+//try outs
+
+/*
+you can always use
+{
+    "address": "Avenue Anatole France, 5"
+}
+{
+    "latitude": "48.8053318",
+    "longitude": "2.5828656"
+}
+*/
+
+const getGeolocation = async (address) => {
+  try {
+      const encodedAddress = encodeURIComponent(address);
+
+      // Use Nominatim's OpenStreetMap API
+      const response = await axios.get(`https://nominatim.openstreetmap.org/search?q=${encodedAddress}&format=json&addressdetails=1&limit=1`, {
+          headers: {
+              'User-Agent': 'Ajaza/1.0 (reservy.me@gmail.com)' // replace with your app details and email
+          }
+      });
+      
+      // Check if any results were returned
+      if (response.data.length === 0) {
+          console.log("No results found for the given address.");
+          return null;
+      }
+
+      // Extract latitude and longitude from the response
+      const location = response.data[0];
+      return location.lat + ","+ location.lon;
+
+  } catch (error) {
+      console.error("Error fetching geolocation:", error.message);
+      return null;
+  }
+};
+
+exports.testGeoLocation = async (req,res) => {
+  const { address } = req.body;
+
+  if (!address) {
+      return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+      const location = await getGeolocation(address);
+      res.status(200).json(location);
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+};
+
+exports.searchTransfer7 = async (req,res) => {
+  const { IATA, endAddressLine, startDateTime } = req.body;
+  let endCityName;
+  let endCountryCode;
+  let endGeoCode = await getGeolocation(endAddressLine);
+  if(!endGeoCode) {
+    res.status(404).json({ error: "Invalid address line" });
+  }
+  switch(IATA) {
+    case "CDG":
+      endCityName = "Paris";
+      endCountryCode = "FR";
+      break;
+    case "JFK":
+      endCityName = "New York";
+      endCountryCode = "US";
+      break;
+    case "LON":
+      endCityName = "London";
+      endCountryCode = "GB";
+      break;
+    case "DXB":
+      endCityName = "Dubai";
+      endCountryCode = "AE";
+      break;
+    case "LAX":
+      endCityName = "Los Angeles";
+      endCountryCode = "US";
+      break;
+    default:
+      endCityName = "Paris";
+      endCountryCode = "FR";
+  }
+
+
+  try {
+    const token = await getAccessToken();
+    const transferRequestBody = {
+      startLocationCode: IATA,
+      endAddressLine: endAddressLine,
+      endCityName: endCityName,
+      endCountryCode: endCountryCode,
+      endGeoCode: endGeoCode,
+      transferType: "PRIVATE",
+      startDateTime: startDateTime,
+      passengers: 1,
+      passengerCharacteristics: [
+        { passengerTypeCode: "ADT", age: 30 }
+      ],
+      max: 5,
+    };
+    if(token) {
+      const response = await axios.post(
+        'https://test.api.amadeus.com/v1/shopping/transfer-offers',
+        transferRequestBody,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+      if(response.data) {
+        res.status(200).json(flattenTransferData(response.data));
+      } else {
+        res.status(404).json({ error: "No data found" });
+      }
+     } else {
+      console.log("Error getting access token");
+      res.status(500).json({ error: "Error getting access token" });
+     }
+  } catch(error) {
+    res.status(500).json({ error: error.message });
+  }
+}

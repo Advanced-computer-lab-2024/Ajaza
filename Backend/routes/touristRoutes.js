@@ -144,7 +144,9 @@ score
 */
 
 // req42
-router.get('/transportation/searchTransportation', apiController.searchTransportation);
+router.get('/transportation/searchTransportation', apiController.searchTransfer7);
+
+router.get('/transportation/getGeoLocation', apiController.testGeoLocation);
 
 // req61
 router.delete(
