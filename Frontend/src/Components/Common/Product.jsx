@@ -182,6 +182,7 @@ const Product = () => {
         quantity={product?.quantity}
         sales={product?.sales}
         feedbacks={product?.feedback}
+        type={"product"}
       />
     </>
   );

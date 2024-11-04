@@ -79,19 +79,24 @@ const HeaderInfo = ({
   useEffect(() => {
     // check user
     // get if this item is booked setIsBooked accordingly:
-    const checkIfBooked = () => {
+    const  checkIfBooked = () => {
       if (user) {
-        const isItemBooked =
-          type.toLowerCase() === "activity"
-            ? user.activityBookings?.some(
-                (booking) => booking.activityId === id
-              )
-            : user.itineraryBookings?.some(
-                (booking) => booking.itineraryId === id
-              );
-        console.log(isItemBooked);
-        console.log(user.activityBookings);
-        console.log(user)
+        let isItemBooked = false;
+    
+        if (type.toLowerCase() === "activity") {
+          isItemBooked = user.activityBookings?.some(
+            (booking) => booking.activityId === id
+          );
+        } else if (type.toLowerCase() === "itinerary") {
+          isItemBooked = user.itineraryBookings?.some(
+            (booking) => booking.itineraryId === id
+          );
+        }
+    
+        console.log("isItemBooked:", isItemBooked);
+        console.log("user.activityBookings:", user.activityBookings);
+        console.log("user:", user);
+    
         setIsBooked(isItemBooked);
       }
     };
@@ -211,9 +216,9 @@ const HeaderInfo = ({
     try {
       const touristId = userid;
       const useWallet = user.wallet > 0;
-      const total = price ? Number(price) : 0;
+      const total = Number(price);
       let FinalDate = selectedDate;
-      if (type.toLowerCase() === "activity") {
+      if (type === "activity") {
         FinalDate = date;
       }
       if (spots <= 0) {
@@ -221,7 +226,7 @@ const HeaderInfo = ({
         return; // Early return if no spots are available
       }
       const endpoint =
-        type.toLowerCase() === "activity"
+        type === "activity"
           ? `${apiUrl}tourist/${touristId}/activity/${id}/book`
           : `${apiUrl}tourist/${touristId}/itinerary/${id}/book`;
       console.log("Booking endpoint:", endpoint);
@@ -251,7 +256,7 @@ const HeaderInfo = ({
       title: `Confirm Booking for ${name}`,
       content: (
         <div>
-          {type.toLowerCase() === "itinerary" && availableDateTime?.length > 0 && (
+          {type === "itinerary" && availableDateTime?.length > 0 && (
             <Select
               placeholder="Select booking date"
               onChange={setSelectedDate}
@@ -284,7 +289,7 @@ const HeaderInfo = ({
     try {
       const touristId = userid;
       const endpoint =
-        type.toLowerCase() === "activity"
+        type === "activity"
           ? `${apiUrl}tourist/${touristId}/activity/${id}/cancel`
           : `${apiUrl}tourist/${touristId}/itinerary/${id}/cancel`;
 

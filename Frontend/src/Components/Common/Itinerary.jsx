@@ -76,6 +76,7 @@ const Itinerary = () => {
           pickUp={itinerary?.pickUp}
           dropOff={itinerary?.dropOff}
           creatorName={itinerary?.guideId?.username}
+          type={"itinerary"}
         />
       )}
     </>
