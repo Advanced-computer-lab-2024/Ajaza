@@ -7,6 +7,7 @@ import { getAvgRating } from "./Constants";
 import LocationOpeningHours from "./LocationOpeningHours";
 
 const Item = ({
+  id,
   name,
   photos,
   timelineItems,
@@ -58,6 +59,7 @@ const Item = ({
   return (
     <>
       <HeaderInfo
+        id={id}
         name={name}
         photos={photos}
         bookItem={bookItem}

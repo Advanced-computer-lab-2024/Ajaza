@@ -59,6 +59,7 @@ const Itinerary = () => {
     <>
       {itinerary && (
         <Item
+          id={itinerary._id}
           name={itinerary.name}
           feedbacks={itinerary.feedback}
           setFeedback={handleFeedbackUpdate}
