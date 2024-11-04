@@ -14,7 +14,7 @@ const activitySchema = new mongoose.Schema({
   lower: { type: Number, required: true }, // Lower limit (equal to upper if not a range)
   category: [{ type: String, required: true }], // Activity category: advertiser chooses this when creating
   tags: [{ type: String }], // Array of tags related to the activity, advertiser enters them as he wants
-  discounts: { type: String }, // TODO
+  discounts: { type: Number, default: 0 }, // TODO
   isOpen: { type: Boolean, default: true }, // Booking availability
   feedback: [
     {
