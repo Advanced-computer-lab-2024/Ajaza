@@ -49,6 +49,6 @@ router.delete('/deleteSpecificActivity/:advertiserId/:activityId', activityContr
 router.put('/updateActivityFilteredFields/:advertiserId/:activityId', activityController.updateActivityFilteredFields);
 
 // req39
-router.get("/preferrences/:id", activityController.getActivitiesByPreferences);
+//router.get("/preferrences/:id", activityController.getActivitiesByPreferences);
 
 module.exports = router;
