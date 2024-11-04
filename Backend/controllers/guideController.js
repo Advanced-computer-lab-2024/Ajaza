@@ -98,7 +98,10 @@ exports.giveGuideFeedback = async (req, res) => {
       return res.status(404).json({ message: "Guide not found" });
     }
 
-    guide.feedback.push({ touristId, rating, comments });
+    const touristName = tourist.username;
+
+
+    guide.feedback.push({ touristName, rating, comments });
     tourist.gaveFeedback.push(guideId);
     await tourist.save();
     await guide.save();

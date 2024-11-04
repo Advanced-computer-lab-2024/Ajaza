@@ -4,6 +4,7 @@ import Activities from "../Activities";
 import { CalendarOutlined } from "@ant-design/icons";
 import CustomLayout from "../Common/CustomLayout";
 import Profile from "../Common/Profile";
+import Image from "../Common/Image";
 import ChangePasswordForm from "../Common/changePassword";  
 
 const Advertiser = () => {
@@ -24,6 +25,7 @@ const Advertiser = () => {
         <Route path="/" element={<Activities />} />
         <Route path="profile" element={<Profile />} />
         <Route path="change-password"  element={<ChangePasswordForm />}  />
+        <Route path="image" element={<Image />} />
       </Routes>
     </CustomLayout>
   );

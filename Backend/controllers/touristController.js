@@ -185,15 +185,11 @@ exports.emailShare = async (req, res) => {
         '"><button>Go to link</button></a>',
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error sending email: ", error);
-      } else {
-        console.log("Email sent: ", info.response);
-      }
-    });
+    transporter.sendMail(mailOptions)
+      .then(info => console.log("Email sent: ", info.response))
+      .catch(error => console.error("Error sending email: ", error));
 
-    res.status(200).json({ message: "Email sent" });
+    res.status(200).json({ message: "Email is being sent" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -424,7 +420,7 @@ exports.bookActivity = async (req, res) => {
     // Add the booking to the tourist's activityBookings array
     tourist.activityBookings.push({
       activityId: activity._id,
-      total: activity.price,
+      total: total,
     });
 
     if (promoCode) {
@@ -446,12 +442,12 @@ exports.bookActivity = async (req, res) => {
         newPoints = 0.5 * total;
     }
 
-    tourist.points += newPoints;
-    tourist.totalPoints += newPoints;
+    tourist.points += Math.floor(newPoints);
+    tourist.totalPoints += Math.floor(newPoints);
 
-    if (totalPoints > 500000) {
+    if (tourist.totalPoints > 500000) {
       tourist.badge = 3;
-    } else if (totalPoints > 100000) {
+    } else if (tourist.totalPoints > 100000) {
       tourist.badge = 2;
     } else {
       tourist.badge = 1;
@@ -551,7 +547,7 @@ exports.bookItinerary = async (req, res) => {
     tourist.itineraryBookings.push({
       itineraryId: itinerary._id,
       date: date,
-      total: itinerary.price,
+      total: total,
     });
 
     if (promoCode) {
@@ -573,12 +569,12 @@ exports.bookItinerary = async (req, res) => {
         newPoints = 0.5 * total;
     }
 
-    tourist.points += newPoints;
-    tourist.totalPoints += newPoints;
+    tourist.points += Math.floor(newPoints);
+    tourist.totalPoints += Math.floor(newPoints);
 
-    if (totalPoints > 500000) {
+    if (tourist.totalPoints > 500000) {
       tourist.badge = 3;
-    } else if (totalPoints > 100000) {
+    } else if (tourist.totalPoints > 100000) {
       tourist.badge = 2;
     } else {
       tourist.badge = 1;

@@ -34,8 +34,6 @@ router.post("/sellerCreateProfile/:id", sellerController.sellerCreateProfile); /
 router.get("/sellerReadProfile/:id", sellerController.sellerReadProfile); // Seller read profile
 router.patch(
   "/sellerUpdateProfile/:id",
-  validateEmail,
-  uniqueEmail,
   uploadLogoImage,
   sellerController.sellerUpdateProfile
 ); // Seller update profile

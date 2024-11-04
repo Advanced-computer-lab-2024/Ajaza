@@ -154,9 +154,11 @@ exports.giveActivityFeedback = async (req, res) => {
         .status(400)
         .json({ message: "No valid past activity booking found" });
     }
+    const touristName = tourist.username;
+
 
     // append the feedback to the activity
-    activity.feedback.push({ touristId, rating, comments });
+    activity.feedback.push({ touristName, rating, comments });
     tourist.gaveFeedback.push(activityId);
     await tourist.save();
 
@@ -422,3 +424,7 @@ exports.getUpcomingActivities = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getActivitiesByPreferrences = async (req, res) => {
+  res.status(200).json({ null: "null" });
+}

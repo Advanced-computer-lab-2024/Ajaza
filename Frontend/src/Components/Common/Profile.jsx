@@ -23,9 +23,8 @@ import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import "./Profile.css";
 import { apiUrl } from "../Common/Constants";
-import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
+import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-
 
 const { Title } = Typography;
 
@@ -40,9 +39,6 @@ const Profile = () => {
   const [showPasswordForm, setShowPasswordForm] = useState(false); // State to toggle password form visibility
   const navigate = useNavigate(); // useNavigate hook for programmatic navigation
 
-  console.log(userDetails);
-
-
   useEffect(() => {
     const token = localStorage.getItem("token");
     let decodedToken = null;
@@ -52,7 +48,6 @@ const Profile = () => {
       setRole(decodedToken.role); // Set user role
 
       // Extract user details from the token
-      console.log(decodedToken);
       const userDetails = decodedToken.userDetails;
       setUserDetails(userDetails);
       setPending(userDetails.pending); // Set pending status from userDetails
@@ -84,11 +79,9 @@ const Profile = () => {
         urlExtension = `tourist/touristUpdateProfile/${response.userId}`;
       } else if (role === "seller") {
         urlExtension = `seller/${response.userId}`;
-      }
-      else if (role =="governor"){
+      } else if (role == "governor") {
         urlExtension = `governor/${response.userId}`;
-      }
-      else if(role=="admin"){
+      } else if (role == "admin") {
         urlExtension = `admin/${response.userId}`;
       }
 
@@ -116,9 +109,6 @@ const Profile = () => {
           },
         }
       );
-
-      // Log the API response to check for token
-      console.log("API Response:", apiResponse.data);
 
       // Extract the new JWT token from the API response
       const newToken = apiResponse.data.token;
@@ -151,8 +141,6 @@ const Profile = () => {
 
     // Ensure the form is populated with the latest user details
     if (userDetails) {
-      console.log(userDetails);
-
       form.setFieldsValue({
         ...userDetails,
         "companyProfile.name": userDetails?.companyProfile?.name || "",
@@ -200,18 +188,25 @@ const Profile = () => {
 
   const confirmDelete = async (id) => {
     Modal.confirm({
-      title: "Are you sure?",
+      title: "Are you sure? This action is irreversible",
       content: "Do you want to request deletion of your account?",
       okText: "Delete",
       okType: "danger",
       icon: <WarningFilled style={{ color: "#ff4d4f" }} />,
       onOk: async () => {
         try {
-          console.log("TODO");
+          console.log(`${apiUrl}${role}/requestDeletion/${userDetails._id}`);
+
+          const response = await axios.patch(
+            `${apiUrl}${role}/requestDeletion/${userDetails._id}`
+          );
+
+          navigate("/");
+          localStorage.removeItem("token");
 
           message.success("Deletion Request Sent!");
         } catch (error) {
-          message.error("Failed to send deletion request");
+          message.error(error);
         }
       },
     });
@@ -247,11 +242,13 @@ const Profile = () => {
         ]}
       >
         <Space direction="vertical" align="center" style={{ width: "100%" }}>
+          <a href="image">
           <Avatar
             size={120}
             icon={<UserOutlined />}
             style={{ backgroundColor: "#87d068" }}
           />
+          </a>
           {isEditing ? (
             <Form
               form={form}
@@ -282,13 +279,13 @@ const Profile = () => {
                     <Input />
                   </Form.Item>
                   <Form.Item>
-                  <Button
-                    name="Change Password"
-                    style={{ width: 150 }}
-                    onClick={() => navigate("/advertiser/change-password")} // Redirect to password change page
-                  >
-                    Change Password
-                  </Button>
+                    <Button
+                      name="Change Password"
+                      style={{ width: 150 }}
+                      onClick={() => navigate("/advertiser/change-password")} // Redirect to password change page
+                    >
+                      Change Password
+                    </Button>
                   </Form.Item>
                   {/* Company Profile fields */}
                   <Form.Item
@@ -345,14 +342,14 @@ const Profile = () => {
                     <Input.TextArea />
                   </Form.Item>
                   <Form.Item>
-                  <Button
-                    name="Change Password"
-                    style={{ width: 150 }}
-                    onClick={() => navigate("/guide/change-password")} // Redirect to password change page
-                  >
-                    Change Password
-                  </Button>
-                    </Form.Item>
+                    <Button
+                      name="Change Password"
+                      style={{ width: 150 }}
+                      onClick={() => navigate("/guide/change-password")} // Redirect to password change page
+                    >
+                      Change Password
+                    </Button>
+                  </Form.Item>
                 </>
               )}
 
@@ -386,20 +383,18 @@ const Profile = () => {
                     <Input />
                   </Form.Item>
                   <div>
-     
-                  <div>
-                <Form.Item>
-                  <Button
-                    name="Change Password"
-                    style={{ width: 150 }}
-                    onClick={() => navigate("/tourist/change-password")} // Redirect to password change page
-                  >
-                    Change Password
-                  </Button>
-                </Form.Item>
-              </div>
-              </div>
-
+                    <div>
+                      <Form.Item>
+                        <Button
+                          name="Change Password"
+                          style={{ width: 150 }}
+                          onClick={() => navigate("/tourist/change-password")} // Redirect to password change page
+                        >
+                          Change Password
+                        </Button>
+                      </Form.Item>
+                    </div>
+                  </div>
                 </>
               )}
 
@@ -413,18 +408,18 @@ const Profile = () => {
                     <Input />
                   </Form.Item>
                   <Form.Item>
-                  <Button
-                    name="Change Password"
-                    style={{ width: 150 }}
-                    onClick={() => navigate("/seller/change-password")} // Redirect to password change page
-                  >
-                    Change Password
-                  </Button>
+                    <Button
+                      name="Change Password"
+                      style={{ width: 150 }}
+                      onClick={() => navigate("/seller/change-password")} // Redirect to password change page
+                    >
+                      Change Password
+                    </Button>
                   </Form.Item>
                 </>
               )}
-                 {/*Form fields for governor */}
-                 {role === "governor" && (
+              {/*Form fields for governor */}
+              {role === "governor" && (
                 <>
                   <Form.Item name="name" label="Name">
                     <Input />
@@ -433,18 +428,18 @@ const Profile = () => {
                     <Input />
                   </Form.Item>
                   <Form.Item>
-                  <Button
-                    name="Change Password"
-                    style={{ width: 150 }}
-                    onClick={() => navigate("/governor/change-password")} // Redirect to password change page
-                  >
-                    Change Password
-                  </Button>
+                    <Button
+                      name="Change Password"
+                      style={{ width: 150 }}
+                      onClick={() => navigate("/governor/change-password")} // Redirect to password change page
+                    >
+                      Change Password
+                    </Button>
                   </Form.Item>
                 </>
               )}
-                 {/*Form fields for admin */}
-                 {role === "admin" && (
+              {/*Form fields for admin */}
+              {role === "admin" && (
                 <>
                   <Form.Item name="name" label="Name">
                     <Input />
@@ -453,13 +448,13 @@ const Profile = () => {
                     <Input />
                   </Form.Item>
                   <Form.Item>
-                  <Button
-                    name="Change Password"
-                    style={{ width: 150 }}
-                    onClick={() => navigate("/admin/change-password")} // Redirect to password change page
-                  >
-                    Change Password
-                  </Button>
+                    <Button
+                      name="Change Password"
+                      style={{ width: 150 }}
+                      onClick={() => navigate("/admin/change-password")} // Redirect to password change page
+                    >
+                      Change Password
+                    </Button>
                   </Form.Item>
                 </>
               )}

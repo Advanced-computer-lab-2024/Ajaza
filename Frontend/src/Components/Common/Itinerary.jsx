@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Item from "./Item"; 
+import Item from "./Item";
 import { Form } from "antd";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -8,6 +8,7 @@ import { apiUrl } from "./Constants";
 const Itinerary = () => {
   const { id } = useParams();
   const [itinerary, setItinerary] = useState(null);
+  const [timelineItems, setTimelineItems] = useState(null);
   const [writeReviewForm] = Form.useForm();
 
   useEffect(() => {
@@ -23,10 +24,19 @@ const Itinerary = () => {
     fetchItinerary();
   }, [id]);
 
+  useEffect(() => {
+    if (itinerary) {
+      setTimelineItems({
+        timeline: itinerary?.timeline,
+        availableDateTime: itinerary?.availableDateTime,
+      });
+      console.log(itinerary?.timeline);
+    }
+  }, [itinerary]);
+
   const onSubmitWriteReview = (values) => {
     console.log(values); // Handle review form submission logic here
   };
-
 
   // Ensure we handle the state when feedback is added or modified
   const handleFeedbackUpdate = (newFeedback) => {
@@ -37,32 +47,36 @@ const Itinerary = () => {
   };
 
   // Extract relevant data from the itinerary
-  const timelineItems = { timeline: itinerary?.timeline || [] };
-  const availableDates = itinerary?.availableDateTime?.map(d => d.date).join(", ") || "";
+  // const availableDates =
+  //   itinerary?.availableDateTime?.map((d) => d.date).join(", ") || "";
 
   if (!itinerary) {
     return <div>Loading itienerary... </div>;
   }
+  console.log(itinerary);
 
   return (
     <>
       {itinerary && (
         <Item
+          id={itinerary._id}
           name={itinerary.name}
-          feedbacks={itinerary.feedback || []}
+          feedbacks={itinerary.feedback}
           setFeedback={handleFeedbackUpdate}
           timelineItems={timelineItems}
           writeReviewForm={writeReviewForm}
           onSubmitWriteReview={onSubmitWriteReview}
-          tags={itinerary?.tags || []}
-          price={itinerary?.price || 0}
-          category={itinerary?.language ? [itinerary.language] : []}
-          location={`${itinerary?.pickUp} to ${itinerary?.dropOff}`}
+          tags={itinerary?.tags}
+          price={itinerary?.price}
           transportation={{ from: itinerary?.pickUp, to: itinerary?.dropOff }}
-          date={availableDates}
           active={itinerary?.active}
           accessibility={itinerary?.accessibility} // Optional: If you want to display accessibility info
           maxTourists={itinerary?.maxTourists} // Optional: If you want to display max tourists
+          language={itinerary?.language}
+          pickUp={itinerary?.pickUp}
+          dropOff={itinerary?.dropOff}
+          creatorName={itinerary?.guideId?.username}
+          type={"itinerary"}
         />
       )}
     </>

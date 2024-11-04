@@ -43,4 +43,7 @@ router.delete('/deleteSpecificItinerary/:guideId/:itineraryId', itineraryControl
 //gets list of activities and venues that can be added to an itinerary
 router.get('/fetchOptions/fetchOptions', itineraryController.fetchOptions);
 
+// req39
+//router.get("/preferrences/:id", itineraryController.getItinerariesByPreferences);
+
 module.exports = router;

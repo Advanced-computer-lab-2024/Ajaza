@@ -5,6 +5,7 @@ import Itineraries from "../Itineraries";
 import { CalendarOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 import Profile from "../Common/Profile";
+import Image from "../Common/Image";
 import ChangePasswordForm from "../Common/changePassword";  
 
 const TourGuide = () => {
@@ -34,6 +35,7 @@ const TourGuide = () => {
         <Route path="/" element={<Itineraries />} />
         <Route path="profile" element={<Profile />} />
         <Route path="change-password"  element={<ChangePasswordForm />}  />
+        <Route path="image" element={<Image />} />
       </Routes>
     </CustomLayout>
   );

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import {
-  Avatar,
+  InputNumber,
   Card,
   Space,
   Modal,
@@ -94,7 +94,7 @@ const Activities = () => {
         lower: values.lower,
         category: values.category,
         tags: values.tags,
-        discounts: values.discounts,
+        discounts: values.discounts || 0,
         spots: values.spots,
         isOpen: values.isOpen,
         feedback: values.feedback,
@@ -319,7 +319,7 @@ const Activities = () => {
                       <strong>Available Spots:</strong> {activity.spots}
                     </p>
                     <p>
-                      <strong>Discounts:</strong> {activity.discounts}
+                      <strong>Discounts:</strong> {activity.discounts}%
                     </p>
                   </div>
                 }
@@ -438,8 +438,8 @@ const Activities = () => {
             <Input type="number" />
           </Form.Item>
 
-          <Form.Item name="discounts" label="Discounts">
-            <Input placeholder="Enter discount details" />
+          <Form.Item name="discounts" label="Discount" initialValue={0}>
+            <InputNumber min={0} max={100} placeholder="Enter discount value" />
           </Form.Item>
 
           <Form.Item>

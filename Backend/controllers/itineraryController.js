@@ -85,10 +85,28 @@ exports.getItineraryById = async (req, res) => {
     const itinerary = await Itinerary.findById(req.params.id).populate(
       "guideId"
     );
+
+    const itineraryObj = itinerary.toObject(); // Convert to plain object
+
+    // Modify the timeline for each itinerary
+    for (const item of itineraryObj.timeline) {
+      console.log("Item ID:", item.id);
+
+      if (item.type === "Activity") {
+        const activity = await Activity.findById(item.id);
+        console.log("Activity Found:", activity);
+        item.id = activity; // Replace ObjectId with full document
+      } else if (item.type === "Venue") {
+        const venue = await Venue.findById(item.id);
+        console.log("Venue Found:", venue);
+        item.id = venue; // Replace ObjectId with full document
+      }
+    }
+
     if (!itinerary) {
       return res.status(404).json({ message: "Itinerary not found" });
     }
-    res.status(200).json(itinerary);
+    res.status(200).json(itineraryObj);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -185,8 +203,10 @@ exports.giveItineraryFeedback = async (req, res) => {
       return res.status(404).json({ message: "Itinerary not found" });
     }
 
+    const touristName = tourist.username;
+
     // append the feedback to the itinerary
-    itinerary.feedback.push({ touristId, rating, comments });
+    itinerary.feedback.push({ touristName, rating, comments });
     tourist.gaveFeedback.push(itineraryId);
     await tourist.save();
 
@@ -440,3 +460,7 @@ exports.fetchOptions = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getItinerariesByPreferrences = async (req, res) => {
+  res.status(200).json({ null: "null" });
+}
