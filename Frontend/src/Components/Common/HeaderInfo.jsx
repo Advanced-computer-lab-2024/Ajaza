@@ -87,7 +87,7 @@ const HeaderInfo = ({
   const [priceString, setPriceString] = useState("");
   const [email, setEmail] = useState("");
 
-  useEffect(() => {
+  /*useEffect(() => {
     // check user
     // get if this item is booked setIsBooked accordingly:
     const checkIfBooked = () => {
@@ -113,7 +113,7 @@ const HeaderInfo = ({
 
     checkIfBooked();
     // get if this item is saved: wishlist (if product), bookmarked (if not) setIsSaved
-  }, [id, type, user]);
+  }, [id, type, user]);*/
 
   useEffect(() => {
     if (Array.isArray(photos) && photos.length > 0) {
@@ -139,70 +139,74 @@ const HeaderInfo = ({
   }, [price, priceLower, priceUpper, discounts]);
 
   //req50
-  const locationUrl = useLocation();
-  const copyLink = () => {
-    const pathParts = locationUrl.pathname.split("/");
-    const type = pathParts[2];
-    const objectId = pathParts[3];
-
-    if (!type || !objectId) {
-      message.error("Could not extract details from the URL");
-      return;
+    const locationUrl = useLocation(); 
+    const copyLink = () => {
+      const pathParts = locationUrl.pathname.split("/"); 
+      const type = pathParts[2]; 
+      const objectId = pathParts[3];
+  
+      if (!type || !objectId) {
+        message.error("Could not extract details from the URL");
+        return;
+      }
+      const baseUrl = document.baseURI; 
+      const shareLink = `${baseUrl}`; 
+      navigator.clipboard.writeText(shareLink);
+      message.success("Link copied to clipboard!");
     }
 
-    const shareLink = `${window.locationUrl.origin}/tourist/${type}/${objectId}`;
-    navigator.clipboard.writeText(shareLink);
-    message.success("Link copied to clipboard!");
-  };
-
-  const shareViaEmail = () => {
-    Modal.confirm({
-      title: `Share ${name} via Email`,
-      content: (
-        <div>
-          <Input
-            placeholder="Enter recipient's email"
-            onChange={(e) => setEmail(e.target.value)}
-            style={{ marginBottom: 10 }}
-          />
-        </div>
-      ),
-      onOk: async () => {
-        const pathParts = locationUrl.pathname.split("/");
-        const type = pathParts[2];
-        const objectId = pathParts[3];
-
-        if (!type || !objectId) {
-          message.error("Could not extract details from the URL");
-          return;
-        }
-        await new Promise((resolve) => setTimeout(resolve, 50));
-        const shareLink = `${window.locationUrl.origin}/tourist/${type}/${objectId}`;
-        try {
-          const touristId = userid;
-          await axios.post(
-            `${apiUrl}tourist/emailShare/${touristId}`,
-            {
-              link: shareLink,
-              email: email,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
+    const shareViaEmail = () => {
+      Modal.confirm({
+        title: `Share ${name} via Email`,
+        content: (
+          <div>
+            <Input
+              placeholder="Enter recipient's email"
+              onChange={(e) => setEmail(e.target.value)}
+              style={{ marginBottom: 10 }}
+            />
+          </div>
+        ),
+        onOk: async () => {
+          const pathParts = locationUrl.pathname.split("/"); 
+          const type = pathParts[2]; 
+          const objectId = pathParts[3];
+      
+          if (!type || !objectId) {
+            message.error("Could not extract details from the URL");
+            return;
+          }
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          const baseUrl = document.baseURI; 
+          const shareLink = `${baseUrl}`; 
+          try {
+            const touristId = userid;
+            await axios.post(
+              `${apiUrl}tourist/emailShare/${touristId}`, 
+              {
+                link: shareLink,
+                email: email,
               },
-            }
-          );
-          message.success("Email sent successfully!");
-        } catch (error) {
-          console.error("Error sharing via email:", error);
-          message.error("Failed to send email. Please try again.");
-        }
-      },
-      onCancel: () => {
-        setEmail("");
-      },
-    });
-  };
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`, 
+                },
+              }
+            );
+            message.success("Email sent successfully!");
+          } catch (error) {
+            console.error("Error sharing via email:", error);
+            message.error("Failed to send email. Please try again.");
+          }
+        },
+        onCancel: () => {
+          setEmail(""); 
+        },
+      });
+    };
+    
+
+
 
   const shareItem = () => {
     // i think nenazel drop down fih copy link w email
