@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Carousel, Row, Col, Rate, Flex, Select, Modal, Input } from "antd";
+import {
+  Carousel,
+  Row,
+  Col,
+  Rate,
+  Flex,
+  Select,
+  Modal,
+  Input,
+  Menu,
+  message,
+} from "antd";
 import { Colors, apiUrl } from "./Constants";
 import CustomButton from "./CustomButton";
 import axios from "axios";
@@ -13,7 +24,8 @@ import { jwtDecode } from "jwt-decode";
 import MapView from "./MapView";
 import { convertDateToString, camelCaseToNormalText } from "./Constants";
 import Timeline from "./Timeline";
-
+import { Dropdown } from "antd";
+import { useLocation } from "react-router-dom";
 const { Option } = Select;
 
 const token = localStorage.getItem("token");
@@ -73,20 +85,27 @@ const HeaderInfo = ({
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [priceString, setPriceString] = useState("");
+  const [email, setEmail] = useState("");
 
-  useEffect(() => {
+  /*useEffect(() => {
     // check user
     // get if this item is booked setIsBooked accordingly:
     const checkIfBooked = () => {
       if (user) {
-        const isItemBooked =
-          type === "Activity"
-            ? user.activityBookings?.some(
-                (booking) => booking.activityId === id
-              )
-            : user.itineraryBookings?.some(
-                (booking) => booking.itineraryId === id
-              );
+        let isItemBooked;
+        if (type === "activity") {
+          isItemBooked = user.activityBookings?.some(
+            (booking) => booking.activityId === id
+          );
+        } else if (type === "itinerary") {
+          isItemBooked = user.itineraryBookings?.some(
+            (booking) => booking.itineraryId === id
+          );
+        }
+
+        console.log("isItemBooked:", isItemBooked);
+        console.log("user.activityBookings:", user.activityBookings);
+        console.log("user:", user);
 
         setIsBooked(isItemBooked);
       }
@@ -94,7 +113,7 @@ const HeaderInfo = ({
 
     checkIfBooked();
     // get if this item is saved: wishlist (if product), bookmarked (if not) setIsSaved
-  }, [id, type, user]);
+  }, [id, type, user]);*/
 
   useEffect(() => {
     if (Array.isArray(photos) && photos.length > 0) {
@@ -119,8 +138,79 @@ const HeaderInfo = ({
     }
   }, [price, priceLower, priceUpper, discounts]);
 
+  //req50
+    const locationUrl = useLocation(); 
+    const copyLink = () => {
+      const pathParts = locationUrl.pathname.split("/"); 
+      const type = pathParts[2]; 
+      const objectId = pathParts[3];
+  
+      if (!type || !objectId) {
+        message.error("Could not extract details from the URL");
+        return;
+      }
+      const baseUrl = document.baseURI; 
+      const shareLink = `${baseUrl}`; 
+      navigator.clipboard.writeText(shareLink);
+      message.success("Link copied to clipboard!");
+    }
+
+    const shareViaEmail = () => {
+      Modal.confirm({
+        title: `Share ${name} via Email`,
+        content: (
+          <div>
+            <Input
+              placeholder="Enter recipient's email"
+              onChange={(e) => setEmail(e.target.value)}
+              style={{ marginBottom: 10 }}
+            />
+          </div>
+        ),
+        onOk: async () => {
+          const pathParts = locationUrl.pathname.split("/"); 
+          const type = pathParts[2]; 
+          const objectId = pathParts[3];
+      
+          if (!type || !objectId) {
+            message.error("Could not extract details from the URL");
+            return;
+          }
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          const baseUrl = document.baseURI; 
+          const shareLink = `${baseUrl}`; 
+          try {
+            const touristId = userid;
+            await axios.post(
+              `${apiUrl}tourist/emailShare/${touristId}`, 
+              {
+                link: shareLink,
+                email: email,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`, 
+                },
+              }
+            );
+            message.success("Email sent successfully!");
+          } catch (error) {
+            console.error("Error sharing via email:", error);
+            message.error("Failed to send email. Please try again.");
+          }
+        },
+        onCancel: () => {
+          setEmail(""); 
+        },
+      });
+    };
+    
+
+
+
   const shareItem = () => {
     // i think nenazel drop down fih copy link w email
+    //done fo2eha by zeina req50
   };
 
   // product wishlist
@@ -132,26 +222,36 @@ const HeaderInfo = ({
   const bookItem = async () => {
     try {
       const touristId = userid;
-      const Wallet = user.wallet > 0;
-      const date = ""; // date of the booking or the date of the event? and add it only in iten why?
-      //const total = type === "Activity" ? price : price; // mehtag ashoof ma3 ahmed, iten has price bas activity laa
+      const useWallet = user.wallet > 0;
+      const total = Number(price);
+      let FinalDate = selectedDate;
+      if (type === "activity") {
+        FinalDate = date;
+      }
+      if (spots <= 0) {
+        alert(`Error booking ${type}: No spots available.`);
+        return; // Early return if no spots are available
+      }
       const endpoint =
-        type === "Activity"
-          ? `${apiUrl}/${touristId}/activity/${id}/book`
-          : `${apiUrl}/${touristId}/itinerary/${id}/book`;
+        type === "activity"
+          ? `${apiUrl}tourist/${touristId}/activity/${id}/book`
+          : `${apiUrl}tourist/${touristId}/itinerary/${id}/book`;
+      console.log("Booking endpoint:", endpoint);
+      console.log(type);
 
       const response = await axios.post(endpoint, {
-        Wallet,
-        total: price,
-        date: selectedDate,
+        useWallet,
+        total,
+        date: FinalDate,
         promoCode: promoCode || null,
       });
+      console.log(price);
       alert(`${type} booked successfully!`);
 
       if (response.data.token) {
         updateTokenInLocalStorage(response.data.token);
       }
-      //setIsBooked(true); do i need it?
+      setIsBooked(true);
     } catch (error) {
       console.error(`Error booking ${type}:`, error);
       alert(`Error booking ${type}: ${error.message}`);
@@ -163,7 +263,7 @@ const HeaderInfo = ({
       title: `Confirm Booking for ${name}`,
       content: (
         <div>
-          {type === "Itinerary" && availableDateTime?.length > 0 && (
+          {type === "itinerary" && availableDateTime?.length > 0 && (
             <Select
               placeholder="Select booking date"
               onChange={setSelectedDate}
@@ -196,16 +296,15 @@ const HeaderInfo = ({
     try {
       const touristId = userid;
       const endpoint =
-        type === "Activity"
-          ? `${apiUrl}/${touristId}/activity/${id}/cancel`
-          : `${apiUrl}/${touristId}/itinerary/${id}/cancel`;
+        type === "activity"
+          ? `${apiUrl}tourist/${touristId}/activity/${id}/cancel`
+          : `${apiUrl}tourist/${touristId}/itinerary/${id}/cancel`;
 
       const response = await axios.delete(endpoint);
-      //alert(`${type} booking canceled successfully!`);
       if (response.status === 200) {
         alert(`${type} booking canceled successfully!`);
       } else {
-        alert(`Failed to cancel the booking: ${response.data.message}`);
+        alert(`Problem: ${response.data.message}`);
       }
 
       if (response.data.token) {
@@ -485,14 +584,33 @@ const HeaderInfo = ({
               ) : (
                 <HeartOutlined style={{ fontSize: "20px" }} onClick={save} />
               )}
-              <ShareAltOutlined
-                style={{
-                  fontSize: "20px",
-                  marginLeft: "20px",
-                  marginRight: "20px",
+              {/* Dropdown for sharing options */}
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: "1",
+                      label: "Copy Link",
+                      onClick: copyLink,
+                    },
+                    {
+                      key: "2",
+                      label: "Share via Email",
+                      onClick: shareViaEmail,
+                    },
+                  ],
                 }}
-                onClick={shareItem}
-              />
+                trigger={["click"]}
+              >
+                <ShareAltOutlined
+                  style={{
+                    fontSize: "20px",
+                    marginLeft: "20px",
+                    marginRight: "20px",
+                    cursor: "pointer",
+                  }}
+                />
+              </Dropdown>
 
               {isBooked ? (
                 <CustomButton
