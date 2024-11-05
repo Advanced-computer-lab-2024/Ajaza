@@ -4,6 +4,11 @@ const jwt = require("jsonwebtoken");
 const Activity = require("../models/Activity");
 const Tourist = require("../models/Tourist");
 
+const Admin = require("../models/Admin");
+const Guide = require("../models/Guide");
+const Governor = require("../models/Governor");
+const Seller = require("../models/Seller");
+
 // Create a new advertiser
 exports.createAdvertiser = async (req, res) => {
   try {
@@ -68,6 +73,67 @@ exports.deleteAdvertiser = async (req, res) => {
   }
 };
 
+// Middleware logic moved to controller
+const validateEmail = (email) => {
+  if (!email) {
+    return { isValid: false, message: 'Email is required' };
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(email)) {
+    return { isValid: false, message: 'Invalid email format' };
+  }
+
+  return { isValid: true };
+};
+
+const checkEmailAvailability = async (email) => {
+  if (!email) {
+    return { isAvailable: false, message: 'Email is required' };
+  }
+
+  try {
+    // Check each collection for the email
+    const touristExists = await Tourist.exists({ email });
+    const advertiserExists = await Advertiser.exists({ email });
+    const sellerExists = await Seller.exists({ email });
+    const guideExists = await Guide.exists({ email });
+
+    if (touristExists || advertiserExists || sellerExists || guideExists) {
+      return { isAvailable: false, message: 'Email is already associated with an account' };
+    }
+
+    return { isAvailable: true };
+  } catch (error) {
+    return { isAvailable: false, message: error.message };
+  }
+};
+
+const checkUsernameAvailability = async (username) => {
+  if (!username) {
+    return { isAvailable: false, message: 'Username is required' };
+  }
+
+  try {
+    // Check each collection for the username
+    const adminExists = await Admin.exists({ username });
+    const touristExists = await Tourist.exists({ username });
+    const advertiserExists = await Advertiser.exists({ username });
+    const sellerExists = await Seller.exists({ username });
+    const guideExists = await Guide.exists({ username });
+    const governorExists = await Governor.exists({ username });
+
+    if (adminExists || touristExists || advertiserExists || sellerExists || guideExists || governorExists) {
+      return { isAvailable: false, message: 'Username is already taken' };
+    }
+
+    return { isAvailable: true };
+  } catch (error) {
+    return { isAvailable: false, message: error.message };
+  }
+};
+
 //              req5 -- Tatos           //
 // Geuest/Advertiser sign up
 exports.guestAdvertiserCreateProfile = async (req, res) => {
@@ -87,11 +153,31 @@ exports.guestAdvertiserCreateProfile = async (req, res) => {
   });
 
   try {
+    // Validate email
+    const emailValidation = validateEmail(filteredBody.email);
+    if (!emailValidation.isValid) {
+      return res.status(400).json({ error: emailValidation.message });
+    }
+
+    // Check for unique email
+    const emailAvailability = await checkEmailAvailability(filteredBody.email);
+    if (!emailAvailability.isAvailable) {
+      return res.status(400).json({ message: emailAvailability.message });
+    }
+
+    // Check for unique username
+    const usernameAvailability = await checkUsernameAvailability(filteredBody.username);
+    if (!usernameAvailability.isAvailable) {
+      return res.status(400).json({ message: usernameAvailability.message });
+    }
+
+    // Hash password
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(filteredBody.pass, saltRounds);
 
     filteredBody.pass = hashedPassword;
 
+    // Create new advertiser
     const advertiser = new Advertiser(filteredBody);
     const savedadvertiser = await advertiser.save();
     savedadvertiser.pass = undefined;
@@ -212,7 +298,7 @@ exports.advertiserUpdateProfile = async (req, res) => {
 
     // Generate a new JWT token
     const token = jwt.sign(
-      { userId: advertiser._id, role: "advertiser", userDetails: advertiser }, // Include user data in the token
+      { userId: updatedAdvertiser._id, role: "advertiser", userDetails: updatedAdvertiser }, // Include user data in the token
       process.env.JWT_SECRET, // Use the environment variable
       { expiresIn: "1h" }
     );
@@ -300,12 +386,22 @@ exports.acceptTerms = async (req, res) => {
   try {
     const id = req.params.id;
     const user = await Advertiser.findById(id);
+    const value = req.body.acceptedTerms;
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
     if (user.pending) {
       return res.status(400).json({ message: "User is pending approval" });
     }
+    if (user.acceptedTerms && value === true) {
+      return res.status(400).json({ message: "User has already accepted terms" });
+    }
+    if (value === false) {
+      user.acceptedTerms = false;
+      await user.save();
+      return res.status(200).json({ message: "Terms declined successfully" });
+    }
+
     user.acceptedTerms = true;
     await user.save();
     res.status(200).json({ message: "Terms accepted successfully" });
@@ -331,38 +427,38 @@ exports.uploadAdvertiserLogo = async (req, res) => {
 };
 
 // get uploaded documents for adv by id: returns id w taxationregcard
-exports.getAdvertiserDocuments = async (req, res) => {
-  try {
-    const { advertiserId } = req.params;
-    const advertiser = await Advertiser.findById(advertiserId).select(
-      "id taxationRegCard"
-    );
+// exports.getAdvertiserDocuments = async (req, res) => {
+//   try {
+//     const { advertiserId } = req.params;
+//     const advertiser = await Advertiser.findById(advertiserId).select(
+//       "id taxationRegCard"
+//     );
 
-    if (!advertiser) {
-      return res.status(404).json({ message: "Advertiser not found" });
-    }
+//     if (!advertiser) {
+//       return res.status(404).json({ message: "Advertiser not found" });
+//     }
 
-    const response = {
-      message: "Documents retrieved successfully",
-      id: advertiser.id || null,
-      taxationRegCard: advertiser.taxationRegCard || null,
-    };
+//     const response = {
+//       message: "Documents retrieved successfully",
+//       id: advertiser.id || null,
+//       taxationRegCard: advertiser.taxationRegCard || null,
+//     };
 
-    if (!advertiser.id) {
-      response.idMessage = "No ID document uploaded by this advertiser";
-    }
+//     if (!advertiser.id) {
+//       response.idMessage = "No ID document uploaded by this advertiser";
+//     }
 
-    if (!advertiser.taxationRegCard) {
-      response.taxationRegCardMessage =
-        "No taxation registration card uploaded by this advertiser";
-      response.taxationRegCard = null;
-    }
+//     if (!advertiser.taxationRegCard) {
+//       response.taxationRegCardMessage =
+//         "No taxation registration card uploaded by this advertiser";
+//       response.taxationRegCard = null;
+//     }
 
-    res.status(200).json(response);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+//     res.status(200).json(response);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 //admin accept advertiser
 exports.acceptAdvertiser = async (req, res) => {
@@ -475,6 +571,96 @@ exports.requestDeletion = async (req, res) => {
       });
     }
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+exports.validateEmailUsername = async(req, res) =>{
+  const { email, username } = req.body; // Destructure email and username from request body
+  try {
+    // Validate email
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      return res.status(400).json({ error: emailValidation.message });
+    }
+
+    // Check for unique email
+    const emailAvailability = await checkEmailAvailability(email);
+    if (!emailAvailability.isAvailable) {
+      return res.status(400).json({ message: emailAvailability.message });
+    }
+
+    // Check for unique username
+    const usernameAvailability = await checkUsernameAvailability(username);
+    if (!usernameAvailability.isAvailable) {
+      return res.status(400).json({ message: usernameAvailability.message });
+    }
+    // If all validations pass, return a success message
+    return res.status(200).json({ message: "Everything is valid!" });
+  }
+  catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+// returns all advertisers that are pending
+exports.getPendingAdvertisers = async (req, res) => {
+  try {
+    // Fetch advertisers with pending status
+    const pendingAdvertisers = await Advertiser.find({ "pending" : true }).exec();
+    
+    if (pendingAdvertisers.length === 0) {
+      return res.status(404).json({ message: "No advertisers with pending status found." });
+    }
+    
+    // Return the found pending advertisers
+    res.status(200).json(pendingAdvertisers);
+  } catch (error) {
+    console.error("Error fetching pending advertisers:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//returns details to be displayed.
+exports.getAdvertiserDetails = async (req, res) => {
+  const advertiserId = req.params.id; // Get the ID from the request parameters
+
+  try {
+    console.log(`Fetching details for advertiser with ID: ${advertiserId}`);
+    
+    // Find the advertiser by ID and populate referenced fields if necessary
+    const advertiser = await Advertiser.findById(advertiserId)
+      .populate('id') // Populate the image reference for ID
+      .populate('taxationRegCard') // Populate the taxation registration card image reference
+      .populate('logo') // Populate the logo reference if needed
+      .exec();
+
+    if (!advertiser) {
+      return res.status(404).json({ message: "Advertiser not found." });
+    }
+
+    // Create a response object with required fields
+    const responseAdvertiser = {
+      id: advertiser.id ? advertiser.id.imageUrl : null, // Assuming the referenced Img model has a field 'imageUrl' for the picture
+      username: advertiser.username,
+      email: advertiser.email,
+      link: advertiser.link,
+      hotline: advertiser.hotline,
+      companyProfile: advertiser.companyProfile,
+      //logo: advertiser.logo ? advertiser.logo.imageUrl : null, // Assuming the logo has an imageUrl field
+      taxationRegCard: advertiser.taxationRegCard ? advertiser.taxationRegCard.imageUrl : null, // Assuming it also has an imageUrl field
+      pending: advertiser.pending,
+      acceptedTerms: advertiser.acceptedTerms,
+      //notifications: advertiser.notifications,
+      requestingDeletion: advertiser.requestingDeletion,//msh 3arfa
+      // Add any other fields that are necessary for admin review
+    };
+
+    // Return the advertiser details excluding sensitive information
+    res.status(200).json(responseAdvertiser);
+  } catch (error) {
+    console.error("Error fetching advertiser details:", error);
     res.status(500).json({ error: error.message });
   }
 };

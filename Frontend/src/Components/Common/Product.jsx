@@ -1,9 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Item from "./Item";
 import Timeline from "./Timeline";
 import { Form } from "antd";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import { apiUrl } from "./Constants";
 
 const Product = () => {
+  let { id } = useParams();
+
+  const [product, setProduct] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const productResponse = await axios.get(`${apiUrl}product/${id}`);
+        let product = productResponse.data;
+        setProduct(product);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const [feedbacks, setFeedbacks] = useState([
     {
       rating: 4,
@@ -115,6 +136,27 @@ const Product = () => {
     ],
   });
 
+  const photos = ["6702b737bc1f3e9c8fc16972", "67043c885702c8d4426147c9"];
+
+  const tags = ["fun", "food", "monuments", "skiing", "test", "extra"];
+  const category = [
+    "fun",
+    "food",
+    "monuments",
+    "skiing",
+    "test",
+    "extra",
+    "test",
+    "test",
+    "test",
+  ];
+
+  const price = 124; // TODO mariem's conversion
+  const name = "Product1";
+  const sales = 123;
+  const quantity = 12;
+  const discounts = 10;
+
   // If tourist can not review this either set writeReviewForm to null or dont pass the prop
 
   const [writeReviewForm] = Form.useForm();
@@ -123,14 +165,24 @@ const Product = () => {
     // use the form to give feedback
     console.log(values);
   };
+
+  const sellerName = "Ajaza";
+
+  console.log(product);
+
   return (
     <>
       <Item
-        feedbacks={feedbacks}
-        setFeedback={setFeedbacks}
-        timelineItems={timelineItems}
-        writeReviewForm={writeReviewForm}
-        onSubmitWriteReview={onSubmitWriteReview}
+        // name={product?.name}
+        name={product?.name}
+        photos={product?.photo}
+        price={product?.price}
+        desc={product?.desc}
+        sellerName={product?.sellerName}
+        quantity={product?.quantity}
+        sales={product?.sales}
+        feedbacks={product?.feedback}
+        type={"product"}
       />
     </>
   );

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Timeline as TimelineAnt } from "antd";
 import "./Timeline.css";
+import { convertDateToString } from "./Constants";
 
 const Timeline = ({ timelineItems, fieldName }) => {
   const [mode, setMode] = useState("left");
@@ -9,31 +10,62 @@ const Timeline = ({ timelineItems, fieldName }) => {
     setMode(e.target.value);
   };
 
-  console.log(timelineItems);
-
   useEffect(() => {
     let temp = timelineItems;
     if (fieldName == "timeline") {
-      temp = timelineItems.sort((a, b) => a.start - b.start);
+      temp = timelineItems?.sort((a, b) => a.start - b.start);
       temp = temp?.map((timelineItem) => {
         return {
-          children: timelineItem?.id.name,
+          children: timelineItem?.id?.name,
           label: `${timelineItem?.start}:00`,
         };
       });
-    } else {
+    } else if (fieldName == "availableDateTime") {
       // availableDateTime
-      temp = timelineItems.sort((a, b) => a.date - b.date);
+      temp = timelineItems?.sort((a, b) => a.date - b.date);
       temp = temp?.map((timelineItem) => {
         return {
-          children: timelineItem.spots,
-          label: String(timelineItem.date),
+          children: `Spots Available: ${timelineItem.spots}`,
+          label: convertDateToString(timelineItem.date),
         };
       });
+    } else {
+      // openingHours
+      console.log(timelineItems);
+
+      temp = [
+        {
+          children: `${timelineItems?.suno}-${timelineItems?.sunc}`,
+          label: "Sunday",
+        },
+        {
+          children: `${timelineItems?.mono}-${timelineItems?.monc}`,
+          label: "Monday",
+        },
+        {
+          children: `${timelineItems?.tueo}-${timelineItems?.tuec}`,
+          label: "Tuesday",
+        },
+        {
+          children: `${timelineItems?.wedo}-${timelineItems?.wedc}`,
+          label: "Wednesday",
+        },
+        {
+          children: `${timelineItems?.thuo}-${timelineItems?.thuc}`,
+          label: "Thursday",
+        },
+        {
+          children: `${timelineItems?.frio}-${timelineItems?.fric}`,
+          label: "Friday",
+        },
+        {
+          children: `${timelineItems?.sato}-${timelineItems?.satc}`,
+          label: "Saturday",
+        },
+      ];
     }
 
     setTimelineItemsAdjusted(temp);
-    console.log(temp);
   }, [timelineItems]);
 
   return (

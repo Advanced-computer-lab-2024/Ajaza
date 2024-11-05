@@ -13,9 +13,12 @@ export const Colors = {
   },
   primary: {
     default: "#1b696a",
-    light: "#6c9c88",
+    light: "#5b8b77",
+    lighter: "#a9f1d3",
   },
   warning: "#ff4545",
+  warningDark: "#cc0b38",
+  positive: "#1a843a",
 };
 
 export const apiUrl = "http://localhost:5000/";
@@ -36,6 +39,26 @@ export const calculateYourPrice = (venue, userNationality, userOccupation) => {
   venue.priceOptions = venue.price;
   venue.price = yourPrice; // Add `yourPrice` key to the venue
   return venue;
+};
+
+export const calculateYourPriceRet = (
+  venue,
+  userNationality,
+  userOccupation
+) => {
+  const { foreigner, native, student } = venue.price;
+
+  let yourPrice = foreigner; // Default to foreigner price
+
+  // Set price based on nationality and occupation
+  if (userNationality?.toLowerCase() === "egypt") {
+    yourPrice = Math.min(yourPrice, native);
+  }
+  if (userOccupation?.toLowerCase() === "student") {
+    yourPrice = Math.min(yourPrice, student);
+  }
+
+  return yourPrice;
 };
 
 export const getAvgRating = (feedback) => {
@@ -85,4 +108,26 @@ export const camelCaseToNormalText = (camelCaseStr) => {
   const normalText = spacedText.replace(/\b\w/g, (char) => char.toUpperCase());
 
   return normalText;
+};
+
+export const convertDateToString = (datetimeString) => {
+  // The input datetime string
+
+  // Create a Date object from the string
+  const date = new Date(datetimeString);
+
+  // Format the date into a readable format
+  const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZoneName: "short",
+  };
+
+  // Convert to a readable string
+  const readableDate = date.toLocaleString("en-US", options);
+
+  return readableDate;
 };

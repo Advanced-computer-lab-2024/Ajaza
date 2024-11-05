@@ -9,6 +9,7 @@ import {
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
 import { jwtDecode } from "jwt-decode";
+import SelectCurrency from "./SelectCurrency";
 
 const token = localStorage.getItem("token");
 let decodedToken = null;
@@ -35,6 +36,12 @@ const convertTagsToValues = (tagsArray) => {
   });
 };
 
+const currencyRates = {
+  EGP: 48.58,
+  USD: 1,
+  EUR: 0.91,
+};
+
 const Activities = () => {
   const [combinedElements, setCombinedElements] = useState([]);
   // propName:fieldName
@@ -44,9 +51,10 @@ const Activities = () => {
     rating: "avgRating",
     dateTime: "availableDateTime",
   };
+  const [currency, setCurrency] = useState("USD");
   const fields = { Categories: "category", Tags: "tags", Date: "date" };
   const searchFields = ["name", "category", "tags"];
-  const constProps = { rateDisplay: true };
+  const constProps = { rateDisplay: true, currency, currencyRates };
   const sortFields = ["avgRating", "price"];
   const [filterFields, setfilterFields] = useState({
     price: {
@@ -205,54 +213,40 @@ const Activities = () => {
         console.error("Error fetching data:", error);
       }
     };
-
-    //    This will be in the card view of each activity
-    //   const handleBookActivity = async () => {
-    //     try {
-    //       const touristId = userid;
-    //       const activityId = element.id;
-    //       await axios.post(`${apiUrl}/${touristId}/activity/${activityId}/book`);
-    //       alert("Activity booked successfully!");
-    //     } catch (error) {
-    //       console.error("Error booking activity:", error);
-    //       alert("Error booking activity:", error);
-    //     }
-    //   };
-    //       <button onClick={handleBookActivity} className="book-button">
-    //         Book
-    //       </button>
-    
-
-    //   This will be in the card view of the bookings of each user
-    // const handleCancelBooking = async () => {
-    //   try {
-    //     const touristId = userid;
-    //     const activityId = element.id;
-    //     await axios.delete(`/api/${touristId}/activity/${activityId}/cancel`);
-    //     alert("Activity booking canceled successfully!");
-    //   } catch (error) {
-    //     console.error("Error canceling activity booking:", error);
-    //     alert("Failed to cancel the booking. Please try again.");
-    //   }
-    // };
-    //       <button onClick={handleCancelBooking} className="cancel-button">
-    //         Cancel
-    //       </button>
-
-
     fetchData();
   }, []);
+
+  const handleCurrencyChange = (selectedCurrency) => {
+    setCurrency(selectedCurrency);
+  };
+
   return (
-    <SearchFilterSortContainer
-      cardComponent={BasicCard}
-      elements={combinedElements}
-      propMapping={propMapping}
-      searchFields={searchFields}
-      constProps={constProps}
-      fields={fields}
-      sortFields={sortFields}
-      filterFields={filterFields}
-    />
+    <div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "16px",
+        }}
+      >
+        <SelectCurrency
+          basePrice={null}
+          currency={currency}
+          onCurrencyChange={handleCurrencyChange}
+        />
+      </div>
+      <SearchFilterSortContainer
+        cardComponent={BasicCard}
+        elements={combinedElements}
+        propMapping={propMapping}
+        searchFields={searchFields}
+        constProps={constProps}
+        fields={fields}
+        sortFields={sortFields}
+        filterFields={filterFields}
+      />
+    </div>
   );
 };
 

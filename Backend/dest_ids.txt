@@ -1,0 +1,13 @@
+cairo -290692
+paris -1456928
+london -2601889
+alexandria -290263
+sharm -302053
+hurghada -290029
+aswan -291535
+rome -126693
+barcelona -372490
+madrid -390625
+amsterdam -2140479
+berlin 20097081
+prague -553173

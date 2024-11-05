@@ -9,6 +9,9 @@ import {
 } from "../Common/Constants";
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
+import SelectCurrency from "./SelectCurrency";
+
+import { jwtDecode } from "jwt-decode";
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -35,9 +38,15 @@ const structureTags = (tags) => {
   }));
 };
 
+const currencyRates = {
+  EGP: 48.58,
+  USD: 1,
+  EUR: 0.91,
+};
+
 const Venues = () => {
   const [combinedElements, setCombinedElements] = useState([]);
-
+  const [user, setUser] = useState(null);
   // propName:fieldName
   const propMapping = {
     title: "name",
@@ -48,8 +57,10 @@ const Venues = () => {
     Description: "desc",
     Tags: "tags",
   };
+
+  const [currency, setCurrency] = useState("USD");
   const searchFields = ["name", "tags"];
-  const constProps = { rateDisplay: true };
+  const constProps = { rateDisplay: true, currency, currencyRates };
   const sortFields = ["avgRating", "price"];
   const [filterFields, setfilterFields] = useState({
     price: {
@@ -104,7 +115,7 @@ const Venues = () => {
         ]);
         let venues = venueResponse.data;
         venues = venues.map((venue) => {
-          return calculateYourPrice(venue, "egypt", "student");
+          return calculateYourPrice(venue, user?.nationality, user?.occupation);
         });
 
         let combinedArray = venues;
@@ -120,19 +131,45 @@ const Venues = () => {
     };
 
     fetchData();
+  }, [user]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const decodedToken = jwtDecode(token);
+    setUser(decodedToken?.userDetails);
   }, []);
 
+  const handleCurrencyChange = (selectedCurrency) => {
+    setCurrency(selectedCurrency);
+  };
+
   return (
-    <SearchFilterSortContainer
-      cardComponent={BasicCard}
-      elements={combinedElements}
-      propMapping={propMapping}
-      searchFields={searchFields}
-      constProps={constProps}
-      fields={fields}
-      sortFields={sortFields}
-      filterFields={filterFields}
-    />
+    <div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "16px",
+        }}
+      >
+        <SelectCurrency
+          basePrice={null}
+          currency={currency}
+          onCurrencyChange={handleCurrencyChange}
+        />
+      </div>
+      <SearchFilterSortContainer
+        cardComponent={BasicCard}
+        elements={combinedElements}
+        propMapping={propMapping}
+        searchFields={searchFields}
+        constProps={constProps}
+        fields={fields}
+        sortFields={sortFields}
+        filterFields={filterFields}
+      />
+    </div>
   );
 };
 

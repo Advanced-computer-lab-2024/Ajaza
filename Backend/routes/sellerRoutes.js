@@ -11,6 +11,11 @@ router.post("/", sellerController.createSeller);
 
 router.get("/", sellerController.getAllSellers);
 
+//req 12
+router.get("/pending", sellerController.getPendingSellers);
+router.get('/details/:id', sellerController.getSellerDetails);
+
+
 router.get("/:id", sellerController.getSellerById);
 
 router.patch("/:id", sellerController.updateSeller);
@@ -25,9 +30,6 @@ router.delete(
 //req5
 router.post(
   "/guestSellerCreateProfile",
-  validateEmail,
-  uniqueEmail,
-  uniqueUsername,
   uploadIdTaxImage,
   sellerController.guestSellerCreateProfile
 ); // Guest Seller sign up
@@ -37,8 +39,6 @@ router.post("/sellerCreateProfile/:id", sellerController.sellerCreateProfile); /
 router.get("/sellerReadProfile/:id", sellerController.sellerReadProfile); // Seller read profile
 router.patch(
   "/sellerUpdateProfile/:id",
-  validateEmail,
-  uniqueEmail,
   uploadLogoImage,
   sellerController.sellerUpdateProfile
 ); // Seller update profile
@@ -61,7 +61,7 @@ router.post(
 );
 
 //for admin to view uploaded documents of a seller
-router.get("/getDocuments/:id", sellerController.getSellerDocuments);
+// router.get("/getDocuments/:id", sellerController.getSellerDocuments);
 
 //accept seller
 router.put("/accept/:id", sellerController.acceptSeller);
@@ -71,5 +71,10 @@ router.delete("/reject/:id", sellerController.rejectSeller);
 
 //request deletion
 router.patch("/requestDeletion/:id", sellerController.requestDeletion);
+
+
+
+router.post("/validateEmailUsername", sellerController.validateEmailUsername); // New route for email and username validation
+
 
 module.exports = router;

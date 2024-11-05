@@ -8,6 +8,7 @@ import {
 } from "../Common/Constants";
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
+import SelectCurrency from "./SelectCurrency";
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -27,8 +28,15 @@ const convertTagsToValues = (tagsArray) => {
   });
 };
 
+const currencyRates = {
+  EGP: 48.58,
+  USD: 1,
+  EUR: 0.91,
+};
+
 const Products = () => {
   const [combinedElements, setCombinedElements] = useState([]);
+  const [currency, setCurrency] = useState("USD");
   const propMapping = {
     title: "name",
     extra: "price",
@@ -41,7 +49,7 @@ const Products = () => {
     "Quantity Available": "quantity",
   };
   const searchFields = ["name"];
-  const constProps = { rateDisplay: true };
+  const constProps = { rateDisplay: true , currency, currencyRates};
   const sortFields = ["avgRating", "price"];
   const [filterFields, setfilterFields] = useState({
     price: {
@@ -56,6 +64,8 @@ const Products = () => {
         comparePriceRange(filterCriteria, element),
     },
   });
+
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -81,18 +91,29 @@ const Products = () => {
 
     fetchData();
   }, []);
+
+  const handleCurrencyChange = (selectedCurrency) => {
+    setCurrency(selectedCurrency);
+  };
+
   return (
-    <SearchFilterSortContainer
-      cardComponent={BasicCard}
-      elements={combinedElements}
-      propMapping={propMapping}
-      searchFields={searchFields}
-      constProps={constProps}
-      fields={fields}
-      sortFields={sortFields}
-      filterFields={filterFields}
-    />
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+        <SelectCurrency basePrice={null} currency={currency} onCurrencyChange={handleCurrencyChange} />
+      </div>
+      <SearchFilterSortContainer
+        cardComponent={BasicCard}
+        elements={combinedElements}
+        propMapping={propMapping}
+        searchFields={searchFields}
+        constProps={constProps}
+        fields={fields}
+        sortFields={sortFields}
+        filterFields={filterFields}
+      />
+    </div>
   );
+  
 };
 
 export default Products;

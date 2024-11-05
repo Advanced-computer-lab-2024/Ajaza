@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Form, Input, Upload, message, Checkbox } from "antd";
+import React, { useState, useRef } from "react";
+import { Form, Input, Upload, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import CustomButton from "../Common/CustomButton";
 import axios from "axios";
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 const CreateSeller = () => {
   const [sellerData, setSellerData] = useState([]);
   const navigate = useNavigate();
+  const formRef = useRef(); // Create a ref for the form
 
   let decodedToken = null;
   const token = localStorage.getItem("token");
@@ -55,19 +56,19 @@ const CreateSeller = () => {
     } catch (error) {
       console.error("Error creating seller:", error);
       const errorDetails =
-        error.response?.data?.error || "Failed to create seller.";
-      // Display the error message with the custom prefix
+        error.response?.data?.message || error.response?.data?.error || "Failed to create seller.";
       message.error(`Failed to create seller: ${errorDetails}`);
     }
   };
 
-  const onFinish = async (values) => {
-    await createSeller(values);
+  const Submit = async () => {
+    // Capture the form values
+    const values = formRef.current.getFieldsValue(); // Get form values
+    console.log("Form values:", values); // Log the form values
+    await createSeller(values); // Pass them to createSeller
   };
 
-  const onFinishFailed = (errorInfo) => {
-    console.log("Failed:", errorInfo);
-  };
+
 
   const normFile = (e) => {
     if (Array.isArray(e)) {
@@ -87,12 +88,13 @@ const CreateSeller = () => {
         }}
       >
         <Form
+          ref={formRef} // Attach the ref to the Form
           name="basic"
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600, width: "100%" }}
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
+          // onFinish={onFinish}
+          // onFinishFailed={onFinishFailed}
           autoComplete="off"
         >
           <Form.Item
@@ -143,11 +145,11 @@ const CreateSeller = () => {
           </Form.Item>
 
           <Form.Item
-            label="Taxation Registery Card"
+            label="Taxation Registry Card"
             name="document2"
             valuePropName="fileList"
             getValueFromEvent={normFile}
-            extra="Upload the taxation registery card."
+            extra="Upload the taxation registry card."
           >
             <Upload
               name="doc2"
@@ -159,8 +161,17 @@ const CreateSeller = () => {
             </Upload>
           </Form.Item>
 
+          {/* Submit Button */}
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <CustomButton type="primary" htmlType="submit" value="Register" />
+            <CustomButton
+              type="primary"
+              // htmlType="submit" 
+              size="s"
+              value="Register"
+              rounded={true}
+              loading={false}
+              onClick={Submit} // Call Submit on button click
+            />
           </Form.Item>
         </Form>
       </div>
