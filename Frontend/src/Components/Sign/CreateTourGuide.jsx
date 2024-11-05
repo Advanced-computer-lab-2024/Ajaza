@@ -95,6 +95,7 @@ const CreateTourGuide = () => {
         formDataToSubmit.append("certificates", formData.document2[i].originFileObj);
       }
     }
+    navigate("/auth/signin");
 
     const response = await axios.post(
       "http://localhost:5000/guide/guestGuideCreateProfile",
