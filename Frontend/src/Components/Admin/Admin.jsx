@@ -15,6 +15,7 @@ import AddAccounts from "./addAccounts";
 import Profile from "../Common/Profile";
 import MyProducts from "./MyProducts";
 import Products from "../Tourist/Products";
+import ExamineAccounts from "./ExamineAccounts";
 
 const { Content } = Layout;
 
@@ -29,6 +30,7 @@ const Admin = () => {
           />
           <Route path="add-Accounts" element={<AddAccounts />} />
           <Route path="/" element={<AllAccounts />} />
+          <Route path="examine-Accounts" element={<ExamineAccounts />} />
           <Route path="preference-tags" element={<ManagePreferenceTags />} />
           <Route path="myProducts" element={<MyProducts />} />
           <Route path="products" element={<Products />} />
