@@ -516,9 +516,10 @@ exports.bookItinerary = async (req, res) => {
         .status(400)
         .json({ message: "This itinerary is not open for booking" });
     }
+    const factoredDate = new Date(date);
 
     const availableDate = itinerary.availableDateTime.find(
-      (dateObj) => dateObj.date.getTime() === date.getTime()
+      (dateObj) => dateObj.date.getTime() === factoredDate.getTime()
     );
 
     if (!availableDate || availableDate.spots <= 0) {
