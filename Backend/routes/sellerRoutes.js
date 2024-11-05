@@ -11,6 +11,11 @@ router.post("/", sellerController.createSeller);
 
 router.get("/", sellerController.getAllSellers);
 
+//req 12
+router.get("/pending", sellerController.getPendingSellers);
+router.get('/details/:id', sellerController.getSellerDetails);
+
+
 router.get("/:id", sellerController.getSellerById);
 
 router.patch("/:id", sellerController.updateSeller);
@@ -56,7 +61,7 @@ router.post(
 );
 
 //for admin to view uploaded documents of a seller
-router.get("/getDocuments/:id", sellerController.getSellerDocuments);
+// router.get("/getDocuments/:id", sellerController.getSellerDocuments);
 
 //accept seller
 router.put("/accept/:id", sellerController.acceptSeller);

@@ -10,6 +10,11 @@ const uploadIdCertificatesImage = require("../middleware/uploadIdCertificatesIma
 
 router.post("/", guideController.createGuide);
 
+//req 12
+router.get("/pending", guideController.getPendingGuides);
+router.get('/details/:id', guideController.getGuideDetails);
+
+
 router.get("/", guideController.getAllGuides);
 
 router.get("/:id", guideController.getGuideById);
@@ -17,6 +22,7 @@ router.get("/:id", guideController.getGuideById);
 router.patch("/:id", guideController.updateGuide);
 
 router.delete("/deleteAgain/:id", guideController.deleteGuide);
+
 
 //req 16 ng
 router.delete("/deleteGuides", guideController.deleteGuidesRequestingDeletion);
@@ -67,7 +73,7 @@ router.post(
 );
 
 //for admin to view uploaded documents of a guide
-router.get("/getDocuments/:id", guideController.getGuideDocuments);
+// router.get("/getDocuments/:id", guideController.getGuideDocuments);
 
 //accept guide
 router.put("/accept/:id", guideController.acceptGuide);
