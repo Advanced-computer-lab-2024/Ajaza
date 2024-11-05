@@ -428,3 +428,28 @@ exports.getUpcomingActivities = async (req, res) => {
 exports.getActivitiesByPreferrences = async (req, res) => {
   res.status(200).json({ null: "null" });
 }
+
+// flag activity inappropriate then hide it law han delete call dlete 3alatool 3ady
+exports.hideActivity = async (req, res) => {
+  const { id: activityId } = req.params;
+
+  console.log("Hiding Activity");
+
+  try {
+      const updatedActivity = await Activity.findByIdAndUpdate(
+          activityId,
+          { hidden: true },
+          { new: true }
+      );
+
+      if (!updatedActivity) {
+          return res.status(404).json({ message: 'Activity not found' });
+      }
+
+      console.log(`Activity ${activityId} has been hidden successfully.`);
+      res.status(200).json({ message: `Activity ${activityId} has been hidden successfully.`, updatedActivity });
+  } catch (error) {
+      console.error(`Error hiding activity: ${error.message}`);
+      res.status(500).json({ message: `Error hiding activity: ${error.message}` });
+  }
+};
