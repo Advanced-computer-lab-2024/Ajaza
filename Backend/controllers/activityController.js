@@ -363,7 +363,8 @@ exports.updateActivityFilteredFields = async (req, res) => {
       category,
       tags,
       spots,
-      discounts
+      discounts,
+      isOpen,
     } = req.body; 
     /*const advertiser = await Advertiser.findById(advertiserId);
     if (!advertiser) {
@@ -393,6 +394,9 @@ exports.updateActivityFilteredFields = async (req, res) => {
     if (category) activity.category = category;
     if (tags) activity.tags = tags;
     if (discounts) activity.discounts = discounts;
+    //if (isOpen) activity.isOpen = isOpen;
+    if (isOpen !== undefined) activity.isOpen = isOpen;
+
 
     const updatedActivity = await activity.save();
 
