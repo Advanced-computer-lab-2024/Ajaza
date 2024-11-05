@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { CustomLayout } from "../Common";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Itineraries from "../Itineraries";
@@ -6,96 +6,137 @@ import { CalendarOutlined, UploadOutlined } from "@ant-design/icons";
 import { Form, Input, Upload, message } from "antd";
 import CustomButton from "../Common/CustomButton";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 
 const CreateTourGuide = () => {
-  const [tourGuideData, settourGuideData] = useState([]);
+  const [formData, setFormData] = useState({
+    email: "",
+    username: "",
+    password: "",
+    document1: null,
+    document2: [],
+  });
+  const [currentStep, setCurrentStep] = useState(1);
+  const [loading, setLoading] = useState(false); // Loading state for displaying the wait message
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
 
-  let decodedToken = null;
-  const token = localStorage.getItem("token");
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
 
-  if (token) {
-    decodedToken = jwtDecode(token);
-  }
-  const userid = decodedToken ? decodedToken.userId : null;
+  const handleFileChange = (name) => (e) => {
+    if (name === "document1") {
+      setFormData((prevData) => ({ ...prevData, document1: e.fileList }));
+    } else if (name === "document2") {
+      setFormData((prevData) => ({ ...prevData, document2: e.fileList }));
+    }
+  };
 
-  const sideBarItems = [
-    {
-      key: "1",
-      icon: <CalendarOutlined />,
-      label: "Itineraries",
-      onClick: () => {
-        navigate("itineraries");
-      },
-    },
-  ];
-  const createTourGuide = async (values) => {
+  const nextStep = async () => {
+    // Validate the registration form before moving to the next step
     try {
-      const formData = new FormData();
-
-      formData.append("username", values.username);
-      formData.append("pass", values.password);
-      formData.append("email", values.email);
-
-      if (values.document1 && values.document1.length > 0) {
-        formData.append("id", values.document1[0].originFileObj);
-      }
-
-      if (values.document2 && values.document2.length > 0) {
-        for (let i = 0; i < values.document2.length; i++) {
-          formData.append("certificates", values.document2[i].originFileObj);
-        }
-      }
-
-      const response = await axios.post(
-        "http://localhost:5000/guide/guestGuideCreateProfile",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      console.log(response);
-
-      message.success("TourGuide created successfully!");
-
-      if (response.status == 201) {
-        navigate("/auth/signin");
-      }
-      settourGuideData(response.data);
-      return response.data._id;
+      await validateRegistrationForm();
+      setCurrentStep(2);
     } catch (error) {
-      console.log(error.response); // TODO
+      message.error(error.message);
+    }
+  };
 
-      console.error("Error creating tour guide:", error);
-      const errorDetails =
-        error.response?.data?.message || error.response?.data?.error || "Failed to create tour guide.";
-      // Display the error message with the custom prefix
+  const previousStep = () => {
+    setCurrentStep(1);
+  };
+
+  const validateRegistrationForm = async () => {
+    const { email, username, password } = formData;
+
+    // Basic client-side validation
+    if (!email || !username || !password) {
+      throw new Error("All fields are required!");
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      throw new Error("Please enter a valid email!");
+    }
+    if (password.length < 6) {
+      throw new Error("Password must be at least 6 characters!");
+    }
+
+    // Check for existing username and email in the database
+    try {
+      const response = await axios.post("http://localhost:5000/guide/validateEmailUsername", {
+        email,
+        username,
+      });
+
+      if (response.data.exists) {
+        throw new Error(response.data.message); // Use custom error message from backend
+      }
+      
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Validation failed.");
+    }
+  };
+
+  const registerTourGuide = async () => {
+  try {
+    await validateUploadForm(); // Validate upload form before submitting
+
+    const formDataToSubmit = new FormData();
+    formDataToSubmit.append("username", formData.username);
+    formDataToSubmit.append("pass", formData.password);
+    formDataToSubmit.append("email", formData.email);
+
+    if (formData.document1 && formData.document1.length > 0) {
+      formDataToSubmit.append("id", formData.document1[0].originFileObj);
+    }
+
+    if (formData.document2 && formData.document2.length > 0) {
+      for (let i = 0; i < formData.document2.length; i++) {
+        formDataToSubmit.append("certificates", formData.document2[i].originFileObj);
+      }
+    }
+
+    const response = await axios.post(
+      "http://localhost:5000/guide/guestGuideCreateProfile",
+      formDataToSubmit,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    message.success("TourGuide created successfully!");
+
+    if (response.status === 201) {
+      navigate("/auth/signin");
+    }
+
+  } catch (error) {
+    if (error.message === "Please upload your ID!" || error.message === "Please upload your certificates!") {
+      message.error(error.message);
+    } else {
+      const errorDetails = error.response?.data?.message || error.response?.data?.error || "Failed to create tour guide.";
       message.error(`Failed to create tour guide: ${errorDetails}`);
     }
-  };
+  }
+};
 
-  const onFinish = async (values) => {
-    await createTourGuide(values);
-  };
-
-  const onFinishFailed = (errorInfo) => {
-    console.log("Failed:", errorInfo);
-  };
-
-  const normFile = (e) => {
-    if (Array.isArray(e)) {
-      return e;
+const validateUploadForm = () => {
+  return new Promise((resolve, reject) => {
+    if (!formData.document1 || formData.document1.length === 0) {
+      reject(new Error("Please upload your ID!"));
     }
-    return e?.fileList;
-  };
+    if (!formData.document2 || formData.document2.length === 0) {
+      reject(new Error("Please upload your certificates!"));
+    }
+    resolve();
+  });
+};
+
+
 
   return (
     <>
-      {/* Registration Form */}
       <div
         style={{
           display: "flex",
@@ -109,88 +150,117 @@ const CreateTourGuide = () => {
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600, width: "100%" }}
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
           autoComplete="off"
         >
-          <Form.Item
-            label="Email"
-            name="email"
-            rules={[
-              { required: true, message: "Please input your email!" },
-              { type: "email", message: "Please enter a valid email!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
+          {currentStep === 1 && (
+            <>
+              <Form.Item
+                label="Email"
+                name="email"
+                rules={[
+                  { required: true, message: "Please input your email!" },
+                  { type: "email", message: "Please enter a valid email!" },
+                ]}
+              >
+                <Input name="email" value={formData.email} onChange={handleInputChange} />
+              </Form.Item>
 
-          <Form.Item
-            label="Username"
-            name="username"
-            rules={[{ required: true, message: "Please input your username!" }]}
-          >
-            <Input />
-          </Form.Item>
+              <Form.Item
+                label="Username"
+                name="username"
+                rules={[{ required: true, message: "Please input your username!" }]}
+              >
+                <Input name="username" value={formData.username} onChange={handleInputChange} />
+              </Form.Item>
 
-          <Form.Item
-            label="Password"
-            name="password"
-            rules={[
-              { required: true, message: "Please input your password!" },
-              { min: 6, message: "Password must be at least 6 characters!" },
-            ]}
-          >
-            <Input.Password />
-          </Form.Item>
+              <Form.Item
+                label="Password"
+                name="password"
+                rules={[
+                  { required: true, message: "Please input your password!" },
+                  { min: 6, message: "Password must be at least 6 characters!" },
+                ]}
+              >
+                <Input.Password name="password" value={formData.password} onChange={handleInputChange} />
+              </Form.Item>
 
-          {/* Upload ID */}
-          <Form.Item
-            label="ID"
-            name="document1"
-            valuePropName="fileList"
-            getValueFromEvent={normFile}
-            rules={[{ required: true, message: "Please upload your ID!" }]}
-            extra="Upload your ID."
-          >
-            <Upload
-              name="doc1"
-              listType="text"
-              beforeUpload={() => false}
-              maxCount={1}
-            >
-              <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
-            </Upload>
-          </Form.Item>
+              <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                <CustomButton
+                  type="primary"
+                  onClick={nextStep}
+                  size="s"
+                  value="Next"
+                  rounded={true}
+                />
+              </Form.Item>
+            </>
+          )}
 
-          {/* Upload Certificates */}
-          <Form.Item
-            label="Certificates"
-            name="document2"
-            valuePropName="fileList"
-            getValueFromEvent={normFile}
-            rules={[{ required: true, message: "Please upload your certificates!" }]}
-            extra="Upload your certificates."
-          >
-            <Upload name="doc2" listType="text" beforeUpload={() => false}>
-              <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
-            </Upload>
-          </Form.Item>
+          {currentStep === 2 && (
+            <>
+              {/* Upload ID */}
+              <Form.Item
+                label="ID"
+                name="document1"
+                valuePropName="fileList"
+                getValueFromEvent={handleFileChange("document1")}
+                extra="Upload your ID."
+              >
+                <Upload
+                  name="doc1"
+                  listType="text"
+                  beforeUpload={() => false}
+                  maxCount={1}
+                  fileList={formData.document1}
+                >
+                  <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
+                </Upload>
+              </Form.Item>
 
-          <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <CustomButton
-              type="primary"
-              htmlType="submit"
-              size="s"
-              value="Register"
-              rounded={true}
-            />
-          </Form.Item>
+              {/* Upload Certificates */}
+              <Form.Item
+                label="Certificates"
+                name="document2"
+                valuePropName="fileList"
+                getValueFromEvent={handleFileChange("document2")}
+                extra="Upload your certificates."
+              >
+                <Upload
+                  name="doc2"
+                  listType="text"
+                  beforeUpload={() => false}
+                  fileList={formData.document2}
+                  multiple
+                >
+                  <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
+                </Upload>
+              </Form.Item>
+
+              <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                <CustomButton
+                  type="default"
+                  onClick={previousStep}
+                  size="s"
+                  value="Previous"
+                  rounded={true}
+                />
+                
+                <CustomButton
+                  type="primary"
+                  onClick={registerTourGuide}
+                  size="s"
+                  value="Register"
+                  rounded={true}
+                />
+              </Form.Item>
+            </>
+          )}
         </Form>
       </div>
 
       <Routes>
         <Route path="/itineraries" element={<Itineraries />} />
-        <Route path="Report" element={<div>Report</div>} />
+        {/* Add other routes as needed */}
       </Routes>
     </>
   );

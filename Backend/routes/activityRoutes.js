@@ -4,6 +4,9 @@ const activityController = require("../controllers/activityController");
 
 router.post("/", activityController.createActivity);
 
+//req 33
+router.patch("/hide/:id", activityController.hideActivity);
+
 router.get("/", activityController.getAllActivities);
 
 //not hidden

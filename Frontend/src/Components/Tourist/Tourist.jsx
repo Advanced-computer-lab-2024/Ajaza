@@ -25,10 +25,30 @@ import TouristHistory from "./TouristHistory";
 import Activity from "../Common/Activity";
 import ChangePasswordForm from "../Common/changePassword";
 import Itinerary from "../Common/Itinerary";
+import SignIn from "../Sign/SignIn";
 
 const Tourist = () => {
   const [response, setResponse] = useState([]);
   const navigate = useNavigate();
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    console.log("Token:", token);
+    console.log("decodedToken:", jwtDecode(token));
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        // Check if the token is valid and if the user role is 'advertiser'
+        if (!decodedToken || decodedToken.role !== "tourist") {
+          navigate("/auth/signin");
+        }
+      } catch (error) {
+        console.error("Invalid token:", error);
+        navigate("/auth/signin");
+      }
+    } else {
+      navigate("/auth/signin");
+    }
+  }, [navigate]);
 
   const sideBarItems = [
     {
@@ -140,6 +160,7 @@ const Tourist = () => {
         <Route path="fileComplaint" element={<FileComplaint />} />
         <Route path="complaints" element={<Complaints />} />
         <Route path="touristHistory" element={<TouristHistory />} />
+        <Route path="auth/signin" element={<SignIn />} />
       </Routes>
     </CustomLayout>
   );
