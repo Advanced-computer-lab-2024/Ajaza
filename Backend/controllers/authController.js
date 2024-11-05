@@ -6,6 +6,9 @@ const TourGuide = require("../models/Guide");
 const Seller = require("../models/Seller");
 const TourismGovernor = require("../models/Governor");
 const Admin = require("../models/Admin");
+const { sendOTP } = require("../services/emailService");
+const { generateOTP, otpStore } = require("../utils/otpUtils");
+const OTP_EXPIRY_TIME = 15 * 60 * 1000;
 
 // Utility: Verify JWT token (middleware)
 exports.verifyToken = (req, res, next) => {
@@ -54,6 +57,32 @@ const mapUserDetails = (user, schema) => {
   return userDetails;
 };
 
+const mapUserDetailsAhmed = (user, schema) => {
+  const userDetails = {};
+  let cpn = "";
+  let cpd = "";
+  let cpl = "";
+  for (const key in schema.paths) {
+    if (schema.paths.hasOwnProperty(key) && key !== "__v" && key !== "pass") {
+      if (key === "companyProfile.name") {
+        cpn = user.companyProfile.name;
+      } else if (key === "companyProfile.desc") {
+        cpd = user.companyProfile.location;
+      } else if (key === "companyProfile.location") {
+        cpl = user.companyProfile.desc;
+      } else {
+        userDetails[key] = user[key] !== undefined ? user[key] : null;
+      }
+    }
+  }
+  userDetails.companyProfile = {
+    name: cpn,
+    location: cpd,
+    desc: cpl,
+  };
+  return userDetails;
+};
+
 // Login user
 exports.login = async (req, res) => {
   const { username, password } = req.body;
@@ -67,17 +96,11 @@ exports.login = async (req, res) => {
 
     const { user, role } = result;
 
-    // Compare the provided password with the stored password
-    if (password !== user.pass) {
-      return res.status(400).json({ message: "Invalid credentials" });
+    const isMatchPlain = password === user.pass;
+    const isMatch = await bcrypt.compare(password, user.pass);
+    if (!isMatch && !isMatchPlain) {
+      return res.status(401).json({ message: "Invalid credentials" });
     }
-
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: user._id, role }, // Include user data in the token
-      process.env.JWT_SECRET, // Use the environment variable
-      { expiresIn: "1h" }
-    );
 
     // Map user details
     let userDetails = {};
@@ -85,7 +108,7 @@ exports.login = async (req, res) => {
       userDetails = mapUserDetails(user, Tourist.schema);
     }
     if (role === "advertiser") {
-      userDetails = mapUserDetails(user, Advertiser.schema);
+      userDetails = mapUserDetailsAhmed(user, Advertiser.schema);
     }
     if (role === "guide") {
       userDetails = mapUserDetails(user, TourGuide.schema);
@@ -100,10 +123,171 @@ exports.login = async (req, res) => {
       userDetails = mapUserDetails(user, Admin.schema);
     }
 
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id, role, userDetails }, // Include user data in the token
+      process.env.JWT_SECRET, // Use the environment variable
+      { expiresIn: "1h" }
+    );
+
     // Send token, role, and user details to the frontend
-    res
-      .status(200)
-      .json({ token, role, userDetails, message: "Login successful" });
+    console.log(userDetails);
+    res.status(200).json({ token, message: "Login successful" });
+  } catch (error) {
+    console.error("Error during login:", error); // Log the error for debugging
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email, role } = req.body;
+
+    let user;
+    // Check the user type and find the user by email in the corresponding model
+    if (role === "tourist") {
+      user = await Tourist.findOne({ email });
+    } else if (role === "guide") {
+      user = await TourGuide.findOne({ email });
+    } else if (role === "advertiser") {
+      user = await Advertiser.findOne({ email });
+    } else if (role === "seller") {
+      user = await Seller.findOne({ email });
+    } else if (role === "governor") {
+      user = await TourismGovernor.findOne({
+        email,
+      });
+    } else if (role === "admin") {
+      user = await Admin.findOne({
+        email,
+      });
+    } else {
+      return res.status(400).json({ message: "Invalid user role" });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate OTP and store it temporarily
+    const otp = generateOTP();
+    otpStore[email] = { otp, expiresAt: Date.now() + OTP_EXPIRY_TIME };
+
+    // Send OTP via email
+    await sendOTP(email, otp);
+
+    res.status(200).json({ message: "OTP sent to your email" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Verify OTP and reset password
+exports.verifyOTP = async (req, res) => {
+  try {
+    const { email, otp, newPassword, role } = req.body;
+
+    // Check if OTP exists and is valid
+    const storedOTP = otpStore[email];
+    if (
+      !storedOTP ||
+      storedOTP.otp !== otp ||
+      Date.now() > storedOTP.expiresAt
+    ) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    // Find the user by email based on the role
+    let user;
+    if (role === "tourist") {
+      user = await Tourist.findOne({ email });
+    } else if (role === "guide") {
+      user = await Guide.findOne({ email });
+    } else if (role === "advertiser") {
+      user = await Advertiser.findOne({ email });
+    } else if (role === "seller") {
+      user = await Seller.findOne({ email });
+    } else if (role === "governor") {
+      user = await TourismGovernor.findOne({
+        email,
+      });
+    } else if (role === "admin") {
+      user = await Admin.findOne({
+        email,
+      });
+    } else {
+      return res.status(400).json({ message: "Invalid user role" });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Hash the new password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    user.pass = hashedPassword;
+    await user.save();
+
+    // Clear OTP after successful reset
+    delete otpStore[email];
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword, role } = req.body;
+    const userId = req.params.id; // Assuming user ID is passed as a parameter
+
+    // Find the user by ID based on the role
+    let user;
+    if (role === "tourist") {
+      user = await Tourist.findById(userId);
+    } else if (role === "guide") {
+      user = await Guide.findById(userId);
+    } else if (role === "advertiser") {
+      user = await Advertiser.findById(userId);
+    } else if (role === "seller") {
+      user = await Seller.findById(userId);
+    } else if (role === "governor") {
+      user = await TourismGovernor.findById(userId);
+    } else if (role === "admin") {
+      user = await Admin.findById(userId);
+    } else {
+      return res.status(400).json({ message: "Invalid user role" });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Compare the provided old password with the hashed password stored in the database
+    const isMatch = await bcrypt.compare(oldPassword, user.pass);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Incorrect old password" });
+    }
+
+    // Check if the new password is the same as the old password
+    const isSamePassword = await bcrypt.compare(newPassword, user.pass);
+    if (isSamePassword) {
+      return res.status(400).json({
+        message: "New password cannot be the same as the old password",
+      });
+    }
+
+    // Hash the new password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update the password in the database
+    user.pass = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

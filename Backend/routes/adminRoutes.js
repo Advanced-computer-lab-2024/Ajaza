@@ -15,9 +15,15 @@ router.get("/:id", adminController.getAdminById);
 router.patch("/:id", adminController.updateAdmin);
 
 // this will probably be commented for security reasons
-router.delete("/:id", adminController.deleteAdmin);
+router.delete("/deleteAgain/:id", adminController.deleteAdmin);
 
 // req 17 ng, admin adds another admin
 router.post("/addAdmin", uniqueUsername, adminController.adminAddAdmin);
+
+//delete off system
+router.delete(
+  "/deleteAdminFromSystem/:id",
+  adminController.adminDeletesAdminFromSystem
+);
 
 module.exports = router;

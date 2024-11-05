@@ -5,6 +5,8 @@ const itineraryController = require("../controllers/itineraryController");
 router.post("/", itineraryController.createItinerary);
 
 router.get("/", itineraryController.getAllItineraries);
+//not hidden
+router.get("/notHidden", itineraryController.getAllItinerariesNH);
 //req44
 router.get("/upcomingItineraries", itineraryController.getUpcomingItineraries);
 
@@ -37,5 +39,8 @@ router.post('/createSpecifiedItinerary/:guideId', itineraryController.createSpec
 router.get('/readItinerariesOfGuide/:guideId', itineraryController.readItinerariesOfGuide);
 router.patch('/updateItineraryFilteredFields/:guideId/:itineraryId', itineraryController.updateItineraryFilteredFields);
 router.delete('/deleteSpecificItinerary/:guideId/:itineraryId', itineraryController.deleteSpecificItinerary);
+
+//gets list of activities and venues that can be added to an itinerary
+router.get('/fetchOptions/fetchOptions', itineraryController.fetchOptions);
 
 module.exports = router;

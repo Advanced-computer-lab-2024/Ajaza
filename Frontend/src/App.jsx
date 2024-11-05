@@ -1,11 +1,5 @@
 import logo from "./logo.svg";
 import "./App.css";
-import {
-  Button,
-  Search,
-  CircularButton,
-  CustomLayout,
-} from "./Components/Common";
 import { useState } from "react";
 import {
   BrowserRouter as Router,
@@ -13,6 +7,8 @@ import {
   Routes,
   useNavigate,
 } from "react-router-dom";
+import CustomButton from "./Components/Common/CustomButton";
+import CustomLayout from "./Components/Common";
 import { BellFilled, UserOutlined } from "@ant-design/icons";
 import { IconButton, SideBar } from "./Components/Common";
 import { Colors } from "./Components/Common/Constants";
@@ -20,6 +16,13 @@ import Profile from "./Components/Common/Profile";
 import Itineraries from "./Components/Itineraries";
 import Activities from "./Components/Activities";
 import Venues from "./Components/Venues";
+import BlankPage from "./Components/Blank";
+import SellerPage from "./Components/Seller/SellerPage";
+import CreateFormPage from "./Components/Seller/CreateSeller";
+import SellerForm from "./Components/Seller/SellerForm";
+import Product from "./Components/Seller/SellerProduct";
+import DisplayForm from "./Components/Seller/DisplayProduct";
+import TermsAndConditions from "./Components/Seller/TermsAndConditions";
 
 //import ManageAccounts from "./manageAccounts";
 //import AddAccounts from "./addAccounts";
@@ -37,9 +40,11 @@ import TourGuide from "./Components/TourGuide/TourGuide";
 import Advertiser from "./Components/Advertiser/Advertiser";
 import TourismGovernor from "./Components/TourismGovernor/TourismGovernor";
 import Admin from "./Components/Admin/Admin";
+import Guest from "./Components/Guest/Guest";
 import AddAccounts from "./Components/Admin/addAccounts";
-
-//import AdminCustomLayout from "./Components/Admin/AdminCustomLayout";
+import CustomCard from "./Components/Card";
+import CreateTourist from "./Components/Sign/CreateTourist";
+import CreateSeller from "./Components/Sign/CreateSeller";
 const { Header, Footer, Sider, Content } = Layout;
 
 function App() {
@@ -69,19 +74,27 @@ function App() {
                 <AuthLayout>
                   <Routes>
                     <Route path="signin" element={<SignIn />} />
-                    <Route path="signup" element={<SignUp />} />
+                    <Route path="signup/*" element={<SignUp />} />
+                    <Route path="terms-and-conditions" element={<TermsAndConditions />} />
                   </Routes>
                 </AuthLayout>
               }
             />
             <Route path="/tourist/*" element={<Tourist />} />
-            <Route path="/tourGuide/*" element={<TourGuide />} />
+            <Route path="/guide/*" element={<TourGuide />} />
             <Route path="/advertiser/*" element={<Advertiser />} />
-             <Route path="/admin/*" element={<Admin />} /> 
+            <Route path="/admin/*" element={<Admin />} />
+            <Route path="/profile" element={<Profile />} />
 
+
+            <Route path="/governor/*" element={<TourismGovernor />} />
             <Route path="/seller/*" element={<Seller />} />
-            <Route path="/tourismGovernor/*" element={<TourismGovernor />} />
+            <Route path="/guest/*" element={<Guest />} />
 
+            {/* here */}
+            {/* Tourist registration page */}
+
+            {/* Advertiser registration page */}
           </Routes>
         </Content>
       </Layout>

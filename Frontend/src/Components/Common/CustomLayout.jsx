@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Icon, {
   BellFilled,
   MenuFoldOutlined,
@@ -16,23 +16,24 @@ import { useNavigate } from "react-router-dom";
 import IconFloatButton from "./IconFloatButton";
 import { Colors } from "./Constants";
 import CustomButton from "./CustomButton";
+import { jwtDecode } from "jwt-decode";
+import image from "../../Assets/logo-cropped.svg";
+import style from "./CustomLayout.module.css";
 
 const { Header, Sider, Content } = Layout;
 
-const CustomLayout = ({ userType = "Tour Guide", children, sideBarItems }) => {
+const CustomLayout = ({
+  userType = "Tour Guide",
+  guest,
+  children,
+  sideBarItems,
+}) => {
   // navBar:Boolean true->Normal navbar, false-> landing page navBar
   const testFunction = () => {
     console.log("Test");
   };
   const [user, setUser] = useState("");
-  const [collapsed, setCollapsed] = useState(true);
-  const [hover, setHover] = useState(false);
-  const navigate = useNavigate();
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-
-  const navBarItems = (
+  const [navBarItems, setNavBarItems] = useState(
     <Flex align={"center"} style={{ marginLeft: "auto" }}>
       <IconFloatButton icon={BellFilled} badge={{ count: 5 }} />
       <UserOutlined
@@ -41,6 +42,73 @@ const CustomLayout = ({ userType = "Tour Guide", children, sideBarItems }) => {
       />
     </Flex>
   );
+  const [collapsed, setCollapsed] = useState(true);
+  const [hover, setHover] = useState(false);
+  const navigate = useNavigate();
+  const guestNavBarItems = (
+    <div style={{ marginLeft: "auto" }}>
+      <CustomButton
+        size={"s"}
+        value={"Sign in"}
+        onClick={() => navigate("/auth/signin")}
+      />
+      <CustomButton
+        size={"s"}
+        value={"Sign up"}
+        style={{ marginLeft: "20px" }}
+        onClick={() => navigate("/auth/signup")}
+      />
+    </div>
+  );
+  const {
+    token: { colorBgContainer, borderRadiusLG },
+  } = theme.useToken();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const decodedToken = jwtDecode(token);
+    setUser(decodedToken.userDetails);
+
+    setNavBarItems(
+      <Flex justify="center" style={{ width: "100%", position: "relative" }}>
+        <div
+          id="logo"
+          style={{ position: "relative", right: 40, bottom: 3 }}
+          onClick={() => navigate("/")}
+        >
+          <img
+            src={image}
+            alt="Ajaza Logo"
+            style={{
+              width: "58px",
+            }}
+          />
+        </div>
+        <Flex
+          align={"center"}
+          style={{
+            position: "absolute",
+            right: "28px",
+            top: "0",
+            bottom: "0",
+            margin: "auto 0",
+          }}
+        >
+          <IconFloatButton icon={BellFilled} badge={{ count: 5 }} />
+          {decodedToken.role !== "governor" &&
+            decodedToken.role !== "admin" && (
+              <UserOutlined
+                className="hover"
+                style={{ fontSize: "20px", marginLeft: "30px" }}
+                onClick={() => {
+                  navigate(`/${decodedToken.role}/profile`);
+                }}
+              />
+            )}
+        </Flex>
+      </Flex>
+    );
+  }, []);
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider
@@ -60,11 +128,12 @@ const CustomLayout = ({ userType = "Tour Guide", children, sideBarItems }) => {
       </Sider>
       <Layout>
         <Header
+          className={style.navShadow}
           style={{
-            padding: 0,
             background: colorBgContainer,
             display: "flex",
-            paddingRight: "20px",
+            padding: 0,
+            paddingRight: 0,
           }}
         >
           <Button
@@ -77,7 +146,7 @@ const CustomLayout = ({ userType = "Tour Guide", children, sideBarItems }) => {
               height: 64,
             }}
           />
-          {navBarItems}
+          {guest ? guestNavBarItems : navBarItems}
         </Header>
         <Content
           style={{

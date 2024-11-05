@@ -9,9 +9,10 @@ import {
   UserOutlined,
   VideoCameraOutlined,
   DownOutlined,
+  BellFilled,
 } from "@ant-design/icons";
-import { Button, Layout, Menu, theme /*, Dropdown*/ } from "antd";
-//import ManageActivityCategories from "./manageActivityCategories";
+import { Button, Layout, Menu, theme, Flex } from "antd";
+import IconFloatButton from "../Common/IconFloatButton";
 
 const { Header, Sider, Content } = Layout;
 
@@ -20,20 +21,37 @@ const AdminCustomLayout = ({ children }) => {
   //  const [user, setUser] = useState("");
   const [collapsed, setCollapsed] = useState(true);
   const [hover, setHover] = useState(false);
+  const [navBarItems, setNavBarItems] = useState(
+    <Flex align={"center"} style={{ marginLeft: "auto" }}>
+      <IconFloatButton icon={BellFilled} badge={{ count: 5 }} />
+      <UserOutlined
+        className="hover"
+        style={{ fontSize: "20px", marginLeft: "30px" }}
+      />
+    </Flex>
+  );
   const [showManageOptions, setShowManageOptions] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
   const handleMenuClick = ({ key }) => {
-     if (key === "setting:2") {
+    if (key === "setting:2") {
       navigate("/admin");
-    }  else if (key === "5") {
+    } else if (key === "5") {
       navigate("/Admin/manage-activity-categories"); // New navigation for activity categories
     } else if (key === "setting:1") {
       navigate("/Admin/add-Accounts");
+    }
+    else if (key === "setting:3") {
+      navigate("/Admin/examine-Accounts");
+
     } else if (key === "11") {
       navigate("/Admin/preference-tags");
+    } else if (key == "12") {
+      navigate("products");
+    } else if (key == "13") {
+      navigate("myProducts");
     }
   };
 
@@ -65,11 +83,15 @@ const AdminCustomLayout = ({ children }) => {
 
               children: [
                 {
+                  label: "Examine Accounts",
+                  key: "setting:3"
+                },
+                {
                   label: "Add Accounts",
                   key: "setting:1",
                 },
                 {
-                  label: "Manage Accounts",
+                  label: "All Accounts",
                   key: "setting:2",
                 },
               ],
@@ -78,6 +100,16 @@ const AdminCustomLayout = ({ children }) => {
               key: "11",
               icon: <NumberOutlined />,
               label: "Preference Tags",
+            },
+            {
+              key: "12",
+              icon: <NumberOutlined />,
+              label: "Products",
+            },
+            {
+              key: "13",
+              icon: <NumberOutlined />,
+              label: "My Products",
             },
           ]}
         />
@@ -88,6 +120,7 @@ const AdminCustomLayout = ({ children }) => {
             padding: 0,
             background: colorBgContainer,
             display: "flex",
+            paddingRight: "20px",
           }}
         >
           <Button
@@ -100,6 +133,7 @@ const AdminCustomLayout = ({ children }) => {
               height: 64,
             }}
           />
+          {navBarItems}
         </Header>
         <Content
           style={{
@@ -110,9 +144,7 @@ const AdminCustomLayout = ({ children }) => {
             borderRadius: borderRadiusLG,
           }}
         >
-             {children}   
-          
-          
+          {children}
         </Content>
       </Layout>
     </Layout>
@@ -120,4 +152,3 @@ const AdminCustomLayout = ({ children }) => {
 };
 
 export default AdminCustomLayout;
-

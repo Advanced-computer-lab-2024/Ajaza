@@ -1,6 +1,8 @@
 const Activity = require("../models/Activity");
 const Advertiser = require("../models/Advertiser");
 const Tourist = require("../models/Tourist");
+const Tag = require("../models/Tag");
+const Category = require("../models/Category");
 // Create a new activity
 exports.createActivity = async (req, res) => {
   try {
@@ -15,7 +17,18 @@ exports.createActivity = async (req, res) => {
 // Get all activities
 exports.getAllActivities = async (req, res) => {
   try {
-    const activities = await Activity.find();
+    const activities = await Activity.find().populate("advertiserId");
+    res.status(200).json(activities);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get all activities not hidden
+exports.getAllActivitiesNH = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const activities = await Activity.find({hidden: { $ne: true }, isOpen: { $ne: false }, date: { $gt: currentDate }}).populate("advertiserId");
     res.status(200).json(activities);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -107,12 +120,18 @@ exports.giveActivityFeedback = async (req, res) => {
     const { touristId, activityId } = req.params;
     const { rating, comments } = req.body;
 
+    if (!rating || !comments) {
+      return res.status(400).json({ message: "Bad request" });
+    }
+
+
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
       return res.status(404).json({ message: "Tourist not found" });
     }
 
-    if (tourist.gaveFeedback.includes(activityId)) {
+    //these conditions are no longer needed since button for feedback will only appear if allowed
+    /*if (tourist.gaveFeedback.includes(activityId)) {
       return res.status(400).json({ message: "Feedback already given" });
     }
 
@@ -124,7 +143,7 @@ exports.giveActivityFeedback = async (req, res) => {
       return res
         .status(400)
         .json({ message: "No valid past activity booking found" });
-    }
+    }*/
 
     const activity = await Activity.findById(activityId);
     if (!activity) {
@@ -137,7 +156,7 @@ exports.giveActivityFeedback = async (req, res) => {
     }
 
     // append the feedback to the activity
-    activity.feedback.push({ rating, comments });
+    activity.feedback.push({ touristId, rating, comments });
     tourist.gaveFeedback.push(activityId);
     await tourist.save();
 
@@ -244,6 +263,8 @@ exports.createSpecifiedActivity = async (req, res) => {
         return res.status(400).json({ message: 'The profile is still pending approval.' });
       }
         */
+
+
       const newActivity = new Activity({
           advertiserId,
           name,
@@ -282,7 +303,7 @@ exports.readActivitiesOfAdvertiser = async (req, res) => {
       const activities = await Activity.find({ advertiserId, hidden: false });
       
       if (!activities || activities.length === 0) {
-        return res.status(404).json({ message: 'No activities found for this advertiser.' });
+        //return res.status(404).json({ message: 'No activities found for this advertiser.' });
       }
       res.status(200).json(activities);
   } catch (error) {
@@ -331,12 +352,15 @@ exports.updateActivityFilteredFields = async (req, res) => {
   try {
     const { advertiserId, activityId } = req.params; 
     const {
+      name,
       date,
       time,
       location,
-      price,
+      upper,
+      lower,
       category,
       tags,
+      spots,
       discounts
     } = req.body; 
     /*const advertiser = await Advertiser.findById(advertiserId);
@@ -357,10 +381,13 @@ exports.updateActivityFilteredFields = async (req, res) => {
     }
 
     // updating only the allowed fields
+    if (name) activity.name = name;
     if (date) activity.date = date;
     if (time) activity.time = time; 
     if (location) activity.location = location;
-    if (price) activity.price = price;
+    if (upper) activity.upper = upper;
+    if (lower) activity.lower = lower;
+    if (spots) activity.spots = spots;
     if (category) activity.category = category;
     if (tags) activity.tags = tags;
     if (discounts) activity.discounts = discounts;
@@ -386,7 +413,7 @@ exports.getUpcomingActivities = async (req, res) => {
     });
 
     if(!upcomingActivities || upcomingActivities.length === 0){
-      return res.status(404).json({ message: "No upcoming activities found" });
+      //return res.status(404).json({ message: "No upcoming activities found" });
     }
 
     res.status(200).json(upcomingActivities);

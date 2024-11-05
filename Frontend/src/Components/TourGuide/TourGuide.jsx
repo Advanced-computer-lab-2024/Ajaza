@@ -1,44 +1,37 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { CustomLayout } from "../Common";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Itineraries from "../Itineraries";
-import { CalendarOutlined, ContainerOutlined } from "@ant-design/icons";
+import { CalendarOutlined } from "@ant-design/icons";
+import { jwtDecode } from "jwt-decode";
+import Profile from "../Common/Profile";
 
 const TourGuide = () => {
   const navigate = useNavigate();
+
+  let decodedToken = null;
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    decodedToken = jwtDecode(token);
+  }
+
   const sideBarItems = [
     {
       key: "1",
       icon: <CalendarOutlined />,
       label: "Itineraries",
       onClick: () => {
-        navigate("itineraries");
+        navigate("/guide/");
       },
     },
-    // {
-    //   key: "2",
-    //   icon: <CalendarOutlined />,
-    //   label: "Actiivities",
-    //   onClick: () => navigate("activities"),
-    // },
-    // {
-    //   key: "3",
-    //   icon: <CalendarOutlined />,
-    //   label: "Venues",
-    //   onClick: () => navigate("venues"),
-    // },
-    // {
-    //   key: "4",
-    //   icon: <ContainerOutlined />,
-    //   label: "Report",
-    // },
   ];
-  return(
+
+  return (
     <CustomLayout sideBarItems={sideBarItems}>
       <Routes>
-        <Route path="/" element={<div>TourGuide Default</div>} />
-        <Route path="/itineraries" element={<Itineraries />} />
-        <Route path="Report" element={<div>Report</div>} />
+        <Route path="/" element={<Itineraries />} />
+        <Route path="profile" element={<Profile />} />
       </Routes>
     </CustomLayout>
   );

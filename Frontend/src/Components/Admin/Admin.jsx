@@ -9,9 +9,13 @@ import {
 } from "react-router-dom";
 import AdminCustomLayout from "./AdminCustomLayout";
 import ManageActivityCategories from "./manageActivityCategories";
+import ManagePreferenceTags from "./managePreferenceTags";
 import AllAccounts from "./AllAccounts"; // Create a new AllAccounts component
 import AddAccounts from "./addAccounts";
-import ManagePreferenceTags from "./managePreferenceTags";
+import Profile from "../Common/Profile";
+import MyProducts from "./MyProducts";
+import Products from "../Tourist/Products";
+import ExamineAccounts from "./ExamineAccounts";
 
 const { Content } = Layout;
 
@@ -20,11 +24,17 @@ const Admin = () => {
    <AdminCustomLayout>
       <Content style={{ padding: "24px", minHeight: "280px" }}>
         <Routes>
-          
-          <Route path="manage-activity-categories" element={<ManageActivityCategories />} />
+          <Route
+            path="manage-activity-categories"
+            element={<ManageActivityCategories />}
+          />
           <Route path="add-Accounts" element={<AddAccounts />} />
           <Route path="/" element={<AllAccounts />} />
+          <Route path="examine-Accounts" element={<ExamineAccounts />} />
           <Route path="preference-tags" element={<ManagePreferenceTags />} />
+          <Route path="myProducts" element={<MyProducts />} />
+          <Route path="products" element={<Products />} />
+          <Route path="profile" element={<Profile />} />
         </Routes>
       </Content>
     </AdminCustomLayout>
@@ -32,4 +42,3 @@ const Admin = () => {
 };
 
 export default Admin;
-

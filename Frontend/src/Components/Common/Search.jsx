@@ -32,6 +32,7 @@ const Search = ({
   textColor,
   style,
   icon: IconComponent = SearchOutlined, // Passed as a prop
+  inputStyleParam,
 }) => {
   // Use useState to create a state "searchValue" and state modifier "setSearchValue"
   // This is an example
@@ -44,9 +45,9 @@ const Search = ({
 
   // console.log(activateHover & !hover ? "none" : "block");
 
-  let formStyle = { backgroundColor: Colors.grey[50] };
+  let formStyle = { backgroundColor: Colors.grey[100] };
   let inputStyle = {
-    backgroundColor: Colors.grey[50],
+    backgroundColor: Colors.grey[100],
     display: booleanHover ? "none" : "block",
     color: textColor,
     padding: "0 20px",
@@ -120,7 +121,7 @@ const Search = ({
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           className={styles.searchInput}
-          style={inputStyle}
+          style={{ ...inputStyle, ...inputStyleParam }}
           placeholder="Search..."
         />
         <IconComponent

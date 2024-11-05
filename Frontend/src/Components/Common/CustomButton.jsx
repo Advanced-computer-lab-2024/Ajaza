@@ -11,6 +11,7 @@ const CustomButton = ({
   disabled = false,
   loading = false,
   htmlType = "button",
+  icon = null,
 }) => {
   const [hover, setHover] = useState(false);
 
@@ -46,12 +47,15 @@ const CustomButton = ({
     margin = "20px";
   }
 
+  console.log(style);
+
   return (
     <AntdButton
       type="primary"
       disabled={disabled}
       loading={loading}
       htmlType={htmlType}
+      icon={icon}
       style={{
         backgroundColor: backgroundColor,
         width: width,

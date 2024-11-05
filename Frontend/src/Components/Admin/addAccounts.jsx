@@ -1,136 +1,143 @@
-import React, { useState } from 'react';
-import { Breadcrumb, Layout, Menu, theme, Button, Input, Form, message } from 'antd';
-import axios from 'axios'; // Import axios
-import AdminCustomLayout from './AdminCustomLayout';
-import { apiUrl } from '../Common/Constants';
+import React, { useState } from "react";
+import {
+  Breadcrumb,
+  Layout,
+  Menu,
+  theme,
+  Button,
+  Input,
+  Form,
+  message,
+} from "antd";
+import axios from "axios"; // Import axios
+import AdminCustomLayout from "./AdminCustomLayout";
+import { apiUrl } from "../Common/Constants";
 
 const { Header, Content } = Layout;
 
 const items = [
-  { key: '1', label: 'Add Admin' },
-  { key: '2', label: 'Add Tourism Governor' },
+  { key: "1", label: "Add Admin" },
+  { key: "2", label: "Add Tourism Governor" },
 ];
 
 const AddAccounts = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
-  
-  const [selectedKey, setSelectedKey] = useState('1');
+
+  const [selectedKey, setSelectedKey] = useState("1");
   const [form] = Form.useForm();
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleMenuClick = (e) => {
     setSelectedKey(e.key);
     setIsSubmitted(false);
-    setSuccessMessage('');
-    setErrorMessage('');
+    setSuccessMessage("");
+    setErrorMessage("");
     form.resetFields();
   };
 
   const handleFirstFormSubmit = async (values) => {
-    console.log('Form submitted:', values);
+    console.log("Form submitted:", values);
     try {
-      const response = await axios.post( apiUrl + 'admin/addAdmin', { 
+      const response = await axios.post(apiUrl + "admin/addAdmin", {
         username: values.username,
-        pass: values.password, 
+        pass: values.password,
       });
 
       if (response.status === 201) {
         form.resetFields();
         setIsSubmitted(true);
-        setErrorMessage('');
-        setSuccessMessage('Admin Account Added successfully!'); // Set success message
-        message.success('Admin Account Added successfully!');
-        
+        setErrorMessage("");
+        setSuccessMessage("Admin Account Added successfully!"); // Set success message
+        message.success("Admin Account Added successfully!");
+
         // Hide success message after 2 seconds
         setTimeout(() => {
-          setSuccessMessage('');
+          setSuccessMessage("");
         }, 2000);
       }
     } catch (error) {
-      
-     
       // Handle error response
       if (error.response) {
         // Request made and server responded
-        setErrorMessage(error.response.data.error || 'Something went wrong');
-         message.error(error.response.data.error || 'Submission failed');
+        setErrorMessage(error.response.data.error || "Something went wrong");
+        message.error(error.response.data.error || "Submission failed");
       } else {
         // The request was made but no response was received
-        setErrorMessage('Network error, please try again later');
-        message.error('Network error, please try again later');
+        setErrorMessage("Network error, please try again later");
+        message.error("Network error, please try again later");
       }
     }
   };
 
   const handleSecondFormSubmit = async (values) => {
-    console.log('Form submitted:', values);
+    console.log("Form submitted:", values);
     try {
-
-      const response = await axios.post( apiUrl + 'governor/addGovernor', { // Update URL here
+      const response = await axios.post(apiUrl + "governor/addGovernor", {
+        // Update URL here
         username: values.username,
         pass: values.password, // Ensure the password field matches your API
       });
 
-
-
-
-
-
-     
       if (response.status === 201) {
-
         form.resetFields();
         setIsSubmitted(true);
-        setErrorMessage('');
-        setSuccessMessage('Tourism Governor Account Added successfully!'); // Set success message
-        message.success('Tourism Governor Account Added successfully!');
-        
+        setErrorMessage("");
+        setSuccessMessage("Tourism Governor Account Added successfully!"); // Set success message
+        message.success("Tourism Governor Account Added successfully!");
+
         // Hide success message after 2 seconds
         setTimeout(() => {
-          setSuccessMessage('');
+          setSuccessMessage("");
         }, 2000);
-      }else {
+      } else {
         const errorData = await response.json();
-        setErrorMessage(errorData.message || 'Something went wrong');
-        message.error(errorData.message || 'Submission failed');
+        setErrorMessage(errorData.message || "Something went wrong");
+        message.error(errorData.message || "Submission failed");
       }
     } catch (error) {
-
-       if (error.response) {
+      if (error.response) {
         // Request made and server responded
-        setErrorMessage(error.response.data.error || 'Something went wrong');
-         message.error(error.response.data.error || 'Submission failed');
+        setErrorMessage(error.response.data.error || "Something went wrong");
+        message.error(error.response.data.error || "Submission failed");
       } else {
         // The request was made but no response was received
-        setErrorMessage('Network error, please try again later');
-        message.error('Network error, please try again later');
+        setErrorMessage("Network error, please try again later");
+        message.error("Network error, please try again later");
       }
     }
   };
 
   const renderContent = () => {
     switch (selectedKey) {
-      case '1':
+      case "1":
         return (
           <div>
-            <Form form={form} layout="vertical" onFinish={handleFirstFormSubmit}>
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={handleFirstFormSubmit}
+            >
               <Form.Item
                 name="username"
                 label="Admin Username"
-                rules={[{ required: true, message: 'Please input Admin Username!' }]}
+                rules={[
+                  { required: true, message: "Please input Admin Username!" },
+                ]}
               >
-                <Input placeholder="Enter Admin Username" />
+                <Input placeholder="Username" />
               </Form.Item>
               <Form.Item
                 name="password"
                 label="Admin Password"
-                rules={[{ required: true, message: 'Please input Admin Password!' }]}
+                rules={[
+                  { required: true, message: "Please input Admin Password!" },
+                ]}
               >
-                <Input placeholder="Enter Admin Password" type="password" />
+                <Input placeholder="Password" type="password" />
               </Form.Item>
 
               <Form.Item>
@@ -140,30 +147,48 @@ const AddAccounts = () => {
               </Form.Item>
             </Form>
             {successMessage && (
-              <div style={{ marginTop: '20px', color: 'green' }}>{successMessage}</div> // Display success message
+              <div style={{ marginTop: "20px", color: "green" }}>
+                {successMessage}
+              </div> // Display success message
             )}
             {errorMessage && (
-              <div style={{ marginTop: '20px', color: 'red' }}>{errorMessage}</div>
+              <div style={{ marginTop: "20px", color: "red" }}>
+                {errorMessage}
+              </div>
             )}
           </div>
         );
-      case '2':
+      case "2":
         return (
           <div>
-            <Form form={form} layout="vertical" onFinish={handleSecondFormSubmit}>
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={handleSecondFormSubmit}
+            >
               <Form.Item
                 name="username"
                 label="Tourism Governor Username"
-                rules={[{ required: true, message: 'Please input Tourism Governor Username!' }]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input Tourism Governor Username!",
+                  },
+                ]}
               >
-                <Input placeholder="Enter Tourism Governor Username" />
+                <Input placeholder="Username" />
               </Form.Item>
               <Form.Item
                 name="password"
                 label="Tourism Governor Password"
-                rules={[{ required: true, message: 'Please input Tourism Governor Password!' }]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input Tourism Governor Password!",
+                  },
+                ]}
               >
-                <Input placeholder="Enter Tourism Governor Password" type="password" />
+                <Input placeholder="Password" type="password" />
               </Form.Item>
               <Form.Item>
                 <Button type="primary" htmlType="submit">
@@ -172,10 +197,14 @@ const AddAccounts = () => {
               </Form.Item>
             </Form>
             {successMessage && (
-              <div style={{ marginTop: '20px', color: 'green' }}>{successMessage}</div> // Display success message
+              <div style={{ marginTop: "20px", color: "green" }}>
+                {successMessage}
+              </div> // Display success message
             )}
             {errorMessage && (
-              <div style={{ marginTop: '20px', color: 'red' }}>{errorMessage}</div>
+              <div style={{ marginTop: "20px", color: "red" }}>
+                {errorMessage}
+              </div>
             )}
           </div>
         );
@@ -188,33 +217,33 @@ const AddAccounts = () => {
     <Layout>
       <Header
         style={{
-          position: 'sticky',
+          position: "sticky",
           top: 0,
           zIndex: 1,
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         <div className="demo-logo" />
         <Menu
           theme="dark"
           mode="horizontal"
-          defaultSelectedKeys={['1']}
+          defaultSelectedKeys={["1"]}
           items={items}
           onClick={handleMenuClick}
           style={{
             flex: 0,
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '50px', // Add spacing between menu items
+            display: "flex",
+            justifyContent: "center",
+            gap: "50px", // Add spacing between menu items
           }}
         />
       </Header>
       <Content
         style={{
-          padding: '0 48px',
+          padding: "0 48px",
         }}
       >
         <div

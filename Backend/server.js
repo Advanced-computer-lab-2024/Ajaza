@@ -1,6 +1,10 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const cron = require("node-cron");
+const Tourist = require("./models/Tourist");
+const touristController = require("./controllers/touristController");
+
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
@@ -84,6 +88,101 @@ connection.once("open", () => {
   console.log("MongoDB database connection established successfully");
 });
 
+//first zero is minutes, second zero is hours of when will daily birth checks be held. //change zeroes for testing
+cron.schedule("0 0 * * *", () => {
+  if (process.env.BIRTHDAYS === "true") {
+    console.log("Running daily birthday check...");
+    checkBirthdaysToday();
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
+
+async function checkBirthdaysToday() {
+  //sign up was saving dob as string, this function will update all dob fields to date. However I changed the sign up to store dob as date so this call may not be needed -AA
+  updateDobFields();
+  try {
+    const today = new Date();
+    const todayDay = today.getDate();
+    const todayMonth = today.getMonth() + 1;
+
+    const usersWithBirthdayToday = await Tourist.find({
+      $expr: {
+        $and: [
+          { $eq: [{ $dayOfMonth: "$dob" }, todayDay] },
+          { $eq: [{ $month: "$dob" }, todayMonth] },
+        ],
+      },
+    }).select("_id");
+
+    if (usersWithBirthdayToday.length > 0) {
+      console.log(
+        "Users with birthdays today: ",
+        usersWithBirthdayToday.length
+      );
+      await touristController.birthdayEventTriggered(usersWithBirthdayToday);
+    } else {
+      console.log("No users have birthdays today.");
+    }
+  } catch (err) {
+    console.error("Error finding users with birthdays today:", err);
+  }
+}
+
+async function updateDobFields() {
+  try {
+    const touristsWithStringDob = await Tourist.find({
+      dob: { $type: "string" },
+    });
+
+    if (touristsWithStringDob.length === 0) {
+      return;
+    }
+
+    for (let tourist of touristsWithStringDob) {
+      const dobAsDate = new Date(tourist.dob);
+
+      if (isNaN(dobAsDate.getTime())) {
+        //console.log(`Skipping invalid dob for tourist with ID: ${tourist._id}`);
+        continue;
+      }
+
+      await Tourist.updateOne(
+        { _id: tourist._id },
+        { $set: { dob: dobAsDate } }
+      );
+    }
+  } catch (error) {
+    console.error("Error updating DOB fields:", error);
+  }
+}
+
+async function sendEmail(email, subject, html) {
+  const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.NODE_MAILER_USER,
+      pass: process.env.NODE_MAILER_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: "reservy.me@gmail.com",
+    to: email,
+    subject: subject,
+    html: html,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error("Error sending email: ", error);
+    } else {
+      console.log("Email sent: ", info.response);
+    }
+  });
+}

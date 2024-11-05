@@ -3,7 +3,7 @@ import axios from "axios";
 import { Card, Button, Typography, Modal, Input, message } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { apiUrl } from "../Common/Constants";
-import AdminCustomLayout from "./AdminCustomLayout";
+import { jwtDecode } from "jwt-decode";
 
 const { Title } = Typography;
 
@@ -86,8 +86,11 @@ const ManageActivityCategories = () => {
     }
 
     try {
+      const token = localStorage.getItem("token");
+      const decodedToken = jwtDecode(token);
+      console.log(decodedToken);
       const response = await axios.post( apiUrl + "category", {
-        category: newCategoryName,
+        category: newCategoryName, adminId: decodedToken.userDetails._id,
       });
 
       if (response.status === 201) {

@@ -1,15 +1,28 @@
 import React from "react";
 import { CustomLayout } from "../Common";
 import { Route, Routes, useNavigate } from "react-router-dom";
-import Itineraries from "../Itineraries";
+import Itineraries from "./Itineraries";
 import { CalendarOutlined, ContainerOutlined } from "@ant-design/icons";
-import { TouristProfile } from "./TouristProfile";
 import { apiUrl } from "../Common/Constants";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import SearchFilterSortContainer from "../Common/SearchFilterSortContainer";
 import Profile from "../Common/Profile";
+import Plans from "./Plans";
+import Venues from "./Venues";
+import Products from "./Products";
+import Product from "../Common/Product";
+import Venue from "../Common/Venue";
+import RedeemPoints from "./RedeemPoints";
+import RedeemIcon from "@mui/icons-material/Redeem";
+import Activities from "./Activities";
+import ReportGmailerrorredOutlinedIcon from "@mui/icons-material/ReportGmailerrorredOutlined";
+import FileComplaint from "./FileComplaint";
+import Complaints from "./Complaints";
+import RateReviewOutlinedIcon from "@mui/icons-material/RateReviewOutlined";
+import TouristHistory from "./TouristHistory";
+import Activity from "../Common/Activity";
 
 const Tourist = () => {
   const [response, setResponse] = useState([]);
@@ -19,77 +32,109 @@ const Tourist = () => {
     {
       key: "1",
       icon: <CalendarOutlined />,
-      label: "Itineraries",
+      label: "Plans",
       onClick: () => {
-        navigate("itineraries");
+        navigate("/tourist/");
       },
     },
     {
       key: "2",
       icon: <CalendarOutlined />,
-      label: "Activities",
-      onClick: () => navigate("activities"),
+      label: "Itineraries",
+      onClick: () => navigate("itineraries"),
     },
     {
       key: "3",
       icon: <CalendarOutlined />,
       label: "Venues",
-      onClick: () => navigate("/venues"),
+      onClick: () => navigate("venues"),
     },
     {
       key: "4",
-      icon: <ContainerOutlined />,
-      label: "Report",
+      icon: <CalendarOutlined />,
+      label: "Activities",
+      onClick: () => navigate("activities"),
     },
+    {
+      key: "5",
+      icon: <ContainerOutlined />,
+      label: "Products",
+      onClick: () => navigate("products"),
+    },
+    {
+      key: "6",
+      icon: <RedeemIcon />,
+      label: "Redeem Points",
+      onClick: () => navigate("redeemPoints"),
+    },
+    {
+      key: "7",
+      icon: <ReportGmailerrorredOutlinedIcon />,
+      label: "File Complaint",
+      onClick: () => navigate("FileComplaint"),
+    },
+    {
+      key: "8",
+      icon: <ReportGmailerrorredOutlinedIcon />,
+      label: "My Complaints",
+      onClick: () => navigate("Complaints"),
+    },
+    {
+      key: "9",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Feedback",
+      onClick: () => navigate("TouristHistory"),
+    },
+    {
+      key: "10",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Current Bookings",
+      onClick: () => navigate("bookings"),
+    },
+    {
+      key: "11",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Booking History",
+      onClick: () => navigate("history"),
+    },
+    {
+      key: "12",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Saved Plans",
+      onClick: () => navigate("saved"),
+    },
+    {
+      key: "13",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Wishlist",
+      onClick: () => navigate("wishlist"),
+    },
+    {
+      key: "14",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Orders",
+      onClick: () => navigate("orders"),
+    },
+    // TODO put them in nested like current and past bookings ---- products,wishlist,orders
   ];
-
-  useEffect(() => {
-    const urlExtension = "tourist/";
-
-    const token = localStorage.getItem("token");
-    let decodedToken = null;
-    if (token) {
-      decodedToken = jwtDecode(token);
-    }
-
-    const fetchData = async () => {
-      const body = {
-        id: "123",
-        // Add more key-value pairs as needed
-      };
-
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json", // Example header, adjust as needed
-        },
-      };
-      try {
-        const apiResponse = await axios.get(
-          apiUrl + urlExtension,
-          body,
-          config
-        );
-        console.log(response);
-
-        if (apiResponse.status === 200) {
-          setResponse(apiResponse.data);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   return (
     <CustomLayout sideBarItems={sideBarItems}>
       <Routes>
-        <Route path="/" element={<SearchFilterSortContainer />} />
-        <Route path="itineraries" element={<div>Itineraries Page</div>} />
-        <Route path="account" element={<Profile />} />
-        <Route path="profile" element={<TouristProfile />} />
+        <Route path="/" element={<Plans />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="itineraries" element={<Itineraries />} />
+        <Route path="venues" element={<Venues />} />
+        <Route path="venues/:id" element={<Venue />} />
+        <Route path="activities" element={<Activities />} />
+        <Route path="activities/:id" element={<Activity />} />
+
+        <Route path="products" element={<Products />} />
+        <Route path="products/:id" element={<Product />} />
+        <Route path="redeemPoints" element={<RedeemPoints />} />
+        <Route path="fileComplaint" element={<FileComplaint />} />
+        <Route path="complaints" element={<Complaints />} />
+        <Route path="touristHistory" element={<TouristHistory />} />
       </Routes>
     </CustomLayout>
   );
