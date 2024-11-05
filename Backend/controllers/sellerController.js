@@ -477,37 +477,37 @@ exports.uploadSellerLogo = async (req, res) => {
 };
 
 // get seller documents
-exports.getSellerDocuments = async (req, res) => {
-  try {
-    const seller = await Seller.findById(req.params.id).select(
-      "id taxationRegCard"
-    );
+// exports.getSellerDocuments = async (req, res) => {
+//   try {
+//     const seller = await Seller.findById(req.params.id).select(
+//       "id taxationRegCard"
+//     );
 
-    if (!seller) {
-      return res.status(404).json({ message: "Seller not found" });
-    }
+//     if (!seller) {
+//       return res.status(404).json({ message: "Seller not found" });
+//     }
 
-    const response = {
-      message: "Documents retrieved successfully",
-      id: seller.id || null,
-      taxationRegCard: seller.taxationRegCard || null,
-    };
+//     const response = {
+//       message: "Documents retrieved successfully",
+//       id: seller.id || null,
+//       taxationRegCard: seller.taxationRegCard || null,
+//     };
 
-    if (!seller.id) {
-      response.idMessage = "No ID uploaded by this seller";
-    }
+//     if (!seller.id) {
+//       response.idMessage = "No ID uploaded by this seller";
+//     }
 
-    if (!seller.taxationRegCard) {
-      response.taxationRegCardMessage =
-        "No taxation registration card uploaded by this seller";
-      response.taxationRegCard = null;
-    }
+//     if (!seller.taxationRegCard) {
+//       response.taxationRegCardMessage =
+//         "No taxation registration card uploaded by this seller";
+//       response.taxationRegCard = null;
+//     }
 
-    res.status(200).json(response);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+//     res.status(200).json(response);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 //admin accept seller
 exports.acceptSeller = async (req, res) => {

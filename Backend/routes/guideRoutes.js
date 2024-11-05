@@ -73,7 +73,7 @@ router.post(
 );
 
 //for admin to view uploaded documents of a guide
-router.get("/getDocuments/:id", guideController.getGuideDocuments);
+// router.get("/getDocuments/:id", guideController.getGuideDocuments);
 
 //accept guide
 router.put("/accept/:id", guideController.acceptGuide);

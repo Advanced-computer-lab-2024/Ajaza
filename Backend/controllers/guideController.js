@@ -462,35 +462,35 @@ exports.uploadPhoto = async (req, res) => {
 };
 
 // get uploaded documents by id: returns id and certificates
-exports.getGuideDocuments = async (req, res) => {
-  try {
-    const guideId = req.params.id;
-    const guide = await Guide.findById(guideId).select("id certificates");
+// exports.getGuideDocuments = async (req, res) => {
+//   try {
+//     const guideId = req.params.id;
+//     const guide = await Guide.findById(guideId).select("id certificates");
 
-    if (!guide) {
-      return res.status(404).json({ message: "Guide not found" });
-    }
+//     if (!guide) {
+//       return res.status(404).json({ message: "Guide not found" });
+//     }
 
-    const response = {
-      message: "Documents retrieved successfully",
-      id: guide.id || null,
-      certificates: guide.certificates.length > 0 ? guide.certificates : null,
-    };
+//     const response = {
+//       message: "Documents retrieved successfully",
+//       id: guide.id || null,
+//       certificates: guide.certificates.length > 0 ? guide.certificates : null,
+//     };
 
-    if (!guide.id) {
-      response.idMessage = "No ID uploaded by this guide";
-    }
+//     if (!guide.id) {
+//       response.idMessage = "No ID uploaded by this guide";
+//     }
 
-    if (guide.certificates.length === 0) {
-      response.certificatesMessage = "No certificates uploaded by this guide";
-      response.certificates = null;
-    }
+//     if (guide.certificates.length === 0) {
+//       response.certificatesMessage = "No certificates uploaded by this guide";
+//       response.certificates = null;
+//     }
 
-    res.status(200).json(response);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+//     res.status(200).json(response);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 //admin accept guide
 exports.acceptGuide = async (req, res) => {

@@ -61,7 +61,7 @@ router.post(
 );
 
 //for admin to view uploaded documents of a seller
-router.get("/getDocuments/:id", sellerController.getSellerDocuments);
+// router.get("/getDocuments/:id", sellerController.getSellerDocuments);
 
 //accept seller
 router.put("/accept/:id", sellerController.acceptSeller);

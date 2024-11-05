@@ -83,10 +83,10 @@ router.post(
 );
 
 //for admin to view uploaded documents of a advertiser
-router.get(
-  "/getDocuments/:advertiserId",
-  advertiserController.getAdvertiserDocuments
-); //id walla advertiserId
+// router.get(
+//   "/getDocuments/:advertiserId",
+//   advertiserController.getAdvertiserDocuments
+// ); //id walla advertiserId
 
 //accept advertiser
 router.put("/accept/:id", advertiserController.acceptAdvertiser);
