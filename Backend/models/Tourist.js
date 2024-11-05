@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const touristSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true},
+  username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   pass: { type: String, required: true }, // hashed password
   mobile: { type: String, required: true },
@@ -12,19 +12,31 @@ const touristSchema = new mongoose.Schema({
   wallet: { type: Number, default: 0 },
   activityBookings: [
     {
-      activityId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Activity'},
+      activityId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: false,
+        ref: "Activity",
+      },
       total: { type: Number, required: false },
     },
   ],
   itineraryBookings: [
     {
-      itineraryId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Itinerary'},
+      itineraryId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: false,
+        ref: "Itinerary",
+      },
       date: { type: Date, required: false },
       total: { type: Number, required: false },
     },
   ],
-  activityBookmarks: [{ type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Activity'}],
-  itineraryBookmarks: [{ type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Itinerary'}],
+  activityBookmarks: [
+    { type: mongoose.Schema.Types.ObjectId, required: false, ref: "Activity" },
+  ],
+  itineraryBookmarks: [
+    { type: mongoose.Schema.Types.ObjectId, required: false, ref: "Itinerary" },
+  ],
   notifications: [
     {
       text: { type: String, required: false },
@@ -36,20 +48,39 @@ const touristSchema = new mongoose.Schema({
   points: { type: Number, default: 0 }, //points updated after booking, if cancelled do not refund points from user
   totalPoints: { type: Number, default: 0 }, //determines badge whenever we increment points increment total points
   badge: { type: Number, default: 1 }, // level 1, 2, or 3
-  wishlist: [{ type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Product'}],
+  wishlist: [
+    { type: mongoose.Schema.Types.ObjectId, required: false, ref: "Product" },
+  ],
   cart: [
     {
-      productId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Itinerary'},
+      productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: false,
+        ref: "Product",
+      },
       quantity: { type: Number, required: false, default: 1 },
     },
   ],
   orders: [
     {
-      products: [{ productId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Itinerary'}, quantity: { type: Number, required: false } }],
+      products: [
+        {
+          productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: false,
+            ref: "Product",
+          },
+          quantity: { type: Number, required: false },
+        },
+      ],
       date: { type: Date, default: Date.now },
       cod: { type: Boolean, required: false },
       total: { type: Number, required: false },
-      status: { type: String, enum: ['Delivered', 'Cancelled', 'Processing'], required: false },
+      status: {
+        type: String,
+        enum: ["Delivered", "Cancelled", "Processing"],
+        required: false,
+      },
     },
   ],
   deliveryAddresses: [
@@ -64,12 +95,11 @@ const touristSchema = new mongoose.Schema({
     },
   ],
   usedPromoCodes: [{ type: String }],
-  gaveFeedback: [{ type: mongoose.Schema.Types.ObjectId, required: false}],
-  requestingDeletion: { type: Boolean, default: false },//ng added for deletion
-
+  gaveFeedback: [{ type: mongoose.Schema.Types.ObjectId, required: false }],
+  requestingDeletion: { type: Boolean, default: false }, //ng added for deletion
 });
 
 // Create the model
-const Tourist = mongoose.model('Tourist', touristSchema);
+const Tourist = mongoose.model("Tourist", touristSchema);
 
 module.exports = Tourist;
