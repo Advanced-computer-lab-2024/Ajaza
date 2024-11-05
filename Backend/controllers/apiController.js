@@ -178,20 +178,27 @@ async function fetchImages(hotelName) {
 
 async function filterHotelFields(hotel) {
     // Extract price from the accessibilityLabel string
-    const priceMatch = hotel.accessibilityLabel.match(/Current price (\d+) USD/);
-    const priceMatchb = hotel.accessibilityLabel.match(/Current price (\d+)/);
+  let priceMatch = null;
+  let priceMatchb = null;
+    if(hotel.accessibilityLabel) {
+      priceMatch = hotel.accessibilityLabel.match(/Current price (\d+) USD/);
+      priceMatchb = hotel.accessibilityLabel.match(/Current price (\d+)/);
+    } else {
+      priceMatch = 1500;
+      priceMatchb = 1000;
+    }
 
     const price = priceMatch ? priceMatch[1] : (priceMatchb ? priceMatchb[1] : 1000);
 
     return {
-        name: hotel.property.name,
-        city: hotel.property.wishlistName,
-        price: price,
-        currency: 'USD',  // Ensure this matches the price currency
-        checkin: hotel.property.checkinDate,
-        checkout: hotel.property.checkoutDate,
-        score: hotel.property.reviewScore,
-    };
+      name: hotel.property?.name ?? "Default name",
+      city: hotel.property?.wishlistName ?? "Default city",
+      price: price ?? 10000,  // Default price if undefined
+      currency: 'USD',  // Ensure this matches the price currency
+      checkin: hotel.property?.checkinDate ?? "2021-01-01",
+      checkout: hotel.property?.checkoutDate ?? "2021-01-02",
+      score: hotel.property?.reviewScore ?? 8.0,
+  };
 };
 
 
@@ -215,9 +222,13 @@ async function searchHotels(dest_id , checkInDate, checkOutDate , count = 1) {
                 units: 'metric',
             },
         });
-
-        const filteredHotels = response.data.data.hotels.map(filterHotelFields);
-        return filteredHotels;  // Return the filtered hotels
+        if(response.data.data) {
+          const filteredHotels = response.data.data.hotels.map(filterHotelFields);
+          console.log(filteredHotels);
+          return filteredHotels;  // Return the filtered hotels
+        } else {
+          return [];
+        }
     } catch (error) {
         console.error("Error fetching hotels:", error);
     }
@@ -225,16 +236,20 @@ async function searchHotels(dest_id , checkInDate, checkOutDate , count = 1) {
 
 exports.searchHotels = async (req,res) => {
     const {dest_id, checkInDate,checkOutDate,count} = req.body;
+    console.log(req.body);
 
-    if(!dest_id, !checkInDate || !checkOutDate || !count) {
-        res.status(500).json({ error:"Missing params" });
+    if(!dest_id || !checkInDate || !checkOutDate || !count) {
+      console.log("missing params");
+      return res.status(500).json({ error:"Missing params" });
     }
     try {
         const returned = await searchHotels(dest_id, checkInDate,checkOutDate,count);
-        console.log(returned);
-        res.status(200).json(returned);
+        if (returned.length === 0) {
+          return res.status(404).json({ error: "No hotels found" }); // Use 404 for not found
+      }
+      return res.status(200).json(filterHotelFields(returned));
     } catch(error) {
-        res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error.message });
     }
 };
 

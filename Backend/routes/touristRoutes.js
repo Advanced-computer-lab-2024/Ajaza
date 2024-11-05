@@ -109,7 +109,7 @@ stops,
 */
 
 // req41
-router.get('/hotels/searchHotels', apiController.searchHotels);
+router.post('/hotels/searchHotels', apiController.searchHotels);
 /*
 needs
 dest_id, 

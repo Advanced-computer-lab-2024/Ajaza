@@ -968,7 +968,6 @@ exports.getHistory = async (req, res) => {
     });
   } catch (error) {
     console.error("Error retrieving past activity bookings:", error);
-    throw error;
   }
 };
 

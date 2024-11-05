@@ -25,6 +25,7 @@ import TouristHistory from "./TouristHistory";
 import Activity from "../Common/Activity";
 import ChangePasswordForm from "../Common/changePassword";
 import Itinerary from "../Common/Itinerary";
+import Hotels from "./Hotels";
 import SignIn from "../Sign/SignIn";
 
 const Tourist = () => {
@@ -161,6 +162,8 @@ const Tourist = () => {
         <Route path="complaints" element={<Complaints />} />
         <Route path="touristHistory" element={<TouristHistory />} />
         <Route path="auth/signin" element={<SignIn />} />
+
+        <Route path="hotels" element={<Hotels />} />
       </Routes>
     </CustomLayout>
   );
