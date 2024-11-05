@@ -11,6 +11,11 @@ router.post("/", sellerController.createSeller);
 
 router.get("/", sellerController.getAllSellers);
 
+//req 12
+router.get("/pending", sellerController.getPendingSellers);
+router.get('/details/:id', sellerController.getSellerDetails);
+
+
 router.get("/:id", sellerController.getSellerById);
 
 router.patch("/:id", sellerController.updateSeller);

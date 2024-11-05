@@ -603,3 +603,64 @@ exports.validateEmailUsername = async(req, res) =>{
     res.status(400).json({ error: error.message });
   }
 }
+
+// returns all advertisers that are pending
+exports.getPendingAdvertisers = async (req, res) => {
+  try {
+    // Fetch advertisers with pending status
+    const pendingAdvertisers = await Advertiser.find({ "pending" : true }).exec();
+    
+    if (pendingAdvertisers.length === 0) {
+      return res.status(404).json({ message: "No advertisers with pending status found." });
+    }
+    
+    // Return the found pending advertisers
+    res.status(200).json(pendingAdvertisers);
+  } catch (error) {
+    console.error("Error fetching pending advertisers:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//returns details to be displayed.
+exports.getAdvertiserDetails = async (req, res) => {
+  const advertiserId = req.params.id; // Get the ID from the request parameters
+
+  try {
+    console.log(`Fetching details for advertiser with ID: ${advertiserId}`);
+    
+    // Find the advertiser by ID and populate referenced fields if necessary
+    const advertiser = await Advertiser.findById(advertiserId)
+      .populate('id') // Populate the image reference for ID
+      .populate('taxationRegCard') // Populate the taxation registration card image reference
+      .populate('logo') // Populate the logo reference if needed
+      .exec();
+
+    if (!advertiser) {
+      return res.status(404).json({ message: "Advertiser not found." });
+    }
+
+    // Create a response object with required fields
+    const responseAdvertiser = {
+      id: advertiser.id ? advertiser.id.imageUrl : null, // Assuming the referenced Img model has a field 'imageUrl' for the picture
+      username: advertiser.username,
+      email: advertiser.email,
+      link: advertiser.link,
+      hotline: advertiser.hotline,
+      companyProfile: advertiser.companyProfile,
+      //logo: advertiser.logo ? advertiser.logo.imageUrl : null, // Assuming the logo has an imageUrl field
+      taxationRegCard: advertiser.taxationRegCard ? advertiser.taxationRegCard.imageUrl : null, // Assuming it also has an imageUrl field
+      pending: advertiser.pending,
+      acceptedTerms: advertiser.acceptedTerms,
+      //notifications: advertiser.notifications,
+      requestingDeletion: advertiser.requestingDeletion,//msh 3arfa
+      // Add any other fields that are necessary for admin review
+    };
+
+    // Return the advertiser details excluding sensitive information
+    res.status(200).json(responseAdvertiser);
+  } catch (error) {
+    console.error("Error fetching advertiser details:", error);
+    res.status(500).json({ error: error.message });
+  }
+};

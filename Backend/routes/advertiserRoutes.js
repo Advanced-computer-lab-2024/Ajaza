@@ -13,6 +13,11 @@ router.post("/", advertiserController.createAdvertiser);
 
 router.get("/", advertiserController.getAllAdvertisers);
 
+//req 12
+router.get("/pending", advertiserController.getPendingAdvertisers);
+
+router.get("/details/:id", advertiserController.getAdvertiserDetails);
+
 router.get("/:id", advertiserController.getAdvertiserById);
 
 router.patch("/:id", advertiserController.updateAdvertiser);
@@ -94,6 +99,8 @@ router.patch("/requestDeletion/:id", advertiserController.requestDeletion);
 
 
 router.post("/validateEmailUsername", advertiserController.validateEmailUsername); // New route for email and username validation
+
+//req12
 
 
 module.exports = router;
