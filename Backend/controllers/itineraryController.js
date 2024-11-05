@@ -464,3 +464,34 @@ exports.fetchOptions = async (req, res) => {
 exports.getItinerariesByPreferrences = async (req, res) => {
   res.status(200).json({ null: "null" });
 }
+
+
+//flag and delete itenerary han call delete 3ady baa a3taked.
+// flag and hide itinerary
+exports.hideItinerary = async (req, res) => {
+  const { id: itineraryId } = req.params; // Extract itineraryId from req.params
+
+  console.log("ENGYY"); // Check if function is reached
+
+  try {
+      // Update the itinerary to set hidden to true
+      const updatedItinerary = await Itinerary.findByIdAndUpdate(
+          itineraryId,
+          { hidden: true },
+          { new: true }
+      );
+
+      if (!updatedItinerary) {
+          return res.status(404).json({ message: 'Itinerary not found' });
+      }
+
+      console.log(`Itinerary ${itineraryId} has been hidden successfully.`);
+      res.status(200).json({ message: `Itinerary ${itineraryId} has been hidden successfully.`, updatedItinerary });
+  } catch (error) {
+      console.error(`Error hiding itinerary: ${error.message}`);
+      res.status(500).json({ message: `Error hiding itinerary: ${error.message}` });
+  }
+};
+
+
+
