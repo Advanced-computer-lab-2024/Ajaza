@@ -99,7 +99,7 @@ const CreateSeller = () => {
     navigate("/auth/signin");
 
     const response = await axios.post(
-      "http://localhost:5000/Seller/guestSellerCreateProfile",
+      "http://localhost:5000/seller/guestSellerCreateProfile",
       formDataToSubmit,
       {
         headers: {
