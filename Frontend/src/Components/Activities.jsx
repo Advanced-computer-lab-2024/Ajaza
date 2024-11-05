@@ -11,6 +11,7 @@ import {
   Button as AntButton,
   Select,
   DatePicker,
+  Switch,
 } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
@@ -150,6 +151,7 @@ const Activities = () => {
         } else if (values[key] !== originalActivity[key]) {
           updatedFields[key] = values[key];
         }
+        console.log(updatedFields);
       });
 
       if (Object.keys(updatedFields).length === 0) {
@@ -319,6 +321,9 @@ const Activities = () => {
                       <strong>Available Spots:</strong> {activity.spots}
                     </p>
                     <p>
+                      <strong>IsOpen:</strong> {activity.isOpen ? "Yes" : "No"}
+                    </p>
+                    <p>
                       <strong>Discounts:</strong> {activity.discounts}%
                     </p>
                   </div>
@@ -437,6 +442,9 @@ const Activities = () => {
           >
             <Input type="number" />
           </Form.Item>
+          <Form.Item name="isOpen" label="isOpen" valuePropName="checked">
+              <Switch />
+            </Form.Item>
 
           <Form.Item name="discounts" label="Discount" initialValue={0}>
             <InputNumber min={0} max={100} placeholder="Enter discount value" />

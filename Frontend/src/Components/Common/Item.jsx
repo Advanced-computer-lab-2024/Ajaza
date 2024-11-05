@@ -39,6 +39,7 @@ const Item = ({
   accessibility,
   openingHours,
   desc,
+  availableDates,
 }) => {
   const [user, setUser] = useState(null);
   const [avgRating, setAvgRating] = useState(null);
@@ -88,6 +89,7 @@ const Item = ({
         avgRating={avgRating}
         colSpan={colSpan}
         desc={desc}
+        availableDates={availableDates}
       />
 
       {type == "venue" ? (

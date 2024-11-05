@@ -58,7 +58,7 @@ const HeaderInfo = ({
   priceLower,
   priceUpper,
   category,
-  availableDateTime,
+  availableDates,
   location,
   sellerName,
   sales,
@@ -87,7 +87,7 @@ const HeaderInfo = ({
   const [priceString, setPriceString] = useState("");
   const [email, setEmail] = useState("");
 
-  /*useEffect(() => {
+  useEffect(() => {
     // check user
     // get if this item is booked setIsBooked accordingly:
     const checkIfBooked = () => {
@@ -104,6 +104,7 @@ const HeaderInfo = ({
         }
 
         console.log("isItemBooked:", isItemBooked);
+        console.log("iten booked", user.itineraryBookings);
         console.log("user.activityBookings:", user.activityBookings);
         console.log("user:", user);
 
@@ -113,7 +114,7 @@ const HeaderInfo = ({
 
     checkIfBooked();
     // get if this item is saved: wishlist (if product), bookmarked (if not) setIsSaved
-  }, [id, type, user]);*/
+  }, [id, type, user]);
 
   useEffect(() => {
     if (Array.isArray(photos) && photos.length > 0) {
@@ -139,74 +140,71 @@ const HeaderInfo = ({
   }, [price, priceLower, priceUpper, discounts]);
 
   //req50
-    const locationUrl = useLocation(); 
-    const copyLink = () => {
-      const pathParts = locationUrl.pathname.split("/"); 
-      const type = pathParts[2]; 
-      const objectId = pathParts[3];
-  
-      if (!type || !objectId) {
-        message.error("Could not extract details from the URL");
-        return;
-      }
-      const baseUrl = document.baseURI; 
-      const shareLink = `${baseUrl}`; 
-      navigator.clipboard.writeText(shareLink);
-      message.success("Link copied to clipboard!");
+  const locationUrl = useLocation();
+  const copyLink = () => {
+    const pathParts = locationUrl.pathname.split("/");
+    const type = pathParts[2];
+    const objectId = pathParts[3];
+
+    if (!type || !objectId) {
+      message.error("Could not extract details from the URL");
+      return;
     }
+    const baseUrl = document.baseURI;
+    const shareLink = `${baseUrl}`;
+    navigator.clipboard.writeText(shareLink);
+    message.success("Link copied to clipboard!");
+  };
 
-    const shareViaEmail = () => {
-      Modal.confirm({
-        title: `Share ${name} via Email`,
-        content: (
-          <div>
-            <Input
-              placeholder="Enter recipient's email"
-              onChange={(e) => setEmail(e.target.value)}
-              style={{ marginBottom: 10 }}
-            />
-          </div>
-        ),
-        onOk: async () => {
-          const pathParts = locationUrl.pathname.split("/"); 
-          const type = pathParts[2]; 
-          const objectId = pathParts[3];
-      
-          if (!type || !objectId) {
-            message.error("Could not extract details from the URL");
-            return;
-          }
-          await new Promise((resolve) => setTimeout(resolve, 50));
-          const baseUrl = document.baseURI; 
-          const shareLink = `${baseUrl}`; 
-          try {
-            const touristId = userid;
-            await axios.post(
-              `${apiUrl}tourist/emailShare/${touristId}`, 
-              {
-                link: shareLink,
-                email: email,
+  const shareViaEmail = () => {
+    Modal.confirm({
+      title: `Share ${name} via Email`,
+      content: (
+        <div>
+          <Input
+            placeholder="Enter recipient's email"
+            onChange={(e) => setEmail(e.target.value)}
+            style={{ marginBottom: 10 }}
+          />
+        </div>
+      ),
+      onOk: async () => {
+        const pathParts = locationUrl.pathname.split("/");
+        const type = pathParts[2];
+        const objectId = pathParts[3];
+
+        if (!type || !objectId) {
+          message.error("Could not extract details from the URL");
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        const baseUrl = document.baseURI;
+        const shareLink = `${baseUrl}`;
+        try {
+          const touristId = userid;
+          await axios.post(
+            `${apiUrl}tourist/emailShare/${touristId}`,
+            {
+              link: shareLink,
+              email: email,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
               },
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`, 
-                },
-              }
-            );
-            message.success("Email sent successfully!");
-          } catch (error) {
-            console.error("Error sharing via email:", error);
-            message.error("Failed to send email. Please try again.");
-          }
-        },
-        onCancel: () => {
-          setEmail(""); 
-        },
-      });
-    };
-    
-
-
+            }
+          );
+          message.success("Email sent successfully!");
+        } catch (error) {
+          console.error("Error sharing via email:", error);
+          message.error("Failed to send email. Please try again.");
+        }
+      },
+      onCancel: () => {
+        setEmail("");
+      },
+    });
+  };
 
   const shareItem = () => {
     // i think nenazel drop down fih copy link w email
@@ -250,6 +248,7 @@ const HeaderInfo = ({
 
       if (response.data.token) {
         updateTokenInLocalStorage(response.data.token);
+        console.log("NEWWW TOKKEENN:" , response.data.token)
       }
       setIsBooked(true);
     } catch (error) {
@@ -259,17 +258,22 @@ const HeaderInfo = ({
   };
 
   const showBookingModal = () => {
+    let currentSelectedDate;
     Modal.confirm({
       title: `Confirm Booking for ${name}`,
       content: (
         <div>
-          {type === "itinerary" && availableDateTime?.length > 0 && (
+          {type === "itinerary" && availableDates?.length > 0 && (
             <Select
               placeholder="Select booking date"
-              onChange={setSelectedDate}
+              onChange={(value) => {
+                setSelectedDate(value);
+                currentSelectedDate = value;
+                console.log("Selected Date:", value); // Log the selected value directly
+              }}
               style={{ width: "100%", marginBottom: 10 }}
             >
-              {availableDateTime.map((slot, index) => (
+              {availableDates.map((slot, index) => (
                 <Option key={index} value={slot.date}>
                   {new Date(slot.date).toLocaleString()} - {slot.spots} spots
                   left
@@ -284,7 +288,18 @@ const HeaderInfo = ({
           />
         </div>
       ),
-      onOk: bookItem, // Call bookItem when the user confirms
+      //onOk: bookItem,
+      onOk: () => {
+        console.log("here:", currentSelectedDate);
+        if (!currentSelectedDate) {
+          Modal.error({
+            title: "Booking Date Required",
+            content: "Please select a booking date to proceed.",
+          }); // Prevents modal from closing
+          return false;
+        }
+        return bookItem(); // Calls the booking function if date is selected
+      },
       onCancel: () => {
         setSelectedDate(null);
         setPromoCode("");
