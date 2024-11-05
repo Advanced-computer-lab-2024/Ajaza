@@ -6,6 +6,7 @@ import { CalendarOutlined, UploadOutlined } from "@ant-design/icons";
 import { Form, Input, Upload, message } from "antd";
 import CustomButton from "../Common/CustomButton";
 import axios from "axios";
+import SignIn from "./SignIn";
 
 const CreateTourGuide = () => {
   const [formData, setFormData] = useState({
@@ -260,6 +261,7 @@ const validateUploadForm = () => {
 
       <Routes>
         <Route path="/itineraries" element={<Itineraries />} />
+        <Route path="/auth/signin" element={<SignIn />} />
         {/* Add other routes as needed */}
       </Routes>
     </>
