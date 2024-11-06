@@ -59,7 +59,6 @@ const SignIn = () => {
           "http://localhost:5000/api/auth/login",
           body
         );
-
         if (apiResponse.status === 200) {
           console.log(apiResponse.data);
 
@@ -69,35 +68,30 @@ const SignIn = () => {
             message.error(<>You have requested to delete your account</>);
             return;
           }
-          if (
-            decodedToken?.userDetails?.pending &&
+
+          if (  // condition 0,0 --not pending and did not accept terms
+            !decodedToken?.userDetails?.pending &&
             !decodedToken?.userDetails?.acceptedTerms
           ) {
             // Redirect to Terms and Conditions page
-            navigate(`/auth/terms-and-conditions?role=${decodedToken.role}`);
+            console.log("is pending:",decodedToken.userDetails.pending);
+            navigate(`/auth/terms-and-conditions?role=${decodedToken.role}`); // Redirect to terms and conditions page --not functioning properly (tatos)
+            localStorage.setItem("token", apiResponse.data.token);
             return;
-          } else if (decodedToken?.userDetails?.pending) {
+          } 
+          else if (decodedToken?.userDetails?.pending) {  // conditions 1,0 and 1,1 --pending
             message.error("Account is still pending");
             return;
           }
-          // if (decodedToken?.userDetails?.pending) {
-          //   message.error("Account is still pending");
-          //   return;
-          // }
-          else if (decodedToken?.userDetails?.acceptedTerms == false) {
-            // message.error(
-            //   "Account has not yet accepted the terms of services (TODO redirect to term)" -- DONE
-            // );
-            localStorage.setItem("token", apiResponse.data.token);
-            navigate(`/auth/terms-and-conditions?role=${decodedToken.role}`);
-            return;
-          } else {
+          else {
+            //conditon 0,1 --not pending and accepted terms
+            // Redirect to the user's respective page
+            navigate(`/${decodedToken.role}`);
             localStorage.setItem("token", apiResponse.data.token);
           }
 
-          navigate(`/${decodedToken.role}`);
+          
         }
-
         // if (apiResponse?.data?.message) {
         //   setFeedbackMessage(apiResponse.data.message);
         //   message.error(feedbackMessage);
