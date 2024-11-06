@@ -37,6 +37,8 @@ const Profile = () => {
   const [pending, setPending] = useState(false); // Store pending status
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false); // State to toggle password form visibility
+  const [logo, setLogo] = useState(null); // Store logo image
+  const [photo, setPhoto] = useState(null); // Store photo image
   const navigate = useNavigate(); // useNavigate hook for programmatic navigation
 
   useEffect(() => {
@@ -61,6 +63,15 @@ const Profile = () => {
         dob: userDetails?.dob ? formatDate(userDetails.dob) : "",
         joined: userDetails?.joined ? formatDate(userDetails.joined) : "",
       });
+
+      if (userDetails.logo) {
+        const logoPath = `/uploads/${userDetails.logo}.jpg`;
+        setLogo(logoPath);
+      }
+      if (userDetails.photo) {
+        const photoPath = `/uploads/${userDetails.photo}.jpg`;
+        setPhoto(photoPath);
+      }
     }
   }, [form]);
 
@@ -242,14 +253,31 @@ const Profile = () => {
         ]}
       >
         <Space direction="vertical" align="center" style={{ width: "100%" }}>
-          <Avatar
-            size={120}
-            icon={<UserOutlined />}
-            style={{ backgroundColor: "#87d068" }}
-          />
-          <a href="image">
-          <EditOutlined />
-          </a>
+          {role === "tourist" && (
+            <Avatar
+              size={120}
+              icon={<UserOutlined />}
+              style={{ backgroundColor: "#87d068" }}
+            />
+          )}
+          {role === "seller" && (
+                <div>
+                <img src={logo} alt="Logo" style={{ width: '100px', height: '100px' }} />
+                {console.log("Logo path:", logo, "end")} {/* Check logo path */}
+                </div>
+            )}
+            {role === "advertiser" && (
+                <div>
+                <img src={logo} alt="Logo" style={{ width: '100px', height: '100px' }} />
+                {console.log("Logo path:", logo, "end")} {/* Check logo path */}
+                </div>
+            )}
+            {/* Display the logo if the role is seller */}
+            {role === "guide" && photo && (
+                <div>
+                <img src={photo} alt="Photo" style={{ width: '100px', height: '100px' }} />
+                </div>
+            )}
           {isEditing ? (
             <Form
               form={form}
@@ -463,14 +491,17 @@ const Profile = () => {
           ) : (
             // Display profile details (non-edit view)
             userDetails && (
-              <div>
-                <Title level={2}>{userDetails.username}</Title>
+                <div>
+                {role === "guide" && (
+                  <>
+                  <a href="image">
+                      <EditOutlined />
+                    </a>
+                  <Title level={2}>{userDetails.username}</Title>
                 <div>
                   <strong>Email: </strong>
                   <span>{userDetails.email}</span>
                 </div>
-                {role === "guide" && (
-                  <>
                     {userDetails.mobile && (
                       <div>
                         <strong>Mobile: </strong>
@@ -494,6 +525,14 @@ const Profile = () => {
                 )}
                 {role === "advertiser" && (
                   <>
+                  <a href="image">
+                      <EditOutlined />
+                    </a>
+                  <Title level={2}>{userDetails.username}</Title>
+                <div>
+                  <strong>Email: </strong>
+                  <span>{userDetails.email}</span>
+                </div>
                     <div>
                       <strong>Link: </strong>
                       <span>{userDetails.link}</span>
@@ -506,6 +545,11 @@ const Profile = () => {
                 )}
                 {role === "tourist" && (
                   <>
+                  <Title level={2}>{userDetails.username}</Title>
+                <div>
+                  <strong>Email: </strong>
+                  <span>{userDetails.email}</span>
+                </div>
                     {userDetails.mobile && (
                       <div>
                         <strong>Mobile: </strong>
@@ -559,6 +603,14 @@ const Profile = () => {
                 )}
                 {role === "seller" && (
                   <>
+                  <a href="image">
+                      <EditOutlined />
+                    </a>
+                  <Title level={2}>{userDetails.username}</Title>
+                <div>
+                  <strong>Email: </strong>
+                  <span>{userDetails.email}</span>
+                </div>
                     {userDetails.name && (
                       <div>
                         <strong>Name: </strong>
