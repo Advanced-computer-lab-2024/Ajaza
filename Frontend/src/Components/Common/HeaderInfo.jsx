@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Carousel,
   Row,
@@ -83,6 +83,7 @@ const HeaderInfo = ({
   const [isSaved, setIsSaved] = useState(false);
   const [promoCode, setPromoCode] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
+  const selectedDateRef = useRef(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [priceString, setPriceString] = useState("");
   const [email, setEmail] = useState("");
@@ -213,29 +214,53 @@ const HeaderInfo = ({
 
   // product wishlist
 
-  const updateTokenInLocalStorage = (newToken) => {
-    localStorage.setItem("token", newToken);
+  const getNewToken = async () => {
+    try {
+      const response = await axios.post(`${apiUrl}api/auth/generate-token`, {
+        id: userid,
+        role: decodedToken.role,
+      });
+
+      const { token: newToken } = response.data;
+
+      if (newToken) {
+        localStorage.setItem("token", newToken); // Store the new token
+        // console.log("Updated token:", newToken);
+        decodedToken = jwtDecode(newToken);
+        // console.log(newToken);
+      }
+    } catch (error) {
+      console.error("Error getting new token:", error);
+      alert("Failed to refresh token. Please try again.");
+    }
   };
+
+  useEffect(() => {
+    if (selectedDate) {
+      selectedDateRef.current = selectedDate; // Update the ref with the new value
+    }
+  }, [selectedDate]);
 
   const bookItem = async () => {
     try {
       const touristId = userid;
       const useWallet = user.wallet > 0;
-      const total = Number(price);
-      let FinalDate = selectedDate;
+      let total = Number(price);
+      const FinalDate = type === "activity" ? date : selectedDateRef.current;
       if (type === "activity") {
-        FinalDate = date;
+        total = priceUpper;
       }
       if (spots <= 0) {
         alert(`Error booking ${type}: No spots available.`);
-        return; // Early return if no spots are available
+        return;
       }
-      const endpoint =
-        type === "activity"
-          ? `${apiUrl}tourist/${touristId}/activity/${id}/book`
-          : `${apiUrl}tourist/${touristId}/itinerary/${id}/book`;
-      console.log("Booking endpoint:", endpoint);
-      console.log(type);
+      let endpoint;
+      if (type === "activity") {
+        endpoint = `${apiUrl}tourist/${touristId}/activity/${id}/book`;
+      } else if (type === "itinerary") {
+        endpoint = `${apiUrl}tourist/${touristId}/itinerary/${id}/book`;
+      }
+      console.log("DATEEEE:", FinalDate);
 
       const response = await axios.post(endpoint, {
         useWallet,
@@ -246,11 +271,8 @@ const HeaderInfo = ({
       console.log(price);
       alert(`${type} booked successfully!`);
 
-      if (response.data.token) {
-        updateTokenInLocalStorage(response.data.token);
-        console.log("NEWWW TOKKEENN:" , response.data.token)
-      }
       setIsBooked(true);
+      await getNewToken();
     } catch (error) {
       console.error(`Error booking ${type}:`, error);
       alert(`Error booking ${type}: ${error.message}`);
@@ -291,14 +313,14 @@ const HeaderInfo = ({
       //onOk: bookItem,
       onOk: () => {
         console.log("here:", currentSelectedDate);
-        if (!currentSelectedDate) {
+        if (!currentSelectedDate && type === "itinerary") {
           Modal.error({
             title: "Booking Date Required",
             content: "Please select a booking date to proceed.",
           }); // Prevents modal from closing
           return false;
         }
-        return bookItem(); // Calls the booking function if date is selected
+        return bookItem({ date: currentSelectedDate }); // Calls the booking function if date is selected
       },
       onCancel: () => {
         setSelectedDate(null);
@@ -310,20 +332,20 @@ const HeaderInfo = ({
   const cancelBookingItem = async () => {
     try {
       const touristId = userid;
-      const endpoint =
-        type === "activity"
-          ? `${apiUrl}tourist/${touristId}/activity/${id}/cancel`
-          : `${apiUrl}tourist/${touristId}/itinerary/${id}/cancel`;
+      let endpoint;
+      if (type === "activity") {
+        endpoint = `${apiUrl}tourist/${touristId}/activity/${id}/cancel`;
+      } else if (type === "itinerary") {
+        endpoint = `${apiUrl}tourist/${touristId}/itinerary/${id}/cancel`;
+      }
 
       const response = await axios.delete(endpoint);
       if (response.status === 200) {
         alert(`${type} booking canceled successfully!`);
+        setIsBooked(false);
+        await getNewToken();
       } else {
         alert(`Problem: ${response.data.message}`);
-      }
-
-      if (response.data.token) {
-        updateTokenInLocalStorage(response.data.token);
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Please try again.";
