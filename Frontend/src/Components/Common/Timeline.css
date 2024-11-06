@@ -1,3 +1,13 @@
 .timeline-container .ant-timeline-item-head {
   border-color: var(--primary-color) !important;
 }
+
+.availableDateTime .timeline-container {
+  position: relative;
+  left: 60px;
+}
+
+.timeline .timeline-container {
+  position: relative;
+  right: 10px;
+}

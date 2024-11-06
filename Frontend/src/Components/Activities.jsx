@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import {
-  Avatar,
+  InputNumber,
   Card,
   Space,
   Modal,
@@ -11,6 +11,7 @@ import {
   Button as AntButton,
   Select,
   DatePicker,
+  Switch,
 } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
@@ -94,7 +95,7 @@ const Activities = () => {
         lower: values.lower,
         category: values.category,
         tags: values.tags,
-        discounts: values.discounts,
+        discounts: values.discounts || 0,
         spots: values.spots,
         isOpen: values.isOpen,
         feedback: values.feedback,
@@ -150,6 +151,7 @@ const Activities = () => {
         } else if (values[key] !== originalActivity[key]) {
           updatedFields[key] = values[key];
         }
+        console.log(updatedFields);
       });
 
       if (Object.keys(updatedFields).length === 0) {
@@ -319,7 +321,10 @@ const Activities = () => {
                       <strong>Available Spots:</strong> {activity.spots}
                     </p>
                     <p>
-                      <strong>Discounts:</strong> {activity.discounts}
+                      <strong>IsOpen:</strong> {activity.isOpen ? "Yes" : "No"}
+                    </p>
+                    <p>
+                      <strong>Discounts:</strong> {activity.discounts}%
                     </p>
                   </div>
                 }
@@ -437,9 +442,12 @@ const Activities = () => {
           >
             <Input type="number" />
           </Form.Item>
+          <Form.Item name="isOpen" label="isOpen" valuePropName="checked">
+              <Switch />
+            </Form.Item>
 
-          <Form.Item name="discounts" label="Discounts">
-            <Input placeholder="Enter discount details" />
+          <Form.Item name="discounts" label="Discount" initialValue={0}>
+            <InputNumber min={0} max={100} placeholder="Enter discount value" />
           </Form.Item>
 
           <Form.Item>

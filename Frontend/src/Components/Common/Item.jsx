@@ -1,12 +1,13 @@
 import React, { Modal, useEffect, useState } from "react";
 import { Flex, Row, Col } from "antd";
 import Feedbacks from "./Feedbacks";
-import Timeline from "./Timeline";
-import { camelCaseToNormalText, Colors } from "./Constants";
 import HeaderInfo from "./HeaderInfo";
 import { jwtDecode } from "jwt-decode";
+import { getAvgRating } from "./Constants";
+import LocationOpeningHours from "./LocationOpeningHours";
 
 const Item = ({
+  id,
   name,
   photos,
   timelineItems,
@@ -20,9 +21,29 @@ const Item = ({
   type, // Activity, Venue, Itinerary, Product, etc
   tags,
   price,
+  priceLower,
+  priceUpper,
   category,
+  location,
+  sellerName,
+  sales,
+  quantity,
+  isOpen,
+  spots,
+  date,
+  creatorName,
+  discounts,
+  language,
+  pickUp,
+  dropOff,
+  accessibility,
+  openingHours,
+  desc,
+  availableDates,
 }) => {
   const [user, setUser] = useState(null);
+  const [avgRating, setAvgRating] = useState(null);
+  const [colSpan, setColSpan] = useState(16);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -30,9 +51,16 @@ const Item = ({
     setUser(decodedToken.userDetails);
   }, []);
 
+  useEffect(() => {
+    setAvgRating(getAvgRating(feedbacks));
+  }, [feedbacks]);
+  // Product fields done
+  // Activity fields done
+  // Itinerary maxTourists
   return (
     <>
       <HeaderInfo
+        id={id}
         name={name}
         photos={photos}
         bookItem={bookItem}
@@ -41,21 +69,36 @@ const Item = ({
         user={user}
         tags={tags}
         price={price}
+        priceLower={priceLower}
+        priceUpper={priceUpper}
         category={category}
+        location={location}
+        sellerName={sellerName}
+        sales={sales}
+        quantity={quantity}
+        isOpen={isOpen}
+        spots={spots}
+        date={date}
+        creatorName={creatorName}
+        discounts={discounts}
+        language={language}
+        pickUp={pickUp}
+        dropOff={dropOff}
+        timelineItems={timelineItems}
+        accessibility={accessibility}
+        avgRating={avgRating}
+        colSpan={colSpan}
+        desc={desc}
+        availableDates={availableDates}
       />
-      {
-        <Row justify="center">
-          {Object.entries(timelineItems).map(([key, value]) => {
-            return (
-              <Col span={12} key={key}>
-                <h3>{camelCaseToNormalText(key)}</h3>
-                <Timeline key={key} timelineItems={value} fieldName={key} />
-              </Col>
-            );
-          })}
-        </Row>
-      }
-      {/* {timelineItems ? <Timeline timelineItems={timelineItems} /> : null} */}
+
+      {type == "venue" ? (
+        <LocationOpeningHours
+          colSpan={colSpan}
+          location={location}
+          openingHours={openingHours}
+        />
+      ) : null}
       <Feedbacks
         writeReviewForm={writeReviewForm}
         onSubmitWriteReview={onSubmitWriteReview}

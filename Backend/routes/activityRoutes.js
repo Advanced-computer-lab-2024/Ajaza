@@ -4,6 +4,9 @@ const activityController = require("../controllers/activityController");
 
 router.post("/", activityController.createActivity);
 
+//req 33
+router.patch("/hide/:id", activityController.hideActivity);
+
 router.get("/", activityController.getAllActivities);
 
 //not hidden
@@ -47,5 +50,8 @@ router.post('/createSpecifiedActivity/:advertiserId', activityController.createS
 router.get('/readActivities/:advertiserId', activityController.readActivitiesOfAdvertiser);
 router.delete('/deleteSpecificActivity/:advertiserId/:activityId', activityController.deleteSpecificActivity);
 router.put('/updateActivityFilteredFields/:advertiserId/:activityId', activityController.updateActivityFilteredFields);
+
+// req39
+//router.get("/preferrences/:id", activityController.getActivitiesByPreferences);
 
 module.exports = router;

@@ -29,8 +29,8 @@ const touristSchema = new mongoose.Schema({
     {
       text: { type: String, required: false },
       seen: { type: Boolean, default: false },
-      activityId: { type: Number },
-      itineraryId: { type: Number },
+      activityId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Activity'},
+      itineraryId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Itinerary'},
     },
   ],
   points: { type: Number, default: 0 }, //points updated after booking, if cancelled do not refund points from user
@@ -66,7 +66,8 @@ const touristSchema = new mongoose.Schema({
   usedPromoCodes: [{ type: String }],
   gaveFeedback: [{ type: mongoose.Schema.Types.ObjectId, required: false}],
   requestingDeletion: { type: Boolean, default: false },//ng added for deletion
-
+  preferredTags: [{ type: String }],
+  preferredCategories: [{ type: String }],
 });
 
 // Create the model

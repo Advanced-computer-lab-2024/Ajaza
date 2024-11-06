@@ -305,14 +305,14 @@ exports.sellerUpdateProfile = async (req, res) => {
   const allowedFields = ["email", "name", "desc", "logo"];
 
   // Filter the request body
-  const filteredBody = {};
+  const filteredBody = req.body;/*{};
   allowedFields.forEach((field) => {
     // Loop through the allowed fields
     if (req.body[field] !== undefined) {
       // Check if the field exists in the request body
       filteredBody[field] = req.body[field]; // Add the field to the filtered body
     }
-  });
+  });*/
 
   try {
     // Retrieve the existing seller document
@@ -328,13 +328,21 @@ exports.sellerUpdateProfile = async (req, res) => {
       return res.status(401).json({ message: "Seller is pending approval" });
     }
     // Proceed with the update
+    console.log(filteredBody);
     const updatedSeller = await Seller.findByIdAndUpdate(
       sellerId,
       filteredBody,
       { new: true, runValidators: true }
     );
     updatedSeller.pass = undefined;
-    res.status(200).json(updatedSeller);
+
+    const token = jwt.sign(
+      { userId: updatedSeller._id, role: "seller", userDetails: updatedSeller }, // Include user data in the token
+      process.env.JWT_SECRET, // Use the environment variable
+      { expiresIn: "1h" }
+    );
+
+    res.status(200).json({ updatedSeller, token });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -476,37 +484,37 @@ exports.uploadSellerLogo = async (req, res) => {
 };
 
 // get seller documents
-exports.getSellerDocuments = async (req, res) => {
-  try {
-    const seller = await Seller.findById(req.params.id).select(
-      "id taxationRegCard"
-    );
+// exports.getSellerDocuments = async (req, res) => {
+//   try {
+//     const seller = await Seller.findById(req.params.id).select(
+//       "id taxationRegCard"
+//     );
 
-    if (!seller) {
-      return res.status(404).json({ message: "Seller not found" });
-    }
+//     if (!seller) {
+//       return res.status(404).json({ message: "Seller not found" });
+//     }
 
-    const response = {
-      message: "Documents retrieved successfully",
-      id: seller.id || null,
-      taxationRegCard: seller.taxationRegCard || null,
-    };
+//     const response = {
+//       message: "Documents retrieved successfully",
+//       id: seller.id || null,
+//       taxationRegCard: seller.taxationRegCard || null,
+//     };
 
-    if (!seller.id) {
-      response.idMessage = "No ID uploaded by this seller";
-    }
+//     if (!seller.id) {
+//       response.idMessage = "No ID uploaded by this seller";
+//     }
 
-    if (!seller.taxationRegCard) {
-      response.taxationRegCardMessage =
-        "No taxation registration card uploaded by this seller";
-      response.taxationRegCard = null;
-    }
+//     if (!seller.taxationRegCard) {
+//       response.taxationRegCardMessage =
+//         "No taxation registration card uploaded by this seller";
+//       response.taxationRegCard = null;
+//     }
 
-    res.status(200).json(response);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+//     res.status(200).json(response);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 //admin accept seller
 exports.acceptSeller = async (req, res) => {
@@ -576,6 +584,93 @@ exports.requestDeletion = async (req, res) => {
 
     res.status(200).json({ message: "Seller deletion requested successfully" });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+exports.validateEmailUsername = async(req, res) =>{
+  const { email, username } = req.body; // Destructure email and username from request body
+  try {
+    // Validate email
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      return res.status(400).json({ error: emailValidation.message });
+    }
+
+    // Check for unique email
+    const emailAvailability = await checkEmailAvailability(email);
+    if (!emailAvailability.isAvailable) {
+      return res.status(400).json({ message: emailAvailability.message });
+    }
+
+    // Check for unique username
+    const usernameAvailability = await checkUsernameAvailability(username);
+    if (!usernameAvailability.isAvailable) {
+      return res.status(400).json({ message: usernameAvailability.message });
+    }
+    // If all validations pass, return a success message
+    return res.status(200).json({ message: "Everything is valid!" });
+  }
+  catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+// returns all sellers that are pending
+exports.getPendingSellers = async (req, res) => {
+  try {
+    // Fetch advertisers with pending status
+    const pendingSellers = await Seller.find({ "pending" : true }).exec();
+    
+    if (pendingSellers.length === 0) {
+      return res.status(404).json({ message: "No Sellers with pending status found." });
+    }
+    
+    // Return the found pending advertisers
+    res.status(200).json(pendingSellers);
+  } catch (error) {
+    console.error("Error fetching pending sellers:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getSellerDetails = async (req, res) => {
+  const sellerId = req.params.id; // Get the ID from the request parameters
+
+  try {
+    console.log(`Fetching details for seller with ID: ${sellerId}`);
+    
+    // Find the seller by ID and populate referenced fields if necessary
+    const seller = await Seller.findById(sellerId)
+      .populate('id') // Populate the national ID image reference
+      .populate('taxationRegCard') // Populate the taxation registration card image reference
+      .populate('logo') // Populate the logo reference if needed
+      .exec();
+
+    if (!seller) {
+      return res.status(404).json({ message: "Seller not found." });
+    }
+
+    // Create a response object with required fields
+    const responseSeller = {
+      id: seller.id ? seller.id.imageUrl : null, // Assuming the referenced Img model has a field 'imageUrl' for the national ID
+      name: seller.name,
+      username: seller.username,
+      email: seller.email,
+      desc: seller.desc,
+      //logo: seller.logo ? seller.logo.imageUrl : null, // Assuming the logo has an imageUrl field
+      taxationRegCard: seller.taxationRegCard ? seller.taxationRegCard.imageUrl : null, // Assuming it also has an imageUrl field
+      acceptedTerms: seller.acceptedTerms,
+      pending: seller.pending,
+      requestingDeletion: seller.requestingDeletion,
+      //notifications: seller.notifications,
+    };
+
+    // Return the seller details excluding sensitive information
+    res.status(200).json(responseSeller);
+  } catch (error) {
+    console.error("Error fetching seller details:", error);
     res.status(500).json({ error: error.message });
   }
 };
