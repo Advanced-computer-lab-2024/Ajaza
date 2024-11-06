@@ -14,8 +14,8 @@ const CreateAdvertiser = () => {
     email: "",
     username: "",
     password: "",
-    document1: null,
-    document2: null,
+    document1: [],
+    document2: [],
   });
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false); // Loading state for displaying the wait message
@@ -26,12 +26,9 @@ const CreateAdvertiser = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleFileChange = (name) => (e) => {
-    if (name === "document1") {
-      setFormData((prevData) => ({ ...prevData, document1: e.fileList }));
-    } else if (name === "document2") {
-      setFormData((prevData) => ({ ...prevData, document2: e.fileList }));
-    }
+  const handleFileChange = (name) => (info) => {
+    let fileList = [...info.fileList];
+    setFormData((prevData) => ({ ...prevData, [name]: fileList }));
   };
 
   const nextStep = async () => {
@@ -206,7 +203,7 @@ const validateUploadForm = () => {
                 label="ID"
                 name="document1"
                 valuePropName="fileList"
-                getValueFromEvent={handleFileChange("document1")}
+                getValueFromEvent={(e) => e.fileList}
                 extra="Upload your ID."
               >
                 <Upload
@@ -215,6 +212,7 @@ const validateUploadForm = () => {
                   beforeUpload={() => false}
                   maxCount={1}
                   fileList={formData.document1}
+                  onChange={handleFileChange("document1")}
                 >
                   <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
                 </Upload>
@@ -225,7 +223,7 @@ const validateUploadForm = () => {
                 label="Taxation Registry Card"
                 name="document2"
                 valuePropName="fileList"
-                getValueFromEvent={handleFileChange("document2")}
+                getValueFromEvent={(e) => e.fileList}
                 extra="Upload your Taxation Registry Card."
               >
                 <Upload
@@ -234,6 +232,7 @@ const validateUploadForm = () => {
                   beforeUpload={() => false}
                   maxCount={1}
                   fileList={formData.document2}
+                  onChange={handleFileChange("document2")}
                 >
                   <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
                 </Upload>

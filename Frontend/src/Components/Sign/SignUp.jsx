@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect,useRef } from "react";
 import CustomButton from "../Common/CustomButton";
 import CreateTourist from "./CreateTourist";
 import CreateTourGuide from "./CreateTourGuide";
@@ -18,6 +18,18 @@ const getArticle = (role) => {
 const SignUp = () => {
   const [role, setRole] = useState("tourist");
   const navigate = useNavigate();
+  
+  const isFirstRender = useRef(true);
+
+  // Use useEffect to set the role to "tourist" and navigate to the corresponding route on page load
+  useEffect(() => {
+    if (isFirstRender.current) {
+      navigate("/auth/signup");
+      setRole("tourist");
+      isFirstRender.current = false;
+    }
+  }, [navigate]);
+
   return (
     <>
       <div

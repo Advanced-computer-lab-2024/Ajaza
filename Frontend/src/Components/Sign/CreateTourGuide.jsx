@@ -13,8 +13,8 @@ const CreateTourGuide = () => {
     email: "",
     username: "",
     password: "",
-    document1: null,
-    document2: [],
+    document1: [], // Initialize as an empty array
+    document2: [], // Initialize as an empty array
   });
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false); // Loading state for displaying the wait message
@@ -25,12 +25,9 @@ const CreateTourGuide = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleFileChange = (name) => (e) => {
-    if (name === "document1") {
-      setFormData((prevData) => ({ ...prevData, document1: e.fileList }));
-    } else if (name === "document2") {
-      setFormData((prevData) => ({ ...prevData, document2: e.fileList }));
-    }
+  const handleFileChange = (name) => (info) => {
+    let fileList = [...info.fileList];
+    setFormData((prevData) => ({ ...prevData, [name]: fileList }));
   };
 
   const nextStep = async () => {
@@ -78,64 +75,62 @@ const CreateTourGuide = () => {
   };
 
   const registerTourGuide = async () => {
-  try {
-    await validateUploadForm(); // Validate upload form before submitting
+    try {
+      await validateUploadForm(); // Validate upload form before submitting
 
-    const formDataToSubmit = new FormData();
-    formDataToSubmit.append("username", formData.username);
-    formDataToSubmit.append("pass", formData.password);
-    formDataToSubmit.append("email", formData.email);
+      const formDataToSubmit = new FormData();
+      formDataToSubmit.append("username", formData.username);
+      formDataToSubmit.append("pass", formData.password);
+      formDataToSubmit.append("email", formData.email);
 
-    if (formData.document1 && formData.document1.length > 0) {
-      formDataToSubmit.append("id", formData.document1[0].originFileObj);
-    }
-
-    if (formData.document2 && formData.document2.length > 0) {
-      for (let i = 0; i < formData.document2.length; i++) {
-        formDataToSubmit.append("certificates", formData.document2[i].originFileObj);
+      if (formData.document1 && formData.document1.length > 0) {
+        formDataToSubmit.append("id", formData.document1[0].originFileObj);
       }
-    }
-    navigate("/auth/signin");
 
-    const response = await axios.post(
-      "http://localhost:5000/guide/guestGuideCreateProfile",
-      formDataToSubmit,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      if (formData.document2 && formData.document2.length > 0) {
+        for (let i = 0; i < formData.document2.length; i++) {
+          formDataToSubmit.append("certificates", formData.document2[i].originFileObj);
+        }
       }
-    );
-
-    message.success("TourGuide created successfully!");
-
-    if (response.status === 201) {
       navigate("/auth/signin");
-    }
 
-  } catch (error) {
-    if (error.message === "Please upload your ID!" || error.message === "Please upload your certificates!") {
-      message.error(error.message);
-    } else {
-      const errorDetails = error.response?.data?.message || error.response?.data?.error || "Failed to create tour guide.";
-      message.error(`Failed to create tour guide: ${errorDetails}`);
-    }
-  }
-};
+      const response = await axios.post(
+        "http://localhost:5000/guide/guestGuideCreateProfile",
+        formDataToSubmit,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-const validateUploadForm = () => {
-  return new Promise((resolve, reject) => {
-    if (!formData.document1 || formData.document1.length === 0) {
-      reject(new Error("Please upload your ID!"));
-    }
-    if (!formData.document2 || formData.document2.length === 0) {
-      reject(new Error("Please upload your certificates!"));
-    }
-    resolve();
-  });
-};
+      message.success("TourGuide created successfully!");
 
+      if (response.status === 201) {
+        navigate("/auth/signin");
+      }
 
+    } catch (error) {
+      if (error.message === "Please upload your ID!" || error.message === "Please upload your certificates!") {
+        message.error(error.message);
+      } else {
+        const errorDetails = error.response?.data?.message || error.response?.data?.error || "Failed to create tour guide.";
+        message.error(`Failed to create tour guide: ${errorDetails}`);
+      }
+    }
+  };
+
+  const validateUploadForm = () => {
+    return new Promise((resolve, reject) => {
+      if (!formData.document1 || formData.document1.length === 0) {
+        reject(new Error("Please upload your ID!"));
+      }
+      if (!formData.document2 || formData.document2.length === 0) {
+        reject(new Error("Please upload your certificates!"));
+      }
+      resolve();
+    });
+  };
 
   return (
     <>
@@ -205,7 +200,7 @@ const validateUploadForm = () => {
                 label="ID"
                 name="document1"
                 valuePropName="fileList"
-                getValueFromEvent={handleFileChange("document1")}
+                getValueFromEvent={(e) => e.fileList}
                 extra="Upload your ID."
               >
                 <Upload
@@ -214,6 +209,7 @@ const validateUploadForm = () => {
                   beforeUpload={() => false}
                   maxCount={1}
                   fileList={formData.document1}
+                  onChange={handleFileChange("document1")}
                 >
                   <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
                 </Upload>
@@ -224,7 +220,7 @@ const validateUploadForm = () => {
                 label="Certificates"
                 name="document2"
                 valuePropName="fileList"
-                getValueFromEvent={handleFileChange("document2")}
+                getValueFromEvent={(e) => e.fileList}
                 extra="Upload your certificates."
               >
                 <Upload
@@ -233,6 +229,7 @@ const validateUploadForm = () => {
                   beforeUpload={() => false}
                   fileList={formData.document2}
                   multiple
+                  onChange={handleFileChange("document2")}
                 >
                   <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
                 </Upload>
