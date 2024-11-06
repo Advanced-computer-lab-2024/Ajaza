@@ -635,36 +635,63 @@ exports.getPendingSellers = async (req, res) => {
   }
 };
 
+exports.getPendingAdvertisers = async (req, res) => {
+  try {
+    // Fetch advertisers with pending status
+    const pendingAdvertisers = await Advertiser.find({ "pending" : true }).exec();
+    
+    if (pendingAdvertisers.length === 0) {
+      return res.status(404).json({ message: "No advertisers with pending status found." });
+    }
+    
+    // Return the found pending advertisers
+    res.status(200).json(pendingAdvertisers);
+  } catch (error) {
+    console.error("Error fetching pending advertisers:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//returns details to be displayed.
 exports.getSellerDetails = async (req, res) => {
-  const sellerId = req.params.id; // Get the ID from the request parameters
+  const sellerId = req.params.id;
 
   try {
     console.log(`Fetching details for seller with ID: ${sellerId}`);
     
-    // Find the seller by ID and populate referenced fields if necessary
+    // Find the advertiser by ID and populate image references
     const seller = await Seller.findById(sellerId)
-      .populate('id') // Populate the national ID image reference
-      .populate('taxationRegCard') // Populate the taxation registration card image reference
-      .populate('logo') // Populate the logo reference if needed
+      .populate({ path: 'id', select: '_id' })  // Populate with _id to construct the image path
+      .populate({ path: 'taxationRegCard', select: '_id' })
+      .populate({ path: 'logo', select: '_id' })
       .exec();
 
     if (!seller) {
       return res.status(404).json({ message: "Seller not found." });
     }
 
-    // Create a response object with required fields
+    // Log details for debugging
+    console.log("Seller ID:", seller.id); // Full object of ID
+    console.log("Taxation Reg Card:", seller.taxationRegCard);
+    console.log("Logo:", seller.logo);
+
+    // Construct the response object with image paths for ID and Taxation Registration Card
     const responseSeller = {
-      id: seller.id ? seller.id.imageUrl : null, // Assuming the referenced Img model has a field 'imageUrl' for the national ID
-      name: seller.name,
+      id: seller.id ? `uploads/${seller.id._id}.jpg` : null,
+      taxationRegCard: seller.taxationRegCard ? `uploads/${seller.taxationRegCard._id}.jpg` : null,
+     // logo: advertiser.logo ? `uploads/${advertiser.logo._id}.jpg` : null,
       username: seller.username,
       email: seller.email,
-      desc: seller.desc,
-      //logo: seller.logo ? seller.logo.imageUrl : null, // Assuming the logo has an imageUrl field
-      taxationRegCard: seller.taxationRegCard ? seller.taxationRegCard.imageUrl : null, // Assuming it also has an imageUrl field
-      acceptedTerms: seller.acceptedTerms,
+      link: seller.link || null,
+      hotline: seller.hotline || null,
+      companyProfile: {
+        name: seller.companyProfile?.name || null,
+        desc: seller.companyProfile?.desc || null,
+        location: seller.companyProfile?.location || null,
+      },
       pending: seller.pending,
-      requestingDeletion: seller.requestingDeletion,
-      //notifications: seller.notifications,
+      acceptedTerms: seller.acceptedTerms,
+      requestingDeletion: seller.requestingDeletion || false,
     };
 
     // Return the seller details excluding sensitive information
