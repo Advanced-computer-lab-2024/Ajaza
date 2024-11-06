@@ -292,3 +292,49 @@ exports.changePassword = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.generateToken = async (req, res) => {
+  try {
+    const { role, id } = req.body;
+
+    let user;
+    switch (role) {
+      case "tourist":
+        user = await Tourist.findById(id);
+        break;
+      case "advertiser":
+        user = await Advertiser.findById(id);
+        break;
+      case "guide":
+        user = await TourGuide.findById(id);
+        break;
+      case "seller":
+        user = await Seller.findById(id);
+        break;
+      case "governor":
+        user = await TourismGovernor.findById(id);
+        break;
+      case "admin":
+        user = await Admin.findById(id);
+        break;
+      default:
+        return res.status(400).json({ message: "Invalid role" });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate a new JWT token
+    const token = jwt.sign(
+      { userId: user._id, role, userDetails: user }, // Include user data in the token
+      process.env.JWT_SECRET, // Use the environment variable
+      { expiresIn: "1h" }
+    );
+
+    res.status(200).json({ token });
+  } catch (error) {
+    console.error("Error generating token:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
