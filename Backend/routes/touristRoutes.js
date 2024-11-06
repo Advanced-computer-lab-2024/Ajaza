@@ -82,7 +82,7 @@ router.post("/emailShare/:id", touristController.emailShare);
 router.patch("/redeemPoints/:id", touristController.redeemPoints);
 
 // req40
-router.get("/flights/searchFlights", apiController.searchFlights);
+router.post("/flights/searchFlights", apiController.searchFlights);
 /*needs (origin and destination are IATA)
 origin,
 destination,
@@ -117,6 +117,8 @@ checkInDate,
 checkOutDate,
 count
 */
+
+router.get('/hotels/fetchImagesPlz/:hotelName', apiController.fetchImagesPlz);
 
 router.post('/hotels/bookHotel/:id', apiController.bookHotel);
 /*needs

@@ -11,6 +11,8 @@ import {
   Select,
   DatePicker,
   InputNumber,
+  Modal,
+  Image
 } from "antd";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
@@ -44,6 +46,9 @@ const Hotels = () => {
   const [response, setResponse] = useState(null); // Store decoded token or API data
   const [userDetails, setUserDetails] = useState(null);
   const [formVisible, setFormVisible] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
+  const [selectedHotel, setSelectedHotel] = useState(null);
+  const [hotelImages, setHotelImages] = useState([]);
   const navigate = useNavigate(); // useNavigate hook for programmatic navigation
 
   useEffect(() => {
@@ -77,7 +82,7 @@ const Hotels = () => {
         checkOutDate: values.secondDate.format("YYYY-MM-DD"),
         count: values.numberInput
       });
-
+      console.log("API Response:", response.data);
       setHotels(response.data);
       if (response.data.length === 0) {
         message.warning("No hotels found for the selected criteria.");
@@ -97,6 +102,27 @@ const Hotels = () => {
 
   const handleFormFail = (errorInfo) => {
     console.log("Form validation failed:", errorInfo);
+  };
+
+  const fetchImages = async (hotelName) => {
+    try {
+      const response = await axios.get(`${apiUrl}tourist/hotels/fetchImagesPlz/${hotelName}`);
+      setHotelImages(response.data);  // Store images in state
+    } catch (error) {
+      console.error("Error fetching images:", error);
+      message.error("Failed to load images.");
+    }
+  };
+
+  const handleViewDetails = (hotel) => {
+    setSelectedHotel(hotel);
+    setModalVisible(true);
+    fetchImages(hotel.name);  // Fetch images for the selected hotel
+  };
+
+  const handleModalClose = () => {
+    setModalVisible(false);
+    setHotelImages([]);  // Clear images when modal is closed
   };
 
   return (
@@ -191,11 +217,35 @@ const Hotels = () => {
                   Check-out: {hotel.checkout} <br />
                   Score: {hotel.score}
                 </div>
+                <Button type="link" onClick={() => handleViewDetails(hotel)}>
+                  View Details
+                </Button>
               </List.Item>
             )}
           />
         </Card>
       )}
+<Modal
+        title={selectedHotel ? selectedHotel.name : "Hotel Details"}
+        visible={modalVisible}
+        onCancel={handleModalClose}
+        footer={null}
+      >
+        {selectedHotel && (
+          <>
+            <p><strong>City:</strong> {selectedHotel.city}</p>
+            <p><strong>Price:</strong> {selectedHotel.price} {selectedHotel.currency}</p>
+            <p><strong>Check-in:</strong> {selectedHotel.checkin}</p>
+            <p><strong>Check-out:</strong> {selectedHotel.checkout}</p>
+            <p><strong>Score:</strong> {selectedHotel.score}</p>
+          </>
+        )}
+        <Space wrap>
+          {hotelImages.map((image, index) => (
+            <Image key={index} width={300} src={image} alt="Hotel Room" />
+          ))}
+        </Space>
+      </Modal>
     </>
   );
 };

@@ -162,6 +162,25 @@ exports.getHotelDetails = async (req,res) => {
   }
 }
 
+exports.fetchImagesPlz = async (req,res) => {
+  const { hotelName } = req.params;
+  try {
+    const response = await axiosInstance.get('https://www.googleapis.com/customsearch/v1', {
+      params: {
+        key: GOOGLE_API_KEY,
+        cx: CX,
+        q: hotelName + " rooms",
+        searchType: 'image',
+        num: 10,
+      },
+    });
+
+    const images = response.data.items.map(item => item.link);
+    res.status(200).json(images);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
 
 async function fetchImages(hotelName) {
     try {
@@ -188,7 +207,7 @@ async function fetchImages(hotelName) {
   }
 }
 
-async function filterHotelFields(hotel) {
+function filterHotelFields(hotel) {
     // Extract price from the accessibilityLabel string
   let priceMatch = null;
   let priceMatchb = null;
@@ -235,7 +254,7 @@ async function searchHotels(dest_id , checkInDate, checkOutDate , count = 1) {
             },
         });
         if(response.data.data) {
-          const filteredHotels = response.data.data.hotels.map(filterHotelFields);
+          const filteredHotels = await Promise.all(response.data.data.hotels.map(filterHotelFields));
           return filteredHotels;  // Return the filtered hotels
         } else {
           return [];
@@ -256,7 +275,7 @@ exports.searchHotels = async (req,res) => {
         if (returned.length === 0) {
           return res.status(404).json({ error: "No hotels found" }); // Use 404 for not found
       }
-      return res.status(200).json(filterHotelFields(returned));
+      return res.status(200).json(returned);
     } catch(error) {
         return res.status(500).json({ error: error.message });
     }

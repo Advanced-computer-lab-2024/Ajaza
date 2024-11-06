@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const flightBookingSchema = new mongoose.Schema({
     touristId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Tourist' },
     departureAirport: { type: String },
-    totalDuration: { type: Number },
+    totalDuration: { type: String },
     currency: { type: String },
     price: { type: Number },
     departureTime: { type: Date },
