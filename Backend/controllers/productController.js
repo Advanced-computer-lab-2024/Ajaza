@@ -132,10 +132,12 @@ exports.giveFeedback = async (req, res) => {
       });
     }
 
+    const touristName = tourist.username;
+
     const updatedProduct = await Product.findByIdAndUpdate(
       productId,
       {
-        $push: { feedback: { rating, comments } },
+        $push: { feedback: { touristName, rating, comments } },
       },
       { new: true }
     );

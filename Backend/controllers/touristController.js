@@ -188,15 +188,11 @@ exports.emailShare = async (req, res) => {
         '"><button>Go to link</button></a>',
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error sending email: ", error);
-      } else {
-        console.log("Email sent: ", info.response);
-      }
-    });
+    transporter.sendMail(mailOptions)
+      .then(info => console.log("Email sent: ", info.response))
+      .catch(error => console.error("Error sending email: ", error));
 
-    res.status(200).json({ message: "Email sent" });
+    res.status(200).json({ message: "Email is being sent" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -440,7 +436,7 @@ exports.bookActivity = async (req, res) => {
     // Add the booking to the tourist's activityBookings array
     tourist.activityBookings.push({
       activityId: activity._id,
-      total: activity.price,
+      total: total,
     });
 
     if (promoCode) {
@@ -462,12 +458,12 @@ exports.bookActivity = async (req, res) => {
         newPoints = 0.5 * total;
     }
 
-    tourist.points += newPoints;
-    tourist.totalPoints += newPoints;
+    tourist.points += Math.floor(newPoints);
+    tourist.totalPoints += Math.floor(newPoints);
 
-    if (totalPoints > 500000) {
+    if (tourist.totalPoints > 500000) {
       tourist.badge = 3;
-    } else if (totalPoints > 100000) {
+    } else if (tourist.totalPoints > 100000) {
       tourist.badge = 2;
     } else {
       tourist.badge = 1;
@@ -536,9 +532,10 @@ exports.bookItinerary = async (req, res) => {
         .status(400)
         .json({ message: "This itinerary is not open for booking" });
     }
+    const factoredDate = new Date(date);
 
     const availableDate = itinerary.availableDateTime.find(
-      (dateObj) => dateObj.date.getTime() === date.getTime()
+      (dateObj) => dateObj.date.getTime() === factoredDate.getTime()
     );
 
     if (!availableDate || availableDate.spots <= 0) {
@@ -580,7 +577,7 @@ exports.bookItinerary = async (req, res) => {
     tourist.itineraryBookings.push({
       itineraryId: itinerary._id,
       date: date,
-      total: itinerary.price,
+      total: total,
     });
 
     if (promoCode) {
@@ -602,12 +599,12 @@ exports.bookItinerary = async (req, res) => {
         newPoints = 0.5 * total;
     }
 
-    tourist.points += newPoints;
-    tourist.totalPoints += newPoints;
+    tourist.points += Math.floor(newPoints);
+    tourist.totalPoints += Math.floor(newPoints);
 
-    if (totalPoints > 500000) {
+    if (tourist.totalPoints > 500000) {
       tourist.badge = 3;
-    } else if (totalPoints > 100000) {
+    } else if (tourist.totalPoints > 100000) {
       tourist.badge = 2;
     } else {
       tourist.badge = 1;
@@ -902,28 +899,14 @@ exports.getHistory = async (req, res) => {
   try {
     const tourist = await Tourist.findById(req.params.id)
       .populate("activityBookings.activityId")
-      .populate("itineraryBookings.itineraryId");
+      .populate("itineraryBookings.itineraryId")
+      .populate("orders.products.productId");
 
     if (!tourist) {
       throw new Error("Tourist not found");
     }
 
     const currentDate = new Date();
-    /*
-      activity ids
-      66f6ac560f0094718a1e9e73
-      66f6ac560f0094718a1e9e74
-      66f6ac560f0094718a1e9e75
-      670433de2aa613b75f8e4935
-    */
-    /*
-      itinerary ids
-      66f6adef0f0094718a1f6050
-      66f6adef0f0094718a1f6051
-      66f6adef0f0094718a1f6052
-      66f6adef0f0094718a1f6053
-    */
-    /*guide 66f6ad970f0094718a1f366a*/
     let activities = [];
     for (let i = 0; i < tourist.activityBookings.length; i++) {
       if (tourist.activityBookings[i].activityId.date < currentDate) {
@@ -988,10 +971,29 @@ exports.getHistory = async (req, res) => {
       }
     }
 
+    let products = [];
+    for (let i = 0; i < tourist.orders.length; i++) {
+      if(tourist.orders[i].date < currentDate && tourist.orders[i].status != "Cancelled") {
+        for (let j = 0; j < tourist.orders[i].products.length; j++) {
+          console.log("alooooo: ", tourist.orders[i].products[j].productId._id);
+          products.push({
+            productId: tourist.orders[i].products[j].productId._id,
+            name: tourist.orders[i].products[j].productId.name,
+            sellerName: tourist.orders[i].products[j].productId.sellerName,
+            date: tourist.orders[i].date,
+            gaveFeedback: tourist.gaveFeedback.includes(
+              tourist.orders[i].products[j].productId
+            ),
+          });
+        }
+      }
+    }
+//66f6ae2a0f0094718a1f7d82 some product id to test
     res.status(200).json({
       activities: activities,
       itineraries: itineraries,
       guides: guides,
+      products: products,
     });
   } catch (error) {
     console.error("Error retrieving past activity bookings:", error);

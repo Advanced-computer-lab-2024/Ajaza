@@ -83,10 +83,75 @@ router.patch("/redeemPoints/:id", touristController.redeemPoints);
 
 // req40
 router.get("/flights/searchFlights", apiController.searchFlights);
-//router.post('/flights/bookFlight', apiController.bookFlight);
+/*needs (origin and destination are IATA)
+origin,
+destination,
+departureDate,
+count
+*/
+
+router.post('/flights/bookFlight/:id', apiController.bookFlight);
+/*needs (all these fields are returned from search earlier)
+touristId, (params)
+departureAirport,
+totalDuration,
+currency,
+price,
+departureTime,
+departureTerminal,
+arrivalAirport,
+arrivalTime,
+arrivalTerminal,
+carrier,
+flightNumber,
+aircraft,
+stops,
+*/
+
 // req41
-//router.get('/hotels/searchHotels', apiController.searchHotels);
-//router.post('/hotels/bookHotel', apiController.bookHotel);
+router.get('/hotels/searchHotels', apiController.searchHotels);
+/*
+needs
+dest_id, 
+checkInDate,
+checkOutDate,
+count
+*/
+
+router.post('/hotels/bookHotel/:id', apiController.bookHotel);
+/*needs
+touristId, (params)
+hotelName,
+city,
+price,
+currency,
+checkin,
+checkout,
+score,
+*/
+
+//helper for req41 to get details
+router.get('/hotels/getDetails', apiController.getHotelDetails);
+/*needs (all these fields were returned from searchHotels)
+hotelName, 
+checkin, 
+checkout, 
+count, 
+dest_id, 
+city, 
+currency, 
+score
+*/
+
+// req42
+router.get('/transportation/searchTransportation', apiController.searchTransfer7);
+/*needs
+IATA,
+endAddressLine,
+startDateTime
+*/
+
+router.get('/transportation/getGeoLocation', apiController.testGeoLocation);
 
 // req61
 router.delete(

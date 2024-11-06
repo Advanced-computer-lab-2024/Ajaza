@@ -46,7 +46,6 @@ const CustomButton = ({
     fontWeight = "bold";
     margin = "20px";
   }
-
   return (
     <AntdButton
       type="primary"

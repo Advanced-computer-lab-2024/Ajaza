@@ -13,6 +13,11 @@ router.post("/", advertiserController.createAdvertiser);
 
 router.get("/", advertiserController.getAllAdvertisers);
 
+//req 12
+router.get("/pending", advertiserController.getPendingAdvertisers);
+
+router.get("/details/:id", advertiserController.getAdvertiserDetails);
+
 router.get("/:id", advertiserController.getAdvertiserById);
 
 router.patch("/:id", advertiserController.updateAdvertiser);
@@ -28,9 +33,6 @@ router.delete(
 //req5  -- Tatos
 router.post(
   "/guestAdvertiserCreateProfile",
-  validateEmail,
-  uniqueUsername,
-  uniqueEmail,
   uploadIdTaxImage,
   advertiserController.guestAdvertiserCreateProfile
 ); // Guest Advertiser sign up
@@ -81,10 +83,10 @@ router.post(
 );
 
 //for admin to view uploaded documents of a advertiser
-router.get(
-  "/getDocuments/:advertiserId",
-  advertiserController.getAdvertiserDocuments
-); //id walla advertiserId
+// router.get(
+//   "/getDocuments/:advertiserId",
+//   advertiserController.getAdvertiserDocuments
+// ); //id walla advertiserId
 
 //accept advertiser
 router.put("/accept/:id", advertiserController.acceptAdvertiser);
@@ -94,5 +96,11 @@ router.delete("/reject/:id", advertiserController.rejectAdvertiser);
 
 //request deletion
 router.patch("/requestDeletion/:id", advertiserController.requestDeletion);
+
+
+router.post("/validateEmailUsername", advertiserController.validateEmailUsername); // New route for email and username validation
+
+//req12
+
 
 module.exports = router;

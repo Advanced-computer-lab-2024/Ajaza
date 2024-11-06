@@ -378,7 +378,6 @@ const SearchFilterSortContainer = ({
                 {...combinedProps}
                 fields={mappedFields}
                 onClick={() => {
-                  console.log("hi");
                   navigate(element["_id"]);
                 }}
               />

@@ -1,12 +1,15 @@
-import React, { Modal } from "react";
+import React, { Modal, useEffect, useState } from "react";
 import { Flex, Row, Col } from "antd";
 import Feedbacks from "./Feedbacks";
-import Timeline from "./Timeline";
-import { camelCaseToNormalText, Colors } from "./Constants";
-import CustomButton from "./CustomButton";
-import { ShareAltOutlined } from "@ant-design/icons";
+import HeaderInfo from "./HeaderInfo";
+import { jwtDecode } from "jwt-decode";
+import { getAvgRating } from "./Constants";
+import LocationOpeningHours from "./LocationOpeningHours";
 
 const Item = ({
+  id,
+  name,
+  photos,
   timelineItems,
   setTimeline,
   feedbacks,
@@ -15,44 +18,92 @@ const Item = ({
   onSubmitWriteReview,
   bookItem,
   cancelBookingItem,
+  type, // Activity, Venue, Itinerary, Product, etc
+  tags,
+  price,
+  priceLower,
+  priceUpper,
+  category,
+  location,
+  sellerName,
+  sales,
+  quantity,
+  isOpen,
+  spots,
+  date,
+  creatorName,
+  discounts,
+  language,
+  pickUp,
+  dropOff,
+  accessibility,
+  openingHours,
+  desc,
+  availableDates,
 }) => {
-  const shareItem = () => {};
+  const [user, setUser] = useState(null);
+  const [avgRating, setAvgRating] = useState(null);
+  const [colSpan, setColSpan] = useState(16);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const decodedToken = jwtDecode(token);
+    setUser(decodedToken.userDetails);
+  }, []);
+
+  useEffect(() => {
+    setAvgRating(getAvgRating(feedbacks));
+  }, [feedbacks]);
+  // Product fields done
+  // Activity fields done
+  // Itinerary maxTourists
   return (
     <>
-      {
-        <Row justify="center">
-          {Object.entries(timelineItems).map(([key, value]) => {
-            console.log(value);
+      <HeaderInfo
+        id={id}
+        name={name}
+        photos={photos}
+        bookItem={bookItem}
+        cancelBookingItem={cancelBookingItem}
+        type={type}
+        user={user}
+        tags={tags}
+        price={price}
+        priceLower={priceLower}
+        priceUpper={priceUpper}
+        category={category}
+        location={location}
+        sellerName={sellerName}
+        sales={sales}
+        quantity={quantity}
+        isOpen={isOpen}
+        spots={spots}
+        date={date}
+        creatorName={creatorName}
+        discounts={discounts}
+        language={language}
+        pickUp={pickUp}
+        dropOff={dropOff}
+        timelineItems={timelineItems}
+        accessibility={accessibility}
+        avgRating={avgRating}
+        colSpan={colSpan}
+        desc={desc}
+        availableDates={availableDates}
+      />
 
-            return (
-              <Col span={12}>
-                <h3>{camelCaseToNormalText(key)}</h3>
-                <Timeline key={key} timelineItems={value} fieldName={key} />
-              </Col>
-            );
-          })}
-        </Row>
-      }
-      {/* {timelineItems ? <Timeline timelineItems={timelineItems} /> : null} */}
+      {type == "venue" ? (
+        <LocationOpeningHours
+          colSpan={colSpan}
+          location={location}
+          openingHours={openingHours}
+        />
+      ) : null}
       <Feedbacks
         writeReviewForm={writeReviewForm}
         onSubmitWriteReview={onSubmitWriteReview}
         feedbacks={feedbacks}
         setFeedbacks={setFeedbacks}
-      />
-      <CustomButton size={"m"} value={"Book"} onClick={bookItem} />
-      <CustomButton
-        size={"m"}
-        style={{ width: "200px", backgroundColor: Colors.warning }}
-        value={"Cancel Booking"}
-        onClick={cancelBookingItem}
-      />
-      <CustomButton
-        size={"s"}
-        style={{ width: "40px" }}
-        icon={
-          <ShareAltOutlined style={{ fontSize: "23px" }} onClick={shareItem} />
-        }
       />
     </>
   );

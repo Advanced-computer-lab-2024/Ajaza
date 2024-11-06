@@ -97,7 +97,7 @@ const Venues = () => {
         // governorId: userid,
         name: values.name,
         desc: values.desc,
-        location: selectedLocation, 
+        location: selectedLocation,
         openingHours: {
           suno: values.openingHours.suno,
           sunc: values.openingHours.sunc,
@@ -408,7 +408,7 @@ const Venues = () => {
               >
                 <Card.Meta title={venue.name} />
                 <div style={{ marginTop: 10 }}>
-                  <p>
+                  <p style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
                     <strong>Description:</strong> {venue.desc}
                   </p>
                   <p>
@@ -618,29 +618,29 @@ const Venues = () => {
             </Input.Group>
           </Form.Item>
           {!editingVenueId && (
-          <Form.Item
-            label="Pictures"
-            name="pictures"
-            valuePropName="fileList"
-            getValueFromEvent={normFile}
-          >
-            <Dragger
+            <Form.Item
+              label="Pictures"
               name="pictures"
-              listType="text"
-              fileList={fileList}
-              onChange={handleFileChange}
-              beforeUpload={() => false}
-              maxCount={3}
+              valuePropName="fileList"
+              getValueFromEvent={normFile}
             >
-              <p className="ant-upload-drag-icon">
-                <InboxOutlined />
-              </p>
-              <p className="ant-upload-text">
-                Click or drag file to this area to upload
-              </p>
-            </Dragger>
-          </Form.Item>
-        )}
+              <Dragger
+                name="pictures"
+                listType="text"
+                fileList={fileList}
+                onChange={handleFileChange}
+                beforeUpload={() => false}
+                maxCount={3}
+              >
+                <p className="ant-upload-drag-icon">
+                  <InboxOutlined />
+                </p>
+                <p className="ant-upload-text">
+                  Click or drag file to this area to upload
+                </p>
+              </Dragger>
+            </Form.Item>
+          )}
           <Form.Item>
             <AntButton type="primary" htmlType="submit">
               {editingVenueId ? "Update Venue" : "Create Venue"}
@@ -659,23 +659,23 @@ const Venues = () => {
           layout="vertical"
           onFinish={() => handleCreateTag(editingVenueId)} // Pass the editingVenueId here for tag creation
         >
-        <Form.Item
-          label="Tag"
-          rules={[{ required: true, message: "Please select a tag!" }]}
-        >
-          <Select
-            mode="multiple"
-            value={newTag} // Use the newTag state to manage selected tags
-            onChange={(value) => setNewTag(value)}
-            placeholder="Select tags"
+          <Form.Item
+            label="Tag"
+            rules={[{ required: true, message: "Please select a tag!" }]}
           >
-            {allowedTagNames.map((tag) => (
-              <Option key={tag} value={tag}>
-                {tag}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
+            <Select
+              mode="multiple"
+              value={newTag} // Use the newTag state to manage selected tags
+              onChange={(value) => setNewTag(value)}
+              placeholder="Select tags"
+            >
+              {allowedTagNames.map((tag) => (
+                <Option key={tag} value={tag}>
+                  {tag}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
           {/* <Form.Item label="Preference Tag">
             <Input
               value={preferenceTag}

@@ -1,12 +1,14 @@
-
-
 const axios = require('axios');
 const qs = require('qs');
 const express = require('express');
+const HotelBooking = require('../models/HotelBooking');
+const FlightBooking = require('../models/FlightBooking');
 require('dotenv').config();
 
 const clientId = process.env.AMADEUS_API_KEY;
 const clientSecret = process.env.AMADEUS_API_SECRET;
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const CX = process.env.CX;
 
 async function getAccessToken() {
   try {
@@ -25,14 +27,47 @@ async function getAccessToken() {
     return response.data.access_token;
   } catch (error) {
     console.error('Error generating access token:', error.response ? error.response.data : error.message);
-    throw error;
   }
 }
+
+async function filterFlightsOutput(data) {
+    return data.data.map((offer) => {
+      const { price, itineraries } = offer;
+
+      const itinerary = itineraries[0]; 
+
+      const totalDuration = itinerary.duration;
+
+      const departureSegment = itinerary.segments[0];
+
+      const arrivalSegment = itinerary.segments[itinerary.segments.length - 1];
+
+      return {
+          price: price.grandTotal,
+          currency: price.currency,
+          totalDuration,
+          departureAirport: departureSegment.departure.iataCode,
+          departureTime: departureSegment.departure.at,
+          departureTerminal: departureSegment.departure.terminal,
+          arrivalAirport: arrivalSegment.arrival.iataCode,
+          arrivalTime: arrivalSegment.arrival.at,
+          arrivalTerminal: arrivalSegment.arrival.terminal || "N/A",
+          carrier: data.dictionaries.carriers[departureSegment.carrierCode],
+          flightNumber: departureSegment.number,
+          airCraft: data.dictionaries.aircraft[departureSegment.aircraft.code],
+          stops: departureSegment.numberOfStops
+      };
+  });
+}
+
+const axiosInstance1 = axios.create({
+  timeout: 10000000, //  seconds timeout
+});
 
 // Function to search flights
 async function searchFlights(accessToken,origin,destination,departureDate,count) {
   try {
-    const response = await axios.get('https://test.api.amadeus.com/v2/shopping/flight-offers', {
+    const response = await axiosInstance1.get('https://test.api.amadeus.com/v2/shopping/flight-offers', {
       headers: {
         Authorization: `Bearer ${accessToken}`
       },
@@ -44,18 +79,15 @@ async function searchFlights(accessToken,origin,destination,departureDate,count)
       }
     });
 
-    return response.data;
-
-    //console.log('Flight Offers:', response.data);
+    return filterFlightsOutput(response.data);
   } catch (error) {
-    //return (error.response ? error.response.data : error.message)
     console.error('Error searching for flights:', error.response ? error.response.data : error.message);
-    throw error;
+    return {};
   }
 }
 
 exports.searchFlights = async (req,res) => {
-    const accessToken = getAccessToken();
+    const accessToken = await getAccessToken();
     const {origin,destination,departureDate,count} = req.body;
 
     if(!accessToken) {
@@ -67,7 +99,7 @@ exports.searchFlights = async (req,res) => {
     }
 
     try {
-        const returned = searchFlights(accessToken,origin,destination,departureDate,count);
+        const returned = await searchFlights(accessToken,origin,destination,departureDate,count);
         res.status(200).json(returned);
     } catch(error) {
         res.status(500).json({ error: error.message });
@@ -75,11 +107,76 @@ exports.searchFlights = async (req,res) => {
 };
 
 exports.bookFlight = async (req,res) => {
-    const {details, grandTotal, currency} = req.body;
-    res.status(200).json({ message:"Flight temporarily booked successfuly, proceed to payment to confirm", grandTotal:grandTotal, currency:currency, details:details });
+    const { touristId } = req.params;
+    const { departureAirport, totalDuration, currency, price, departureTime, departureTerminal, arrivalAirport, arrivalTime, arrivalTerminal, carrier, flightNumber, aircraft, stops } = req.body;
+
+    try {
+        const flightBooking = new FlightBooking({
+            touristId,
+            departureAirport,
+            totalDuration,
+            currency,
+            price,
+            departureTime,
+            departureTerminal,
+            arrivalAirport,
+            arrivalTime,
+            arrivalTerminal,
+            carrier,
+            flightNumber,
+            aircraft,
+            stops,
+        });
+
+        await flightBooking.save();
+        res.status(200).json(flightBooking);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 }
 
-function filterHotelFields(hotel) {
+const axiosInstance = axios.create({
+  timeout: 10000000, //  seconds timeout
+});
+
+exports.getHotelDetails = async (req,res) => {
+  try {
+    const { hotelName, checkin, checkout, count, dest_id, city, currency, score } = req.body;
+    const images = await fetchImages(hotelName);
+    res.status(200).json({images, hotelName, checkin, checkout, count, dest_id, city, currency, score});
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
+async function fetchImages(hotelName) {
+    try {
+      const response = await axiosInstance.get('https://www.googleapis.com/customsearch/v1', {
+      params: {
+        key: GOOGLE_API_KEY,
+        cx: CX,
+        q: hotelName + " rooms",
+        searchType: 'image',
+        num: 10,
+      },
+    });
+
+    const images = response.data.items.map(item => item.link);
+    console.log(images);
+    return images;
+  }
+  catch (error) {
+    if (error.code === 'ECONNABORTED') {
+        console.error("Request timed out");
+    } else {
+        console.error('Error fetching images:', error);
+    }
+    return null
+  }
+}
+
+async function filterHotelFields(hotel) {
     // Extract price from the accessibilityLabel string
     const priceMatch = hotel.accessibilityLabel.match(/Current price (\d+) USD/);
     const priceMatchb = hotel.accessibilityLabel.match(/Current price (\d+)/);
@@ -97,9 +194,11 @@ function filterHotelFields(hotel) {
     };
 };
 
-async function searchHotels(dest_id = '-553173', checkInDate, checkOutDate , count = 1) {
+
+//known prague = '-553173'
+async function searchHotels(dest_id , checkInDate, checkOutDate , count = 1) {
     try {
-        const response = await axios.get('https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels', {
+        const response = await axiosInstance.get('https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels', {
             headers: {
                 'X-RapidAPI-Key': process.env.RAPID_API_KEY,
                 'X-RapidAPI-Host': 'booking-com15.p.rapidapi.com',
@@ -118,11 +217,9 @@ async function searchHotels(dest_id = '-553173', checkInDate, checkOutDate , cou
         });
 
         const filteredHotels = response.data.data.hotels.map(filterHotelFields);
-        console.log(filteredHotels);
         return filteredHotels;  // Return the filtered hotels
     } catch (error) {
         console.error("Error fetching hotels:", error);
-        throw error;  // Optionally rethrow the error if you want to handle it later
     }
 }
 
@@ -133,7 +230,8 @@ exports.searchHotels = async (req,res) => {
         res.status(500).json({ error:"Missing params" });
     }
     try {
-        const returned = searchHotels(checkInDate,checkOutDate,count);
+        const returned = await searchHotels(dest_id, checkInDate,checkOutDate,count);
+        console.log(returned);
         res.status(200).json(returned);
     } catch(error) {
         res.status(500).json({ error: error.message });
@@ -141,6 +239,257 @@ exports.searchHotels = async (req,res) => {
 };
 
 exports.bookHotel = async (req,res) => {
-    const {details, grandTotal, currency} = req.body;
-    res.status(200).json({ message:"Hotel temporarily booked successfuly, proceed to payment to confirm",grandTotal:grandTotal, currency: currency, details:details });
+    const { touristId } = req.params;
+    const { hotelName, city, price, currency, checkin, checkout, score } = req.body;
+
+    try {
+        const hotelBooking = new HotelBooking({
+            touristId,
+            hotelName,
+            city,
+            price,
+            currency,
+            checkin,
+            checkout,
+            score,
+        });
+
+        await hotelBooking.save();
+        res.status(200).json(hotelBooking);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+//Transportation
+
+function filterTransferOffer(data) {
+  return data.data.map((offer) => {
+      const { transferType, start, end, vehicle, quotation } = offer;
+
+      return {
+          transferType,
+          startLocation: start.locationCode,
+          startDateTime: start.dateTime,
+          endLocation: {
+              address: end.address.line,
+              city: end.address.cityName,
+              countryCode: end.address.countryCode,
+              latitude: end.address.latitude,
+              longitude: end.address.longitude,
+          },
+          distance: distance.value + ' ' + distance.unit,
+          vehicle: vehicle.description,
+          price: quotation.monetaryAmount + ' ' + quotation.currencyCode,
+      };
+  });
+}
+
+async function searchTransportation(accessToken,requestBody) {
+  try {
+    console.log(requestBody);
+    console.log(accessToken);
+    const response = await axiosInstance.post('https://test.api.amadeus.com/v1/shopping/transfer-offers', 
+      requestBody, 
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      }
+    );
+    console.log(response.data);
+
+    return filterTransferOffer(response.data);
+  } catch (error) {
+    console.error('Error searching for transportation:', error.response ? error.response.data : error.message);
+  }
+}
+
+exports.searchTransportation = async (req, res) => {
+  try {
+    const { IATA, startDateTime, transferType, endGeoCode, passengers } = req.body;
+
+    if (!IATA || !startDateTime || !transferType || !endGeoCode || !passengers) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const passengerCharacteristics = Array.from({ length: passengers }, () => ({
+        passengerTypeCode: 'ADT',
+        age: 30
+    }));
+
+    const requestBody = {
+        startLocationCode: IATA,
+        startDateTime,
+        transferType,
+        endGeoCode,
+        passengers,
+        passengerCharacteristics
+    };
+
+    const accessToken = await getAccessToken();
+
+    if(!accessToken) {
+        res.status(500).json({ error: "error getting access token" });
+    }
+    console.log(accessToken);
+    try {
+        const returned = await searchTransportation(accessToken,requestBody);
+        res.status(200).json(returned);
+    } catch(error) {
+        res.status(500).json({ error: error.message });
+    }
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const flattenTransferData = (data) => {
+  return data.data.slice(0, 10).map(entry => ({
+      transferType: entry.transferType,
+      start_dateTime: entry.start?.dateTime,
+      start_locationCode: entry.start?.locationCode,
+      end_dateTime: entry.end?.dateTime,
+      end_address_line: entry.end?.address?.line,
+      end_address_cityName: entry.end?.address?.cityName,
+      vehicle_code: entry.vehicle?.code,
+      vehicle_description: entry.vehicle?.description,
+      vehicle_seats: entry.vehicle?.seats?.[0]?.count,
+      quotation_monetaryAmount: entry.quotation?.monetaryAmount,
+      quotation_currencyCode: entry.quotation?.currencyCode,
+      distance_value: entry.distance?.value,
+      distance_unit: entry.distance?.unit,
+  }));
+};
+
+//try outs
+
+/*
+you can always use
+{
+    "address": "Avenue Anatole France, 5"
+}
+{
+    "latitude": "48.8053318",
+    "longitude": "2.5828656"
+}
+*/
+
+const getGeolocation = async (address) => {
+  try {
+      const encodedAddress = encodeURIComponent(address);
+
+      // Use Nominatim's OpenStreetMap API
+      const response = await axios.get(`https://nominatim.openstreetmap.org/search?q=${encodedAddress}&format=json&addressdetails=1&limit=1`, {
+          headers: {
+              'User-Agent': 'Ajaza/1.0 (reservy.me@gmail.com)' // replace with your app details and email
+          }
+      });
+      
+      // Check if any results were returned
+      if (response.data.length === 0) {
+          console.log("No results found for the given address.");
+          return null;
+      }
+
+      // Extract latitude and longitude from the response
+      const location = response.data[0];
+      return location.lat + ","+ location.lon;
+
+  } catch (error) {
+      console.error("Error fetching geolocation:", error.message);
+      return null;
+  }
+};
+
+exports.testGeoLocation = async (req,res) => {
+  const { address } = req.body;
+
+  if (!address) {
+      return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+      const location = await getGeolocation(address);
+      res.status(200).json(location);
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+};
+
+exports.searchTransfer7 = async (req,res) => {
+  const { IATA, endAddressLine, startDateTime } = req.body;
+  let endCityName;
+  let endCountryCode;
+  let endGeoCode = await getGeolocation(endAddressLine);
+  if(!endGeoCode) {
+    res.status(404).json({ error: "Invalid address line" });
+  }
+  switch(IATA) {
+    case "CDG":
+      endCityName = "Paris";
+      endCountryCode = "FR";
+      break;
+    case "JFK":
+      endCityName = "New York";
+      endCountryCode = "US";
+      break;
+    case "LON":
+      endCityName = "London";
+      endCountryCode = "GB";
+      break;
+    case "DXB":
+      endCityName = "Dubai";
+      endCountryCode = "AE";
+      break;
+    case "LAX":
+      endCityName = "Los Angeles";
+      endCountryCode = "US";
+      break;
+    default:
+      endCityName = "Paris";
+      endCountryCode = "FR";
+  }
+
+
+  try {
+    const token = await getAccessToken();
+    const transferRequestBody = {
+      startLocationCode: IATA,
+      endAddressLine: endAddressLine,
+      endCityName: endCityName,
+      endCountryCode: endCountryCode,
+      endGeoCode: endGeoCode,
+      transferType: "PRIVATE",
+      startDateTime: startDateTime,
+      passengers: 1,
+      passengerCharacteristics: [
+        { passengerTypeCode: "ADT", age: 30 }
+      ],
+      max: 5,
+    };
+    if(token) {
+      const response = await axios.post(
+        'https://test.api.amadeus.com/v1/shopping/transfer-offers',
+        transferRequestBody,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+      if(response.data) {
+        res.status(200).json(flattenTransferData(response.data));
+      } else {
+        res.status(404).json({ error: "No data found" });
+      }
+     } else {
+      console.log("Error getting access token");
+      res.status(500).json({ error: "Error getting access token" });
+     }
+  } catch(error) {
+    res.status(500).json({ error: error.message });
+  }
 }

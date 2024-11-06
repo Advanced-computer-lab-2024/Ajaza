@@ -10,6 +10,11 @@ const uploadIdCertificatesImage = require("../middleware/uploadIdCertificatesIma
 
 router.post("/", guideController.createGuide);
 
+//req 12
+router.get("/pending", guideController.getPendingGuides);
+router.get('/details/:id', guideController.getGuideDetails);
+
+
 router.get("/", guideController.getAllGuides);
 
 router.get("/:id", guideController.getGuideById);
@@ -17,6 +22,7 @@ router.get("/:id", guideController.getGuideById);
 router.patch("/:id", guideController.updateGuide);
 
 router.delete("/deleteAgain/:id", guideController.deleteGuide);
+
 
 //req 16 ng
 router.delete("/deleteGuides", guideController.deleteGuidesRequestingDeletion);
@@ -43,9 +49,6 @@ router.patch(
 //req5  -- Tatos
 router.post(
   "/guestGuideCreateProfile",
-  validateEmail,
-  uniqueUsername,
-  uniqueEmail,
   uploadIdCertificatesImage,
   guideController.guestGuideCreateProfile
 ); // Guest Guide sign up
@@ -70,7 +73,7 @@ router.post(
 );
 
 //for admin to view uploaded documents of a guide
-router.get("/getDocuments/:id", guideController.getGuideDocuments);
+// router.get("/getDocuments/:id", guideController.getGuideDocuments);
 
 //accept guide
 router.put("/accept/:id", guideController.acceptGuide);
@@ -80,5 +83,7 @@ router.delete("/reject/:id", guideController.rejectGuide);
 
 //request deletion
 router.patch("/requestDeletion/:id", guideController.requestDeletion);
+
+router.post("/validateEmailUsername", guideController.validateEmailUsername); // New route for email and username validation
 
 module.exports = router;

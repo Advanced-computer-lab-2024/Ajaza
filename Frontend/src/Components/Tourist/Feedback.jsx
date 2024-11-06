@@ -32,8 +32,12 @@ const Feedback = ({ type, touristId, id, name, onSubmit }) => {
         case 'guide':
           endpoint = `guide/${touristId}/guide/${id}/feedback`;
           break;
+        case 'product':
+          endpoint = `product/${touristId}/products/${id}/feedback`;
+          break;
         default:
           throw new Error("Invalid feedback type.");
+
       }
       
       const response = await axios.post(`${apiUrl}${endpoint}`, feedbackData);
