@@ -624,37 +624,44 @@ exports.getPendingAdvertisers = async (req, res) => {
 
 //returns details to be displayed.
 exports.getAdvertiserDetails = async (req, res) => {
-  const advertiserId = req.params.id; // Get the ID from the request parameters
+  const advertiserId = req.params.id;
 
   try {
     console.log(`Fetching details for advertiser with ID: ${advertiserId}`);
     
-    // Find the advertiser by ID and populate referenced fields if necessary
+    // Find the advertiser by ID and populate image references
     const advertiser = await Advertiser.findById(advertiserId)
-      .populate('id') // Populate the image reference for ID
-      .populate('taxationRegCard') // Populate the taxation registration card image reference
-      .populate('logo') // Populate the logo reference if needed
+      .populate({ path: 'id', select: '_id' })  // Populate with _id to construct the image path
+      .populate({ path: 'taxationRegCard', select: '_id' })
+      .populate({ path: 'logo', select: '_id' })
       .exec();
 
     if (!advertiser) {
       return res.status(404).json({ message: "Advertiser not found." });
     }
 
-    // Create a response object with required fields
+    // Log details for debugging
+    console.log("Advertiser ID:", advertiser.id); // Full object of ID
+    console.log("Taxation Reg Card:", advertiser.taxationRegCard);
+    console.log("Logo:", advertiser.logo);
+
+    // Construct the response object with image paths for ID and Taxation Registration Card
     const responseAdvertiser = {
-      id: advertiser.id ? advertiser.id.imageUrl : null, // Assuming the referenced Img model has a field 'imageUrl' for the picture
+      id: advertiser.id ? `uploads/${advertiser.id._id}.jpg` : null,
+      taxationRegCard: advertiser.taxationRegCard ? `uploads/${advertiser.taxationRegCard._id}.jpg` : null,
+     // logo: advertiser.logo ? `uploads/${advertiser.logo._id}.jpg` : null,
       username: advertiser.username,
       email: advertiser.email,
-      link: advertiser.link,
-      hotline: advertiser.hotline,
-      companyProfile: advertiser.companyProfile,
-      //logo: advertiser.logo ? advertiser.logo.imageUrl : null, // Assuming the logo has an imageUrl field
-      taxationRegCard: advertiser.taxationRegCard ? advertiser.taxationRegCard.imageUrl : null, // Assuming it also has an imageUrl field
+      link: advertiser.link || null,
+      hotline: advertiser.hotline || null,
+      companyProfile: {
+        name: advertiser.companyProfile?.name || null,
+        desc: advertiser.companyProfile?.desc || null,
+        location: advertiser.companyProfile?.location || null,
+      },
       pending: advertiser.pending,
       acceptedTerms: advertiser.acceptedTerms,
-      //notifications: advertiser.notifications,
-      requestingDeletion: advertiser.requestingDeletion,//msh 3arfa
-      // Add any other fields that are necessary for admin review
+      requestingDeletion: advertiser.requestingDeletion || false,
     };
 
     // Return the advertiser details excluding sensitive information
@@ -664,3 +671,4 @@ exports.getAdvertiserDetails = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+

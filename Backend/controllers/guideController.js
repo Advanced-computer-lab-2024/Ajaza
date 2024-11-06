@@ -649,34 +649,42 @@ exports.getPendingGuides = async (req, res) => {
 
 
 exports.getGuideDetails = async (req, res) => {
-  const guideId = req.params.id; // Get the ID from the request parameters
+  const guideId = req.params.id;
 
   try {
     console.log(`Fetching details for guide with ID: ${guideId}`);
     
-    // Find the guide by ID and populate referenced fields if necessary
+    // Find the guide by ID and populate image references
     const guide = await Guide.findById(guideId)
-      .populate('id') // Populate the image reference for ID
-      .populate('photo') // Populate the personal photo reference if needed
+      .populate({ path: 'id', select: '_id' })  // Populate with _id to construct the image path
+      .populate({ path: 'certificates', select: '_id' })
       .exec();
 
     if (!guide) {
       return res.status(404).json({ message: "Guide not found." });
     }
 
-    // Create a response object with required fields
+    // Log details for debugging
+    console.log("Guide ID:", guide.id); // Full object of ID
+    console.log("Certificate:", guide.certificates);
+
+    // Construct the response object with image paths for ID and Taxation Registration Card
     const responseGuide = {
-      id: guide.id ? guide.id.imageUrl : null, // Assuming the referenced Img model has a field 'imageUrl' for the picture
+      id: guide.id ? `uploads/${guide.id._id}.jpg` : null,
+      certificates: guide.certificates ? `uploads/${guide.certificates._id}.jpg` : null,
+     // logo: advertiser.logo ? `uploads/${advertiser.logo._id}.jpg` : null,
       username: guide.username,
       email: guide.email,
-      mobile: guide.mobile,
-      yearsOfExperience: guide.yearsOfExperience,
-      certificates: guide.certificates,
-      photo: guide.photo ? guide.photo.imageUrl : null, // Assuming the photo has an imageUrl field
+      link: guide.link || null,
+      hotline: guide.hotline || null,
+      companyProfile: {
+        name: guide.companyProfile?.name || null,
+        desc: guide.companyProfile?.desc || null,
+        location: guide.companyProfile?.location || null,
+      },
       pending: guide.pending,
       acceptedTerms: guide.acceptedTerms,
-      requestingDeletion: guide.requestingDeletion,
-      // Add any other fields that are necessary for admin review
+      requestingDeletion: guide.requestingDeletion || false,
     };
 
     // Return the guide details excluding sensitive information
