@@ -260,19 +260,16 @@ const Profile = () => {
               style={{ backgroundColor: "#87d068" }}
             />
           )}
-          {role === "seller" && (
+            {role === "seller" && (
                 <div>
                 <img src={logo} alt="Logo" style={{ width: '100px', height: '100px' }} />
-                {console.log("Logo path:", logo, "end")} {/* Check logo path */}
                 </div>
             )}
             {role === "advertiser" && (
                 <div>
                 <img src={logo} alt="Logo" style={{ width: '100px', height: '100px' }} />
-                {console.log("Logo path:", logo, "end")} {/* Check logo path */}
                 </div>
             )}
-            {/* Display the logo if the role is seller */}
             {role === "guide" && photo && (
                 <div>
                 <img src={photo} alt="Photo" style={{ width: '100px', height: '100px' }} />
