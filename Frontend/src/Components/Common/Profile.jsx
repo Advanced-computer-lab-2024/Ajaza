@@ -10,6 +10,8 @@ import {
   message,
   Modal,
   Flex,
+  Menu,
+  Dropdown,
 } from "antd";
 import {
   UserOutlined,
@@ -17,6 +19,7 @@ import {
   SaveOutlined,
   CloseOutlined,
   DeleteOutlined,
+  MailOutlined,
   WarningFilled,
 } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
@@ -222,6 +225,138 @@ const Profile = () => {
       },
     });
   };
+
+  const [preferences, setPreferences] = useState({
+    preferredTags: [],
+    preferredCategories: [],
+  });
+  const [tags, setTags] = useState([]); 
+  const additionalTags = [
+    "Monuments", "Museums", "Religious Sites", "Palaces/Castles",
+    "1800s-1850s", "1850s-1900s", "1900s-1950s", "1950s-2000s"
+  ];
+  const [categories, setCategories] = useState([]); 
+  const token = localStorage.getItem("token");
+  let decodedToken = null;
+  if (token) {
+    decodedToken = jwtDecode(token);
+  }
+  const userid = decodedToken ? decodedToken.userId : null;
+  const touristId = userid;
+
+  //req39
+  useEffect(() => {
+
+  
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}tourist/touristReadProfile/${touristId}`);
+        const { preferredTags, preferredCategories } = response.data;
+        setPreferences({ preferredTags, preferredCategories });
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+    fetchProfile();
+
+  const fetchTags = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}tag`);
+      const fetchedTags = response.data.map(tag => tag.tag);
+      setTags([...fetchedTags, ...additionalTags]); 
+    } catch (error) {
+      console.error('Error fetching tags:', error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}category`);
+      setCategories(response.data.map(category => category.category)); 
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  fetchTags();
+  fetchCategories();
+},[]);
+
+
+  const handleTagsChange = async (tag) => {
+    const updatedTags = preferences.preferredTags.includes(tag)
+      ? preferences.preferredTags.filter(t => t !== tag)
+      : [...preferences.preferredTags, tag];
+
+    setPreferences(prev => ({ ...prev, preferredTags: updatedTags }));
+
+    try {
+      await axios.patch(`${apiUrl}tourist/${touristId}`, {
+        preferredTags: updatedTags,
+        preferredCategories: preferences.preferredCategories,
+      });
+      message.success('Tags updated');
+    } catch (error) {
+      console.error('Error saving tags:', error);
+      message.error('Failed to update tags');
+    }
+  };
+
+  const handleCategoriesChange = async (category) => {
+    const updatedCategories = preferences.preferredCategories.includes(category)
+      ? preferences.preferredCategories.filter(c => c !== category)
+      : [...preferences.preferredCategories, category];
+
+    setPreferences(prev => ({ ...prev, preferredCategories: updatedCategories }));
+    try {
+      await axios.patch(`${apiUrl}tourist/${touristId}`, {
+        preferredTags: preferences.preferredTags,
+        preferredCategories: updatedCategories,
+      });
+      message.success('Categories updated');
+    } catch (error) {
+      console.error('Error saving categories:', error);
+      message.error('Failed to update categories');
+    }
+  };
+
+  const preferencesMenu = ( 
+    <Menu>
+      <Menu.SubMenu key="preferences"  title="Preferences">
+      <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+        <Menu.ItemGroup title="Tags">
+        {tags.map(tag => (
+            <Menu.Item
+              key={tag}
+              onClick={() => handleTagsChange(tag)}
+              style={{
+                backgroundColor: preferences.preferredTags.includes(tag) ? '#e6f7ff' : 'white',
+              }}
+            >
+              {tag}
+            </Menu.Item>
+          ))}
+        </Menu.ItemGroup>
+        <Menu.ItemGroup title="Categories">
+        {categories.map(category => (
+            <Menu.Item
+              key={category}
+              onClick={() => handleCategoriesChange(category)}
+              style={{
+                backgroundColor: preferences.preferredCategories.includes(category) ? '#e6f7ff' : 'white',
+              }}
+            >
+              {category}
+            </Menu.Item>
+          ))}
+        </Menu.ItemGroup>
+        </div>
+      </Menu.SubMenu>
+    </Menu>
+  );
+
+
+
 
   return (
     <>
@@ -542,6 +677,31 @@ const Profile = () => {
                 )}
                 {role === "tourist" && (
                   <>
+
+  
+
+                   {/* Preferences Menu */}
+                   <Dropdown 
+                    overlay={preferencesMenu}
+                    trigger={['click']}
+                    dropdownRender={(menu) => (
+                      <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                        {menu}
+                      </div>
+                    )}
+                  >
+                    <Button style={{
+                      position: "absolute",
+                      top: 20,
+                      right: 20,
+                      border: "none",
+                      background: "none",
+                      color: "#1890ff",
+                      fontSize: "16px",
+                    }}>
+                      View and Edit Preferences 
+                    </Button>
+                  </Dropdown>
                   <Title level={2}>{userDetails.username}</Title>
                 <div>
                   <strong>Email: </strong>
