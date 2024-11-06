@@ -542,7 +542,6 @@ exports.requestDeletion = async (req, res) => {
             new Date(activity.date) > new Date()
           ) {
             hasUpcomingActivity = true;
-            console.log("Upcoming activity found");
             break;
           }
         }
@@ -627,7 +626,6 @@ exports.getAdvertiserDetails = async (req, res) => {
   const advertiserId = req.params.id;
 
   try {
-    console.log(`Fetching details for advertiser with ID: ${advertiserId}`);
     
     // Find the advertiser by ID and populate image references
     const advertiser = await Advertiser.findById(advertiserId)
@@ -640,10 +638,6 @@ exports.getAdvertiserDetails = async (req, res) => {
       return res.status(404).json({ message: "Advertiser not found." });
     }
 
-    // Log details for debugging
-    console.log("Advertiser ID:", advertiser.id); // Full object of ID
-    console.log("Taxation Reg Card:", advertiser.taxationRegCard);
-    console.log("Logo:", advertiser.logo);
 
     // Construct the response object with image paths for ID and Taxation Registration Card
     const responseAdvertiser = {

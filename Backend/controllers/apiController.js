@@ -176,7 +176,6 @@ async function fetchImages(hotelName) {
     });
 
     const images = response.data.items.map(item => item.link);
-    console.log(images);
     return images;
   }
   catch (error) {
@@ -237,7 +236,6 @@ async function searchHotels(dest_id , checkInDate, checkOutDate , count = 1) {
         });
         if(response.data.data) {
           const filteredHotels = response.data.data.hotels.map(filterHotelFields);
-          console.log(filteredHotels);
           return filteredHotels;  // Return the filtered hotels
         } else {
           return [];
@@ -249,10 +247,8 @@ async function searchHotels(dest_id , checkInDate, checkOutDate , count = 1) {
 
 exports.searchHotels = async (req,res) => {
     const {dest_id, checkInDate,checkOutDate,count} = req.body;
-    console.log(req.body);
 
     if(!dest_id || !checkInDate || !checkOutDate || !count) {
-      console.log("missing params");
       return res.status(500).json({ error:"Missing params" });
     }
     try {
@@ -328,8 +324,6 @@ function filterTransferOffer(data) {
 
 async function searchTransportation(accessToken,requestBody) {
   try {
-    console.log(requestBody);
-    console.log(accessToken);
     const response = await axiosInstance.post('https://test.api.amadeus.com/v1/shopping/transfer-offers', 
       requestBody, 
       {
@@ -338,7 +332,6 @@ async function searchTransportation(accessToken,requestBody) {
         }
       }
     );
-    console.log(response.data);
 
     return filterTransferOffer(response.data);
   } catch (error) {
@@ -373,7 +366,6 @@ exports.searchTransportation = async (req, res) => {
     if(!accessToken) {
         res.status(500).json({ error: "error getting access token" });
     }
-    console.log(accessToken);
     try {
         const returned = await searchTransportation(accessToken,requestBody);
         res.status(200).json(returned);
@@ -430,7 +422,6 @@ const getGeolocation = async (address) => {
       
       // Check if any results were returned
       if (response.data.length === 0) {
-          console.log("No results found for the given address.");
           return null;
       }
 
@@ -527,7 +518,6 @@ exports.searchTransfer7 = async (req,res) => {
         res.status(404).json({ error: "No data found" });
       }
      } else {
-      console.log("Error getting access token");
       res.status(500).json({ error: "Error getting access token" });
      }
   } catch(error) {

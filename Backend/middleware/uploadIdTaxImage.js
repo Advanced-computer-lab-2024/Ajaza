@@ -89,7 +89,6 @@ const uploadIdImage = async (req, res, next) => {
       }
       req.body.id = idIdTobeAddedToBody;
       req.body.taxationRegCard = idTaxTobeAddedToBody;
-      //console.log(req.body);
       next();
     } catch (error) {
       return res.status(500).json({ error: "id mw" + error.message });

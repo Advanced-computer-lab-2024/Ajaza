@@ -131,7 +131,6 @@ exports.login = async (req, res) => {
     );
 
     // Send token, role, and user details to the frontend
-    console.log(userDetails);
     res.status(200).json({ token, message: "Login successful" });
   } catch (error) {
     console.error("Error during login:", error); // Log the error for debugging

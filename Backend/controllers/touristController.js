@@ -277,8 +277,6 @@ exports.cancelItineraryBooking = async (req, res) => {
       return res.status(404).json({ message: "Tourist not found" });
     }
 
-    console.log(tourist.itineraryBookings);
-    console.log(itineraryId);
 
     const bookingIndex = tourist.itineraryBookings.findIndex(
       (booking) => booking.itineraryId.toString() === itineraryId
@@ -869,7 +867,6 @@ exports.birthdayEventTriggered = async (usersWithBirthdayToday) => {
       await tourist.save();
     }
 
-    //console.log("Promo code created successfully:", newPromoCode);
   } catch (error) {
     console.error("Error creating promo code:", error);
   }
@@ -933,11 +930,6 @@ exports.getHistory = async (req, res) => {
             tourist.itineraryBookings[i].itineraryId._id
           ),
         });
-        console.log(
-          "Itinerary guide id:",
-          tourist.itineraryBookings[i].itineraryId.guideId
-        );
-        console.log("Tourist gave feedback:", tourist.gaveFeedback);
         const guideNumberOfTimesRated = tourist.gaveFeedback.filter((el) =>
           el.equals(tourist.itineraryBookings[i].itineraryId.guideId)
         ).length;
@@ -952,11 +944,7 @@ exports.getHistory = async (req, res) => {
             );
           }
         ).length;
-        console.log("Guide number of times rated:", guideNumberOfTimesRated);
-        console.log(
-          "Number of bookings with guide:",
-          numberOfBookingsWithGuide
-        );
+        
         const guideName = await Guide.findById(
           tourist.itineraryBookings[i].itineraryId.guideId
         ).select("username");
@@ -975,14 +963,13 @@ exports.getHistory = async (req, res) => {
     for (let i = 0; i < tourist.orders.length; i++) {
       if(tourist.orders[i].date < currentDate && tourist.orders[i].status != "Cancelled") {
         for (let j = 0; j < tourist.orders[i].products.length; j++) {
-          console.log("alooooo: ", tourist.orders[i].products[j].productId._id);
           products.push({
             productId: tourist.orders[i].products[j].productId._id,
             name: tourist.orders[i].products[j].productId.name,
             sellerName: tourist.orders[i].products[j].productId.sellerName,
             date: tourist.orders[i].date,
             gaveFeedback: tourist.gaveFeedback.includes(
-              tourist.orders[i].products[j].productId
+              tourist.orders[i].products[j].productId._id
             ),
           });
         }

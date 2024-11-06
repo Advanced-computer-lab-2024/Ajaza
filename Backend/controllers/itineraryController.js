@@ -28,7 +28,6 @@ exports.getAllItineraries = async (req, res) => {
 
 // Get all itineraries not hidden
 exports.getAllItinerariesNH = async (req, res) => {
-  console.log("\n\n\n\n");
 
   try {
     const currentDate = new Date();
@@ -44,15 +43,12 @@ exports.getAllItinerariesNH = async (req, res) => {
 
         // Modify the timeline for each itinerary
         for (const item of itineraryObj.timeline) {
-          console.log("Item ID:", item.id);
 
           if (item.type === "Activity") {
             const activity = await Activity.findById(item.id);
-            console.log("Activity Found:", activity);
             item.id = activity; // Replace ObjectId with full document
           } else if (item.type === "Venue") {
             const venue = await Venue.findById(item.id);
-            console.log("Venue Found:", venue);
             item.id = venue; // Replace ObjectId with full document
           }
         }
@@ -90,15 +86,12 @@ exports.getItineraryById = async (req, res) => {
 
     // Modify the timeline for each itinerary
     for (const item of itineraryObj.timeline) {
-      console.log("Item ID:", item.id);
 
       if (item.type === "Activity") {
         const activity = await Activity.findById(item.id);
-        console.log("Activity Found:", activity);
         item.id = activity; // Replace ObjectId with full document
       } else if (item.type === "Venue") {
         const venue = await Venue.findById(item.id);
-        console.log("Venue Found:", venue);
         item.id = venue; // Replace ObjectId with full document
       }
     }
@@ -471,7 +464,6 @@ exports.getItinerariesByPreferrences = async (req, res) => {
 exports.hideItinerary = async (req, res) => {
   const { id: itineraryId } = req.params; // Extract itineraryId from req.params
 
-  console.log("ENGYY"); // Check if function is reached
 
   try {
       // Update the itinerary to set hidden to true
@@ -485,7 +477,6 @@ exports.hideItinerary = async (req, res) => {
           return res.status(404).json({ message: 'Itinerary not found' });
       }
 
-      console.log(`Itinerary ${itineraryId} has been hidden successfully.`);
       res.status(200).json({ message: `Itinerary ${itineraryId} has been hidden successfully.`, updatedItinerary });
   } catch (error) {
       console.error(`Error hiding itinerary: ${error.message}`);

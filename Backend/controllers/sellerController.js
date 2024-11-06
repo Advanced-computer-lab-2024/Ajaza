@@ -328,7 +328,6 @@ exports.sellerUpdateProfile = async (req, res) => {
       return res.status(401).json({ message: "Seller is pending approval" });
     }
     // Proceed with the update
-    console.log(filteredBody);
     const updatedSeller = await Seller.findByIdAndUpdate(
       sellerId,
       filteredBody,
@@ -657,7 +656,6 @@ exports.getSellerDetails = async (req, res) => {
   const sellerId = req.params.id;
 
   try {
-    console.log(`Fetching details for seller with ID: ${sellerId}`);
     
     // Find the advertiser by ID and populate image references
     const seller = await Seller.findById(sellerId)
@@ -670,10 +668,6 @@ exports.getSellerDetails = async (req, res) => {
       return res.status(404).json({ message: "Seller not found." });
     }
 
-    // Log details for debugging
-    console.log("Seller ID:", seller.id); // Full object of ID
-    console.log("Taxation Reg Card:", seller.taxationRegCard);
-    console.log("Logo:", seller.logo);
 
     // Construct the response object with image paths for ID and Taxation Registration Card
     const responseSeller = {

@@ -410,7 +410,6 @@ exports.updateActivityFilteredFields = async (req, res) => {
 exports.getUpcomingActivities = async (req, res) => {
   try {
     const currentDate = new Date();
-    console.log("Current Date:", currentDate); // Log the current date
 
     // Find activities with dates greater than or equal to the current date and hidden is false
     const upcomingActivities = await Activity.find({
@@ -437,7 +436,6 @@ exports.getActivitiesByPreferrences = async (req, res) => {
 exports.hideActivity = async (req, res) => {
   const { id: activityId } = req.params;
 
-  console.log("Hiding Activity");
 
   try {
       const updatedActivity = await Activity.findByIdAndUpdate(
@@ -450,7 +448,6 @@ exports.hideActivity = async (req, res) => {
           return res.status(404).json({ message: 'Activity not found' });
       }
 
-      console.log(`Activity ${activityId} has been hidden successfully.`);
       res.status(200).json({ message: `Activity ${activityId} has been hidden successfully.`, updatedActivity });
   } catch (error) {
       console.error(`Error hiding activity: ${error.message}`);

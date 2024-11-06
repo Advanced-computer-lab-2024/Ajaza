@@ -652,7 +652,6 @@ exports.getGuideDetails = async (req, res) => {
   const guideId = req.params.id;
 
   try {
-    console.log(`Fetching details for guide with ID: ${guideId}`);
     
     // Find the guide by ID and populate image references
     const guide = await Guide.findById(guideId)
@@ -664,9 +663,6 @@ exports.getGuideDetails = async (req, res) => {
       return res.status(404).json({ message: "Guide not found." });
     }
 
-    // Log details for debugging
-    console.log("Guide ID:", guide.id); // Full object of ID
-    console.log("Certificate:", guide.certificates);
 
     // Construct the response object with image paths for ID and Taxation Registration Card
     const responseGuide = {
