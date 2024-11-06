@@ -36,8 +36,8 @@ const Image = () => {
   const [response, setResponse] = useState(null); // Store decoded token or API data
   const [userDetails, setUserDetails] = useState(null); // Store user details from token
   const [role, setRole] = useState(""); // Store user role
-  const [logo, setLogo] = useState(null); // Store logo image
-  const [photo, setPhoto] = useState(null); // Store photo image
+  const [logo, setLogo] = useState("http://localhost:3000/uploads/logo.svg"); // Store logo image
+  const [photo, setPhoto] = useState("http://localhost:3000/uploads/logo.svg"); // Store photo image
   const navigate = useNavigate(); // useNavigate hook for programmatic navigation
 
   useEffect(() => {

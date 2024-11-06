@@ -37,8 +37,8 @@ const Profile = () => {
   const [pending, setPending] = useState(false); // Store pending status
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false); // State to toggle password form visibility
-  const [logo, setLogo] = useState(null); // Store logo image
-  const [photo, setPhoto] = useState(null); // Store photo image
+  const [logo, setLogo] = useState("http://localhost:3000/uploads/logo.svg"); // Store logo image
+  const [photo, setPhoto] = useState("http://localhost:3000/uploads/logo.svg"); // Store photo image
   const navigate = useNavigate(); // useNavigate hook for programmatic navigation
 
   useEffect(() => {
