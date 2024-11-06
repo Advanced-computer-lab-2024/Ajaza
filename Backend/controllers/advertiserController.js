@@ -649,7 +649,7 @@ exports.getAdvertiserDetails = async (req, res) => {
     const responseAdvertiser = {
       id: advertiser.id ? `uploads/${advertiser.id._id}.jpg` : null,
       taxationRegCard: advertiser.taxationRegCard ? `uploads/${advertiser.taxationRegCard._id}.jpg` : null,
-      logo: advertiser.logo ? `uploads/${advertiser.logo._id}.jpg` : null,
+     // logo: advertiser.logo ? `uploads/${advertiser.logo._id}.jpg` : null,
       username: advertiser.username,
       email: advertiser.email,
       link: advertiser.link || null,
@@ -671,3 +671,4 @@ exports.getAdvertiserDetails = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+

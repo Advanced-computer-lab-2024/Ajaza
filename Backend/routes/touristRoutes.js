@@ -222,4 +222,22 @@ router.post(
 
 router.patch("/requestDeletion/:id", touristController.requestAccountDeletion);
 
+// Add to wishlist route
+router.post("/add-to-wishlist", touristController.addToWishlist);
+
+// View wishlist route
+router.get("/wishlist/:touristId", touristController.viewWishlist);
+
+// Remove from wishlist route
+router.post("/remove-from-wishlist", touristController.removeFromWishlist);
+
+// Add to cart from wishlist route
+router.post(
+  "/add-to-cart-from-wishlist",
+  touristController.addToCartFromWishlist
+);
+
+// Add delivery address route
+router.post("/add-delivery-address", touristController.addDeliveryAddress);
+
 module.exports = router;
