@@ -15,4 +15,7 @@ router.post("/forgot-password", forgotPassword);
 // Route to handle OTP verification and password reset
 router.post("/verify-otp", verifyOTP);
 
+// Route to generate and return JWT token
+router.post("/generate-token", authController.generateToken);
+
 module.exports = router;
