@@ -3,6 +3,7 @@ const qs = require('qs');
 const express = require('express');
 const HotelBooking = require('../models/HotelBooking');
 const FlightBooking = require('../models/FlightBooking');
+const Tourist = require('../models/Tourist');
 require('dotenv').config();
 
 const clientId = process.env.AMADEUS_API_KEY;
