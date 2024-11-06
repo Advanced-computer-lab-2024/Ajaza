@@ -15,6 +15,7 @@ import {
   Image
 } from "antd";
 import { jwtDecode } from "jwt-decode";
+import CustomButton from "../Common/CustomButton";
 import axios from "axios";
 import { apiUrl } from "../Common/Constants";
 import moment from 'moment';
@@ -49,6 +50,7 @@ const Hotels = () => {
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [hotelImages, setHotelImages] = useState([]);
+  const [touristId, setTouristId] = useState(localStorage.getItem("touristId"));
   const navigate = useNavigate(); // useNavigate hook for programmatic navigation
 
   useEffect(() => {
@@ -56,6 +58,8 @@ const Hotels = () => {
     if (token) {
       const decodedToken = jwtDecode(token);
       setUserDetails(decodedToken.userDetails);
+      console.log("Decoded Token:", decodedToken.userDetails._id);
+      setTouristId(decodedToken.userDetails._id);
     }
   }, []);
 
@@ -123,6 +127,34 @@ const Hotels = () => {
   const handleModalClose = () => {
     setModalVisible(false);
     setHotelImages([]);  // Clear images when modal is closed
+  };
+
+  const handleBooking = async () => {
+    if (!touristId) {
+      message.error("You must be logged in to book a hotel.");
+      return;
+    }
+
+    const bookingData = {
+      hotelName: selectedHotel.name,
+      city: selectedHotel.city,
+      price: selectedHotel.price,
+      currency: selectedHotel.currency,
+      checkin: selectedHotel.checkin,
+      checkout: selectedHotel.checkout,
+      score: selectedHotel.score,
+    };
+
+    try {
+      const response = await axios.post(`${apiUrl}tourist/hotels/bookHotel/${touristId}`, bookingData);
+      if (response.status === 200) {
+        message.success("Hotel booked successfully!");
+        handleModalClose(); // Close the modal after booking
+      }
+    } catch (error) {
+      console.error("Error booking hotel:", error);
+      message.error(error.response?.data?.error || "Booking failed.");
+    }
   };
 
   return (
@@ -240,6 +272,9 @@ const Hotels = () => {
             <p><strong>Score:</strong> {selectedHotel.score}</p>
           </>
         )}
+        
+        <CustomButton value="Book" key="book" type="primary" onClick={handleBooking}>
+        </CustomButton>
         <Space wrap>
           {hotelImages.map((image, index) => (
             <Image key={index} width={300} src={image} alt="Hotel Room" />

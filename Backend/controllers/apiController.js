@@ -282,11 +282,12 @@ exports.searchHotels = async (req,res) => {
 };
 
 exports.bookHotel = async (req,res) => {
-    const { touristId } = req.params;
+  console.log(req.params);
+    const touristId  = req.params.id;
     const { hotelName, city, price, currency, checkin, checkout, score } = req.body;
 
     try {
-
+      console.log("Tourist ID: ", touristId);
       const tourist = await Tourist.findById(touristId);
       if (!tourist) {
           return res.status(404).json({ error: 'Tourist not found' });
