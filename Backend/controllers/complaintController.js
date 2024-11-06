@@ -108,3 +108,20 @@ exports.fileComplaint = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Mark complaint as resolved by ID
+exports.resolveComplaint = async (req, res) => {
+  try {
+    const resolvedComplaint = await Complaint.findByIdAndUpdate(
+      req.params.id,
+      { pending: false },
+      { new: true }
+    );
+    if (!resolvedComplaint) {
+      return res.status(404).json({ message: 'Complaint not found' });
+    }
+    res.status(200).json({ message: 'Complaint marked as resolved', complaint: resolvedComplaint });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
