@@ -3,6 +3,7 @@ const qs = require('qs');
 const express = require('express');
 const HotelBooking = require('../models/HotelBooking');
 const FlightBooking = require('../models/FlightBooking');
+const TransportationBooking = require('../models/TransportationBooking');
 const Tourist = require('../models/Tourist');
 require('dotenv').config();
 
@@ -546,7 +547,7 @@ exports.searchTransfer7 = async (req,res) => {
 }
 
 exports.bookTransfer = async (req,res) => {
-  const { touristId } = req.params;
+  const touristId  = req.params.id;
   const { transferType, start_dateTime, start_locationCode, end_dateTime, end_address_line, end_address_cityName, vehicle_code, vehicle_description, vehicle_seats, quotation_monetaryAmount, quotation_currencyCode, distance_value, distance_unit } = req.body;
 
   try {
@@ -578,7 +579,27 @@ exports.bookTransfer = async (req,res) => {
       distance_value,
       distance_unit,
     });
+
+    await transportationBooking.save();
+    res.status(200).json(transportationBooking);
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getAll3rdPartyData = async (req,res) => {
+  try {
+    const touristId = req.params.id;
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+        return res.status(404).json({ error: 'Tourist not found' });
+    }
+    const hotelBookings = await HotelBooking.find({ touristId });
+    const flightBookings = await FlightBooking.find({ touristId });
+    const transportationBookings = await TransportationBooking.find({ touristId });
+    res.status(200).json({ hotelBookings, flightBookings, transportationBookings });
+  } catch (error) {
+    console.log(error);
     res.status(500).json({ error: error.message });
   }
 };

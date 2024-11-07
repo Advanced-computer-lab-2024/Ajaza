@@ -153,6 +153,23 @@ endAddressLine,
 startDateTime
 */
 
+router.post('/transportation/bookTransportation/:id', apiController.bookTransfer);
+/*needs
+touristId (params),
+transferType, 
+start_dateTime, 
+start_locationCode, 
+end_dateTime, 
+end_address_line, 
+end_address_cityName, 
+vehicle_code, 
+vehicle_description, 
+vehicle_seats, 
+quotation_monetaryAmount, 
+quotation_currencyCode, 
+distance_value, 
+distance_unit
+*/
 router.get('/transportation/getGeoLocation', apiController.testGeoLocation);
 
 // req61
@@ -241,5 +258,7 @@ router.post(
 
 // Add delivery address route
 router.post("/add-delivery-address", touristController.addDeliveryAddress);
+
+router.get("/3rdparty/:id", apiController.getAll3rdPartyData);
 
 module.exports = router;

@@ -27,6 +27,7 @@ import ChangePasswordForm from "../Common/changePassword";
 import Itinerary from "../Common/Itinerary";
 import Hotels from "./Hotels";
 import SignIn from "../Sign/SignIn";
+import ThirdParty from "./ThirdParty";
 
 const Tourist = () => {
   const [response, setResponse] = useState([]);
@@ -138,6 +139,12 @@ const Tourist = () => {
       label: "Orders",
       onClick: () => navigate("orders"),
     },
+    {
+      key: "15",
+      icon: <RateReviewOutlinedIcon />,
+      label: "Services",
+      onClick: () => navigate("services"),
+    },
     // TODO put them in nested like current and past bookings ---- products,wishlist,orders
   ];
 
@@ -164,6 +171,8 @@ const Tourist = () => {
         <Route path="auth/signin" element={<SignIn />} />
 
         <Route path="hotels" element={<Hotels />} />
+        <Route path="services" element={<ThirdParty />} />
+
       </Routes>
     </CustomLayout>
   );
