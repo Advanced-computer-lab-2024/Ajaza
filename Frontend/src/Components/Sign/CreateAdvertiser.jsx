@@ -32,17 +32,21 @@ const CreateAdvertiser = () => {
   };
 
   const nextStep = async () => {
+    setLoading(true)
     // Validate the registration form before moving to the next step
     try {
       await validateRegistrationForm();
       setCurrentStep(2);
     } catch (error) {
       message.error(error.message);
+      
+    }finally{
+      setLoading(false)
     }
   };
 
   const previousStep = () => {
-    setCurrentStep(1);
+      setCurrentStep(1);
   };
 
   const validateRegistrationForm = async () => {
@@ -76,6 +80,7 @@ const CreateAdvertiser = () => {
   };
 
   const registerAdvertiser = async () => {
+  setLoading(true)
   try {
     await validateUploadForm(); // Validate upload form before submitting
 
@@ -93,8 +98,10 @@ const CreateAdvertiser = () => {
       formDataToSubmit.append("taxationRegCard", formData.document2[0].originFileObj);
       
     }
-    navigate("/auth/signin");
+   
 
+    navigate("/auth/signin");
+      
     const response = await axios.post(
       "http://localhost:5000/advertiser/guestAdvertiserCreateProfile",
       formDataToSubmit,
@@ -118,6 +125,9 @@ const CreateAdvertiser = () => {
       const errorDetails = error.response?.data?.message || error.response?.data?.error || "Failed to create advertiser.";
       message.error(`Failed to advertiser: ${errorDetails}`);
     }
+  }
+  finally{
+    setLoading(false)
   }
 };
 
@@ -189,8 +199,9 @@ const validateUploadForm = () => {
                   type="primary"
                   onClick={nextStep}
                   size="s"
-                  value="Next"
+                  value={loading?"":"Next"}
                   rounded={true}
+                  loading={loading}
                 />
               </Form.Item>
             </>
