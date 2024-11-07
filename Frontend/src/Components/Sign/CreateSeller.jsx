@@ -32,12 +32,16 @@ const CreateSeller = () => {
   };
 
   const nextStep = async () => {
+    setLoading(true)
     // Validate the registration form before moving to the next step
     try {
       await validateRegistrationForm();
       setCurrentStep(2);
     } catch (error) {
       message.error(error.message);
+    }
+    finally{
+      setLoading(false)
     }
   };
 
@@ -76,6 +80,7 @@ const CreateSeller = () => {
   };
 
   const registerSeller = async () => {
+  setLoading(true)
   try {
     await validateUploadForm(); // Validate upload form before submitting
 
@@ -118,6 +123,10 @@ const CreateSeller = () => {
       const errorDetails = error.response?.data?.message || error.response?.data?.error || "Failed to create Seller.";
       message.error(`Failed to Seller: ${errorDetails}`);
     }
+    
+  }
+  finally{
+    setLoading(false)
   }
 };
 
@@ -189,8 +198,9 @@ const validateUploadForm = () => {
                   type="primary"
                   onClick={nextStep}
                   size="s"
-                  value="Next"
+                  value={loading?"":"Next"}
                   rounded={true}
+                  loading={loading}
                 />
               </Form.Item>
             </>
