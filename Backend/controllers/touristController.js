@@ -361,7 +361,7 @@ exports.redeemPoints = async (req, res) => {
 
     // Respond with the updated tourist data
     res.status(200).json({
-      message: "Points redeemed successfully!",
+      message: "Points redeemed successfully!" + maxRedeemablePoints + " added to wallet",
       wallet: tourist.wallet,
       points: tourist.points,
     });
