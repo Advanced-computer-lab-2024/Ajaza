@@ -87,6 +87,8 @@ const HeaderInfo = ({
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [priceString, setPriceString] = useState("");
   const emailRef = useRef(null);
+  const [selectedPrice, setSelectedPrice] = useState(price);
+  const selectedPriceRef = useRef(null);
 
   useEffect(() => {
     // check user
@@ -164,7 +166,7 @@ const HeaderInfo = ({
         <div>
           <Input
             placeholder="Enter recipient's email"
-            ref={emailRef}            
+            ref={emailRef}
             style={{ marginBottom: 10 }}
           />
         </div>
@@ -248,15 +250,30 @@ const HeaderInfo = ({
     }
   }, [selectedDate]);
 
+  useEffect(() => {
+    if (selectedPrice) {
+      selectedPriceRef.current = selectedPrice;
+    }
+  }, [selectedPrice]);
+
   const bookItem = async () => {
     try {
       const touristId = userid;
       const useWallet = user.wallet > 0;
-      let total = Number(price);
-      const FinalDate = type === "activity" ? date : selectedDateRef.current;
+      let total;
+      let FinalDate;
       if (type === "activity") {
-        total = priceUpper;
+        total = selectedPriceRef.current;
+        FinalDate = date;
+      } else if (type === "itinerary") {
+        total = price;
+        FinalDate = selectedDateRef.current;
+      } else {
+        alert("This Feature is not avaliable :) ");
       }
+      // const total =
+      //   type === "activity" ? selectedPriceRef.current : price;
+      // const FinalDate = type === "activity" ? date : selectedDateRef.current;
       if (spots <= 0) {
         alert(`Error booking ${type}: No spots available.`);
         return;
@@ -267,7 +284,7 @@ const HeaderInfo = ({
       } else if (type === "itinerary") {
         endpoint = `${apiUrl}tourist/${touristId}/itinerary/${id}/book`;
       }
-      console.log("DATEEEE:", FinalDate);
+      console.log("Price:", total);
 
       const response = await axios.post(endpoint, {
         useWallet,
@@ -275,7 +292,6 @@ const HeaderInfo = ({
         date: FinalDate,
         promoCode: promoCode || null,
       });
-      console.log(price);
       alert(`${type} booked successfully!`);
 
       setIsBooked(true);
@@ -288,6 +304,14 @@ const HeaderInfo = ({
 
   const showBookingModal = () => {
     let currentSelectedDate;
+    let currentprice;
+
+    const discountedPriceLower = priceLower - (discounts / 100) * priceLower;
+    const discountedPriceUpper = priceUpper - (discounts / 100) * priceUpper;
+    const discountedMiddlePrice =
+      (discountedPriceLower + discountedPriceUpper) / 2;
+
+    //const middlePrice = (priceLower + priceUpper) / 2;
     Modal.confirm({
       title: `Confirm Booking for ${name}`,
       content: (
@@ -310,6 +334,31 @@ const HeaderInfo = ({
               ))}
             </Select>
           )}
+          {type === "activity" && (
+            <Select
+              placeholder="Select price"
+              onChange={(value) => {
+                setSelectedPrice(value);
+                currentprice = value;
+                console.log("Selected Price:", currentprice); // Log the selected price
+              }}
+              style={{ width: "100%", marginBottom: 10 }}
+            >
+              <Option value={discountedPriceLower}>
+                {discountedPriceLower.toFixed(2)}$
+              </Option>
+              <Option value={discountedMiddlePrice}>
+                {discountedMiddlePrice.toFixed(2)}$
+              </Option>
+              <Option value={discountedPriceUpper}>
+                {discountedPriceUpper.toFixed(2)}$
+              </Option>
+              {/* <Option value={priceLower}>${priceLower}</Option>
+              <Option value={middlePrice}>${middlePrice}</Option>
+              <Option value={priceUpper}>${priceUpper}</Option> */}
+            </Select>
+          )}
+
           <Input
             placeholder="Enter promo code"
             onChange={(e) => setPromoCode(e.target.value)}
@@ -320,14 +369,23 @@ const HeaderInfo = ({
       //onOk: bookItem,
       onOk: () => {
         console.log("here:", currentSelectedDate);
-        if (!currentSelectedDate && type === "itinerary") {
+        if (!selectedDateRef.current && type === "itinerary") {
           Modal.error({
             title: "Booking Date Required",
             content: "Please select a booking date to proceed.",
           }); // Prevents modal from closing
           return false;
         }
-        return bookItem({ date: currentSelectedDate }); // Calls the booking function if date is selected
+
+        if (!currentprice && type === "activity") {
+          Modal.error({
+            title: "Price Selection Required",
+            content: "Please select a price to proceed with the booking.",
+          });
+          return false;
+        }
+
+        return bookItem({ date: currentSelectedDate, total: currentprice }); // Calls the booking function if date is selected
       },
       onCancel: () => {
         setSelectedDate(null);
