@@ -237,6 +237,9 @@ const Profile = () => {
   ];
   const [categories, setCategories] = useState([]); 
   const token = localStorage.getItem("token");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [openKeys, setOpenKeys] = useState(["preferences"]);
+  const [open, setOpen] = useState(false); //for submenu
   let decodedToken = null;
   if (token) {
     decodedToken = jwtDecode(token);
@@ -300,7 +303,9 @@ const Profile = () => {
       console.error('Error saving tags:', error);
       message.error('Failed to update tags');
     }
-  };
+    //setDropdownOpen(true);
+    setOpenKeys(["preferences"]);
+    };
 
   const handleCategoriesChange = async (category) => {
     const updatedCategories = preferences.preferredCategories.includes(category)
@@ -318,17 +323,36 @@ const Profile = () => {
       console.error('Error saving categories:', error);
       message.error('Failed to update categories');
     }
-  };
-
+    //setDropdownOpen(true);
+    setOpenKeys(["preferences"]);
+    };
+    
+    
+    const handleOpenChange = (nextOpen) => {
+      if (nextOpen) {
+        setOpen(nextOpen);
+      }
+    }
+   
+    
   const preferencesMenu = ( 
-    <Menu>
+    <Menu 
+    selectedKeys={[...preferences.preferredTags, ...preferences.preferredCategories]} 
+    openKeys={openKeys} 
+    onOpenChange={(keys) => setOpenKeys(keys)}
+    >
       <Menu.SubMenu key="preferences"  title="Preferences">
       <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
         <Menu.ItemGroup title="Tags">
         {tags.map(tag => (
             <Menu.Item
               key={tag}
-              onClick={() => handleTagsChange(tag)}
+              onClick={(e) =>{
+                e.domEvent.preventDefault();
+                 handleTagsChange(tag) 
+                 handleOpenChange(true)
+                }}
+                 
               style={{
                 backgroundColor: preferences.preferredTags.includes(tag) ? '#e6f7ff' : 'white',
               }}
@@ -341,7 +365,13 @@ const Profile = () => {
         {categories.map(category => (
             <Menu.Item
               key={category}
-              onClick={() => handleCategoriesChange(category)}
+              onClick={(e) =>{ 
+                e.domEvent.preventDefault();
+                handleCategoriesChange(category)
+                handleOpenChange(true)
+              }}
+                open={dropdownOpen}
+                onOpenChange={(open) => setDropdownOpen(open)}
               style={{
                 backgroundColor: preferences.preferredCategories.includes(category) ? '#e6f7ff' : 'white',
               }}
@@ -354,9 +384,7 @@ const Profile = () => {
       </Menu.SubMenu>
     </Menu>
   );
-
-
-
+  
 
   return (
     <>
@@ -677,19 +705,14 @@ const Profile = () => {
                 )}
                 {role === "tourist" && (
                   <>
-
-  
-
                    {/* Preferences Menu */}
                    <Dropdown 
-                    overlay={preferencesMenu}
-                    trigger={['click']}
-                    dropdownRender={(menu) => (
-                      <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                        {menu}
-                      </div>
-                    )}
-                  >
+                      overlay={preferencesMenu}
+                      onOpenChange={handleOpenChange}
+                      trigger={['click']}
+                      open={dropdownOpen} 
+                      //onOpenChange={(open) => setDropdownOpen(open)}
+                    >
                     <Button style={{
                       position: "absolute",
                       top: 20,
@@ -698,7 +721,12 @@ const Profile = () => {
                       background: "none",
                       color: "#1890ff",
                       fontSize: "16px",
-                    }}>
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setDropdownOpen(!dropdownOpen);
+                    }}
+                  >
                       View and Edit Preferences 
                     </Button>
                   </Dropdown>
