@@ -5,7 +5,6 @@ const HotelBooking = require('../models/HotelBooking');
 const FlightBooking = require('../models/FlightBooking');
 const TransportationBooking = require('../models/TransportationBooking');
 const Tourist = require('../models/Tourist');
-const Tourist = require('../models/Tourist');
 require('dotenv').config();
 
 const clientId = process.env.AMADEUS_API_KEY;

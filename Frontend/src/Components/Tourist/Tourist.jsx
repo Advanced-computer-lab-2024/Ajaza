@@ -2,7 +2,7 @@ import React from "react";
 import { CustomLayout } from "../Common";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Itineraries from "./Itineraries";
-import { CalendarOutlined, ContainerOutlined } from "@ant-design/icons";
+import { CalendarOutlined, ContainerOutlined, CheckOutlined, BookOutlined, HomeOutlined, CarOutlined } from "@ant-design/icons";
 import { apiUrl } from "../Common/Constants";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -96,16 +96,23 @@ const Tourist = () => {
       onClick: () => navigate("redeemPoints"),
     },
     {
-      key: "7",
+      key: "18",
+      label: "Complaints",
       icon: <ReportGmailerrorredOutlinedIcon />,
-      label: "File Complaint",
-      onClick: () => navigate("FileComplaint"),
-    },
-    {
-      key: "8",
-      icon: <ReportGmailerrorredOutlinedIcon />,
-      label: "My Complaints",
-      onClick: () => navigate("Complaints"),
+      children: [
+        {
+          key: "7",
+          icon: <ReportGmailerrorredOutlinedIcon />,
+          label: "File Complaint",
+          onClick: () => navigate("FileComplaint"),
+        },
+        {
+          key: "8",
+          icon: <ReportGmailerrorredOutlinedIcon />,
+          label: "My Complaints",
+          onClick: () => navigate("Complaints"),
+        },
+      ],
     },
     {
       key: "9",
@@ -115,44 +122,38 @@ const Tourist = () => {
     },
     {
       key: "10",
-      icon: <RateReviewOutlinedIcon />,
+      icon: <CheckOutlined />,
       label: "Current Bookings",
       onClick: () => navigate("bookings"),
     },
     {
       key: "11",
-      icon: <RateReviewOutlinedIcon />,
+      icon: <CheckOutlined />,
       label: "Booking History",
       onClick: () => navigate("history"),
     },
     {
       key: "12",
-      icon: <RateReviewOutlinedIcon />,
+      icon: <CheckOutlined />,
       label: "Saved Plans",
       onClick: () => navigate("saved"),
     },
     {
       key: "13",
-      icon: <RateReviewOutlinedIcon />,
+      icon: <BookOutlined />,
       label: "Wishlist",
       onClick: () => navigate("wishlist"),
     },
     {
       key: "14",
-      icon: <RateReviewOutlinedIcon />,
+      icon: <BookOutlined />,
       label: "Orders",
       onClick: () => navigate("orders"),
     },
-  {
-    key: "15",
-    icon: <FlightTakeoffIcon />,
-    label: "Book Flight",
-    onClick: () => navigate("BookFlight"),
-  },
     {
       key: "16",
       label: "Services",
-      icon: <RateReviewOutlinedIcon />,
+      icon: <ContainerOutlined />,
       children: [
         {
           key: "17",
@@ -161,15 +162,21 @@ const Tourist = () => {
           onClick: () => navigate("services"),
         },
         {
+          key: "15",
+          label: "Flights",
+          icon: <FlightTakeoffIcon />,
+          onClick: () => navigate("BookFlight"),
+        },
+        {
           key: "18",
           label: "Hotels",
-          icon: <CalendarOutlined />,
+          icon: <HomeOutlined />,
           onClick: () => navigate("hotels"),
         },
         {
           key: "19",
           label: "Transportation",
-          icon: <CalendarOutlined />,
+          icon: <CarOutlined />,
           onClick: () => navigate("transportations"),
         },
       ],
