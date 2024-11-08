@@ -86,4 +86,6 @@ router.patch("/requestDeletion/:id", guideController.requestDeletion);
 
 router.post("/validateEmailUsername", guideController.validateEmailUsername); // New route for email and username validation
 
+router.get('/viewSalesReport/:id', guideController.viewSalesReport);
+
 module.exports = router;
