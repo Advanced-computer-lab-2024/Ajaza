@@ -37,6 +37,8 @@ const itinerarySchema = new mongoose.Schema({
   tags: [{ type: String }],
   maxTourists: { type: Number, required: true, default: 20 },
   hidden: { type: Boolean, default: false },
+  isFlagged: {type: Boolean, default: false},
+
 });
 
 // Create the model
