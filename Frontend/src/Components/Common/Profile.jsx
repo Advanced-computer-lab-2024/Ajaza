@@ -702,6 +702,13 @@ const Profile = () => {
                       View and Edit Preferences 
                     </Button>
                   </Dropdown>
+                  {userDetails && userDetails.badge && (
+                    <div style={{ marginTop: '10px' }}>
+                      {userDetails.badge === 1 && <img src="http://localhost:3000/1.jpg" alt="Bronze Badge" style={{ width: '50px', height: '50px' }} />}
+                      {userDetails.badge === 2 && <img src="http://localhost:3000/2.jpg" alt="Silver Badge" style={{ width: '50px', height: '50px' }} />}
+                      {userDetails.badge === 3 && <img src="http://localhost:3000/3.jpg" alt="Gold Badge" style={{ width: '50px', height: '50px' }} />}
+                    </div>
+                  )}
                   <Title level={2}>{userDetails.username}</Title>
                 <div>
                   <strong>Email: </strong>
@@ -740,20 +747,13 @@ const Profile = () => {
                     {userDetails.wallet !== undefined && (
                       <div>
                         <strong>Wallet: </strong>
-                        <span>{userDetails.wallet || 0}</span>
+                        <span>{userDetails.wallet || 0} USD</span>
                       </div>
                     )}
                     {userDetails.totalPoints !== undefined && (
                       <div>
-                        <strong>Total Points: </strong>
-                        <span>{userDetails.totalPoints || 0}</span>
-                      </div>
-                    )}
-
-                    {userDetails.badge && (
-                      <div>
-                        <strong>Badge: </strong>
-                        <span>{userDetails.badge}</span>
+                        <strong>Points: </strong>
+                        <span>{userDetails.points || 0}</span>
                       </div>
                     )}
                   </>
