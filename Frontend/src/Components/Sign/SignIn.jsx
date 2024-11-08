@@ -53,6 +53,7 @@ const SignIn = () => {
       //     "Content-Type": "application/json",
       //   },
       // };
+      
 
       try {
         const apiResponse = await axios.post(
@@ -64,6 +65,8 @@ const SignIn = () => {
 
           const token = apiResponse.data.token;
           const decodedToken = jwtDecode(token);
+          const role = decodedToken.role;
+          console.log("role:", role);
           if (decodedToken?.userDetails?.requestingDeletion) {
             message.error(<>You have requested to delete your account</>);
             return;
@@ -74,10 +77,18 @@ const SignIn = () => {
             !decodedToken?.userDetails?.acceptedTerms
           ) {
             // Redirect to Terms and Conditions page
-            console.log("is pending:",decodedToken.userDetails.pending);
-            navigate(`/auth/terms-and-conditions?role=${decodedToken.role}`); // Redirect to terms and conditions page --not functioning properly (tatos)
-            localStorage.setItem("token", apiResponse.data.token);
-            return;
+            if (role === "guide" || role === "advertiser" || role === "seller") {
+              console.log("is pending:",decodedToken.userDetails.pending);
+              navigate(`/auth/terms-and-conditions?role=${decodedToken.role}`); // Redirect to terms and conditions page
+              localStorage.setItem("token", apiResponse.data.token);
+              return;
+            }
+            else {
+              // Redirect to the user's respective page
+              navigate(`/${decodedToken.role}`);
+              localStorage.setItem("token", apiResponse.data.token);
+            }
+
           } 
           else if (decodedToken?.userDetails?.pending) {  // conditions 1,0 and 1,1 --pending
             message.error("Account is still pending");

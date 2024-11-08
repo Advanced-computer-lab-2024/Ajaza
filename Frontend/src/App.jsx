@@ -63,10 +63,6 @@ function App() {
   const params = new URLSearchParams(location.search);
   const role = params.get('role');
 
-  if (role === "tourist") {
-    navigate("/tourist"); // Redirect to tourist page directly without terms
-    return null;
-  }
   return (
     <div className="App">
       <Layout>
