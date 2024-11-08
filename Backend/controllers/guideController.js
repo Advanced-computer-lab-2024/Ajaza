@@ -690,3 +690,45 @@ exports.getGuideDetails = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+//req 28 - tatos (Not Done Yet)
+exports.viewSalesReport = async (req, res) => {
+  const guideId = req.params.id;
+  try {
+    const guide = await Guide.findById(guideId);
+    if (!guide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+    if (guide.pending) {
+      return res.status(401).json({ message: "Waiting for admin approval" });
+    }
+    if (!guide.acceptedTerms) {
+      return res.status(401).json({ message: "Terms and Conditions must be accepted" });
+    }
+    if(guide.requestingDeletion){
+      return res.status(401).json({ message: "Tour Guide is requesting deletion" });
+    }
+    const itineraries = await Itinerary.find({ guideId });
+    if (!itineraries || itineraries.length === 0) {
+      return res.status(404).json({ message: "No itineraries found for this guide" });
+    }
+    const salesReport = [];
+    for (const itinerary of itineraries) {
+      const bookings = await Booking.find({ itineraryId: itinerary._id });
+      for (const booking of bookings) {
+        salesReport.push({
+          itineraryName: itinerary.name,
+          touristName: booking.touristName,
+          date: booking.date,
+          price: booking.price,
+        });
+      }
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+
+
+}

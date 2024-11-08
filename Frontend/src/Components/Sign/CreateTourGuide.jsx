@@ -31,6 +31,7 @@ const CreateTourGuide = () => {
   };
 
   const nextStep = async () => {
+    setLoading(true)
     // Validate the registration form before moving to the next step
     try {
       await validateRegistrationForm();
@@ -38,6 +39,10 @@ const CreateTourGuide = () => {
     } catch (error) {
       message.error(error.message);
     }
+      finally{
+        setLoading(false)
+    }
+    
   };
 
   const previousStep = () => {
@@ -75,6 +80,7 @@ const CreateTourGuide = () => {
   };
 
   const registerTourGuide = async () => {
+    setLoading(true)
     try {
       await validateUploadForm(); // Validate upload form before submitting
 
@@ -117,6 +123,9 @@ const CreateTourGuide = () => {
         const errorDetails = error.response?.data?.message || error.response?.data?.error || "Failed to create tour guide.";
         message.error(`Failed to create tour guide: ${errorDetails}`);
       }
+    }
+    finally{
+      setLoading(false)
     }
   };
 
@@ -186,8 +195,9 @@ const CreateTourGuide = () => {
                   type="primary"
                   onClick={nextStep}
                   size="s"
-                  value="Next"
+                  value={loading?"":"Next"}
                   rounded={true}
+                  loading={loading}
                 />
               </Form.Item>
             </>
