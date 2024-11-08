@@ -141,7 +141,7 @@ exports.addReplyToComplaint = async (req, res) => {
     if (!complaint) {
       return res.status(404).json({ message: 'Complaint not found' });
     }
-
+    name = "You";
     // Add the new reply to the replies array
     complaint.replies.push({ name, text, date });
 
