@@ -76,11 +76,16 @@ const ChangePasswordForm = () => {
       console.log('Password update response:', response.data);
 
       message.success("Password updated successfully!");
+      if(role === "governor") {
+        navigate("/governor/");
+      } else if (role === "admin") {
+        navigate("/admin");
+      } else {
       if (role) {
         navigate(`/${role}/profile`);
       } else {
         navigate("/profile"); 
-      }
+      }}
     } catch (error) {
       console.error("Failed to update password:", error.response ? error.response.data : error.message);
       message.error("Failed to update password. Please try again.");

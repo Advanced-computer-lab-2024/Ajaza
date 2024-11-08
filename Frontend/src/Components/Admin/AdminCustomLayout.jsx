@@ -48,6 +48,10 @@ const AdminCustomLayout = ({ children }) => {
       navigate("products");
     } else if (key == "13") {
       navigate("myProducts");
+    } else if (key == "14") {
+      navigate("change-password");
+    } else if (key == "15") {
+      navigate("archive");
     }
   };
 
@@ -102,6 +106,16 @@ const AdminCustomLayout = ({ children }) => {
               key: "13",
               icon: <NumberOutlined />,
               label: "My Products",
+            },
+            {
+              key: "15",
+              icon: <NumberOutlined />,
+              label: "Archived Products",
+            },
+            {
+              key: "14",
+              icon: <StarOutlined />,
+              label: "Change My Password",
             },
           ]}
         />

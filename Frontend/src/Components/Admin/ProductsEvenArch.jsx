@@ -8,7 +8,7 @@ import {
 } from "../Common/Constants";
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
-import SelectCurrency from "./SelectCurrency";
+import SelectCurrency from "../Tourist/SelectCurrency";
 import { useNavigate } from "react-router-dom";
 
 const convertCategoriesToValues = (categoriesArray) => {
@@ -35,7 +35,7 @@ const currencyRates = {
   EUR: 0.91,
 };
 
-const Products = () => {
+const ProductsEvenArch = () => {
   const navigate = useNavigate();
   const cardOnclick = (element) => {
     navigate(element["_id"]);
@@ -74,7 +74,7 @@ const Products = () => {
     const fetchData = async () => {
       try {
         const [productResponse] = await Promise.all([
-          axios.get(`${apiUrl}product/notArchived`),
+          axios.get(`${apiUrl}product`),
         ]);
         let products = productResponse.data;
 
@@ -130,4 +130,4 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default ProductsEvenArch;

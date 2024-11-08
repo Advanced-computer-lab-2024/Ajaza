@@ -27,6 +27,18 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
+exports.getNotArchivedProducts = async (req, res) => {
+  try {
+    const products = await Product.find({hidden: { $ne: true }, archived: { $ne: true },});
+    if(!products || products.length === 0){
+      //return res.status(404).json({ message: "No products found" });
+    }
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get all products including hidden
 exports.getAllProductsEH = async (req, res) => {
   try {

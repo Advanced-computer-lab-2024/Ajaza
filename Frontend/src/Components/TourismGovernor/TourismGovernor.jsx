@@ -51,6 +51,12 @@ const TourismGovernor = () => {
       label: "Venues",
       onClick: () => navigate("/governor/"),
     },
+    {
+      key: "4",
+      icon: <CalendarOutlined />,
+      label: "Change My Password",
+      onClick: () => navigate("change-password"),
+    },
   ];
 
   return (

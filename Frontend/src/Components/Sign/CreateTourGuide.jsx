@@ -110,7 +110,7 @@ const CreateTourGuide = () => {
         }
       );
 
-      message.success("TourGuide created successfully!");
+      message.success("Tour Guide created successfully!");
 
       if (response.status === 201) {
         navigate("/auth/signin");

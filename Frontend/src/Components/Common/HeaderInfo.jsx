@@ -240,7 +240,7 @@ const HeaderInfo = ({
       }
     } catch (error) {
       console.error("Error getting new token:", error);
-      alert("Failed to refresh token. Please try again.");
+      message.error("Failed to refresh token. Please try again.");
     }
   };
 
@@ -269,13 +269,13 @@ const HeaderInfo = ({
         total = price;
         FinalDate = selectedDateRef.current;
       } else {
-        alert("This Feature is not avaliable :) ");
+        message.error("This Feature is not avaliable :) ");
       }
       // const total =
       //   type === "activity" ? selectedPriceRef.current : price;
       // const FinalDate = type === "activity" ? date : selectedDateRef.current;
       if (spots <= 0) {
-        alert(`Error booking ${type}: No spots available.`);
+        message.error(`Error booking ${type}: No spots available.`);
         return;
       }
       let endpoint;
@@ -292,13 +292,20 @@ const HeaderInfo = ({
         date: FinalDate,
         promoCode: promoCode || null,
       });
-      alert(`${type} booked successfully!`);
+
+      let capital ="";
+      if(type === "activity"){
+        capital = "Activity";
+      }else{
+        capital = "Itinerary";
+      }
+      message.success(`${capital} booked successfully!`);
 
       setIsBooked(true);
       await getNewToken();
     } catch (error) {
       console.error(`Error booking ${type}:`, error);
-      alert(`Error booking ${type}: ${error.message}`);
+      message.error(`Error booking ${type}: ${error.message}`);
     }
   };
 
@@ -406,16 +413,24 @@ const HeaderInfo = ({
 
       const response = await axios.delete(endpoint);
       if (response.status === 200) {
-        alert(`${type} booking canceled successfully!`);
+
+        let capital ="";
+        if(type === "activity"){
+          capital = "Activity";
+        }else{
+          capital = "Itinerary";
+        }
+
+        message.success(`${capital} booking canceled successfully!`);
         setIsBooked(false);
         await getNewToken();
       } else {
-        alert(`Problem: ${response.data.message}`);
+        message.error(`Problem: ${response.data.message}`);
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Please try again.";
       console.error(`Error canceling ${type} booking:`, error);
-      alert(`Failed to cancel the booking: ${errorMessage}`);
+      message.error(`Failed to cancel the booking: ${errorMessage}`);
     }
   };
 
