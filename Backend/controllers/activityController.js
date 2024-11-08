@@ -154,9 +154,11 @@ exports.giveActivityFeedback = async (req, res) => {
         .status(400)
         .json({ message: "No valid past activity booking found" });
     }
+    const touristName = tourist.username;
+
 
     // append the feedback to the activity
-    activity.feedback.push({ touristId, rating, comments });
+    activity.feedback.push({ touristName, rating, comments });
     tourist.gaveFeedback.push(activityId);
     await tourist.save();
 
@@ -361,7 +363,8 @@ exports.updateActivityFilteredFields = async (req, res) => {
       category,
       tags,
       spots,
-      discounts
+      discounts,
+      isOpen,
     } = req.body; 
     /*const advertiser = await Advertiser.findById(advertiserId);
     if (!advertiser) {
@@ -391,6 +394,9 @@ exports.updateActivityFilteredFields = async (req, res) => {
     if (category) activity.category = category;
     if (tags) activity.tags = tags;
     if (discounts) activity.discounts = discounts;
+    //if (isOpen) activity.isOpen = isOpen;
+    if (isOpen !== undefined) activity.isOpen = isOpen;
+
 
     const updatedActivity = await activity.save();
 
@@ -404,7 +410,6 @@ exports.updateActivityFilteredFields = async (req, res) => {
 exports.getUpcomingActivities = async (req, res) => {
   try {
     const currentDate = new Date();
-    console.log("Current Date:", currentDate); // Log the current date
 
     // Find activities with dates greater than or equal to the current date and hidden is false
     const upcomingActivities = await Activity.find({
@@ -420,5 +425,32 @@ exports.getUpcomingActivities = async (req, res) => {
   } catch (error) {
     console.error("Error in getUpcomingActivities:", error); // Log the error
     res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getActivitiesByPreferrences = async (req, res) => {
+  res.status(200).json({ null: "null" });
+}
+
+// flag activity inappropriate then hide it law han delete call dlete 3alatool 3ady
+exports.hideActivity = async (req, res) => {
+  const { id: activityId } = req.params;
+
+
+  try {
+      const updatedActivity = await Activity.findByIdAndUpdate(
+          activityId,
+          { hidden: true },
+          { new: true }
+      );
+
+      if (!updatedActivity) {
+          return res.status(404).json({ message: 'Activity not found' });
+      }
+
+      res.status(200).json({ message: `Activity ${activityId} has been hidden successfully.`, updatedActivity });
+  } catch (error) {
+      console.error(`Error hiding activity: ${error.message}`);
+      res.status(500).json({ message: `Error hiding activity: ${error.message}` });
   }
 };

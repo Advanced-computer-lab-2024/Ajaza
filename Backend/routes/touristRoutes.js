@@ -83,15 +83,94 @@ router.patch("/redeemPoints/:id", touristController.redeemPoints);
 
 // req40
 router.post("/flights/searchFlights", apiController.searchFlights);
+/*needs (origin and destination are IATA)
+origin,
+destination,
+departureDate,
+count
+*/
+
 router.post('/flights/bookFlight/:id', apiController.bookFlight);
+/*needs (all these fields are returned from search earlier)
+touristId, (params)
+departureAirport,
+totalDuration,
+currency,
+price,
+departureTime,
+departureTerminal,
+arrivalAirport,
+arrivalTime,
+arrivalTerminal,
+carrier,
+flightNumber,
+aircraft,
+stops,
+*/
+
 // req41
-router.get('/hotels/searchHotels', apiController.searchHotels);
+router.post('/hotels/searchHotels', apiController.searchHotels);
+/*
+needs
+dest_id, 
+checkInDate,
+checkOutDate,
+count
+*/
+
+router.get('/hotels/fetchImagesPlz/:hotelName', apiController.fetchImagesPlz);
+
 router.post('/hotels/bookHotel/:id', apiController.bookHotel);
-//helper for req41 to get images
-router.get('/hotels/getImages', apiController.getHotelDetails);
+/*needs
+touristId, (params)
+hotelName,
+city,
+price,
+currency,
+checkin,
+checkout,
+score,
+*/
+
+//helper for req41 to get details
+router.get('/hotels/getDetails', apiController.getHotelDetails);
+/*needs (all these fields were returned from searchHotels)
+hotelName, 
+checkin, 
+checkout, 
+count, 
+dest_id, 
+city, 
+currency, 
+score
+*/
 
 // req42
-router.get('/transportation/searchTransportation', apiController.searchTransportation);
+router.post('/transportation/searchTransportation', apiController.searchTransfer7);
+/*needs
+IATA,
+endAddressLine,
+startDateTime
+*/
+
+router.post('/transportation/bookTransportation/:id', apiController.bookTransfer);
+/*needs
+touristId (params),
+transferType, 
+start_dateTime, 
+start_locationCode, 
+end_dateTime, 
+end_address_line, 
+end_address_cityName, 
+vehicle_code, 
+vehicle_description, 
+vehicle_seats, 
+quotation_monetaryAmount, 
+quotation_currencyCode, 
+distance_value, 
+distance_unit
+*/
+router.get('/transportation/getGeoLocation', apiController.testGeoLocation);
 
 // req61
 router.delete(
@@ -161,5 +240,25 @@ router.post(
 );
 
 router.patch("/requestDeletion/:id", touristController.requestAccountDeletion);
+
+// Add to wishlist route
+router.post("/add-to-wishlist", touristController.addToWishlist);
+
+// View wishlist route
+router.get("/wishlist/:touristId", touristController.viewWishlist);
+
+// Remove from wishlist route
+router.post("/remove-from-wishlist", touristController.removeFromWishlist);
+
+// Add to cart from wishlist route
+router.post(
+  "/add-to-cart-from-wishlist",
+  touristController.addToCartFromWishlist
+);
+
+// Add delivery address route
+router.post("/add-delivery-address", touristController.addDeliveryAddress);
+
+router.get("/3rdparty/:id", apiController.getAll3rdPartyData);
 
 module.exports = router;

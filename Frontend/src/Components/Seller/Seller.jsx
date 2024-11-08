@@ -6,13 +6,36 @@ import { CalendarOutlined, ContainerOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 import SearchFilterSortContainerEditCreate from "../Common/SearchFilterSortContainerEditCreate";
 import Profile from "../Common/Profile";
+import Image from "../Common/Image";
 import Products from "../Tourist/Products";
 import MyProducts from "../Admin/MyProducts";
 import ArchivedProds from "../Seller/ArchivedProds";
 import ChangePasswordForm from "../Common/changePassword"; 
+import SignIn from "../Sign/SignIn";
+
 
 const Seller = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    console.log("Token:", token);
+    console.log("decodedToken:", jwtDecode(token));
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        // Check if the token is valid and if the user role is 'advertiser'
+        if (!decodedToken || decodedToken.role !== "seller") {
+          navigate("/auth/signin");
+        }
+      } catch (error) {
+        console.error("Invalid token:", error);
+        navigate("/auth/signin");
+      }
+    } else {
+      navigate("/auth/signin");
+    }
+  }, [navigate]);
 
   const sideBarItems = [
     {
@@ -49,6 +72,8 @@ const Seller = () => {
         <Route path="archive" element={<ArchivedProds />} />
         <Route path="profile" element={<Profile />} />
         <Route path="change-password"  element={<ChangePasswordForm />}  />
+        <Route path="image" element={<Image />} />
+        <Route path="auth/signin" element={<SignIn />} />
       </Routes>
     </CustomLayout>
   );

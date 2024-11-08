@@ -28,7 +28,6 @@ exports.getAllItineraries = async (req, res) => {
 
 // Get all itineraries not hidden
 exports.getAllItinerariesNH = async (req, res) => {
-  console.log("\n\n\n\n");
 
   try {
     const currentDate = new Date();
@@ -44,15 +43,12 @@ exports.getAllItinerariesNH = async (req, res) => {
 
         // Modify the timeline for each itinerary
         for (const item of itineraryObj.timeline) {
-          console.log("Item ID:", item.id);
 
           if (item.type === "Activity") {
             const activity = await Activity.findById(item.id);
-            console.log("Activity Found:", activity);
             item.id = activity; // Replace ObjectId with full document
           } else if (item.type === "Venue") {
             const venue = await Venue.findById(item.id);
-            console.log("Venue Found:", venue);
             item.id = venue; // Replace ObjectId with full document
           }
         }
@@ -90,15 +86,12 @@ exports.getItineraryById = async (req, res) => {
 
     // Modify the timeline for each itinerary
     for (const item of itineraryObj.timeline) {
-      console.log("Item ID:", item.id);
 
       if (item.type === "Activity") {
         const activity = await Activity.findById(item.id);
-        console.log("Activity Found:", activity);
         item.id = activity; // Replace ObjectId with full document
       } else if (item.type === "Venue") {
         const venue = await Venue.findById(item.id);
-        console.log("Venue Found:", venue);
         item.id = venue; // Replace ObjectId with full document
       }
     }
@@ -203,8 +196,10 @@ exports.giveItineraryFeedback = async (req, res) => {
       return res.status(404).json({ message: "Itinerary not found" });
     }
 
+    const touristName = tourist.username;
+
     // append the feedback to the itinerary
-    itinerary.feedback.push({ touristId, rating, comments });
+    itinerary.feedback.push({ touristName, rating, comments });
     tourist.gaveFeedback.push(itineraryId);
     await tourist.save();
 
@@ -458,3 +453,36 @@ exports.fetchOptions = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getItinerariesByPreferrences = async (req, res) => {
+  res.status(200).json({ null: "null" });
+}
+
+
+//flag and delete itenerary han call delete 3ady baa a3taked.
+// flag and hide itinerary
+exports.hideItinerary = async (req, res) => {
+  const { id: itineraryId } = req.params; // Extract itineraryId from req.params
+
+
+  try {
+      // Update the itinerary to set hidden to true
+      const updatedItinerary = await Itinerary.findByIdAndUpdate(
+          itineraryId,
+          { hidden: true },
+          { new: true }
+      );
+
+      if (!updatedItinerary) {
+          return res.status(404).json({ message: 'Itinerary not found' });
+      }
+
+      res.status(200).json({ message: `Itinerary ${itineraryId} has been hidden successfully.`, updatedItinerary });
+  } catch (error) {
+      console.error(`Error hiding itinerary: ${error.message}`);
+      res.status(500).json({ message: `Error hiding itinerary: ${error.message}` });
+  }
+};
+
+
+

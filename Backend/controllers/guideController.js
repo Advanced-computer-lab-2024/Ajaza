@@ -98,7 +98,10 @@ exports.giveGuideFeedback = async (req, res) => {
       return res.status(404).json({ message: "Guide not found" });
     }
 
-    guide.feedback.push({ touristId, rating, comments });
+    const touristName = tourist.username;
+
+
+    guide.feedback.push({ touristName, rating, comments });
     tourist.gaveFeedback.push(guideId);
     await tourist.save();
     await guide.save();
@@ -459,35 +462,35 @@ exports.uploadPhoto = async (req, res) => {
 };
 
 // get uploaded documents by id: returns id and certificates
-exports.getGuideDocuments = async (req, res) => {
-  try {
-    const guideId = req.params.id;
-    const guide = await Guide.findById(guideId).select("id certificates");
+// exports.getGuideDocuments = async (req, res) => {
+//   try {
+//     const guideId = req.params.id;
+//     const guide = await Guide.findById(guideId).select("id certificates");
 
-    if (!guide) {
-      return res.status(404).json({ message: "Guide not found" });
-    }
+//     if (!guide) {
+//       return res.status(404).json({ message: "Guide not found" });
+//     }
 
-    const response = {
-      message: "Documents retrieved successfully",
-      id: guide.id || null,
-      certificates: guide.certificates.length > 0 ? guide.certificates : null,
-    };
+//     const response = {
+//       message: "Documents retrieved successfully",
+//       id: guide.id || null,
+//       certificates: guide.certificates.length > 0 ? guide.certificates : null,
+//     };
 
-    if (!guide.id) {
-      response.idMessage = "No ID uploaded by this guide";
-    }
+//     if (!guide.id) {
+//       response.idMessage = "No ID uploaded by this guide";
+//     }
 
-    if (guide.certificates.length === 0) {
-      response.certificatesMessage = "No certificates uploaded by this guide";
-      response.certificates = null;
-    }
+//     if (guide.certificates.length === 0) {
+//       response.certificatesMessage = "No certificates uploaded by this guide";
+//       response.certificates = null;
+//     }
 
-    res.status(200).json(response);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+//     res.status(200).json(response);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 //admin accept guide
 exports.acceptGuide = async (req, res) => {
@@ -601,3 +604,131 @@ exports.requestDeletion = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.validateEmailUsername = async(req, res) =>{
+  const { email, username } = req.body; // Destructure email and username from request body
+  try {
+    // Validate email
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      return res.status(400).json({ error: emailValidation.message });
+    }
+
+    // Check for unique email
+    const emailAvailability = await checkEmailAvailability(email);
+    if (!emailAvailability.isAvailable) {
+      return res.status(400).json({ message: emailAvailability.message });
+    }
+
+    // Check for unique username
+    const usernameAvailability = await checkUsernameAvailability(username);
+    if (!usernameAvailability.isAvailable) {
+      return res.status(400).json({ message: usernameAvailability.message });
+    }
+    // If all validations pass, return a success message
+    return res.status(200).json({ message: "Everything is valid!" });
+  }
+  catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+
+// returns pending guides.
+exports.getPendingGuides = async (req, res) => {
+  try {
+    const pendingGuides = await Guide.find({ pending: true });
+    if (pendingGuides.length === 0) {
+      return res.status(404).json({ message: "No pending guides found." });
+    }
+    res.status(200).json(pendingGuides);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+exports.getGuideDetails = async (req, res) => {
+  const guideId = req.params.id;
+
+  try {
+    
+    // Find the guide by ID and populate image references
+    const guide = await Guide.findById(guideId)
+      .populate({ path: 'id', select: '_id' })  // Populate with _id to construct the image path
+      .populate({ path: 'certificates', select: '_id' })
+      .exec();
+
+    if (!guide) {
+      return res.status(404).json({ message: "Guide not found." });
+    }
+
+
+    // Construct the response object with image paths for ID and Taxation Registration Card
+    const responseGuide = {
+      id: guide.id ? `uploads/${guide.id._id}.jpg` : null,
+      certificates: guide.certificates ? `uploads/${guide.certificates._id}.jpg` : null,
+     // logo: advertiser.logo ? `uploads/${advertiser.logo._id}.jpg` : null,
+      username: guide.username,
+      email: guide.email,
+      link: guide.link || null,
+      hotline: guide.hotline || null,
+      companyProfile: {
+        name: guide.companyProfile?.name || null,
+        desc: guide.companyProfile?.desc || null,
+        location: guide.companyProfile?.location || null,
+      },
+      pending: guide.pending,
+      acceptedTerms: guide.acceptedTerms,
+      requestingDeletion: guide.requestingDeletion || false,
+    };
+
+    // Return the guide details excluding sensitive information
+    res.status(200).json(responseGuide);
+  } catch (error) {
+    console.error("Error fetching guide details:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+//req 28 - tatos (Not Done Yet)
+exports.viewSalesReport = async (req, res) => {
+  const guideId = req.params.id;
+  try {
+    const guide = await Guide.findById(guideId);
+    if (!guide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+    if (guide.pending) {
+      return res.status(401).json({ message: "Waiting for admin approval" });
+    }
+    if (!guide.acceptedTerms) {
+      return res.status(401).json({ message: "Terms and Conditions must be accepted" });
+    }
+    if(guide.requestingDeletion){
+      return res.status(401).json({ message: "Tour Guide is requesting deletion" });
+    }
+    const itineraries = await Itinerary.find({ guideId });
+    if (!itineraries || itineraries.length === 0) {
+      return res.status(404).json({ message: "No itineraries found for this guide" });
+    }
+    const salesReport = [];
+    for (const itinerary of itineraries) {
+      const bookings = await Booking.find({ itineraryId: itinerary._id });
+      for (const booking of bookings) {
+        salesReport.push({
+          itineraryName: itinerary.name,
+          touristName: booking.touristName,
+          date: booking.date,
+          price: booking.price,
+        });
+      }
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+
+
+}

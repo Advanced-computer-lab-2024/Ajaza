@@ -298,7 +298,7 @@ exports.advertiserUpdateProfile = async (req, res) => {
 
     // Generate a new JWT token
     const token = jwt.sign(
-      { userId: advertiser._id, role: "advertiser", userDetails: advertiser }, // Include user data in the token
+      { userId: updatedAdvertiser._id, role: "advertiser", userDetails: updatedAdvertiser }, // Include user data in the token
       process.env.JWT_SECRET, // Use the environment variable
       { expiresIn: "1h" }
     );
@@ -427,38 +427,38 @@ exports.uploadAdvertiserLogo = async (req, res) => {
 };
 
 // get uploaded documents for adv by id: returns id w taxationregcard
-exports.getAdvertiserDocuments = async (req, res) => {
-  try {
-    const { advertiserId } = req.params;
-    const advertiser = await Advertiser.findById(advertiserId).select(
-      "id taxationRegCard"
-    );
+// exports.getAdvertiserDocuments = async (req, res) => {
+//   try {
+//     const { advertiserId } = req.params;
+//     const advertiser = await Advertiser.findById(advertiserId).select(
+//       "id taxationRegCard"
+//     );
 
-    if (!advertiser) {
-      return res.status(404).json({ message: "Advertiser not found" });
-    }
+//     if (!advertiser) {
+//       return res.status(404).json({ message: "Advertiser not found" });
+//     }
 
-    const response = {
-      message: "Documents retrieved successfully",
-      id: advertiser.id || null,
-      taxationRegCard: advertiser.taxationRegCard || null,
-    };
+//     const response = {
+//       message: "Documents retrieved successfully",
+//       id: advertiser.id || null,
+//       taxationRegCard: advertiser.taxationRegCard || null,
+//     };
 
-    if (!advertiser.id) {
-      response.idMessage = "No ID document uploaded by this advertiser";
-    }
+//     if (!advertiser.id) {
+//       response.idMessage = "No ID document uploaded by this advertiser";
+//     }
 
-    if (!advertiser.taxationRegCard) {
-      response.taxationRegCardMessage =
-        "No taxation registration card uploaded by this advertiser";
-      response.taxationRegCard = null;
-    }
+//     if (!advertiser.taxationRegCard) {
+//       response.taxationRegCardMessage =
+//         "No taxation registration card uploaded by this advertiser";
+//       response.taxationRegCard = null;
+//     }
 
-    res.status(200).json(response);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+//     res.status(200).json(response);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 //admin accept advertiser
 exports.acceptAdvertiser = async (req, res) => {
@@ -542,7 +542,6 @@ exports.requestDeletion = async (req, res) => {
             new Date(activity.date) > new Date()
           ) {
             hasUpcomingActivity = true;
-            console.log("Upcoming activity found");
             break;
           }
         }
@@ -574,3 +573,126 @@ exports.requestDeletion = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+exports.validateEmailUsername = async(req, res) =>{
+  const { email, username } = req.body; // Destructure email and username from request body
+  try {
+    // Validate email
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      return res.status(400).json({ error: emailValidation.message });
+    }
+
+    // Check for unique email
+    const emailAvailability = await checkEmailAvailability(email);
+    if (!emailAvailability.isAvailable) {
+      return res.status(400).json({ message: emailAvailability.message });
+    }
+
+    // Check for unique username
+    const usernameAvailability = await checkUsernameAvailability(username);
+    if (!usernameAvailability.isAvailable) {
+      return res.status(400).json({ message: usernameAvailability.message });
+    }
+    // If all validations pass, return a success message
+    return res.status(200).json({ message: "Everything is valid!" });
+  }
+  catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+// returns all advertisers that are pending
+exports.getPendingAdvertisers = async (req, res) => {
+  try {
+    // Fetch advertisers with pending status
+    const pendingAdvertisers = await Advertiser.find({ "pending" : true }).exec();
+    
+    if (pendingAdvertisers.length === 0) {
+      return res.status(404).json({ message: "No advertisers with pending status found." });
+    }
+    
+    // Return the found pending advertisers
+    res.status(200).json(pendingAdvertisers);
+  } catch (error) {
+    console.error("Error fetching pending advertisers:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//returns details to be displayed.
+exports.getAdvertiserDetails = async (req, res) => {
+  const advertiserId = req.params.id;
+
+  try {
+    
+    // Find the advertiser by ID and populate image references
+    const advertiser = await Advertiser.findById(advertiserId)
+      .populate({ path: 'id', select: '_id' })  // Populate with _id to construct the image path
+      .populate({ path: 'taxationRegCard', select: '_id' })
+      .populate({ path: 'logo', select: '_id' })
+      .exec();
+
+    if (!advertiser) {
+      return res.status(404).json({ message: "Advertiser not found." });
+    }
+
+
+    // Construct the response object with image paths for ID and Taxation Registration Card
+    const responseAdvertiser = {
+      id: advertiser.id ? `uploads/${advertiser.id._id}.jpg` : null,
+      taxationRegCard: advertiser.taxationRegCard ? `uploads/${advertiser.taxationRegCard._id}.jpg` : null,
+     // logo: advertiser.logo ? `uploads/${advertiser.logo._id}.jpg` : null,
+      username: advertiser.username,
+      email: advertiser.email,
+      link: advertiser.link || null,
+      hotline: advertiser.hotline || null,
+      companyProfile: {
+        name: advertiser.companyProfile?.name || null,
+        desc: advertiser.companyProfile?.desc || null,
+        location: advertiser.companyProfile?.location || null,
+      },
+      pending: advertiser.pending,
+      acceptedTerms: advertiser.acceptedTerms,
+      requestingDeletion: advertiser.requestingDeletion || false,
+    };
+
+    // Return the advertiser details excluding sensitive information
+    res.status(200).json(responseAdvertiser);
+  } catch (error) {
+    console.error("Error fetching advertiser details:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+// req28 - tatos (Not Done Yet)
+exports.viewSalesReport = async (req, res) => {
+  const advertiserId = req.params.id;
+  try {
+    const advertiser = await Advertiser.findById(advertiserId);
+    if (!advertiser) {
+      return res.status(404).json({ message: "Advertiser not found" });
+    }
+    if (advertiser.pending) {
+      return res.status(401).json({ message: "Waiting for admin approval" });
+    }
+    if (!advertiser.acceptedTerms) {
+      return res.status(401).json({ message: "Terms and Conditions must be accepted" });
+    }
+    if(advertiser.requestingDeletion){
+      return res.status(401).json({ message: "Advertiser is requesting deletion" });
+    }
+    const activities = await Activity.find({ advertiserId });
+    if (!activities || activities.length === 0) {
+      return res.status(404).json({ message: "No activities found for this advertiser" });
+    }
+    const sales = activities.map(activity => activity.sales);
+    const totalSales = sales.reduce((acc, curr) => acc + curr, 0);
+    res.status(200).json({ totalSales });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+

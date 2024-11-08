@@ -28,10 +28,33 @@ import Itinerary from "../Common/Itinerary";
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import BookFlight from "./BookFlight";
 import { Colors } from "../Common/Constants";
+import Hotels from "./Hotels";
+import SignIn from "../Sign/SignIn";
+import ThirdParty from "./ThirdParty";
+import Transportations from "./Transportations";
 
 const Tourist = () => {
   const [response, setResponse] = useState([]);
   const navigate = useNavigate();
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    // console.log("Token:", token);
+    // console.log("decodedToken:", jwtDecode(token));
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        // Check if the token is valid and if the user role is 'advertiser'
+        if (!decodedToken || decodedToken.role !== "tourist") {
+          navigate("/auth/signin");
+        }
+      } catch (error) {
+        console.error("Invalid token:", error);
+        navigate("/auth/signin");
+      }
+    } else {
+      navigate("/auth/signin");
+    }
+  }, [navigate]);
 
   const sideBarItems = [
     {
@@ -126,6 +149,31 @@ const Tourist = () => {
     label: "Book Flight",
     onClick: () => navigate("BookFlight"),
   },
+    {
+      key: "16",
+      label: "Services",
+      icon: <RateReviewOutlinedIcon />,
+      children: [
+        {
+          key: "17",
+          label: "Services Bookings",
+          icon: <CalendarOutlined />,
+          onClick: () => navigate("services"),
+        },
+        {
+          key: "18",
+          label: "Hotels",
+          icon: <CalendarOutlined />,
+          onClick: () => navigate("hotels"),
+        },
+        {
+          key: "19",
+          label: "Transportation",
+          icon: <CalendarOutlined />,
+          onClick: () => navigate("transportations"),
+        },
+      ],
+    },
     // TODO put them in nested like current and past bookings ---- products,wishlist,orders
   ];
 
@@ -150,6 +198,12 @@ const Tourist = () => {
         <Route path="fileComplaint" element={<FileComplaint />} />
         <Route path="complaints" element={<Complaints />} />
         <Route path="touristHistory" element={<TouristHistory />} />
+        <Route path="auth/signin" element={<SignIn />} />
+
+        <Route path="hotels" element={<Hotels />} />
+        <Route path="services" element={<ThirdParty />} />
+        <Route path="transportations" element={<Transportations />} />
+
         <Route path="bookFlight" element={<BookFlight />} />
       </Routes>
     </CustomLayout>

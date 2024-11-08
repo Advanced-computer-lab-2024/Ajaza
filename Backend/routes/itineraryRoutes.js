@@ -3,12 +3,16 @@ const router = express.Router();
 const itineraryController = require("../controllers/itineraryController");
 
 router.post("/", itineraryController.createItinerary);
+//req 33
+router.patch("/hide/:id", itineraryController.hideItinerary);
 
 router.get("/", itineraryController.getAllItineraries);
 //not hidden
 router.get("/notHidden", itineraryController.getAllItinerariesNH);
 //req44
 router.get("/upcomingItineraries", itineraryController.getUpcomingItineraries);
+
+
 
 router.get("/:id", itineraryController.getItineraryById);
 
@@ -42,5 +46,8 @@ router.delete('/deleteSpecificItinerary/:guideId/:itineraryId', itineraryControl
 
 //gets list of activities and venues that can be added to an itinerary
 router.get('/fetchOptions/fetchOptions', itineraryController.fetchOptions);
+
+// req39
+//router.get("/preferrences/:id", itineraryController.getItinerariesByPreferences);
 
 module.exports = router;

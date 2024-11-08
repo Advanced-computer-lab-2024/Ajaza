@@ -1,80 +1,148 @@
 import React, { useState } from "react";
-import { Form, Input, Upload, message, Checkbox } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { CustomLayout } from "../Common";
+import { Route, Routes, useNavigate } from "react-router-dom";
+import Activities from "../Activities";
+import Itineraries from "../Itineraries";
+import { CalendarOutlined, UploadOutlined } from "@ant-design/icons";
+import { Form, Input, Upload, message } from "antd";
 import CustomButton from "../Common/CustomButton";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-import { useNavigate } from "react-router-dom";
+import SignIn from "./SignIn";
 
 const CreateSeller = () => {
-  const [sellerData, setSellerData] = useState([]);
+  const [formData, setFormData] = useState({
+    email: "",
+    username: "",
+    password: "",
+    document1: [],
+    document2: [],
+  });
+  const [currentStep, setCurrentStep] = useState(1);
+  const [loading, setLoading] = useState(false); // Loading state for displaying the wait message
   const navigate = useNavigate();
 
-  let decodedToken = null;
-  const token = localStorage.getItem("token");
-  if (token) {
-    decodedToken = jwtDecode(token);
-  }
-  const userid = decodedToken ? decodedToken.userId : null;
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
 
-  const createSeller = async (values) => {
+  const handleFileChange = (name) => (info) => {
+    let fileList = [...info.fileList];
+    setFormData((prevData) => ({ ...prevData, [name]: fileList }));
+  };
+
+  const nextStep = async () => {
+    setLoading(true)
+    // Validate the registration form before moving to the next step
     try {
-      const formData = new FormData();
-
-      formData.append("username", values.username);
-      formData.append("pass", values.password);
-      formData.append("email", values.email);
-
-      console.log("Values:", values);
-
-      if (values.document1 && values.document1.length > 0) {
-        formData.append('id', values.document1[0].originFileObj);
-      }
-
-      if (values.document2 && values.document2.length > 0) {
-        formData.append('taxationRegCard', values.document2[0].originFileObj);
-      }
-
-      const response = await axios.post(
-        "http://localhost:5000/seller/guestSellerCreateProfile",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      message.success("Seller created successfully!");
-      if (response.status === 201) {
-        navigate("/auth/signin");
-      }
-      setSellerData(response.data);
-
-      return response.data._id;
+      await validateRegistrationForm();
+      setCurrentStep(2);
     } catch (error) {
-      console.error("Error creating seller:", error);
-      const errorDetails =
-        error.response?.data?.message || error.response?.data?.error || "Failed to create seller.";
-      // Display the error message with the custom prefix
-      message.error(`Failed to create seller: ${errorDetails}`);
+      message.error(error.message);
+    }
+    finally{
+      setLoading(false)
     }
   };
 
-  const onFinish = async (values) => {
-    await createSeller(values);
+  const previousStep = () => {
+    setCurrentStep(1);
   };
 
-  const onFinishFailed = (errorInfo) => {
-    console.log("Failed:", errorInfo);
-  };
+  const validateRegistrationForm = async () => {
+    const { email, username, password } = formData;
 
-  const normFile = (e) => {
-    if (Array.isArray(e)) {
-      return e;
+    // Basic client-side validation
+    if (!email || !username || !password) {
+      throw new Error("All fields are required!");
     }
-    return e?.fileList;
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      throw new Error("Please enter a valid email!");
+    }
+    if (password.length < 6) {
+      throw new Error("Password must be at least 6 characters!");
+    }
+
+    // Check for existing username and email in the database
+    try {
+      const response = await axios.post("http://localhost:5000/seller/validateEmailUsername", {
+        email,
+        username,
+      });
+
+      if (response.data.exists) {
+        throw new Error(response.data.message); // Use custom error message from backend
+      }
+      
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Validation failed.");
+    }
   };
+
+  const registerSeller = async () => {
+  setLoading(true)
+  try {
+    await validateUploadForm(); // Validate upload form before submitting
+
+    const formDataToSubmit = new FormData();
+    formDataToSubmit.append("username", formData.username);
+    formDataToSubmit.append("pass", formData.password);
+    formDataToSubmit.append("email", formData.email);
+
+    if (formData.document1 && formData.document1.length > 0) {
+      formDataToSubmit.append("id", formData.document1[0].originFileObj);
+    }
+
+    if (formData.document2 && formData.document2.length > 0) {
+
+      formDataToSubmit.append("taxationRegCard", formData.document2[0].originFileObj);
+      
+    }
+    navigate("/auth/signin");
+
+    const response = await axios.post(
+      "http://localhost:5000/seller/guestSellerCreateProfile",
+      formDataToSubmit,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    message.success("Seller created successfully!");
+
+    if (response.status === 201) {
+      navigate("/auth/signin");
+    }
+
+  } catch (error) {
+    if (error.message === "Please upload your ID!" || error.message === "Please upload your Taxation Registry Card!") {
+      message.error(error.message);
+    } else {
+      const errorDetails = error.response?.data?.message || error.response?.data?.error || "Failed to create Seller.";
+      message.error(`Failed to Seller: ${errorDetails}`);
+    }
+    
+  }
+  finally{
+    setLoading(false)
+  }
+};
+
+const validateUploadForm = () => {
+  return new Promise((resolve, reject) => {
+    if (!formData.document1 || formData.document1.length === 0) {
+      reject(new Error("Please upload your ID!"));
+    }
+    if (!formData.document2 || formData.document2.length === 0) {
+      reject(new Error("Please upload your Taxation Registry Card!"));
+    }
+    resolve();
+  });
+};
+
+
 
   return (
     <>
@@ -91,89 +159,122 @@ const CreateSeller = () => {
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600, width: "100%" }}
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
           autoComplete="off"
         >
-          <Form.Item
-            label="Email"
-            name="email"
-            rules={[
-              { required: true, message: "Please input your email!" },
-              { type: "email", message: "Please enter a valid email!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
+          {currentStep === 1 && (
+            <>
+              <Form.Item
+                label="Email"
+                name="email"
+                rules={[
+                  { required: true, message: "Please input your email!" },
+                  { type: "email", message: "Please enter a valid email!" },
+                ]}
+              >
+                <Input name="email" value={formData.email} onChange={handleInputChange} />
+              </Form.Item>
 
-          <Form.Item
-            label="Username"
-            name="username"
-            rules={[{ required: true, message: "Please input your username!" }]}
-          >
-            <Input />
-          </Form.Item>
+              <Form.Item
+                label="Username"
+                name="username"
+                rules={[{ required: true, message: "Please input your username!" }]}
+              >
+                <Input name="username" value={formData.username} onChange={handleInputChange} />
+              </Form.Item>
 
-          <Form.Item
-            label="Password"
-            name="password"
-            rules={[
-              { required: true, message: "Please input your password!" },
-              { min: 6, message: "Password must be at least 6 characters!" },
-            ]}
-          >
-            <Input.Password />
-          </Form.Item>
+              <Form.Item
+                label="Password"
+                name="password"
+                rules={[
+                  { required: true, message: "Please input your password!" },
+                  { min: 6, message: "Password must be at least 6 characters!" },
+                ]}
+              >
+                <Input.Password name="password" value={formData.password} onChange={handleInputChange} />
+              </Form.Item>
 
-          <Form.Item
-            label="ID"
-            name="document1"
-            valuePropName="fileList"
-            getValueFromEvent={normFile}
-            rules={[{ required: true, message: "Please upload your ID!" }]}
-            extra="Upload the ID."
-          >
-            <Upload
-              name="doc1"
-              listType="text"
-              beforeUpload={() => false}
-              maxCount={1}
-            >
-              <CustomButton size="m" icon={<UploadOutlined />} value="Upload" />
-            </Upload>
-          </Form.Item>
+              <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                <CustomButton
+                  type="primary"
+                  onClick={nextStep}
+                  size="s"
+                  value={loading?"":"Next"}
+                  rounded={true}
+                  loading={loading}
+                />
+              </Form.Item>
+            </>
+          )}
 
-          <Form.Item
-            label="Taxation Registery Card"
-            name="document2"
-            valuePropName="fileList"
-            getValueFromEvent={normFile}
-            rules={[{ required: true, message: "Please upload your Taxation Registry Card!" }]}
-            extra="Upload the taxation registery card."
-          >
-            <Upload
-              name="doc2"
-              listType="text"
-              beforeUpload={() => false}
-              maxCount={1}
-            >
-              <CustomButton size="m" icon={<UploadOutlined />} value="Upload" />
-            </Upload>
-          </Form.Item>
+          {currentStep === 2 && (
+            <>
+              {/* Upload ID */}
+              <Form.Item
+                label="ID"
+                name="document1"
+                valuePropName="fileList"
+                getValueFromEvent={(e) => e.fileList}
+                extra="Upload your ID."
+              >
+                <Upload
+                  name="doc1"
+                  listType="text"
+                  beforeUpload={() => false}
+                  maxCount={1}
+                  fileList={formData.document1}
+                  onChange={handleFileChange("document1")}
+                >
+                  <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
+                </Upload>
+              </Form.Item>
 
-          {/* Submit Button */}
-          <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-            <CustomButton
-              type="primary"
-              htmlType="submit"
-              size="s"
-              value="Register"
-              rounded={true}
-              loading={false}
-            />
-          </Form.Item>
+              {/* Upload Taxation Registry Card */}
+              <Form.Item
+                label="Taxation Registry Card"
+                name="document2"
+                valuePropName="fileList"
+                getValueFromEvent={(e) => e.fileList}
+                extra="Upload your Taxation Registry Card."
+              >
+                <Upload
+                  name="doc2"
+                  listType="text"
+                  beforeUpload={() => false}
+                  maxCount={1}
+                  fileList={formData.document2}
+                  onChange={handleFileChange("document2")}
+                >
+                  <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
+                </Upload>
+              </Form.Item>
+
+              <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                <CustomButton
+                  type="default"
+                  onClick={previousStep}
+                  size="s"
+                  value="Previous"
+                  rounded={true}
+                />
+                
+                <CustomButton
+                  type="primary"
+                  onClick={registerSeller}
+                  size="s"
+                  value="Register"
+                  rounded={true}
+                />
+              </Form.Item>
+            </>
+          )}
         </Form>
       </div>
+
+      <Routes>
+        <Route path="/itineraries" element={<Itineraries />} />
+        <Route path="/auth/signin" element={<SignIn />} />
+        {/* Add other routes as needed */}
+      </Routes>
     </>
   );
 };

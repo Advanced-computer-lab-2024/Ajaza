@@ -7,6 +7,7 @@ import { getAvgRating } from "./Constants";
 import LocationOpeningHours from "./LocationOpeningHours";
 
 const Item = ({
+  id,
   name,
   photos,
   timelineItems,
@@ -38,6 +39,7 @@ const Item = ({
   accessibility,
   openingHours,
   desc,
+  availableDates,
 }) => {
   const [user, setUser] = useState(null);
   const [avgRating, setAvgRating] = useState(null);
@@ -58,6 +60,7 @@ const Item = ({
   return (
     <>
       <HeaderInfo
+        id={id}
         name={name}
         photos={photos}
         bookItem={bookItem}
@@ -86,6 +89,7 @@ const Item = ({
         avgRating={avgRating}
         colSpan={colSpan}
         desc={desc}
+        availableDates={availableDates}
       />
 
       {type == "venue" ? (

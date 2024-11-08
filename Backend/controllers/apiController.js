@@ -3,6 +3,8 @@ const qs = require('qs');
 const express = require('express');
 const HotelBooking = require('../models/HotelBooking');
 const FlightBooking = require('../models/FlightBooking');
+const TransportationBooking = require('../models/TransportationBooking');
+const Tourist = require('../models/Tourist');
 const Tourist = require('../models/Tourist');
 require('dotenv').config();
 
@@ -109,20 +111,22 @@ exports.searchFlights = async (req,res) => {
 };
 
 exports.bookFlight = async (req,res) => {
-    const  touristId  = req.params.id;
+    const touristId = req.params.id;
     const { departureAirport, totalDuration, currency, price, departureTime, departureTerminal, arrivalAirport, arrivalTime, arrivalTerminal, carrier, flightNumber, aircraft, stops } = req.body;
 
     try {
       const tourist = await Tourist.findById(touristId);
       if (!tourist) {
-        return res.status(404).json({ error: "Tourist not found" });
+          return res.status(404).json({ error: 'Tourist not found' });
       }
-      if (tourist.wallet < price){
-        return res.status(400).json({ error: "Insufficient funds in wallet" });
+
+      if(tourist.wallet < price) {
+        return res.status(400).json({ error: 'Insufficient funds in wallet' });
       } else {
         tourist.wallet -= price;
         await tourist.save();
       }
+
         const flightBooking = new FlightBooking({
             touristId,
             departureAirport,
@@ -141,7 +145,7 @@ exports.bookFlight = async (req,res) => {
         });
 
         await flightBooking.save();
-        res.status(200).json(flightBooking);
+        res.status(200).json({ message: "Flight booked successfully", flightBooking });
     } catch (error) {
         res.status(500).json({ error: error.message });
         console.log(error);
@@ -162,6 +166,25 @@ exports.getHotelDetails = async (req,res) => {
   }
 }
 
+exports.fetchImagesPlz = async (req,res) => {
+  const { hotelName } = req.params;
+  try {
+    const response = await axiosInstance.get('https://www.googleapis.com/customsearch/v1', {
+      params: {
+        key: GOOGLE_API_KEY,
+        cx: CX,
+        q: hotelName + " rooms",
+        searchType: 'image',
+        num: 10,
+      },
+    });
+
+    const images = response.data.items.map(item => item.link);
+    res.status(200).json(images);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
 
 async function fetchImages(hotelName) {
     try {
@@ -176,7 +199,6 @@ async function fetchImages(hotelName) {
     });
 
     const images = response.data.items.map(item => item.link);
-    console.log(images);
     return images;
   }
   catch (error) {
@@ -189,22 +211,29 @@ async function fetchImages(hotelName) {
   }
 }
 
-async function filterHotelFields(hotel) {
+function filterHotelFields(hotel) {
     // Extract price from the accessibilityLabel string
-    const priceMatch = hotel.accessibilityLabel.match(/Current price (\d+) USD/);
-    const priceMatchb = hotel.accessibilityLabel.match(/Current price (\d+)/);
+  let priceMatch = null;
+  let priceMatchb = null;
+    if(hotel.accessibilityLabel) {
+      priceMatch = hotel.accessibilityLabel.match(/Current price (\d+) USD/);
+      priceMatchb = hotel.accessibilityLabel.match(/Current price (\d+)/);
+    } else {
+      priceMatch = 1500;
+      priceMatchb = 1000;
+    }
 
     const price = priceMatch ? priceMatch[1] : (priceMatchb ? priceMatchb[1] : 1000);
 
     return {
-        name: hotel.property.name,
-        city: hotel.property.wishlistName,
-        price: price,
-        currency: 'USD',  // Ensure this matches the price currency
-        checkin: hotel.property.checkinDate,
-        checkout: hotel.property.checkoutDate,
-        score: hotel.property.reviewScore,
-    };
+      name: hotel.property?.name ?? "Default name",
+      city: hotel.property?.wishlistName ?? "Default city",
+      price: price ?? 10000,  // Default price if undefined
+      currency: 'USD',  // Ensure this matches the price currency
+      checkin: hotel.property?.checkinDate ?? "2021-01-01",
+      checkout: hotel.property?.checkoutDate ?? "2021-01-02",
+      score: hotel.property?.reviewScore ?? 8.0,
+  };
 };
 
 
@@ -228,9 +257,12 @@ async function searchHotels(dest_id , checkInDate, checkOutDate , count = 1) {
                 units: 'metric',
             },
         });
-
-        const filteredHotels = response.data.data.hotels.map(filterHotelFields);
-        return filteredHotels;  // Return the filtered hotels
+        if(response.data.data) {
+          const filteredHotels = await Promise.all(response.data.data.hotels.map(filterHotelFields));
+          return filteredHotels;  // Return the filtered hotels
+        } else {
+          return [];
+        }
     } catch (error) {
         console.error("Error fetching hotels:", error);
     }
@@ -239,23 +271,39 @@ async function searchHotels(dest_id , checkInDate, checkOutDate , count = 1) {
 exports.searchHotels = async (req,res) => {
     const {dest_id, checkInDate,checkOutDate,count} = req.body;
 
-    if(!dest_id, !checkInDate || !checkOutDate || !count) {
-        res.status(500).json({ error:"Missing params" });
+    if(!dest_id || !checkInDate || !checkOutDate || !count) {
+      return res.status(500).json({ error:"Missing params" });
     }
     try {
         const returned = await searchHotels(dest_id, checkInDate,checkOutDate,count);
-        console.log(returned);
-        res.status(200).json(returned);
+        if (returned.length === 0) {
+          return res.status(404).json({ error: "No hotels found" }); // Use 404 for not found
+      }
+      return res.status(200).json(returned);
     } catch(error) {
-        res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error.message });
     }
 };
 
 exports.bookHotel = async (req,res) => {
-    const { touristId } = req.params;
+  console.log(req.params);
+    const touristId  = req.params.id;
     const { hotelName, city, price, currency, checkin, checkout, score } = req.body;
 
     try {
+      console.log("Tourist ID: ", touristId);
+      const tourist = await Tourist.findById(touristId);
+      if (!tourist) {
+          return res.status(404).json({ error: 'Tourist not found' });
+      }
+
+      if(tourist.wallet < price) {
+        return res.status(400).json({ error: 'Insufficient funds in wallet' });
+      } else {
+        tourist.wallet -= price;
+        await tourist.save();
+      }
+
         const hotelBooking = new HotelBooking({
             touristId,
             hotelName,
@@ -300,8 +348,6 @@ function filterTransferOffer(data) {
 
 async function searchTransportation(accessToken,requestBody) {
   try {
-    console.log(requestBody);
-    console.log(accessToken);
     const response = await axiosInstance.post('https://test.api.amadeus.com/v1/shopping/transfer-offers', 
       requestBody, 
       {
@@ -310,7 +356,6 @@ async function searchTransportation(accessToken,requestBody) {
         }
       }
     );
-    console.log(response.data);
 
     return filterTransferOffer(response.data);
   } catch (error) {
@@ -345,7 +390,6 @@ exports.searchTransportation = async (req, res) => {
     if(!accessToken) {
         res.status(500).json({ error: "error getting access token" });
     }
-    console.log(accessToken);
     try {
         const returned = await searchTransportation(accessToken,requestBody);
         res.status(200).json(returned);
@@ -354,6 +398,214 @@ exports.searchTransportation = async (req, res) => {
     }
 
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const flattenTransferData = (data) => {
+  return data.data.map(entry => ({
+      transferType: entry.transferType,
+      start_dateTime: entry.start?.dateTime,
+      start_locationCode: entry.start?.locationCode,
+      end_dateTime: entry.end?.dateTime,
+      end_address_line: entry.end?.address?.line,
+      end_address_cityName: entry.end?.address?.cityName,
+      vehicle_code: entry.vehicle?.code,
+      vehicle_description: entry.vehicle?.description,
+      vehicle_seats: entry.vehicle?.seats?.[0]?.count,
+      quotation_monetaryAmount: entry.quotation?.monetaryAmount,
+      quotation_currencyCode: entry.quotation?.currencyCode,
+      distance_value: entry.distance?.value,
+      distance_unit: entry.distance?.unit,
+  }));
+};
+
+//try outs
+
+/*
+you can always use
+{
+    "address": "Avenue Anatole France, 5"
+}
+{
+    "latitude": "48.8053318",
+    "longitude": "2.5828656"
+}
+*/
+
+const getGeolocation = async (address) => {
+  try {
+      const encodedAddress = encodeURIComponent(address);
+
+      // Use Nominatim's OpenStreetMap API
+      const response = await axios.get(`https://nominatim.openstreetmap.org/search?q=${encodedAddress}&format=json&addressdetails=1&limit=1`, {
+          headers: {
+              'User-Agent': 'Ajaza/1.0 (reservy.me@gmail.com)' // replace with your app details and email
+          }
+      });
+      
+      // Check if any results were returned
+      if (response.data.length === 0) {
+          return null;
+      }
+
+      // Extract latitude and longitude from the response
+      const location = response.data[0];
+      return location.lat + ","+ location.lon;
+
+  } catch (error) {
+      console.error("Error fetching geolocation:", error.message);
+      return null;
+  }
+};
+
+exports.testGeoLocation = async (req,res) => {
+  const { address } = req.body;
+
+  if (!address) {
+      return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+      const location = await getGeolocation(address);
+      res.status(200).json(location);
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+};
+
+exports.searchTransfer7 = async (req,res) => {
+  const { IATA, endAddressLine, startDateTime } = req.body;
+  console.log(req.body);
+  let endCityName;
+  let endCountryCode;
+  let endGeoCode = await getGeolocation(endAddressLine);
+  if(!endGeoCode) {
+    res.status(404).json({ error: "Invalid address line" });
+  }
+  switch(IATA) {
+    case "CDG":
+      endCityName = "Paris";
+      endCountryCode = "FR";
+      break;
+    case "JFK":
+      endCityName = "New York";
+      endCountryCode = "US";
+      break;
+    case "LON":
+      endCityName = "London";
+      endCountryCode = "GB";
+      break;
+    case "DXB":
+      endCityName = "Dubai";
+      endCountryCode = "AE";
+      break;
+    case "LAX":
+      endCityName = "Los Angeles";
+      endCountryCode = "US";
+      break;
+    default:
+      endCityName = "Paris";
+      endCountryCode = "FR";
+  }
+
+
+  try {
+    const token = await getAccessToken();
+    const transferRequestBody = {
+      startLocationCode: IATA,
+      endAddressLine: endAddressLine,
+      endCityName: endCityName,
+      endCountryCode: endCountryCode,
+      endGeoCode: endGeoCode,
+      transferType: "PRIVATE",
+      startDateTime: startDateTime,
+      passengers: 1,
+      passengerCharacteristics: [
+        { passengerTypeCode: "ADT", age: 30 }
+      ],
+      max: 5,
+    };
+    if(token) {
+      const response = await axios.post(
+        'https://test.api.amadeus.com/v1/shopping/transfer-offers',
+        transferRequestBody,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+      if(response.data.data) {
+        res.status(200).json(flattenTransferData(response.data));
+      } else {
+        console.log(response.data);
+        res.status(404).json({ error: "No data found" });
+      }
+     } else {
+      res.status(500).json({ error: "Error getting access token" });
+     }
+  } catch(error) {
+    console.log(error.message);
+    res.status(500).json({ error: error.message });
+  }
+}
+
+exports.bookTransfer = async (req,res) => {
+  const touristId  = req.params.id;
+  const { transferType, start_dateTime, start_locationCode, end_dateTime, end_address_line, end_address_cityName, vehicle_code, vehicle_description, vehicle_seats, quotation_monetaryAmount, quotation_currencyCode, distance_value, distance_unit } = req.body;
+
+  try {
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+        return res.status(404).json({ error: 'Tourist not found' });
+    }
+
+    if(tourist.wallet < quotation_monetaryAmount) {
+      return res.status(400).json({ error: 'Insufficient funds in wallet' });
+    } else {
+      tourist.wallet -= quotation_monetaryAmount;
+      await tourist.save();
+    }
+
+    const transportationBooking = new TransportationBooking({
+      touristId,
+      transferType,
+      start_dateTime,
+      start_locationCode,
+      end_dateTime,
+      end_address_line,
+      end_address_cityName,
+      vehicle_code,
+      vehicle_description,
+      vehicle_seats,
+      quotation_monetaryAmount,
+      quotation_currencyCode,
+      distance_value,
+      distance_unit,
+    });
+
+    await transportationBooking.save();
+    res.status(200).json({message: "Transportation booked successfully", transportationBooking});
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getAll3rdPartyData = async (req,res) => {
+  try {
+    const touristId = req.params.id;
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+        return res.status(404).json({ error: 'Tourist not found' });
+    }
+    const hotelBookings = await HotelBooking.find({ touristId });
+    const flightBookings = await FlightBooking.find({ touristId });
+    const transportationBookings = await TransportationBooking.find({ touristId });
+    res.status(200).json({ hotelBookings, flightBookings, transportationBookings });
+  } catch (error) {
+    console.log(error);
     res.status(500).json({ error: error.message });
   }
 };

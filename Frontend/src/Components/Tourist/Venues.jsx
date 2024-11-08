@@ -12,6 +12,7 @@ import BasicCard from "../Common/BasicCard";
 import SelectCurrency from "./SelectCurrency";
 
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -45,6 +46,10 @@ const currencyRates = {
 };
 
 const Venues = () => {
+  const navigate = useNavigate();
+  const cardOnclick = (element) => {
+    navigate(element["_id"]);
+  };
   const [combinedElements, setCombinedElements] = useState([]);
   const [user, setUser] = useState(null);
   // propName:fieldName
@@ -168,6 +173,7 @@ const Venues = () => {
         fields={fields}
         sortFields={sortFields}
         filterFields={filterFields}
+        cardOnclick={cardOnclick}
       />
     </div>
   );

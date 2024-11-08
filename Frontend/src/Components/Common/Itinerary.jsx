@@ -59,6 +59,7 @@ const Itinerary = () => {
     <>
       {itinerary && (
         <Item
+          id={itinerary._id}
           name={itinerary.name}
           feedbacks={itinerary.feedback}
           setFeedback={handleFeedbackUpdate}
@@ -75,6 +76,8 @@ const Itinerary = () => {
           pickUp={itinerary?.pickUp}
           dropOff={itinerary?.dropOff}
           creatorName={itinerary?.guideId?.username}
+          type={"itinerary"}
+          availableDates={itinerary.availableDateTime}
         />
       )}
     </>

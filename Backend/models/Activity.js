@@ -18,7 +18,7 @@ const activitySchema = new mongoose.Schema({
   isOpen: { type: Boolean, default: true }, // Booking availability
   feedback: [
     {
-      touristId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Tourist",},
+      touristName: { type: String },
       rating: { type: Number, min: 1, max: 5, required: true }, // Rating between 1 and 5
       comments: { type: String, required: true },
     },

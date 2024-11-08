@@ -2,9 +2,12 @@ const Tourist = require("../models/Tourist");
 const Activity = require("../models/Activity");
 const Itinerary = require("../models/Itinerary");
 const Guide = require("../models/Guide");
+const Product = require("../models/Product");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 function isAdult(dob) {
   // Convert the dob string to a Date object
@@ -185,15 +188,11 @@ exports.emailShare = async (req, res) => {
         '"><button>Go to link</button></a>',
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error sending email: ", error);
-      } else {
-        console.log("Email sent: ", info.response);
-      }
-    });
+    transporter.sendMail(mailOptions)
+      .then(info => console.log("Email sent: ", info.response))
+      .catch(error => console.error("Error sending email: ", error));
 
-    res.status(200).json({ message: "Email sent" });
+    res.status(200).json({ message: "Email is being sent" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -278,8 +277,6 @@ exports.cancelItineraryBooking = async (req, res) => {
       return res.status(404).json({ message: "Tourist not found" });
     }
 
-    console.log(tourist.itineraryBookings);
-    console.log(itineraryId);
 
     const bookingIndex = tourist.itineraryBookings.findIndex(
       (booking) => booking.itineraryId.toString() === itineraryId
@@ -377,7 +374,7 @@ exports.redeemPoints = async (req, res) => {
 exports.bookActivity = async (req, res) => {
   try {
     const { touristId, activityId } = req.params;
-    const { useWallet, total, promoCode } = req.body; // Boolean to check if wallet should be used for payment, and total passed from frontend
+    const { useWallet, total, promoCode, paymentMethodId } = req.body; // Boolean to check if wallet should be used for payment, and total passed from frontend
 
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
@@ -414,9 +411,22 @@ exports.bookActivity = async (req, res) => {
       }
 
       tourist.wallet -= total;
-    }
+    } else {
+      // Process payment using the extracted function
+      const amount = total * 100; // Convert to cents for Stripe
+      try {
+        const paymentIntent = await processPayment(amount, paymentMethodId);
 
-    // otherwise, deduct the payment from another method
+        // Check if the payment was successful
+        if (paymentIntent.status !== "succeeded") {
+          return res.status(400).json({ message: "Payment failed" });
+        }
+      } catch (error) {
+        return res
+          .status(400)
+          .json({ message: `Payment failed: ${error.message}` });
+      }
+    }
 
     // deduct 1 spot from the activity
     activity.spots -= 1;
@@ -424,7 +434,7 @@ exports.bookActivity = async (req, res) => {
     // Add the booking to the tourist's activityBookings array
     tourist.activityBookings.push({
       activityId: activity._id,
-      total: activity.price,
+      total: total,
     });
 
     if (promoCode) {
@@ -446,12 +456,12 @@ exports.bookActivity = async (req, res) => {
         newPoints = 0.5 * total;
     }
 
-    tourist.points += newPoints;
-    tourist.totalPoints += newPoints;
+    tourist.points += Math.floor(newPoints);
+    tourist.totalPoints += Math.floor(newPoints);
 
-    if (totalPoints > 500000) {
+    if (tourist.totalPoints > 500000) {
       tourist.badge = 3;
-    } else if (totalPoints > 100000) {
+    } else if (tourist.totalPoints > 100000) {
       tourist.badge = 2;
     } else {
       tourist.badge = 1;
@@ -483,7 +493,7 @@ exports.bookActivity = async (req, res) => {
 exports.bookItinerary = async (req, res) => {
   try {
     const { touristId, itineraryId } = req.params;
-    const { useWallet, total, date, promoCode } = req.body; // Boolean to check if wallet should be used for payment, and total passed from frontend
+    const { useWallet, total, date, promoCode, paymentMethodId } = req.body; // Boolean to check if wallet should be used for payment, and total passed from frontend
 
     if (!date || !total) {
       return res.status(400).json({ message: "Date and total are required" });
@@ -520,9 +530,10 @@ exports.bookItinerary = async (req, res) => {
         .status(400)
         .json({ message: "This itinerary is not open for booking" });
     }
+    const factoredDate = new Date(date);
 
     const availableDate = itinerary.availableDateTime.find(
-      (dateObj) => dateObj.date.getTime() === date.getTime()
+      (dateObj) => dateObj.date.getTime() === factoredDate.getTime()
     );
 
     if (!availableDate || availableDate.spots <= 0) {
@@ -540,9 +551,22 @@ exports.bookItinerary = async (req, res) => {
       }
 
       tourist.wallet -= total;
-    }
+    } else {
+      // Process payment using the extracted function
+      const amount = total * 100; // Convert to cents for Stripe
+      try {
+        const paymentIntent = await processPayment(amount, paymentMethodId);
 
-    // otherwise, deduct the payment from another method
+        // Check if the payment was successful
+        if (paymentIntent.status !== "succeeded") {
+          return res.status(400).json({ message: "Payment failed" });
+        }
+      } catch (error) {
+        return res
+          .status(400)
+          .json({ message: `Payment failed: ${error.message}` });
+      }
+    }
 
     // deduct 1 spot from the itinerary
     availableDate.spots -= 1;
@@ -551,7 +575,7 @@ exports.bookItinerary = async (req, res) => {
     tourist.itineraryBookings.push({
       itineraryId: itinerary._id,
       date: date,
-      total: itinerary.price,
+      total: total,
     });
 
     if (promoCode) {
@@ -573,12 +597,12 @@ exports.bookItinerary = async (req, res) => {
         newPoints = 0.5 * total;
     }
 
-    tourist.points += newPoints;
-    tourist.totalPoints += newPoints;
+    tourist.points += Math.floor(newPoints);
+    tourist.totalPoints += Math.floor(newPoints);
 
-    if (totalPoints > 500000) {
+    if (tourist.totalPoints > 500000) {
       tourist.badge = 3;
-    } else if (totalPoints > 100000) {
+    } else if (tourist.totalPoints > 100000) {
       tourist.badge = 2;
     } else {
       tourist.badge = 1;
@@ -843,7 +867,6 @@ exports.birthdayEventTriggered = async (usersWithBirthdayToday) => {
       await tourist.save();
     }
 
-    //console.log("Promo code created successfully:", newPromoCode);
   } catch (error) {
     console.error("Error creating promo code:", error);
   }
@@ -907,11 +930,6 @@ exports.getHistory = async (req, res) => {
             tourist.itineraryBookings[i].itineraryId._id
           ),
         });
-        console.log(
-          "Itinerary guide id:",
-          tourist.itineraryBookings[i].itineraryId.guideId
-        );
-        console.log("Tourist gave feedback:", tourist.gaveFeedback);
         const guideNumberOfTimesRated = tourist.gaveFeedback.filter((el) =>
           el.equals(tourist.itineraryBookings[i].itineraryId.guideId)
         ).length;
@@ -926,11 +944,7 @@ exports.getHistory = async (req, res) => {
             );
           }
         ).length;
-        console.log("Guide number of times rated:", guideNumberOfTimesRated);
-        console.log(
-          "Number of bookings with guide:",
-          numberOfBookingsWithGuide
-        );
+        
         const guideName = await Guide.findById(
           tourist.itineraryBookings[i].itineraryId.guideId
         ).select("username");
@@ -949,14 +963,13 @@ exports.getHistory = async (req, res) => {
     for (let i = 0; i < tourist.orders.length; i++) {
       if(tourist.orders[i].date < currentDate && tourist.orders[i].status != "Cancelled") {
         for (let j = 0; j < tourist.orders[i].products.length; j++) {
-          console.log("alooooo: ", tourist.orders[i].products[j].productId._id);
           products.push({
             productId: tourist.orders[i].products[j].productId._id,
             name: tourist.orders[i].products[j].productId.name,
             sellerName: tourist.orders[i].products[j].productId.sellerName,
             date: tourist.orders[i].date,
             gaveFeedback: tourist.gaveFeedback.includes(
-              tourist.orders[i].products[j].productId
+              tourist.orders[i].products[j].productId._id
             ),
           });
         }
@@ -971,7 +984,6 @@ exports.getHistory = async (req, res) => {
     });
   } catch (error) {
     console.error("Error retrieving past activity bookings:", error);
-    throw error;
   }
 };
 
@@ -1143,7 +1155,7 @@ async function cleanItineraryBookmarks(touristId) {
     }
   }
   tourist.itineraryBookmarks = itineraryBookmarks;
-  await tourist.save(); 
+  await tourist.save();
 }
 
 exports.requestAccountDeletion = async (req, res) => {
@@ -1204,5 +1216,178 @@ exports.requestAccountDeletion = async (req, res) => {
       success: false,
       message: "An error occurred while requesting account deletion.",
     });
+  }
+};
+
+exports.addToWishlist = async (req, res) => {
+  try {
+    const { touristId, productId } = req.body;
+
+    // Find the tourist by ID
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    // Find the product by ID
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // Check if the product is already in the wishlist
+    if (tourist.wishlist.includes(productId)) {
+      return res
+        .status(400)
+        .json({ message: "Product is already in the wishlist" });
+    }
+
+    // Add the product to the wishlist
+    tourist.wishlist.push(productId);
+    await tourist.save();
+
+    res.status(200).json({ message: "Product added to wishlist successfully" });
+  } catch (error) {
+    console.error("Error adding product to wishlist:", error);
+    res.status(500).json({
+      message: "An error occurred while adding the product to the wishlist",
+    });
+  }
+};
+
+exports.viewWishlist = async (req, res) => {
+  try {
+    const { touristId } = req.params;
+
+    // Find the tourist by ID and populate the wishlist with product details
+    const tourist = await Tourist.findById(touristId).populate("wishlist");
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    res.status(200).json({ wishlist: tourist.wishlist });
+  } catch (error) {
+    console.error("Error retrieving wishlist:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while retrieving the wishlist" });
+  }
+};
+
+exports.removeFromWishlist = async (req, res) => {
+  try {
+    const { touristId, productId } = req.body;
+
+    // Find the tourist by ID
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    // Check if the product is in the wishlist
+    const productIndex = tourist.wishlist.indexOf(productId);
+    if (productIndex === -1) {
+      return res.status(404).json({ message: "Product not found in wishlist" });
+    }
+
+    // Remove the product from the wishlist
+    tourist.wishlist.splice(productIndex, 1);
+    await tourist.save();
+
+    res
+      .status(200)
+      .json({ message: "Product removed from wishlist successfully" });
+  } catch (error) {
+    console.error("Error removing product from wishlist:", error);
+    res.status(500).json({
+      message: "An error occurred while removing the product from the wishlist",
+    });
+  }
+};
+
+exports.addToCartFromWishlist = async (req, res) => {
+  try {
+    const { touristId, productId, quantity } = req.body;
+
+    // Find the tourist by ID
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    // Check if the product is in the wishlist
+    const productIndex = tourist.wishlist.indexOf(productId);
+    if (productIndex === -1) {
+      return res.status(404).json({ message: "Product not found in wishlist" });
+    }
+
+    // Check if the product is already in the cart
+    const cartIndex = tourist.cart.findIndex(
+      (item) => item.productId.toString() === productId
+    );
+    if (cartIndex !== -1) {
+      // If the product is already in the cart, update the quantity
+      tourist.cart[cartIndex].quantity += quantity;
+    } else {
+      // Add the product to the cart
+      tourist.cart.push({ productId, quantity });
+    }
+
+    // Remove the product from the wishlist
+    tourist.wishlist.splice(productIndex, 1);
+
+    // Save the updated tourist document
+    await tourist.save();
+
+    res
+      .status(200)
+      .json({ message: "Product added to cart from wishlist successfully" });
+  } catch (error) {
+    console.error("Error adding product to cart from wishlist:", error);
+    res.status(500).json({
+      message:
+        "An error occurred while adding the product to the cart from the wishlist",
+    });
+  }
+};
+
+exports.addDeliveryAddress = async (req, res) => {
+  try {
+    const { touristId, address } = req.body;
+
+    // Find the tourist by ID
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    // Add the new delivery address to the deliveryAddresses array
+    tourist.deliveryAddresses.push(address);
+
+    // Save the updated tourist document
+    await tourist.save();
+
+    res.status(200).json({ message: "Delivery address added successfully" });
+  } catch (error) {
+    console.error("Error adding delivery address:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while adding the delivery address" });
+  }
+};
+
+const processPayment = async (amount, paymentMethodId) => {
+  try {
+    // Process payment using Stripe
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency: "usd",
+      payment_method: paymentMethodId,
+      confirm: true,
+    });
+
+    return paymentIntent;
+  } catch (error) {
+    throw new Error(error.message);
   }
 };
