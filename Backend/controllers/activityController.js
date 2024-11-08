@@ -24,6 +24,16 @@ exports.getAllActivities = async (req, res) => {
   }
 };
 
+//get admin activities.
+exports.getAdminActivities = async (req, res) => {
+  try {
+    const activities = await Activity.find({   $nor: [{ hidden: true, isFlagged: false }] }).populate("advertiserId");
+    res.status(200).json(activities);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get all activities not hidden
 exports.getAllActivitiesNH = async (req, res) => {
   try {
@@ -302,8 +312,8 @@ exports.readActivitiesOfAdvertiser = async (req, res) => {
       if ( advertiser.pending) {
         return res.status(400).json({ message: 'The profile is still pending approval.' });
       }*/
-      const activities = await Activity.find({ advertiserId, hidden: false });
-      
+        const activities = await Activity.find({advertiserId, $or: [{ hidden: false },{ hidden: true, isFlagged: true }]});
+              
       if (!activities || activities.length === 0) {
         //return res.status(404).json({ message: 'No activities found for this advertiser.' });
       }
@@ -432,25 +442,97 @@ exports.getActivitiesByPreferrences = async (req, res) => {
   res.status(200).json({ null: "null" });
 }
 
-// flag activity inappropriate then hide it law han delete call dlete 3alatool 3ady
+// flag activity inappropriate then hide it
 exports.hideActivity = async (req, res) => {
   const { id: activityId } = req.params;
 
+  try {
+    // Update the activity to be hidden and flagged
+    const updatedActivity = await Activity.findByIdAndUpdate(
+      activityId,
+      { hidden: true, isFlagged: true },
+      { new: true }
+    );
+
+    if (!updatedActivity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
+
+    // Get the advertiserId associated with this activity
+    const selectedAdvertiserId = updatedActivity.advertiserId;
+  //  console.log("Selected Advertiser ID: ", selectedAdvertiserId);
+
+    // Find the advertiser by ID
+    const advertiser = await Advertiser.findById(selectedAdvertiserId);
+
+    if (!advertiser) {
+      return res.status(404).json({ message: 'Advertiser not found' });
+    }
+
+    // Create a notification for the advertiser
+    const notificationText = `Your activity with ID ${activityId} has been flagged as inappropriate.`;
+    advertiser.notifications.push({
+      text: notificationText,
+      seen: false, // Set to false initially, you can update it when the advertiser views it
+    });
+
+    // Save the updated advertiser
+    await advertiser.save();
+
+    res.status(200).json({
+      message: `Activity ${activityId} has been hidden successfully and the advertiser has been notified.`,
+      updatedActivity,
+    });
+  } catch (error) {
+    console.error(`Error hiding activity: ${error.message}`);
+    res.status(500).json({ message: `Error hiding activity: ${error.message}` });
+  }
+};
+
+exports.unhideActivity = async (req, res) => {
+  const { id: activityId } = req.params;
 
   try {
-      const updatedActivity = await Activity.findByIdAndUpdate(
-          activityId,
-          { hidden: true },
-          { new: true }
-      );
+    // Update the activity to be unhidden and unflagged
+    const updatedActivity = await Activity.findByIdAndUpdate(
+      activityId,
+      { hidden: false, isFlagged: false },
+      { new: true }
+    );
 
-      if (!updatedActivity) {
-          return res.status(404).json({ message: 'Activity not found' });
-      }
+    if (!updatedActivity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
 
-      res.status(200).json({ message: `Activity ${activityId} has been hidden successfully.`, updatedActivity });
+    // Get the advertiserId associated with this activity
+    const selectedAdvertiserId = updatedActivity.advertiserId;
+
+    // Find the advertiser by ID
+    const advertiser = await Advertiser.findById(selectedAdvertiserId);
+
+    if (!advertiser) {
+      return res.status(404).json({ message: 'Advertiser not found' });
+    }
+
+    // Remove the notification related to the hidden/flagged activity
+    // Assuming that the notification text includes the activity ID
+    const notificationText = `Your activity with ID ${activityId} has been flagged as inappropriate.`;
+    const notificationIndex = advertiser.notifications.findIndex(
+      (notification) => notification.text === notificationText
+    );
+
+    if (notificationIndex !== -1) {
+      // Remove the notification from the array
+      advertiser.notifications.splice(notificationIndex, 1);
+      await advertiser.save(); // Save the updated advertiser
+    }
+
+    res.status(200).json({
+      message: `Activity ${activityId} has been unhidden successfully and the notification has been removed.`,
+      updatedActivity,
+    });
   } catch (error) {
-      console.error(`Error hiding activity: ${error.message}`);
-      res.status(500).json({ message: `Error hiding activity: ${error.message}` });
+    console.error(`Error unhiding activity: ${error.message}`);
+    res.status(500).json({ message: `Error unhiding activity: ${error.message}` });
   }
 };
