@@ -460,7 +460,7 @@ exports.hideActivity = async (req, res) => {
 
     // Get the advertiserId associated with this activity
     const selectedAdvertiserId = updatedActivity.advertiserId;
-   console.log("Selected Advertiser ID: ", selectedAdvertiserId);
+  //  console.log("Selected Advertiser ID: ", selectedAdvertiserId);
 
     // Find the advertiser by ID
     const advertiser = await Advertiser.findById(selectedAdvertiserId);
@@ -470,7 +470,7 @@ exports.hideActivity = async (req, res) => {
     }
 
     // Create a notification for the advertiser
-    const notificationText = `Your activity with ID ${activityId} has been hidden and flagged for review.`;
+    const notificationText = `Your activity with ID ${activityId} has been flagged as inappropriate.`;
     advertiser.notifications.push({
       text: notificationText,
       seen: false, // Set to false initially, you can update it when the advertiser views it
@@ -516,7 +516,7 @@ exports.unhideActivity = async (req, res) => {
 
     // Remove the notification related to the hidden/flagged activity
     // Assuming that the notification text includes the activity ID
-    const notificationText = `Your activity with ID ${activityId} has been hidden and flagged for review.`;
+    const notificationText = `Your activity with ID ${activityId} has been flagged as inappropriate.`;
     const notificationIndex = advertiser.notifications.findIndex(
       (notification) => notification.text === notificationText
     );
