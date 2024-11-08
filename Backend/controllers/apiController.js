@@ -5,6 +5,7 @@ const HotelBooking = require('../models/HotelBooking');
 const FlightBooking = require('../models/FlightBooking');
 const TransportationBooking = require('../models/TransportationBooking');
 const Tourist = require('../models/Tourist');
+const Tourist = require('../models/Tourist');
 require('dotenv').config();
 
 const clientId = process.env.AMADEUS_API_KEY;
@@ -68,6 +69,7 @@ const axiosInstance1 = axios.create({
 
 // Function to search flights
 async function searchFlights(accessToken,origin,destination,departureDate,count) {
+  console.log("ahmed amrrrrrr",origin,destination,departureDate,count);
   try {
     const response = await axiosInstance1.get('https://test.api.amadeus.com/v2/shopping/flight-offers', {
       headers: {
@@ -91,20 +93,20 @@ async function searchFlights(accessToken,origin,destination,departureDate,count)
 exports.searchFlights = async (req,res) => {
     const accessToken = await getAccessToken();
     const {origin,destination,departureDate,count} = req.body;
-
+    console.log("mariem",req.body);
     if(!accessToken) {
-        res.status(500).json({ error: "error getting access token" });
+        return res.status(500).json({ error: "error getting access token" });
     }
 
     if(!origin || !destination || !departureDate || !count) {
-        res.status(500).json({ error:"Missing params" });
+        return res.status(500).json({ error:"Missing params" });
     }
 
     try {
         const returned = await searchFlights(accessToken,origin,destination,departureDate,count);
-        res.status(200).json(returned);
+        return res.status(200).json(returned);
     } catch(error) {
-        res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error.message });
     }
 };
 
@@ -146,6 +148,7 @@ exports.bookFlight = async (req,res) => {
         res.status(200).json({ message: "Flight booked successfully", flightBooking });
     } catch (error) {
         res.status(500).json({ error: error.message });
+        console.log(error);
     }
 }
 
