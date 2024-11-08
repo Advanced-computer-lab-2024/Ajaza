@@ -86,7 +86,7 @@ const HeaderInfo = ({
   const selectedDateRef = useRef(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [priceString, setPriceString] = useState("");
-  const [email, setEmail] = useState("");
+  const emailRef = useRef(null);
 
   useEffect(() => {
     // check user
@@ -164,7 +164,7 @@ const HeaderInfo = ({
         <div>
           <Input
             placeholder="Enter recipient's email"
-            onChange={(e) => setEmail(e.target.value)}
+            ref={emailRef}            
             style={{ marginBottom: 10 }}
           />
         </div>
@@ -178,7 +178,14 @@ const HeaderInfo = ({
           message.error("Could not extract details from the URL");
           return;
         }
-        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        const email = emailRef.current.input.value;
+
+        if (!email) {
+          message.error("Please enter an email address.");
+          return;
+        }
+
         const baseUrl = document.baseURI;
         const shareLink = `${baseUrl}`;
         try {
@@ -202,7 +209,7 @@ const HeaderInfo = ({
         }
       },
       onCancel: () => {
-        setEmail("");
+        emailRef.current.input.value = "";
       },
     });
   };
