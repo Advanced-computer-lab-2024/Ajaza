@@ -67,14 +67,17 @@ const SignIn = () => {
           const decodedToken = jwtDecode(token);
           const role = decodedToken.role;
           console.log("role:", role);
+          console.log("requesting deletion:",decodedToken?.userDetails?.requestingDeletion);
+          console.log("accepted terms:",decodedToken?.userDetails?.acceptedTerms);
+          console.log("pending:",decodedToken?.userDetails?.pending);
           if (decodedToken?.userDetails?.requestingDeletion) {
             message.error(<>You have requested to delete your account</>);
             return;
           }
 
           if (  // condition 0,0 --not pending and did not accept terms
-            !decodedToken?.userDetails?.pending &&
-            !decodedToken?.userDetails?.acceptedTerms
+            (decodedToken?.userDetails?.pending === false) &&
+            (decodedToken?.userDetails?.acceptedTerms === false)
           ) {
             // Redirect to Terms and Conditions page
             if (role === "guide" || role === "advertiser" || role === "seller") {
@@ -90,7 +93,7 @@ const SignIn = () => {
             }
 
           } 
-          else if (decodedToken?.userDetails?.pending) {  // conditions 1,0 and 1,1 --pending
+          else if (decodedToken?.userDetails?.pending === true) {  // conditions 1,0 and 1,1 --pending
             message.error("Account is still pending");
             return;
           }
@@ -100,8 +103,6 @@ const SignIn = () => {
             navigate(`/${decodedToken.role}`);
             localStorage.setItem("token", apiResponse.data.token);
           }
-
-          
         }
         // if (apiResponse?.data?.message) {
         //   setFeedbackMessage(apiResponse.data.message);
