@@ -493,19 +493,46 @@ exports.unhideActivity = async (req, res) => {
   const { id: activityId } = req.params;
 
   try {
-      const updatedActivity = await Activity.findByIdAndUpdate(
-          activityId,
-          { hidden: false , isFlagged: false},
-          { new: true }
-      );
+    // Update the activity to be unhidden and unflagged
+    const updatedActivity = await Activity.findByIdAndUpdate(
+      activityId,
+      { hidden: false, isFlagged: false },
+      { new: true }
+    );
 
-      if (!updatedActivity) {
-          return res.status(404).json({ message: 'Activity not found' });
-      }
+    if (!updatedActivity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
 
-      res.status(200).json({ message: `Activity ${activityId} has been unhidden successfully.`, updatedActivity });
+    // Get the advertiserId associated with this activity
+    const selectedAdvertiserId = updatedActivity.advertiserId;
+
+    // Find the advertiser by ID
+    const advertiser = await Advertiser.findById(selectedAdvertiserId);
+
+    if (!advertiser) {
+      return res.status(404).json({ message: 'Advertiser not found' });
+    }
+
+    // Remove the notification related to the hidden/flagged activity
+    // Assuming that the notification text includes the activity ID
+    const notificationText = `Your activity with ID ${activityId} has been hidden and flagged for review.`;
+    const notificationIndex = advertiser.notifications.findIndex(
+      (notification) => notification.text === notificationText
+    );
+
+    if (notificationIndex !== -1) {
+      // Remove the notification from the array
+      advertiser.notifications.splice(notificationIndex, 1);
+      await advertiser.save(); // Save the updated advertiser
+    }
+
+    res.status(200).json({
+      message: `Activity ${activityId} has been unhidden successfully and the notification has been removed.`,
+      updatedActivity,
+    });
   } catch (error) {
-      console.error(`Error unhiding activity: ${error.message}`);
-      res.status(500).json({ message: `Error unhiding activity: ${error.message}` });
+    console.error(`Error unhiding activity: ${error.message}`);
+    res.status(500).json({ message: `Error unhiding activity: ${error.message}` });
   }
 };
