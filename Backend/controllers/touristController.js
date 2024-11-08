@@ -1391,3 +1391,31 @@ const processPayment = async (amount, paymentMethodId) => {
     throw new Error(error.message);
   }
 };
+
+// req66
+exports.getSavedEvents = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+
+
+    const tourist = await Tourist.findById(touristId)
+      .populate("activityBookmarks")
+      .populate("itineraryBookmarks")
+    ;
+    if (!tourist) {
+      console.log("Tourist not found");
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    let activities = tourist.activityBookmarks;
+    let itineraries = tourist.itineraryBookmarks;
+    console.log("yemken",activities, itineraries);
+
+    res.status(200).json({ activities: activities, itineraries: itineraries });
+  } catch (error) {
+    console.error("Error retrieving saved events:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while retrieving the saved events" });
+  }
+}

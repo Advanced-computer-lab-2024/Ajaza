@@ -4,10 +4,12 @@ import axios from "axios";
 import { apiUrl } from "../Common/Constants";
 import { jwtDecode } from "jwt-decode"; 
 import CustomButton from "../Common/CustomButton";
+import { useNavigate } from "react-router-dom";
 
 const FileComplaint = () => {
   const [touristId, setTouristId] = useState(null);
   const currentDate = new Date().toLocaleDateString(); 
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -27,8 +29,11 @@ const FileComplaint = () => {
         title,
         body,
       });
-      message.success(response.data.message);
       form.setFieldsValue({ title:'', body:''});
+      message.success(response.data.message);
+      setTimeout(() => {
+        navigate("../Complaints");  // Replace "/desired-path" with the desired route
+      }, 2000);
     } catch (error) {
       message.error("Failed to file complaint.");
     }

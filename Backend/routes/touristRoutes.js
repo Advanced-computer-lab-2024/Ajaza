@@ -261,4 +261,7 @@ router.post("/add-delivery-address", touristController.addDeliveryAddress);
 
 router.get("/3rdparty/:id", apiController.getAll3rdPartyData);
 
+// req66
+router.get("/getSavedEvents/:id", touristController.getSavedEvents);
+
 module.exports = router;
