@@ -143,7 +143,13 @@ const validateUploadForm = () => {
   });
 };
 
-
+const beforeUpload = (file) => {
+  const isImage = file.type.startsWith("image/");
+  if (!isImage) {
+    message.error("You can only upload image files!");
+  }
+  return isImage || Upload.LIST_IGNORE;
+};
 
   return (
     <>
@@ -220,10 +226,11 @@ const validateUploadForm = () => {
                 <Upload
                   name="doc1"
                   listType="text"
-                  beforeUpload={() => false}
+                  beforeUpload={beforeUpload}
                   maxCount={1}
                   fileList={formData.document1}
                   onChange={handleFileChange("document1")}
+                  accept="image/*" // Only accept image files
                 >
                   <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
                 </Upload>
@@ -240,10 +247,11 @@ const validateUploadForm = () => {
                 <Upload
                   name="doc2"
                   listType="text"
-                  beforeUpload={() => false}
+                  beforeUpload={beforeUpload}
                   maxCount={1}
                   fileList={formData.document2}
                   onChange={handleFileChange("document2")}
+                  accept="image/*" // Only accept image files
                 >
                   <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
                 </Upload>
