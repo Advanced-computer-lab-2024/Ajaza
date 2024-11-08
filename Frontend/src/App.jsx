@@ -5,6 +5,7 @@ import {
   BrowserRouter as Router,
   Route,
   Routes,
+  useLocation,
   useNavigate,
 } from "react-router-dom";
 import CustomButton from "./Components/Common/CustomButton";
@@ -23,6 +24,9 @@ import SellerForm from "./Components/Seller/SellerForm";
 import Product from "./Components/Seller/SellerProduct";
 import DisplayForm from "./Components/Seller/DisplayProduct";
 import TermsAndConditions from "./Components/Seller/TermsAndConditions";
+import { jwtDecode } from 'jwt-decode';
+
+
 
 //import ManageAccounts from "./manageAccounts";
 //import AddAccounts from "./addAccounts";
@@ -50,11 +54,19 @@ const { Header, Footer, Sider, Content } = Layout;
 function App() {
   const [searchValue, setSearchValue] = useState("");
   const navigate = useNavigate(); // Use navigate for routing
+  const location = useLocation();
 
   const testFunction = (param1, param2) => {
     console.log(param1, param2);
   };
 
+  const params = new URLSearchParams(location.search);
+  const role = params.get('role');
+
+  if (role === "tourist") {
+    navigate("/tourist"); // Redirect to tourist page directly without terms
+    return null;
+  }
   return (
     <div className="App">
       <Layout>
