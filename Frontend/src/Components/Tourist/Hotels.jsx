@@ -12,7 +12,8 @@ import {
   DatePicker,
   InputNumber,
   Modal,
-  Image
+  Image,
+  Spin,
 } from "antd";
 import { jwtDecode } from "jwt-decode";
 import CustomButton from "../Common/CustomButton";
@@ -232,7 +233,12 @@ const Hotels = () => {
           </Space>
         </Card>
       )}
-      {hotels.length > 0 && !formVisible && ( // Render list if hotels are available and form is not visible
+      {loading ? (
+      <div style={{ textAlign: "center", marginTop: 20 }}>
+        <Spin tip="Searching..." />
+      </div>
+    ) : (
+      hotels.length > 0 && !formVisible && ( // Render list if hotels are available and form is not visible
         <Card style={{ width: "100%", maxWidth: 600, margin: "20px auto", padding: "20px" }}>
           <Title level={4}>Available Hotels</Title>
           <List
@@ -256,7 +262,7 @@ const Hotels = () => {
             )}
           />
         </Card>
-      )}
+      ))}
 <Modal
         title={selectedHotel ? selectedHotel.name : "Hotel Details"}
         visible={modalVisible}

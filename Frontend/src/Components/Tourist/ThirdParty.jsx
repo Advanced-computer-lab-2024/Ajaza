@@ -47,6 +47,8 @@ const ThirdParty = () => {
       {loading ? (
         <p>Loading flights bookings...</p>
       ) : (flights.length > 0) ? (
+        <div>
+        <h2>Flights Bookings</h2><hr />
         <div
           style={{
             display: "flex",
@@ -57,7 +59,6 @@ const ThirdParty = () => {
         >
           {flights && flights.map((flight) => (
             <div>
-            <h2>Flights Bookings</h2><hr />
             <Card
               key={flight._id}
               title={flight.arrivalAirport}
@@ -82,12 +83,15 @@ const ThirdParty = () => {
             </div>
           ))}
         </div>
+        </div>
       ) : (<br />)}
     </div>
     <div>
       {loading ? (
         <p>Loading hotels bookings...</p>
       ) : (hotels && hotels.length > 0) ? (
+        <div>
+        <h2>Hotel Bookings</h2><hr />
         <div
           style={{
             display: "flex",
@@ -98,7 +102,6 @@ const ThirdParty = () => {
         >
           {hotels.map((hotel) => (
             <div>
-            <h2>Hotel Bookings</h2><hr />
             <Card
               key={hotel._id}
               title={hotel.city}
@@ -112,7 +115,7 @@ const ThirdParty = () => {
                 padding: "16px"
               }}
             >
-                <p><strong>City:</strong> {hotel.hotelName}</p>
+                <p><strong>Hotel:</strong> {hotel.hotelName}</p>
                 <p><strong>Price:</strong> {hotel.price + " " + hotel.currency}</p>
                 <p><strong>Checkin:</strong> {new Date(hotel.checkin).toISOString().slice(0, 10)}</p>
                 <p><strong>Checkout:</strong> {new Date(hotel.checkout).toISOString().slice(0, 10)}</p>
@@ -120,6 +123,7 @@ const ThirdParty = () => {
             </Card>
             </div>
           ))}
+        </div>
         </div>
       ) : (<br />)}
     </div>
@@ -142,7 +146,7 @@ const ThirdParty = () => {
             <div>
             <Card
               key={transportation._id}
-              title={transportation.end_address_line}
+              title={"to " + transportation.end_address_line}
               bordered={false} 
               style={{
                 width: "100%",
@@ -153,17 +157,15 @@ const ThirdParty = () => {
                 padding: "16px"
               }}
             >
-
+              <div style={{ fontSize: "14px", color: "gray", marginBottom: "10px" }}>
+              <strong>Price:</strong> {transportation.quotation_monetaryAmount + " " + transportation.quotation_currencyCode}
+              </div>
+                <p><strong>From:</strong> {transportation.start_locationCode + ", " + transportation.end_address_cityName}</p>
+                <p><strong>Vehicle Description:</strong> {transportation.vehicle_description +", "+transportation.vehicle_code}</p>
+                <p><strong>Pickup Time:</strong> {new Date(transportation.start_dateTime).toISOString().slice(0, 16).replace("T", " ")}</p>
+                <p><strong>Estimated Arrival Time:</strong> {new Date(transportation.end_dateTime).toISOString().slice(0, 16).replace("T", " ")}</p>
                 <p><strong>Transfer Type:</strong> {transportation.transferType}</p>
-                <p><strong>Start Date Time:</strong> {new Date(transportation.start_dateTime).toISOString().slice(0, 16).replace("T", " ")}</p>
-                <p><strong>Start Location Code:</strong> {transportation.start_locationCode}</p>
-                <p><strong>End Date Time:</strong> {new Date(transportation.end_dateTime).toISOString().slice(0, 16).replace("T", " ")}</p>
-                <p><strong>End Address Line:</strong> {transportation.end_address_line}</p>
-                <p><strong>End Address City Name:</strong> {transportation.end_address_cityName}</p>
-                <p><strong>Vehicle Code:</strong> {transportation.vehicle_code}</p>
-                <p><strong>Vehicle Description:</strong> {transportation.vehicle_description}</p>
-                <p><strong>Vehicle Seats:</strong> {transportation.vehicle_seats}</p>
-                <p><strong>Price:</strong> {transportation.quotation_monetaryAmount + " " + transportation.quotation_currencyCode}</p>
+                <p><strong>Maximum Passengers:</strong> {transportation.vehicle_seats}</p>
                 <p><strong>Distance:</strong> {transportation.distance_value + " " +transportation.distance_unit}</p>
             </Card>
             </div>

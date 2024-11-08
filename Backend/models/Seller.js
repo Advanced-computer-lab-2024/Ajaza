@@ -15,7 +15,7 @@ const sellerSchema = new mongoose.Schema({
     {
       text: { type: String, required: true },
       seen: { type: Boolean, default: false },
-      productId: { type: Number }, // optional field
+      productId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Product' }, // optional field
     },
   ],
   pending: { type: Boolean, default: true }, // dy el mafrood lama teegy t test te2lebha default: false
