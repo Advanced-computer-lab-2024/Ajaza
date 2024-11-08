@@ -447,20 +447,45 @@ exports.hideActivity = async (req, res) => {
   const { id: activityId } = req.params;
 
   try {
-      const updatedActivity = await Activity.findByIdAndUpdate(
-          activityId,
-          { hidden: true , isFlagged: true},
-          { new: true }
-      );
+    // Update the activity to be hidden and flagged
+    const updatedActivity = await Activity.findByIdAndUpdate(
+      activityId,
+      { hidden: true, isFlagged: true },
+      { new: true }
+    );
 
-      if (!updatedActivity) {
-          return res.status(404).json({ message: 'Activity not found' });
-      }
+    if (!updatedActivity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
 
-      res.status(200).json({ message: `Activity ${activityId} has been hidden successfully.`, updatedActivity });
+    // Get the advertiserId associated with this activity
+    const selectedAdvertiserId = updatedActivity.advertiserId;
+   console.log("Selected Advertiser ID: ", selectedAdvertiserId);
+
+    // Find the advertiser by ID
+    const advertiser = await Advertiser.findById(selectedAdvertiserId);
+
+    if (!advertiser) {
+      return res.status(404).json({ message: 'Advertiser not found' });
+    }
+
+    // Create a notification for the advertiser
+    const notificationText = `Your activity with ID ${activityId} has been hidden and flagged for review.`;
+    advertiser.notifications.push({
+      text: notificationText,
+      seen: false, // Set to false initially, you can update it when the advertiser views it
+    });
+
+    // Save the updated advertiser
+    await advertiser.save();
+
+    res.status(200).json({
+      message: `Activity ${activityId} has been hidden successfully and the advertiser has been notified.`,
+      updatedActivity,
+    });
   } catch (error) {
-      console.error(`Error hiding activity: ${error.message}`);
-      res.status(500).json({ message: `Error hiding activity: ${error.message}` });
+    console.error(`Error hiding activity: ${error.message}`);
+    res.status(500).json({ message: `Error hiding activity: ${error.message}` });
   }
 };
 
