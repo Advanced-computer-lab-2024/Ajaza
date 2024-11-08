@@ -700,54 +700,99 @@ exports.getSellerDetails = async (req, res) => {
 
 //req 28 - tatos (Not Done Yet)
 
+// exports.viewSalesReport = async (req, res) => {
+//   const sellerId = req.params.id;
+//   try {
+//     // Check if the seller exists
+//     const seller = await Seller.findById(sellerId);
+//     if (!seller) {
+//       return res.status(404).json({ message: "Seller not found" });
+//     }
+//     if (seller.pending) {
+//       return res.status(401).json({ message: "Waiting for admin approval" });
+//     }
+//     if (!seller.acceptedTerms) {
+//       return res.status(401).json({ message: "Terms and Conditions must be accepted" });
+//     }
+//     if(seller.requestingDeletion){
+//       return res.status(401).json({ message: "Seller is requesting deletion" });
+//     }
+//     // Find all tourists
+//     const tourists = await Tourist.find();
+
+//     let orders = [];
+
+//     // Iterate through each tourist to find orders matching the sellerId
+//     tourists.forEach(tourist => {
+//       const matchingOrders = tourist.orders.filter(order => order.sellerId === sellerId);
+//       orders = orders.concat(matchingOrders);
+//     });
+
+//     // Log the orders found
+//     console.log('Orders found:', orders);
+
+//     // Calculate the total sales by multiplying the price by the quantity for each order
+//     const totalSales = orders.reduce((total, order) => total + (order.price * order.quantity), 0);
+    
+//     const salesDetails = orders.map(order => ({
+//       productName: order.productName,
+//       dateOfOrder: order.dateOfOrder,
+//       quantity: order.quantity,
+//       price: order.price
+//     }));
+
+//     // Log the total sales and sales details
+//     console.log('Total Sales:', totalSales);
+//     console.log('Sales Details:', salesDetails);
+
+//     // Return the total sales and additional details
+//     res.status(200).json({ totalSales, salesDetails });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+
+//method 2: (incorrect but works for now):
 exports.viewSalesReport = async (req, res) => {
-  const sellerId = req.params.id;
+  sellerId = req.params.id;
   try {
-    // Check if the seller exists
     const seller = await Seller.findById(sellerId);
     if (!seller) {
       return res.status(404).json({ message: "Seller not found" });
     }
     if (seller.pending) {
-      return res.status(401).json({ message: "Waiting for admin approval" });
+      return res.status(401).json({ message: "Seller is pending approval" });
     }
     if (!seller.acceptedTerms) {
-      return res.status(401).json({ message: "Terms and Conditions must be accepted" });
+      return res.status(401).json({ message: "Seller has not accepted terms and conditions" });
     }
-    if(seller.requestingDeletion){
+    if (seller.requestingDeletion) {
       return res.status(401).json({ message: "Seller is requesting deletion" });
     }
-    // Find all tourists
-    const tourists = await Tourist.find();
 
-    let orders = [];
+    // Find all products sold by the seller
+    const products = await Product.find({ sellerId: sellerId });
+    console.log(products); // Log the products found
 
-    // Iterate through each tourist to find orders matching the sellerId
-    tourists.forEach(tourist => {
-      const matchingOrders = tourist.orders.filter(order => order.sellerId === sellerId);
-      orders = orders.concat(matchingOrders);
-    });
-
-    // Log the orders found
-    console.log('Orders found:', orders);
-
-    // Calculate the total sales by multiplying the price by the quantity for each order
-    const totalSales = orders.reduce((total, order) => total + (order.price * order.quantity), 0);
-    
-    const salesDetails = orders.map(order => ({
-      productName: order.productName,
-      dateOfOrder: order.dateOfOrder,
-      quantity: order.quantity,
-      price: order.price
-    }));
-
-    // Log the total sales and sales details
-    console.log('Total Sales:', totalSales);
-    console.log('Sales Details:', salesDetails);
-
-    // Return the total sales and additional details
+    if (products.length === 0) {
+      return res.status(404).json({ message: "No products found for this seller" });
+    }
+    let totalSales = 0;
+    let salesDetails = [];
+    for (const product of products) {
+      if (product.sales > 0){
+        totalSales += product.sales * product.price;
+        salesDetails.push({
+          productName: product.name,
+          sales: product.sales,
+          price: product.price,
+          sellerName: product.sellerName
+        });
+      }
+    }
     res.status(200).json({ totalSales, salesDetails });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-};
+}
