@@ -19,12 +19,21 @@ exports.createItinerary = async (req, res) => {
 exports.getAllItineraries = async (req, res) => {
   try {
     const itineraries = await Itinerary.find().populate("guideId");
-    14;
     res.status(200).json(itineraries);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getAdminItineraries = async (req, res) => {
+  try {
+    const itineraries = await Itinerary.find({$nor: [{ hidden: true, isFlagged: false }]}).populate("guideId");
+    res.status(200).json(itineraries);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 
 // Get all itineraries not hidden
 exports.getAllItinerariesNH = async (req, res) => {
@@ -278,7 +287,7 @@ exports.readItinerariesOfGuide = async (req, res) => {
   try {
     const { guideId } = req.params; // Get guideId from the URL
 
-    const itineraries = await Itinerary.find({ guideId, hidden: false });
+    const itineraries = await Itinerary.find({ guideId, $or: [{ hidden: false },{ hidden: true, isFlagged: true }] });
     const guide = await Guide.findById(guideId);
     if (!guide) {
       return res.status(404).json({ message: "Guide not found" });
@@ -469,7 +478,7 @@ exports.hideItinerary = async (req, res) => {
       // Update the itinerary to set hidden to true
       const updatedItinerary = await Itinerary.findByIdAndUpdate(
           itineraryId,
-          { hidden: true },
+          { hidden: true , isFlagged: true},
           { new: true }
       );
 
@@ -485,4 +494,26 @@ exports.hideItinerary = async (req, res) => {
 };
 
 
+exports.unhideItinerary = async (req, res) => {
+  const { id: itineraryId } = req.params; // Extract itineraryId from req.params
+
+
+  try {
+      // Update the itinerary to set hidden to true
+      const updatedItinerary = await Itinerary.findByIdAndUpdate(
+          itineraryId,
+          { hidden: false , isFlagged: false},
+          { new: true }
+      );
+
+      if (!updatedItinerary) {
+          return res.status(404).json({ message: 'Itinerary not found' });
+      }
+
+      res.status(200).json({ message: `Itinerary ${itineraryId} has been unhidden successfully.`, updatedItinerary });
+  } catch (error) {
+      console.error(`Error unhiding itinerary: ${error.message}`);
+      res.status(500).json({ message: `Error unhiding itinerary: ${error.message}` });
+  }
+};
 

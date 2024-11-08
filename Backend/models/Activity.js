@@ -29,6 +29,7 @@ const activitySchema = new mongoose.Schema({
     from: { type: String },
     to: { type: String },
   },
+  isFlagged: {type: Boolean, default: false},
 });
 
 // Create the model
