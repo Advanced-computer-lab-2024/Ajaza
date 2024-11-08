@@ -75,8 +75,8 @@ const ThirdParty = () => {
                 <p><strong>Carrier:</strong> {flight.carrier}</p>
                 <p><strong>Flight Number:</strong> {flight.flightNumber}</p>
                 <p><strong>Price:</strong> {flight.price + flight.currency}</p>
-                <p><strong>Departure Time:</strong> {flight.departureTime}</p>
-                <p><strong>Arrival Time:</strong> {flight.arrivalTime}</p>
+                <p><strong>Departure Time:</strong> {new Date(flight.departureTime).toISOString().slice(0, 16).replace("T", " ")}</p>
+                <p><strong>Arrival Time:</strong> {new Date(flight.arrivalTime).toISOString().slice(0, 16).replace("T", " ")}</p>
                 <p><strong>Stops:</strong> {flight.stops}</p>
             </Card>
             </div>
@@ -114,8 +114,8 @@ const ThirdParty = () => {
             >
                 <p><strong>City:</strong> {hotel.hotelName}</p>
                 <p><strong>Price:</strong> {hotel.price + " " + hotel.currency}</p>
-                <p><strong>Checkin:</strong> {(hotel.checkin).slice(0, -14)}</p>
-                <p><strong>Checkout:</strong> {(hotel.checkout).slice(0, -14)}</p>
+                <p><strong>Checkin:</strong> {new Date(hotel.checkin).toISOString().slice(0, 10)}</p>
+                <p><strong>Checkout:</strong> {new Date(hotel.checkout).toISOString().slice(0, 10)}</p>
                 <p><strong>Score:</strong> {hotel.score}</p>
             </Card>
             </div>
@@ -127,6 +127,8 @@ const ThirdParty = () => {
       {loading ? (
         <p>Loading transportation bookings...</p>
       ) : (transportations && transportations.length > 0) ? (
+        <div>
+        <h2>Transportation Bookings</h2><hr />
         <div
           style={{
             display: "flex",
@@ -135,9 +137,9 @@ const ThirdParty = () => {
             justifyContent: "flex-start" 
           }}
         >
+
           {transportations.map((transportation) => (
             <div>
-            <h2>Transportation Bookings</h2><hr />
             <Card
               key={transportation._id}
               title={transportation.end_address_line}
@@ -153,9 +155,9 @@ const ThirdParty = () => {
             >
 
                 <p><strong>Transfer Type:</strong> {transportation.transferType}</p>
-                <p><strong>Start Date Time:</strong> {transportation.start_dateTime.slice(0, -14)}</p>
+                <p><strong>Start Date Time:</strong> {new Date(transportation.start_dateTime).toISOString().slice(0, 16).replace("T", " ")}</p>
                 <p><strong>Start Location Code:</strong> {transportation.start_locationCode}</p>
-                <p><strong>End Date Time:</strong> {transportation.end_dateTime.slice(0, -14)}</p>
+                <p><strong>End Date Time:</strong> {new Date(transportation.end_dateTime).toISOString().slice(0, 16).replace("T", " ")}</p>
                 <p><strong>End Address Line:</strong> {transportation.end_address_line}</p>
                 <p><strong>End Address City Name:</strong> {transportation.end_address_cityName}</p>
                 <p><strong>Vehicle Code:</strong> {transportation.vehicle_code}</p>
@@ -166,6 +168,7 @@ const ThirdParty = () => {
             </Card>
             </div>
           ))}
+        </div>
         </div>
       ) : (<br />)}
         </div>

@@ -109,7 +109,7 @@ exports.searchFlights = async (req,res) => {
 };
 
 exports.bookFlight = async (req,res) => {
-    const { touristId } = req.params;
+    const touristId = req.params.id;
     const { departureAirport, totalDuration, currency, price, departureTime, departureTerminal, arrivalAirport, arrivalTime, arrivalTerminal, carrier, flightNumber, aircraft, stops } = req.body;
 
     try {
@@ -143,7 +143,7 @@ exports.bookFlight = async (req,res) => {
         });
 
         await flightBooking.save();
-        res.status(200).json(flightBooking);
+        res.status(200).json({ message: "Flight booked successfully", flightBooking });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -400,7 +400,7 @@ exports.searchTransportation = async (req, res) => {
 };
 
 const flattenTransferData = (data) => {
-  return data.data.slice(0, 10).map(entry => ({
+  return data.data.map(entry => ({
       transferType: entry.transferType,
       start_dateTime: entry.start?.dateTime,
       start_locationCode: entry.start?.locationCode,
@@ -473,6 +473,7 @@ exports.testGeoLocation = async (req,res) => {
 
 exports.searchTransfer7 = async (req,res) => {
   const { IATA, endAddressLine, startDateTime } = req.body;
+  console.log(req.body);
   let endCityName;
   let endCountryCode;
   let endGeoCode = await getGeolocation(endAddressLine);
@@ -533,15 +534,17 @@ exports.searchTransfer7 = async (req,res) => {
           }
         }
       )
-      if(response.data) {
+      if(response.data.data) {
         res.status(200).json(flattenTransferData(response.data));
       } else {
+        console.log(response.data);
         res.status(404).json({ error: "No data found" });
       }
      } else {
       res.status(500).json({ error: "Error getting access token" });
      }
   } catch(error) {
+    console.log(error.message);
     res.status(500).json({ error: error.message });
   }
 }
@@ -581,7 +584,7 @@ exports.bookTransfer = async (req,res) => {
     });
 
     await transportationBooking.save();
-    res.status(200).json(transportationBooking);
+    res.status(200).json({message: "Transportation booked successfully", transportationBooking});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

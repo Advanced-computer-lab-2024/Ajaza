@@ -5,16 +5,16 @@ const flightBookingSchema = new mongoose.Schema({
     departureAirport: { type: String },
     totalDuration: { type: String },
     currency: { type: String },
-    price: { type: Number },
-    departureTime: { type: Date },
+    price: { type: String },
+    departureTime: { type: String },
     departureTerminal: { type: String },
     arrivalAirport: { type: String },
-    arrivalTime: { type: Date },
+    arrivalTime: { type: String },
     arrivalTerminal: { type: String },
     carrier: { type: String },
     flightNumber: { type: String },
     aircraft: { type: String },
-    stops: { type: Number },
+    stops: { type: String },
 });
 
 // Create the model

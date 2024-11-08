@@ -28,6 +28,7 @@ import Itinerary from "../Common/Itinerary";
 import Hotels from "./Hotels";
 import SignIn from "../Sign/SignIn";
 import ThirdParty from "./ThirdParty";
+import Transportations from "./Transportations";
 
 const Tourist = () => {
   const [response, setResponse] = useState([]);
@@ -140,10 +141,29 @@ const Tourist = () => {
       onClick: () => navigate("orders"),
     },
     {
-      key: "15",
-      icon: <RateReviewOutlinedIcon />,
+      key: "16",
       label: "Services",
-      onClick: () => navigate("services"),
+      icon: <RateReviewOutlinedIcon />,
+      children: [
+        {
+          key: "17",
+          label: "Services Bookings",
+          icon: <CalendarOutlined />,
+          onClick: () => navigate("services"),
+        },
+        {
+          key: "18",
+          label: "Hotels",
+          icon: <CalendarOutlined />,
+          onClick: () => navigate("hotels"),
+        },
+        {
+          key: "19",
+          label: "Transportation",
+          icon: <CalendarOutlined />,
+          onClick: () => navigate("transportations"),
+        },
+      ],
     },
     // TODO put them in nested like current and past bookings ---- products,wishlist,orders
   ];
@@ -172,6 +192,7 @@ const Tourist = () => {
 
         <Route path="hotels" element={<Hotels />} />
         <Route path="services" element={<ThirdParty />} />
+        <Route path="transportations" element={<Transportations />} />
 
       </Routes>
     </CustomLayout>

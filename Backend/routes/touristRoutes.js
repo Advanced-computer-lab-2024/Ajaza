@@ -146,7 +146,7 @@ score
 */
 
 // req42
-router.get('/transportation/searchTransportation', apiController.searchTransfer7);
+router.post('/transportation/searchTransportation', apiController.searchTransfer7);
 /*needs
 IATA,
 endAddressLine,
