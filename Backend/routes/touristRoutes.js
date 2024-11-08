@@ -82,7 +82,7 @@ router.post("/emailShare/:id", touristController.emailShare);
 router.patch("/redeemPoints/:id", touristController.redeemPoints);
 
 // req40
-router.get("/flights/searchFlights", apiController.searchFlights);
+router.post("/flights/searchFlights", apiController.searchFlights);
 router.post('/flights/bookFlight/:id', apiController.bookFlight);
 // req41
 router.get('/hotels/searchHotels', apiController.searchHotels);

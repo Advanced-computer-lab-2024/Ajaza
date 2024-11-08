@@ -21,6 +21,7 @@ import {
   Button as AntButton,
   Select,
 } from "antd";
+import SelectCurrency from "../Tourist/SelectCurrency";
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -40,6 +41,12 @@ const convertTagsToValues = (tagsArray) => {
   });
 };
 
+const currencyRates = {
+  EGP: 48.58,
+  USD: 1,
+  EUR: 0.91,
+};
+
 const MyProducts = () => {
   const [combinedElements, setCombinedElements] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -49,6 +56,8 @@ const MyProducts = () => {
   const [userId, setUserId] = useState(null);
   const [refreshElements, setRefreshElements] = useState(false);
   const [isArchiveModalVisible, setIsArchiveModalVisible] = useState(false);
+  const [currency, setCurrency] = useState("USD");
+
 
   const propMapping = {
     title: "name",
@@ -63,21 +72,8 @@ const MyProducts = () => {
     "Quantity Available": "quantity",
   };
   const searchFields = ["name"];
-  const constProps = {
-    rateDisplay: true,
-    // actions:
-    //   [
-    //     <EditOutlined
-    //       key="edit"
-    //       onClick={() => showEditModal(element)}
-    //     />,
-    //     <ArchiveIcon
-    //       key="archive"
-    //       onClick={() => showArchiveModal(element)}
-    //     />,
-    //   ],
+  const constProps = { rateDisplay: true , currency, currencyRates};
 
-  };
   const sortFields = ["avgRating", "price"];
   const [filterFields, setfilterFields] = useState({
     price: {
@@ -169,6 +165,10 @@ const MyProducts = () => {
     console.log("NOURSALAH user", userId);
   }, [archivingProductId, userId]);
 
+  const handleCurrencyChange = (selectedCurrency) => {
+    setCurrency(selectedCurrency);
+  };
+
 
   return (
 
@@ -180,7 +180,9 @@ const MyProducts = () => {
         onClick={createOnclick}
       />
 
-
+<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+        <SelectCurrency basePrice={null} currency={currency} onCurrencyChange={handleCurrencyChange} />
+      </div>
       <SearchFilterSortContainerEditCreate
         cardComponent={BasicCard}
         elements={combinedElements}

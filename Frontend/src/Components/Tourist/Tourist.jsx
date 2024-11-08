@@ -25,6 +25,9 @@ import TouristHistory from "./TouristHistory";
 import Activity from "../Common/Activity";
 import ChangePasswordForm from "../Common/changePassword";
 import Itinerary from "../Common/Itinerary";
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import BookFlight from "./BookFlight";
+import { Colors } from "../Common/Constants";
 
 const Tourist = () => {
   const [response, setResponse] = useState([]);
@@ -117,11 +120,18 @@ const Tourist = () => {
       label: "Orders",
       onClick: () => navigate("orders"),
     },
+  {
+    key: "15",
+    icon: <FlightTakeoffIcon />,
+    label: "Book Flight",
+    onClick: () => navigate("BookFlight"),
+  },
     // TODO put them in nested like current and past bookings ---- products,wishlist,orders
   ];
 
   return (
     <CustomLayout sideBarItems={sideBarItems}>
+    
       <Routes>
         <Route path="/" element={<Plans />} />
         <Route path="profile" element={<Profile />} />
@@ -140,6 +150,7 @@ const Tourist = () => {
         <Route path="fileComplaint" element={<FileComplaint />} />
         <Route path="complaints" element={<Complaints />} />
         <Route path="touristHistory" element={<TouristHistory />} />
+        <Route path="bookFlight" element={<BookFlight />} />
       </Routes>
     </CustomLayout>
   );
