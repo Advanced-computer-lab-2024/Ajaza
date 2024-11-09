@@ -48,7 +48,7 @@ export const RedeemPoints = () => {
       const { wallet, points } = response.data;
       setWallet(wallet);
       setPoints(points);
-      message.success("Points redeemed successfully!");
+      message.success(response.data.message);
     } catch (error) {
       message.error(
         error.response?.data?.message || "Error redeeming points."

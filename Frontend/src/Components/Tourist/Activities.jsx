@@ -10,6 +10,7 @@ import axios from "axios";
 import BasicCard from "../Common/BasicCard";
 import { jwtDecode } from "jwt-decode";
 import SelectCurrency from "./SelectCurrency";
+import { useNavigate } from "react-router-dom";
 
 const token = localStorage.getItem("token");
 let decodedToken = null;
@@ -43,6 +44,7 @@ const currencyRates = {
 };
 
 const Activities = () => {
+  const navigate = useNavigate();
   const [combinedElements, setCombinedElements] = useState([]);
   // propName:fieldName
   const propMapping = {
@@ -51,10 +53,13 @@ const Activities = () => {
     rating: "avgRating",
     dateTime: "availableDateTime",
   };
+  const cardOnclick = (element) => {
+    navigate(element["_id"]);
+  };
   const [currency, setCurrency] = useState("USD");
   const fields = { Categories: "category", Tags: "tags", Date: "date" };
   const searchFields = ["name", "category", "tags"];
-  const constProps = { rateDisplay: true , currency, currencyRates};
+  const constProps = { rateDisplay: true, currency, currencyRates };
   const sortFields = ["avgRating", "price"];
   const [filterFields, setfilterFields] = useState({
     price: {
@@ -220,22 +225,33 @@ const Activities = () => {
     setCurrency(selectedCurrency);
   };
 
-
   return (
-   <div>
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-    <SelectCurrency basePrice={null} currency={currency} onCurrencyChange={handleCurrencyChange} />
-  </div>
-    <SearchFilterSortContainer
-      cardComponent={BasicCard}
-      elements={combinedElements}
-      propMapping={propMapping}
-      searchFields={searchFields}
-      constProps={constProps}
-      fields={fields}
-      sortFields={sortFields}
-      filterFields={filterFields}
-    />
+    <div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "16px",
+        }}
+      >
+        <SelectCurrency
+          basePrice={null}
+          currency={currency}
+          onCurrencyChange={handleCurrencyChange}
+        />
+      </div>
+      <SearchFilterSortContainer
+        cardComponent={BasicCard}
+        elements={combinedElements}
+        propMapping={propMapping}
+        searchFields={searchFields}
+        constProps={constProps}
+        fields={fields}
+        sortFields={sortFields}
+        filterFields={filterFields}
+        cardOnclick={cardOnclick}
+      />
     </div>
   );
 };

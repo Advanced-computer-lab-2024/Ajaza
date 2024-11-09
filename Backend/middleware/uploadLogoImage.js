@@ -2,6 +2,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const Img = require("../models/Img");
+const { ObjectId } = require("mongoose").Types;
 
 // Configure Multer
 const storage = multer.diskStorage({
@@ -15,33 +16,42 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+const uploadFiles = upload.fields([{ name: "logo", maxCount: 1 }]);
+
+
 const uploadLogoImage = async (req, res, next) => {
-  upload.single("logo")(req, res, async (err) => {
+  uploadFiles(req, res, async (err) => {
     if (err) {
-      return res.status(500).json({ error: err.message });
+      return res.status(500).json({ error: "logo mw" + err.message });
     }
 
     try {
-      const imgDoc = new Img();
-      const savedImg = await imgDoc.save();
+      let idPhotoTobeAddedToBody = null;
+      if (req.files && req.files["logo"]) {
+        const idFile = req.files["logo"][0]; // Access the first element of the 'id' array
 
-      const newFilename = `${savedImg._id}.jpg`;
-      const newPath = path.join("../Frontend/public/uploads", newFilename);
+        const imgDoc = new Img();
+        const savedImg = await imgDoc.save();
 
-      fs.rename(req.file.path, newPath, async (renameErr) => {
-        if (renameErr) {
-          await Img.findByIdAndRemove(savedImg._id);
-          return res.status(500).json({ error: "Failed to rename file" });
-        }
+        const newFilename = `${savedImg._id}.jpg`;
+        const newPath = path.join("../Frontend/public/uploads", newFilename);
 
-        savedImg.path = newPath;
-        await savedImg.save();
+        // Rename the file
+        fs.rename(idFile.path, newPath, async (renameErr) => {
+          if (renameErr) {
+            await Img.findByIdAndRemove(savedImg._id);
+            return res.status(500).json({ error: "Failed to rename file" });
+          }
 
-        req.imgId = savedImg._id;
-        next();
-      });
+          savedImg.path = newPath;
+          await savedImg.save();
+        });
+        idPhotoTobeAddedToBody = savedImg._id;
+      }
+      req.body.logo = idPhotoTobeAddedToBody;
+      next();
     } catch (error) {
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: "logo mw" + error.message });
     }
   });
 };

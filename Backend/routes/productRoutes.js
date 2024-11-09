@@ -10,6 +10,11 @@ router.get("/", productController.getAllProducts);
 
 //all
 router.get("/all", productController.getAllProductsEH);
+
+//not archived
+
+router.get("/notArchived", productController.getNotArchivedProducts);
+
 //req83
 router.get("/search", productController.searchProduct);
 

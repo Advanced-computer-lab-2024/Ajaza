@@ -23,7 +23,7 @@ const Product = () => {
     };
 
     fetchData();
-  });
+  }, []);
 
   const [feedbacks, setFeedbacks] = useState([
     {
@@ -139,10 +139,23 @@ const Product = () => {
   const photos = ["6702b737bc1f3e9c8fc16972", "67043c885702c8d4426147c9"];
 
   const tags = ["fun", "food", "monuments", "skiing", "test", "extra"];
-  const category = ["fun", "food", "monuments", "skiing", "test", "extra"];
+  const category = [
+    "fun",
+    "food",
+    "monuments",
+    "skiing",
+    "test",
+    "extra",
+    "test",
+    "test",
+    "test",
+  ];
 
   const price = 124; // TODO mariem's conversion
   const name = "Product1";
+  const sales = 123;
+  const quantity = 12;
+  const discounts = 10;
 
   // If tourist can not review this either set writeReviewForm to null or dont pass the prop
 
@@ -152,20 +165,24 @@ const Product = () => {
     // use the form to give feedback
     console.log(values);
   };
+
+  const sellerName = "Ajaza";
+
+  console.log(product);
+
   return (
     <>
       <Item
         // name={product?.name}
-        name={name}
-        photos={photos}
-        feedbacks={feedbacks}
-        setFeedback={setFeedbacks}
-        timelineItems={timelineItems}
-        writeReviewForm={writeReviewForm}
-        onSubmitWriteReview={onSubmitWriteReview}
-        tags={tags}
-        price={price}
-        category={category}
+        name={product?.name}
+        photos={product?.photo}
+        price={product?.price}
+        desc={product?.desc}
+        sellerName={product?.sellerName}
+        quantity={product?.quantity}
+        sales={product?.sales}
+        feedbacks={product?.feedback}
+        type={"product"}
       />
     </>
   );

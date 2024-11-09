@@ -305,14 +305,14 @@ exports.sellerUpdateProfile = async (req, res) => {
   const allowedFields = ["email", "name", "desc", "logo"];
 
   // Filter the request body
-  const filteredBody = {};
+  const filteredBody = req.body;/*{};
   allowedFields.forEach((field) => {
     // Loop through the allowed fields
     if (req.body[field] !== undefined) {
       // Check if the field exists in the request body
       filteredBody[field] = req.body[field]; // Add the field to the filtered body
     }
-  });
+  });*/
 
   try {
     // Retrieve the existing seller document
@@ -334,7 +334,14 @@ exports.sellerUpdateProfile = async (req, res) => {
       { new: true, runValidators: true }
     );
     updatedSeller.pass = undefined;
-    res.status(200).json(updatedSeller);
+
+    const token = jwt.sign(
+      { userId: updatedSeller._id, role: "seller", userDetails: updatedSeller }, // Include user data in the token
+      process.env.JWT_SECRET, // Use the environment variable
+      { expiresIn: "1h" }
+    );
+
+    res.status(200).json({ updatedSeller, token });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -476,37 +483,37 @@ exports.uploadSellerLogo = async (req, res) => {
 };
 
 // get seller documents
-exports.getSellerDocuments = async (req, res) => {
-  try {
-    const seller = await Seller.findById(req.params.id).select(
-      "id taxationRegCard"
-    );
+// exports.getSellerDocuments = async (req, res) => {
+//   try {
+//     const seller = await Seller.findById(req.params.id).select(
+//       "id taxationRegCard"
+//     );
 
-    if (!seller) {
-      return res.status(404).json({ message: "Seller not found" });
-    }
+//     if (!seller) {
+//       return res.status(404).json({ message: "Seller not found" });
+//     }
 
-    const response = {
-      message: "Documents retrieved successfully",
-      id: seller.id || null,
-      taxationRegCard: seller.taxationRegCard || null,
-    };
+//     const response = {
+//       message: "Documents retrieved successfully",
+//       id: seller.id || null,
+//       taxationRegCard: seller.taxationRegCard || null,
+//     };
 
-    if (!seller.id) {
-      response.idMessage = "No ID uploaded by this seller";
-    }
+//     if (!seller.id) {
+//       response.idMessage = "No ID uploaded by this seller";
+//     }
 
-    if (!seller.taxationRegCard) {
-      response.taxationRegCardMessage =
-        "No taxation registration card uploaded by this seller";
-      response.taxationRegCard = null;
-    }
+//     if (!seller.taxationRegCard) {
+//       response.taxationRegCardMessage =
+//         "No taxation registration card uploaded by this seller";
+//       response.taxationRegCard = null;
+//     }
 
-    res.status(200).json(response);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+//     res.status(200).json(response);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 //admin accept seller
 exports.acceptSeller = async (req, res) => {
@@ -579,3 +586,213 @@ exports.requestDeletion = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+exports.validateEmailUsername = async(req, res) =>{
+  const { email, username } = req.body; // Destructure email and username from request body
+  try {
+    // Validate email
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      return res.status(400).json({ error: emailValidation.message });
+    }
+
+    // Check for unique email
+    const emailAvailability = await checkEmailAvailability(email);
+    if (!emailAvailability.isAvailable) {
+      return res.status(400).json({ message: emailAvailability.message });
+    }
+
+    // Check for unique username
+    const usernameAvailability = await checkUsernameAvailability(username);
+    if (!usernameAvailability.isAvailable) {
+      return res.status(400).json({ message: usernameAvailability.message });
+    }
+    // If all validations pass, return a success message
+    return res.status(200).json({ message: "Everything is valid!" });
+  }
+  catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+// returns all sellers that are pending
+exports.getPendingSellers = async (req, res) => {
+  try {
+    // Fetch advertisers with pending status
+    const pendingSellers = await Seller.find({ "pending" : true }).exec();
+    
+    if (pendingSellers.length === 0) {
+      return res.status(404).json({ message: "No Sellers with pending status found." });
+    }
+    
+    // Return the found pending advertisers
+    res.status(200).json(pendingSellers);
+  } catch (error) {
+    console.error("Error fetching pending sellers:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getPendingAdvertisers = async (req, res) => {
+  try {
+    // Fetch advertisers with pending status
+    const pendingAdvertisers = await Advertiser.find({ "pending" : true }).exec();
+    
+    if (pendingAdvertisers.length === 0) {
+      return res.status(404).json({ message: "No advertisers with pending status found." });
+    }
+    
+    // Return the found pending advertisers
+    res.status(200).json(pendingAdvertisers);
+  } catch (error) {
+    console.error("Error fetching pending advertisers:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//returns details to be displayed.
+exports.getSellerDetails = async (req, res) => {
+  const sellerId = req.params.id;
+
+  try {
+    
+    // Find the advertiser by ID and populate image references
+    const seller = await Seller.findById(sellerId)
+      .populate({ path: 'id', select: '_id' })  // Populate with _id to construct the image path
+      .populate({ path: 'taxationRegCard', select: '_id' })
+      .populate({ path: 'logo', select: '_id' })
+      .exec();
+
+    if (!seller) {
+      return res.status(404).json({ message: "Seller not found." });
+    }
+
+
+    // Construct the response object with image paths for ID and Taxation Registration Card
+    const responseSeller = {
+      id: seller.id ? `uploads/${seller.id._id}.jpg` : null,
+      taxationRegCard: seller.taxationRegCard ? `uploads/${seller.taxationRegCard._id}.jpg` : null,
+     // logo: advertiser.logo ? `uploads/${advertiser.logo._id}.jpg` : null,
+      username: seller.username,
+      email: seller.email,
+      link: seller.link || null,
+      hotline: seller.hotline || null,
+      companyProfile: {
+        name: seller.companyProfile?.name || null,
+        desc: seller.companyProfile?.desc || null,
+        location: seller.companyProfile?.location || null,
+      },
+      pending: seller.pending,
+      acceptedTerms: seller.acceptedTerms,
+      requestingDeletion: seller.requestingDeletion || false,
+    };
+
+    // Return the seller details excluding sensitive information
+    res.status(200).json(responseSeller);
+  } catch (error) {
+    console.error("Error fetching seller details:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+//req 28 - tatos (Not Done Yet)
+
+// exports.viewSalesReport = async (req, res) => {
+//   const sellerId = req.params.id;
+//   try {
+//     // Check if the seller exists
+//     const seller = await Seller.findById(sellerId);
+//     if (!seller) {
+//       return res.status(404).json({ message: "Seller not found" });
+//     }
+//     if (seller.pending) {
+//       return res.status(401).json({ message: "Waiting for admin approval" });
+//     }
+//     if (!seller.acceptedTerms) {
+//       return res.status(401).json({ message: "Terms and Conditions must be accepted" });
+//     }
+//     if(seller.requestingDeletion){
+//       return res.status(401).json({ message: "Seller is requesting deletion" });
+//     }
+//     // Find all tourists
+//     const tourists = await Tourist.find();
+
+//     let orders = [];
+
+//     // Iterate through each tourist to find orders matching the sellerId
+//     tourists.forEach(tourist => {
+//       const matchingOrders = tourist.orders.filter(order => order.sellerId === sellerId);
+//       orders = orders.concat(matchingOrders);
+//     });
+
+//     // Log the orders found
+//     console.log('Orders found:', orders);
+
+//     // Calculate the total sales by multiplying the price by the quantity for each order
+//     const totalSales = orders.reduce((total, order) => total + (order.price * order.quantity), 0);
+    
+//     const salesDetails = orders.map(order => ({
+//       productName: order.productName,
+//       dateOfOrder: order.dateOfOrder,
+//       quantity: order.quantity,
+//       price: order.price
+//     }));
+
+//     // Log the total sales and sales details
+//     console.log('Total Sales:', totalSales);
+//     console.log('Sales Details:', salesDetails);
+
+//     // Return the total sales and additional details
+//     res.status(200).json({ totalSales, salesDetails });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+
+//method 2: (incorrect but works for now):
+exports.viewSalesReport = async (req, res) => {
+  sellerId = req.params.id;
+  try {
+    const seller = await Seller.findById(sellerId);
+    if (!seller) {
+      return res.status(404).json({ message: "Seller not found" });
+    }
+    if (seller.pending) {
+      return res.status(401).json({ message: "Seller is pending approval" });
+    }
+    if (!seller.acceptedTerms) {
+      return res.status(401).json({ message: "Seller has not accepted terms and conditions" });
+    }
+    if (seller.requestingDeletion) {
+      return res.status(401).json({ message: "Seller is requesting deletion" });
+    }
+
+    // Find all products sold by the seller
+    const products = await Product.find({ sellerId: sellerId });
+    console.log(products); // Log the products found
+
+    if (products.length === 0) {
+      return res.status(404).json({ message: "No products found for this seller" });
+    }
+    let totalSales = 0;
+    let salesDetails = [];
+    for (const product of products) {
+      if (product.sales > 0){
+        totalSales += product.sales * product.price;
+        salesDetails.push({
+          productName: product.name,
+          sales: product.sales,
+          price: product.price,
+          sellerName: product.sellerName
+        });
+      }
+    }
+    res.status(200).json({ totalSales, salesDetails });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}

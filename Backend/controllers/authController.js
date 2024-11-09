@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const Tourist = require("../models/Tourist");
 const Advertiser = require("../models/Advertiser");
 const TourGuide = require("../models/Guide");
+const Guide = require("../models/Guide");
 const Seller = require("../models/Seller");
 const TourismGovernor = require("../models/Governor");
 const Admin = require("../models/Admin");
@@ -131,7 +132,6 @@ exports.login = async (req, res) => {
     );
 
     // Send token, role, and user details to the frontend
-    console.log(userDetails);
     res.status(200).json({ token, message: "Login successful" });
   } catch (error) {
     console.error("Error during login:", error); // Log the error for debugging
@@ -258,22 +258,26 @@ exports.changePassword = async (req, res) => {
     } else if (role === "admin") {
       user = await Admin.findById(userId);
     } else {
+      console.log("Invalid user role");
       return res.status(400).json({ message: "Invalid user role" });
     }
 
     if (!user) {
+      console.log("User not found");
       return res.status(404).json({ message: "User not found" });
     }
 
     // Compare the provided old password with the hashed password stored in the database
     const isMatch = await bcrypt.compare(oldPassword, user.pass);
-    if (!isMatch) {
+    if (!isMatch && oldPassword !== user.pass) {
+      console.log("Incorrect old password");
       return res.status(400).json({ message: "Incorrect old password" });
     }
 
     // Check if the new password is the same as the old password
     const isSamePassword = await bcrypt.compare(newPassword, user.pass);
     if (isSamePassword) {
+      console.log("New password cannot be the same as the old password");
       return res.status(400).json({
         message: "New password cannot be the same as the old password",
       });
@@ -289,6 +293,53 @@ exports.changePassword = async (req, res) => {
 
     res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {
+    console.error("Error changing password:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.generateToken = async (req, res) => {
+  try {
+    const { role, id } = req.body;
+
+    let user;
+    switch (role) {
+      case "tourist":
+        user = await Tourist.findById(id);
+        break;
+      case "advertiser":
+        user = await Advertiser.findById(id);
+        break;
+      case "guide":
+        user = await TourGuide.findById(id);
+        break;
+      case "seller":
+        user = await Seller.findById(id);
+        break;
+      case "governor":
+        user = await TourismGovernor.findById(id);
+        break;
+      case "admin":
+        user = await Admin.findById(id);
+        break;
+      default:
+        return res.status(400).json({ message: "Invalid role" });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate a new JWT token
+    const token = jwt.sign(
+      { userId: user._id, role, userDetails: user }, // Include user data in the token
+      process.env.JWT_SECRET, // Use the environment variable
+      { expiresIn: "1h" }
+    );
+
+    res.status(200).json({ token });
+  } catch (error) {
+    console.error("Error generating token:", error);
     res.status(500).json({ error: error.message });
   }
 };

@@ -149,6 +149,7 @@ const SearchFilterSortContainer = ({
   cardsPerRow = 3,
   horizontalGap = 30,
   verticalGap = 30,
+  cardOnclick,
   loading,
 }) => {
   const [displayedElements, setDisplayedElements] = useState(null);
@@ -159,6 +160,11 @@ const SearchFilterSortContainer = ({
   const [filterCriteria, setFilterCriteria] = useState(null);
   const [filterField, setFilterField] = useState(null);
 
+  // if (!cardOnclick) {
+  //   cardOnclick = (element) => {
+  //     navigate(element["_id"]);
+  //   };
+  // }
   const navigate = useNavigate();
 
   const span = 24 / cardsPerRow;
@@ -378,8 +384,9 @@ const SearchFilterSortContainer = ({
                 {...combinedProps}
                 fields={mappedFields}
                 onClick={() => {
-                  console.log("hi");
-                  navigate(element["_id"]);
+                  if (cardOnclick) {
+                    cardOnclick(element);
+                  }
                 }}
               />
             </Col>

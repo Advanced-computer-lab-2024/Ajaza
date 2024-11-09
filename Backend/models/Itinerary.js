@@ -29,7 +29,7 @@ const itinerarySchema = new mongoose.Schema({
   active: { type: Boolean, default: true }, // Active status for the itinerary, guide can deactivate
   feedback: [
     {
-      touristId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Tourist" },
+      touristName: { type: String },
       rating: { type: Number, min: 1, max: 5, required: true }, // Rating between 1 and 5
       comments: { type: String, required: true },
     },
@@ -37,6 +37,8 @@ const itinerarySchema = new mongoose.Schema({
   tags: [{ type: String }],
   maxTourists: { type: Number, required: true, default: 20 },
   hidden: { type: Boolean, default: false },
+  isFlagged: {type: Boolean, default: false},
+
 });
 
 // Create the model

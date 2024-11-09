@@ -10,12 +10,12 @@ const sellerSchema = new mongoose.Schema({
   name: { type: String }, // name of the seller
   desc: { type: String }, // description of the seller's business
   logo: { type: mongoose.Schema.Types.ObjectId, ref: "Img" }, // serialized number for the seller's logo
-  acceptedTerms: { type: Boolean, default: true }, //dy el mafrood lama teegy t test te2lebha default: true
+  acceptedTerms: { type: Boolean, default: false }, //dy el mafrood lama teegy t test te2lebha default: true
   notifications: [
     {
       text: { type: String, required: true },
       seen: { type: Boolean, default: false },
-      productId: { type: Number }, // optional field
+      productId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Product' }, // optional field
     },
   ],
   pending: { type: Boolean, default: true }, // dy el mafrood lama teegy t test te2lebha default: false

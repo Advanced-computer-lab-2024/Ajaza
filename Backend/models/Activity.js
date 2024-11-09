@@ -14,11 +14,11 @@ const activitySchema = new mongoose.Schema({
   lower: { type: Number, required: true }, // Lower limit (equal to upper if not a range)
   category: [{ type: String, required: true }], // Activity category: advertiser chooses this when creating
   tags: [{ type: String }], // Array of tags related to the activity, advertiser enters them as he wants
-  discounts: { type: String }, // TODO
+  discounts: { type: Number, default: 0 }, // TODO
   isOpen: { type: Boolean, default: true }, // Booking availability
   feedback: [
     {
-      touristId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Tourist",},
+      touristName: { type: String },
       rating: { type: Number, min: 1, max: 5, required: true }, // Rating between 1 and 5
       comments: { type: String, required: true },
     },
@@ -29,6 +29,7 @@ const activitySchema = new mongoose.Schema({
     from: { type: String },
     to: { type: String },
   },
+  isFlagged: {type: Boolean, default: false},
 });
 
 // Create the model

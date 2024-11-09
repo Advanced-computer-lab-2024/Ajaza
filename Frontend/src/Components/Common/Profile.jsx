@@ -10,6 +10,8 @@ import {
   message,
   Modal,
   Flex,
+  Menu,
+  Dropdown,
 } from "antd";
 import {
   UserOutlined,
@@ -17,12 +19,15 @@ import {
   SaveOutlined,
   CloseOutlined,
   DeleteOutlined,
+  MailOutlined,
   WarningFilled,
 } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import "./Profile.css";
 import { apiUrl } from "../Common/Constants";
+import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
@@ -33,7 +38,11 @@ const Profile = () => {
   const [form] = Form.useForm();
   const [role, setRole] = useState(""); // Store user role
   const [pending, setPending] = useState(false); // Store pending status
-  console.log(userDetails);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false); // State to toggle password form visibility
+  const [logo, setLogo] = useState("http://localhost:3000/uploads/logo.svg"); // Store logo image
+  const [photo, setPhoto] = useState("http://localhost:3000/uploads/logo.svg"); // Store photo image
+  const navigate = useNavigate(); // useNavigate hook for programmatic navigation
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -44,7 +53,6 @@ const Profile = () => {
       setRole(decodedToken.role); // Set user role
 
       // Extract user details from the token
-      console.log(decodedToken);
       const userDetails = decodedToken.userDetails;
       setUserDetails(userDetails);
       setPending(userDetails.pending); // Set pending status from userDetails
@@ -58,6 +66,15 @@ const Profile = () => {
         dob: userDetails?.dob ? formatDate(userDetails.dob) : "",
         joined: userDetails?.joined ? formatDate(userDetails.joined) : "",
       });
+
+      if (userDetails.logo) {
+        const logoPath = `/uploads/${userDetails.logo}.jpg`;
+        setLogo(logoPath);
+      }
+      if (userDetails.photo) {
+        const photoPath = `/uploads/${userDetails.photo}.jpg`;
+        setPhoto(photoPath);
+      }
     }
   }, [form]);
 
@@ -76,6 +93,10 @@ const Profile = () => {
         urlExtension = `tourist/touristUpdateProfile/${response.userId}`;
       } else if (role === "seller") {
         urlExtension = `seller/${response.userId}`;
+      } else if (role == "governor") {
+        urlExtension = `governor/${response.userId}`;
+      } else if (role == "admin") {
+        urlExtension = `admin/${response.userId}`;
       }
 
       // Extract companyProfile fields from values
@@ -102,9 +123,6 @@ const Profile = () => {
           },
         }
       );
-
-      // Log the API response to check for token
-      console.log("API Response:", apiResponse.data);
 
       // Extract the new JWT token from the API response
       const newToken = apiResponse.data.token;
@@ -137,8 +155,6 @@ const Profile = () => {
 
     // Ensure the form is populated with the latest user details
     if (userDetails) {
-      console.log(userDetails);
-
       form.setFieldsValue({
         ...userDetails,
         "companyProfile.name": userDetails?.companyProfile?.name || "",
@@ -186,22 +202,189 @@ const Profile = () => {
 
   const confirmDelete = async (id) => {
     Modal.confirm({
-      title: "Are you sure?",
+      title: "Are you sure? This action is irreversible",
       content: "Do you want to request deletion of your account?",
       okText: "Delete",
       okType: "danger",
       icon: <WarningFilled style={{ color: "#ff4d4f" }} />,
       onOk: async () => {
         try {
-          console.log("TODO");
+          console.log(`${apiUrl}${role}/requestDeletion/${userDetails._id}`);
+
+          const response = await axios.patch(
+            `${apiUrl}${role}/requestDeletion/${userDetails._id}`
+          );
+
+          navigate("/");
+          localStorage.removeItem("token");
 
           message.success("Deletion Request Sent!");
         } catch (error) {
-          message.error("Failed to send deletion request");
+          message.error(error);
         }
       },
     });
   };
+
+  const [preferences, setPreferences] = useState({
+    preferredTags: [],
+    preferredCategories: [],
+  });
+  const [tags, setTags] = useState([]); 
+  const additionalTags = [
+    "Monuments", "Museums", "Religious Sites", "Palaces/Castles",
+    "1800s-1850s", "1850s-1900s", "1900s-1950s", "1950s-2000s"
+  ];
+  const [categories, setCategories] = useState([]); 
+  const token = localStorage.getItem("token");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [openKeys, setOpenKeys] = useState(["preferences"]);
+  const [open, setOpen] = useState(false); //for submenu
+  let decodedToken = null;
+  if (token) {
+    decodedToken = jwtDecode(token);
+  }
+  const userid = decodedToken ? decodedToken.userId : null;
+  const touristId = userid;
+
+  //req39
+  useEffect(() => {
+
+  
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}tourist/touristReadProfile/${touristId}`);
+        const { preferredTags, preferredCategories } = response.data;
+        setPreferences({ preferredTags, preferredCategories });
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+    fetchProfile();
+
+  const fetchTags = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}tag`);
+      const fetchedTags = response.data.map(tag => tag.tag);
+      setTags([...fetchedTags, ...additionalTags]); 
+    } catch (error) {
+      console.error('Error fetching tags:', error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}category`);
+      setCategories(response.data.map(category => category.category)); 
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  fetchTags();
+  fetchCategories();
+},[]);
+
+
+  const handleTagsChange = async (tag) => {
+    const updatedTags = preferences.preferredTags.includes(tag)
+      ? preferences.preferredTags.filter(t => t !== tag)
+      : [...preferences.preferredTags, tag];
+
+    setPreferences(prev => ({ ...prev, preferredTags: updatedTags }));
+
+    try {
+      await axios.patch(`${apiUrl}tourist/${touristId}`, {
+        preferredTags: updatedTags,
+        preferredCategories: preferences.preferredCategories,
+      });
+      message.success('Tags updated');
+    } catch (error) {
+      console.error('Error saving tags:', error);
+      message.error('Failed to update tags');
+    }
+    //setDropdownOpen(true);
+    setOpenKeys(["preferences"]);
+    };
+
+  const handleCategoriesChange = async (category) => {
+    const updatedCategories = preferences.preferredCategories.includes(category)
+      ? preferences.preferredCategories.filter(c => c !== category)
+      : [...preferences.preferredCategories, category];
+
+    setPreferences(prev => ({ ...prev, preferredCategories: updatedCategories }));
+    try {
+      await axios.patch(`${apiUrl}tourist/${touristId}`, {
+        preferredTags: preferences.preferredTags,
+        preferredCategories: updatedCategories,
+      });
+      message.success('Categories updated');
+    } catch (error) {
+      console.error('Error saving categories:', error);
+      message.error('Failed to update categories');
+    }
+    //setDropdownOpen(true);
+    setOpenKeys(["preferences"]);
+    };
+    
+    
+    const handleOpenChange = (nextOpen) => {
+      if (nextOpen) {
+        setOpen(nextOpen);
+      }
+    }
+   
+    
+  const preferencesMenu = ( 
+    <Menu 
+    selectedKeys={[...preferences.preferredTags, ...preferences.preferredCategories]} 
+    openKeys={openKeys} 
+    onOpenChange={(keys) => setOpenKeys(keys)}
+    >
+      <Menu.SubMenu key="preferences"  title="Preferences">
+      <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+        <Menu.ItemGroup title="Tags">
+        {tags.map(tag => (
+            <Menu.Item
+              key={tag}
+              onClick={(e) =>{
+                e.domEvent.preventDefault();
+                 handleTagsChange(tag) 
+                 handleOpenChange(true)
+                }}
+                 
+              style={{
+                backgroundColor: preferences.preferredTags.includes(tag) ? '#e6f7ff' : 'white',
+              }}
+            >
+              {tag}
+            </Menu.Item>
+          ))}
+        </Menu.ItemGroup>
+        <Menu.ItemGroup title="Categories">
+        {categories.map(category => (
+            <Menu.Item
+              key={category}
+              onClick={(e) =>{ 
+                e.domEvent.preventDefault();
+                handleCategoriesChange(category)
+                handleOpenChange(true)
+              }}
+                open={dropdownOpen}
+                onOpenChange={(open) => setDropdownOpen(open)}
+              style={{
+                backgroundColor: preferences.preferredCategories.includes(category) ? '#e6f7ff' : 'white',
+              }}
+            >
+              {category}
+            </Menu.Item>
+          ))}
+        </Menu.ItemGroup>
+        </div>
+      </Menu.SubMenu>
+    </Menu>
+  );
+  
 
   return (
     <>
@@ -233,11 +416,28 @@ const Profile = () => {
         ]}
       >
         <Space direction="vertical" align="center" style={{ width: "100%" }}>
-          <Avatar
-            size={120}
-            icon={<UserOutlined />}
-            style={{ backgroundColor: "#87d068" }}
-          />
+          {role === "tourist" && (
+            <Avatar
+              size={120}
+              icon={<UserOutlined />}
+              style={{ backgroundColor: "#87d068" }}
+            />
+          )}
+            {role === "seller" && (
+                <div>
+                <img src={logo} alt="Logo" style={{ width: '100px', height: '100px' }} />
+                </div>
+            )}
+            {role === "advertiser" && (
+                <div>
+                <img src={logo} alt="Logo" style={{ width: '100px', height: '100px' }} />
+                </div>
+            )}
+            {role === "guide" && photo && (
+                <div>
+                <img src={photo} alt="Photo" style={{ width: '100px', height: '100px' }} />
+                </div>
+            )}
           {isEditing ? (
             <Form
               form={form}
@@ -267,7 +467,15 @@ const Profile = () => {
                   >
                     <Input />
                   </Form.Item>
-
+                  <Form.Item>
+                    <Button
+                      name="Change Password"
+                      style={{ width: 150 }}
+                      onClick={() => navigate("/advertiser/change-password")} // Redirect to password change page
+                    >
+                      Change Password
+                    </Button>
+                  </Form.Item>
                   {/* Company Profile fields */}
                   <Form.Item
                     name="companyProfile.name"
@@ -322,6 +530,15 @@ const Profile = () => {
                   <Form.Item name="previousWork" label="Previous Work">
                     <Input.TextArea />
                   </Form.Item>
+                  <Form.Item>
+                    <Button
+                      name="Change Password"
+                      style={{ width: 150 }}
+                      onClick={() => navigate("/guide/change-password")} // Redirect to password change page
+                    >
+                      Change Password
+                    </Button>
+                  </Form.Item>
                 </>
               )}
 
@@ -354,6 +571,19 @@ const Profile = () => {
                   <Form.Item name="occupation" label="Occupation">
                     <Input />
                   </Form.Item>
+                  <div>
+                    <div>
+                      <Form.Item>
+                        <Button
+                          name="Change Password"
+                          style={{ width: 150 }}
+                          onClick={() => navigate("/tourist/change-password")} // Redirect to password change page
+                        >
+                          Change Password
+                        </Button>
+                      </Form.Item>
+                    </div>
+                  </div>
                 </>
               )}
 
@@ -366,20 +596,72 @@ const Profile = () => {
                   <Form.Item name="desc" label="Description">
                     <Input />
                   </Form.Item>
+                  <Form.Item>
+                    <Button
+                      name="Change Password"
+                      style={{ width: 150 }}
+                      onClick={() => navigate("/seller/change-password")} // Redirect to password change page
+                    >
+                      Change Password
+                    </Button>
+                  </Form.Item>
+                </>
+              )}
+              {/*Form fields for governor */}
+              {role === "governor" && (
+                <>
+                  <Form.Item name="name" label="Name">
+                    <Input />
+                  </Form.Item>
+                  <Form.Item name="desc" label="Description">
+                    <Input />
+                  </Form.Item>
+                  <Form.Item>
+                    <Button
+                      name="Change Password"
+                      style={{ width: 150 }}
+                      onClick={() => navigate("/governor/change-password")} // Redirect to password change page
+                    >
+                      Change Password
+                    </Button>
+                  </Form.Item>
+                </>
+              )}
+              {/*Form fields for admin */}
+              {role === "admin" && (
+                <>
+                  <Form.Item name="name" label="Name">
+                    <Input />
+                  </Form.Item>
+                  <Form.Item name="desc" label="Description">
+                    <Input />
+                  </Form.Item>
+                  <Form.Item>
+                    <Button
+                      name="Change Password"
+                      style={{ width: 150 }}
+                      onClick={() => navigate("/admin/change-password")} // Redirect to password change page
+                    >
+                      Change Password
+                    </Button>
+                  </Form.Item>
                 </>
               )}
             </Form>
           ) : (
             // Display profile details (non-edit view)
             userDetails && (
-              <div>
-                <Title level={2}>{userDetails.username}</Title>
+                <div>
+                {role === "guide" && (
+                  <>
+                  <a href="image">
+                      <EditOutlined />
+                    </a>
+                  <Title level={2}>{userDetails.username}</Title>
                 <div>
                   <strong>Email: </strong>
                   <span>{userDetails.email}</span>
                 </div>
-                {role === "guide" && (
-                  <>
                     {userDetails.mobile && (
                       <div>
                         <strong>Mobile: </strong>
@@ -403,6 +685,14 @@ const Profile = () => {
                 )}
                 {role === "advertiser" && (
                   <>
+                  <a href="image">
+                      <EditOutlined />
+                    </a>
+                  <Title level={2}>{userDetails.username}</Title>
+                <div>
+                  <strong>Email: </strong>
+                  <span>{userDetails.email}</span>
+                </div>
                     <div>
                       <strong>Link: </strong>
                       <span>{userDetails.link}</span>
@@ -415,6 +705,43 @@ const Profile = () => {
                 )}
                 {role === "tourist" && (
                   <>
+                   {/* Preferences Menu */}
+                   <Dropdown 
+                      overlay={preferencesMenu}
+                      onOpenChange={handleOpenChange}
+                      trigger={['click']}
+                      open={dropdownOpen} 
+                      //onOpenChange={(open) => setDropdownOpen(open)}
+                    >
+                    <Button style={{
+                      position: "absolute",
+                      top: 20,
+                      right: 20,
+                      border: "none",
+                      background: "none",
+                      color: "#1890ff",
+                      fontSize: "16px",
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setDropdownOpen(!dropdownOpen);
+                    }}
+                  >
+                      View and Edit Preferences 
+                    </Button>
+                  </Dropdown>
+                  {userDetails && userDetails.badge && (
+                    <div style={{ marginTop: '10px' }}>
+                      {userDetails.badge === 1 && <img src="http://localhost:3000/1.jpg" alt="Bronze Badge" style={{ width: '50px', height: '50px' }} />}
+                      {userDetails.badge === 2 && <img src="http://localhost:3000/2.jpg" alt="Silver Badge" style={{ width: '50px', height: '50px' }} />}
+                      {userDetails.badge === 3 && <img src="http://localhost:3000/3.jpg" alt="Gold Badge" style={{ width: '50px', height: '50px' }} />}
+                    </div>
+                  )}
+                  <Title level={2}>{userDetails.username}</Title>
+                <div>
+                  <strong>Email: </strong>
+                  <span>{userDetails.email}</span>
+                </div>
                     {userDetails.mobile && (
                       <div>
                         <strong>Mobile: </strong>
@@ -448,26 +775,27 @@ const Profile = () => {
                     {userDetails.wallet !== undefined && (
                       <div>
                         <strong>Wallet: </strong>
-                        <span>{userDetails.wallet || 0}</span>
+                        <span>{userDetails.wallet || 0} USD</span>
                       </div>
                     )}
                     {userDetails.totalPoints !== undefined && (
                       <div>
-                        <strong>Total Points: </strong>
-                        <span>{userDetails.totalPoints || 0}</span>
-                      </div>
-                    )}
-
-                    {userDetails.badge && (
-                      <div>
-                        <strong>Badge: </strong>
-                        <span>{userDetails.badge}</span>
+                        <strong>Points: </strong>
+                        <span>{userDetails.points || 0}</span>
                       </div>
                     )}
                   </>
                 )}
                 {role === "seller" && (
                   <>
+                  <a href="image">
+                      <EditOutlined />
+                    </a>
+                  <Title level={2}>{userDetails.username}</Title>
+                <div>
+                  <strong>Email: </strong>
+                  <span>{userDetails.email}</span>
+                </div>
                     {userDetails.name && (
                       <div>
                         <strong>Name: </strong>

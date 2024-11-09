@@ -4,6 +4,7 @@ import {
   DeleteOutlined,
   PlusOutlined,
   MinusCircleOutlined,
+  FlagOutlined,
 } from "@ant-design/icons";
 import {
   Avatar,
@@ -21,7 +22,7 @@ import {
 import axios from "axios";
 import Button from "./Common/CustomButton";
 import { jwtDecode } from "jwt-decode";
-import { apiUrl } from "./Common/Constants";
+import { apiUrl, Colors } from "./Common/Constants";
 
 const { Option } = Select;
 
@@ -255,13 +256,17 @@ const Itineraries = () => {
           style={{
             marginBottom: "20px",
             display: "flex",
-            justifyContent: "flex-start",
+            justifyContent: "flex-end",
           }}
         >
-          <Button
-            size={"s"}
-            value={"Create Itinerary"}
-            rounded={true}
+          <AntButton
+            style={{
+              width: "30px",
+              height: "30px",
+              borderRadius: "10px",
+              backgroundColor: Colors.primary.default,
+            }}
+            icon={<PlusOutlined style={{ color: "white" }} />}
             onClick={showModal}
           />
         </div>
@@ -287,8 +292,28 @@ const Itineraries = () => {
                     onClick={() => deleteItinerary(itinerary._id)}
                   />,
                 ]}
-                style={{ minWidth: 300, margin: "10px" }}
+                style={{
+                  minWidth: 300,
+                  margin: "10px",
+                  border:
+                    itinerary.isFlagged && itinerary.hidden
+                      ? "3px solid red"
+                      : "none",
+                  position: "relative", // Set position to relative for positioning flag
+                }}
               >
+                {itinerary.isFlagged && itinerary.hidden && (
+                  <FlagOutlined
+                    style={{
+                      position: "absolute",
+                      top: "8px",
+                      right: "8px",
+                      color: "red",
+                      fontSize: "25px",
+                    }}
+                  />
+                )}
+
                 <Card.Meta
                   title={itinerary.name}
                   description={
@@ -356,6 +381,10 @@ const Itineraries = () => {
                           "No feedback available"
                         )}
                       </p> */}
+                      <p>
+                        <strong>Flagged:</strong>{" "}
+                        {itinerary.isFlagged ? "Yes" : "No"}
+                      </p>
                     </div>
                   }
                 />

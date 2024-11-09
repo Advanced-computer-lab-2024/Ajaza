@@ -2,11 +2,19 @@ const mongoose = require("mongoose");
 
 const flightBookingSchema = new mongoose.Schema({
     touristId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Tourist' },
-    origin: { type: String, required: true },
-    destination: { type: String, required: true },
-    departureDate: { type: Date, required: true },
-    count: { type: Number, required: true },
-    createdAt: { type: Date, default: Date.now }
+    departureAirport: { type: String },
+    totalDuration: { type: String },
+    currency: { type: String },
+    price: { type: String },
+    departureTime: { type: String },
+    departureTerminal: { type: String },
+    arrivalAirport: { type: String },
+    arrivalTime: { type: String },
+    arrivalTerminal: { type: String },
+    carrier: { type: String },
+    flightNumber: { type: String },
+    aircraft: { type: String },
+    stops: { type: String },
 });
 
 // Create the model

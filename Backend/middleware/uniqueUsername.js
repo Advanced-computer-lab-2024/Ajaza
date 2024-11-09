@@ -22,7 +22,6 @@ const checkUsernameAvailability = async (req, res, next) => {
     const governorExists = await Governor.exists({ username });
 
     if (adminExists || touristExists || advertiserExists || sellerExists || guideExists || governorExists) {
-      console.log("e7na ahoooo");
       return res.status(400).json({ error: 'Username is already taken' });
       
     }
