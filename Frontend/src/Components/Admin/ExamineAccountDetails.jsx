@@ -89,43 +89,50 @@ const ExamineAccountDetails = () => {
 
     return (
         <div>
+            <h3>Pending Account Details</h3>
             <Card
-                title={`Username: ${account.username}`}
-                bordered={false}
-                style={{ width: "60%", textAlign: "center", boxShadow: "0 4px 8px rgba(0,0,0,0.1)" }}
-            >
-                <p>Account Type: {accountType}</p>
-                <p>Email: {account.email}</p>
+    title={`Username: ${account.username}`}
+    bordered={false}
+    style={{
+        width: "60%",
+        textAlign: "center",
+        boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+        marginLeft: "250px" // Adjust this value as needed to move it slightly to the right
+    }}
+>
+    <p>Account Type: {accountType}</p>
+    <p>Email: {account.email}</p>
 
-                <h3>ID:</h3>
-                <img src={selectedImageId} alt="ID Image" width="500px" height="500px" />
-                <hr />
+    <h3>ID:</h3>
+    <img src={selectedImageId} alt="ID Image" width="500px" height="500px" />
+    <hr />
 
-                {accountType === "guide" && (
-                    <>
-                        <h3>Certificates:</h3>
-                        {imageCert1 && <img src={imageCert1} alt="Certificate 1" width="500px" height="500px" />}
-                        {imageCert2 && <img src={imageCert2} alt="Certificate 2" width="500px" height="500px" />}
-                        {imageCert3 && <img src={imageCert3} alt="Certificate 3" width="500px" height="500px" />}
-                    </>
-                )}
+    {accountType === "guide" && (
+        <>
+            <h3>Certificates:</h3>
+            {imageCert1 && <img src={imageCert1} alt="Certificate 1" width="500px" height="500px" />}
+            {imageCert2 && <img src={imageCert2} alt="Certificate 2" width="500px" height="500px" />}
+            {imageCert3 && <img src={imageCert3} alt="Certificate 3" width="500px" height="500px" />}
+        </>
+    )}
 
-                {(accountType === "seller" || accountType === "advertiser") && (
-                    <>
-                        <h3>Taxation Registry Card:</h3>
-                        <img src={imageTax} alt="Taxation Registry Card" width="500px" height="500px" />
-                    </>
-                )}
+    {(accountType === "seller" || accountType === "advertiser") && (
+        <>
+            <h3>Taxation Registry Card:</h3>
+            <img src={imageTax} alt="Taxation Registry Card" width="500px" height="500px" />
+        </>
+    )}
 
-                <div style={{ marginTop: 20 }}>
-                    <Button type="primary" onClick={handleAccept} style={{ marginRight: 10 }}>
-                        Accept
-                    </Button>
-                    <Button type="default" onClick={handleReject}>
-                        Reject
-                    </Button>
-                </div>
-            </Card>
+    <div style={{ marginTop: 20 }}>
+        <Button type="primary" onClick={handleAccept} style={{ marginRight: 10 }}>
+            Accept
+        </Button>
+        <Button type="default" onClick={handleReject}>
+            Reject
+        </Button>
+    </div>
+</Card>
+
         </div>
     );
 };

@@ -12,6 +12,7 @@ const ItineraryAdmin = () => {
   const [writeReviewForm] = Form.useForm();
   const [isFlagRed, setIsFlagRed] = useState(false); // Flag color state
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility
+  const [unflagisModalVisible, unflagsetIsModalVisible] = useState(false); // Modal visibility
 
  /* useEffect(() => {
     const savedFlagState = localStorage.getItem(`flagClicked-${id}`);
@@ -31,6 +32,9 @@ const ItineraryAdmin = () => {
             setIsFlagRed(true);
 
            // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
+        }
+        else{
+            setIsFlagRed(false);
         }
        
       } catch (error) {
@@ -82,6 +86,9 @@ const ItineraryAdmin = () => {
     if (!isFlagRed) {
       setIsModalVisible(true); // Open the modal
     }
+    else{
+        unflagsetIsModalVisible(true);  
+    }
   };
 
 
@@ -100,9 +107,26 @@ const ItineraryAdmin = () => {
     setIsModalVisible(false); // Close the modal
   };
 
+  const confirmUnFlag = async () => {
+    //  setIsFlagRed(true);
+     // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
+      try {
+        const response =   await axios.patch(`${apiUrl}itinerary/unhide/${id}`);
+         console.log(response.data);
+         setItinerary(response.data.updatedItinerary);
+        //  setActivity(response.data);
+        } catch (error) {
+          console.error("Error hiding event:", error);
+        }
+      unflagsetIsModalVisible(false); // Close the modal
+    };
+
   // Handle modal cancellation
   const cancelFlag = () => {
     setIsModalVisible(false); // Close the modal
+  };
+  const cancelUnFlag = () => {
+    unflagsetIsModalVisible(false); // Close the modal
   };
   const removeAllFlags = () => {
     for (let key in localStorage) {
@@ -185,6 +209,18 @@ const ItineraryAdmin = () => {
         cancelText="No"
       >
         <p>Are you sure you want to flag this itinerary as Inappropriate?</p>
+      </Modal>
+
+      {/* Confirmation Modal */}
+      <Modal
+        title="Confirm Flag"
+        visible={unflagisModalVisible}
+        onOk={confirmUnFlag}
+        onCancel={cancelUnFlag}
+        okText="Yes"
+        cancelText="No"
+      >
+        <p>Are you sure you want to unflag this itinerary?</p>
       </Modal>
     </>
   );

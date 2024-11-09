@@ -12,28 +12,36 @@ const Event = () => {
   const [advertiser, setAdvertiser] = useState(null);
   const [isFlagRed, setIsFlagRed] = useState(false); // Flag color state
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility
+  const [unflagisModalVisible, unflagsetIsModalVisible] = useState(false);
 
+
+
+
+  const fetchActivity = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}activity/${id}`);
+      setActivity(response.data);
+    //  const savedFlagState = localStorage.getItem(`flagClicked-${id}`);
+  //    setIsFlagRed(savedFlagState === "true"); // Set to true if previously clicked
+       // Set to true if previously clicked
+      if(response.data.hidden === true  ){
+
+          setIsFlagRed(true);
+
+         // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
+      }
+      else{
+        setIsFlagRed(false);
+      }
+     
+    } catch (error) {
+      console.error("Error fetching activity:", error);
+    }
+  };
 
 
   useEffect(() => {
-    const fetchActivity = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}activity/${id}`);
-        setActivity(response.data);
-      //  const savedFlagState = localStorage.getItem(`flagClicked-${id}`);
-    //    setIsFlagRed(savedFlagState === "true"); // Set to true if previously clicked
-         // Set to true if previously clicked
-        if(activity.hidden === true  ){
-
-            setIsFlagRed(true);
-
-           // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
-        }
-       
-      } catch (error) {
-        console.error("Error fetching activity:", error);
-      }
-    };
+   
 
     fetchActivity();
   }, [id]);
@@ -49,22 +57,7 @@ const Event = () => {
   }, [id]);*/
 
   // Fetch activity data
-  useEffect(() => {
-    const fetchActivity = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}activity/${id}`);
-        setActivity(response.data);
-        if(activity.hidden == true){
-            setIsFlagRed(true);
-        }
-      } catch (error) {
-        console.error("Error fetching activity:", error);
-      }
-      
-    };
-
-    fetchActivity();
-  }, [id]);
+  
 
   // Fetch advertiser data
   useEffect(() => {
@@ -90,9 +83,7 @@ const Event = () => {
     console.log(values); // Process the review form submission
   };
 
-  if (!activity) {
-    return <div>Loading activity...</div>;
-  }
+ 
 
   const discount = 10;
 
@@ -103,6 +94,9 @@ const Event = () => {
     if (!isFlagRed) {
       setIsModalVisible(true); // Open the modal
     }
+    else{
+        unflagsetIsModalVisible(true); 
+    }
   };
 
 
@@ -112,13 +106,32 @@ const Event = () => {
       try {
         const response =   await axios.patch(`${apiUrl}activity/hide/${id}`);
          console.log(response.data);
-         setActivity(response.data.updatedItinerary);
+         setActivity(response.data.updatedActivity);
         //  setActivity(response.data);
         } catch (error) {
           console.error("Error hiding event:", error);
         }
+
       setIsModalVisible(false); // Close the modal
+      fetchActivity();
     };
+
+
+    const confirmUnFlag = async () => {
+        //  setIsFlagRed(true);
+         // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
+          try {
+            const response =   await axios.patch(`${apiUrl}activity/unhide/${id}`);
+             console.log(response.data);
+             setActivity(response.data.updatedActivity);
+            //  setActivity(response.data);
+            } catch (error) {
+              console.error("Error unhiding event:", error);
+            }
+            
+          unflagsetIsModalVisible(false); // Close the modal
+          fetchActivity();
+        };
 
   // Handle modal confirmation
   
@@ -127,6 +140,9 @@ const Event = () => {
   const cancelFlag = () => {
     setIsModalVisible(false); // Close the modal
   };
+  const cancelUnFlag = () => {
+    unflagsetIsModalVisible(false); // Close the modal
+  };
   const removeAllFlags = () => {
     for (let key in localStorage) {
       if (key.startsWith("flagClicked-")) {
@@ -134,7 +150,9 @@ const Event = () => {
       }
     }
   };
-
+  if (!activity) {
+    return <div>Loading activity...</div>;
+  }
   return (
     <>
       <Item
@@ -185,6 +203,18 @@ const Event = () => {
           Flag as Inappropriate
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <Modal
+        title="Confirm UnFlag"
+        visible={unflagisModalVisible}
+        onOk={confirmUnFlag}
+        onCancel={cancelUnFlag}
+        okText="Yes"
+        cancelText="No"
+      >
+        <p>Are you sure you want to unflag this activity?</p>
+      </Modal>
 
       {/* Confirmation Modal */}
       <Modal

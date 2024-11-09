@@ -647,7 +647,6 @@ exports.getPendingGuides = async (req, res) => {
   }
 };
 
-
 exports.getGuideDetails = async (req, res) => {
   const guideId = req.params.id;
 

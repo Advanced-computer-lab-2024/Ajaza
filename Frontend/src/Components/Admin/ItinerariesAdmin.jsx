@@ -190,7 +190,7 @@ const ItinerariesAdmin = () => {
     const fetchData = async () => {
       try {
         const [itineraryResponse, tagResponse] = await Promise.all([
-          axios.get(`${apiUrl}itinerary`),
+          axios.get(`${apiUrl}itinerary/admin`),
           axios.get(`${apiUrl}tag`),
         ]);
         let itineraries = itineraryResponse.data;
