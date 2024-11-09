@@ -14,7 +14,9 @@ import AllAccounts from "./AllAccounts"; // Create a new AllAccounts component
 import AddAccounts from "./addAccounts";
 import Profile from "../Common/Profile";
 import MyProducts from "./MyProducts";
-import Products from "../Tourist/Products";
+import ArchivedProds from "./ArchivedProds";
+//import Products from "../Tourist/Products";
+import Products from "./ProductsEvenArch";
 import ExamineAccounts from "./ExamineAccounts";
 import ChangePasswordForm from "../Common/changePassword"; 
 import SignIn from "../Sign/SignIn";
@@ -72,8 +74,9 @@ const Admin = () => {
 
           <Route path="preference-tags" element={<ManagePreferenceTags />} />
           <Route path="myProducts" element={<MyProducts />} />
-          <Route path="products" element={<Products />} />
+        
           <Route path="profile" element={<Profile />} />
+          <Route path="archive" element={<ArchivedProds />} />
           <Route path="change-password"  element={<ChangePasswordForm />}  />
           <Route path="auth/signin" element={<SignIn />} />
         </Routes>

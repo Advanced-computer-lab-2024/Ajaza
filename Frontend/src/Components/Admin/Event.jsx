@@ -13,11 +13,40 @@ const Event = () => {
   const [isFlagRed, setIsFlagRed] = useState(false); // Flag color state
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility
 
-  // Load flag click state from localStorage
+
+
   useEffect(() => {
+    const fetchActivity = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}activity/${id}`);
+        setActivity(response.data);
+      //  const savedFlagState = localStorage.getItem(`flagClicked-${id}`);
+    //    setIsFlagRed(savedFlagState === "true"); // Set to true if previously clicked
+         // Set to true if previously clicked
+        if(activity.hidden === true  ){
+
+            setIsFlagRed(true);
+
+           // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
+        }
+       
+      } catch (error) {
+        console.error("Error fetching activity:", error);
+      }
+    };
+
+    fetchActivity();
+  }, [id]);
+
+
+
+
+
+  // Load flag click state from localStorage
+ /* useEffect(() => {
     const savedFlagState = localStorage.getItem(`flagClicked-${id}`);
     setIsFlagRed(savedFlagState === "true"); // Set to true if previously clicked
-  }, [id]);
+  }, [id]);*/
 
   // Fetch activity data
   useEffect(() => {
@@ -54,6 +83,7 @@ const Event = () => {
     }
   }, [activity]);
 
+
   const [writeReviewForm] = Form.useForm();
 
   const onSubmitWriteReview = (values) => {
@@ -75,18 +105,23 @@ const Event = () => {
     }
   };
 
-  // Handle modal confirmation
+
   const confirmFlag = async () => {
-    setIsFlagRed(true);
-    localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
-    try {
-        await axios.patch(`${apiUrl}activity/hide/${id}`);
-      //  setActivity(response.data);
-      } catch (error) {
-        console.error("Error hiding event:", error);
-      }
-    setIsModalVisible(false); // Close the modal
-  };
+    //  setIsFlagRed(true);
+     // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
+      try {
+        const response =   await axios.patch(`${apiUrl}activity/hide/${id}`);
+         console.log(response.data);
+         setActivity(response.data.updatedItinerary);
+        //  setActivity(response.data);
+        } catch (error) {
+          console.error("Error hiding event:", error);
+        }
+      setIsModalVisible(false); // Close the modal
+    };
+
+  // Handle modal confirmation
+  
 
   // Handle modal cancellation
   const cancelFlag = () => {

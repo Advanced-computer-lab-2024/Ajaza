@@ -2,7 +2,7 @@ import React from "react";
 import { CustomLayout } from "../Common";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Itineraries from "./Itineraries";
-import { CalendarOutlined, ContainerOutlined } from "@ant-design/icons";
+import { CalendarOutlined, ContainerOutlined, CheckOutlined, BookOutlined, HomeOutlined, CarOutlined } from "@ant-design/icons";
 import { apiUrl } from "../Common/Constants";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -25,15 +25,21 @@ import TouristHistory from "./TouristHistory";
 import Activity from "../Common/Activity";
 import ChangePasswordForm from "../Common/changePassword";
 import Itinerary from "../Common/Itinerary";
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import BookFlight from "./BookFlight";
+import { Colors } from "../Common/Constants";
+import Hotels from "./Hotels";
 import SignIn from "../Sign/SignIn";
+import ThirdParty from "./ThirdParty";
+import Transportations from "./Transportations";
 
 const Tourist = () => {
   const [response, setResponse] = useState([]);
   const navigate = useNavigate();
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log("Token:", token);
-    console.log("decodedToken:", jwtDecode(token));
+    // console.log("Token:", token);
+    // console.log("decodedToken:", jwtDecode(token));
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
@@ -90,16 +96,23 @@ const Tourist = () => {
       onClick: () => navigate("redeemPoints"),
     },
     {
-      key: "7",
+      key: "18",
+      label: "Complaints",
       icon: <ReportGmailerrorredOutlinedIcon />,
-      label: "File Complaint",
-      onClick: () => navigate("FileComplaint"),
-    },
-    {
-      key: "8",
-      icon: <ReportGmailerrorredOutlinedIcon />,
-      label: "My Complaints",
-      onClick: () => navigate("Complaints"),
+      children: [
+        {
+          key: "7",
+          icon: <ReportGmailerrorredOutlinedIcon />,
+          label: "File Complaint",
+          onClick: () => navigate("FileComplaint"),
+        },
+        {
+          key: "8",
+          icon: <ReportGmailerrorredOutlinedIcon />,
+          label: "My Complaints",
+          onClick: () => navigate("Complaints"),
+        },
+      ],
     },
     {
       key: "9",
@@ -109,39 +122,71 @@ const Tourist = () => {
     },
     {
       key: "10",
-      icon: <RateReviewOutlinedIcon />,
+      icon: <CheckOutlined />,
       label: "Current Bookings",
       onClick: () => navigate("bookings"),
     },
     {
       key: "11",
-      icon: <RateReviewOutlinedIcon />,
+      icon: <CheckOutlined />,
       label: "Booking History",
       onClick: () => navigate("history"),
     },
     {
       key: "12",
-      icon: <RateReviewOutlinedIcon />,
+      icon: <CheckOutlined />,
       label: "Saved Plans",
       onClick: () => navigate("saved"),
     },
     {
       key: "13",
-      icon: <RateReviewOutlinedIcon />,
+      icon: <BookOutlined />,
       label: "Wishlist",
       onClick: () => navigate("wishlist"),
     },
     {
       key: "14",
-      icon: <RateReviewOutlinedIcon />,
+      icon: <BookOutlined />,
       label: "Orders",
       onClick: () => navigate("orders"),
+    },
+    {
+      key: "16",
+      label: "Services",
+      icon: <ContainerOutlined />,
+      children: [
+        {
+          key: "17",
+          label: "Services Bookings",
+          icon: <CalendarOutlined />,
+          onClick: () => navigate("services"),
+        },
+        {
+          key: "15",
+          label: "Flights",
+          icon: <FlightTakeoffIcon />,
+          onClick: () => navigate("BookFlight"),
+        },
+        {
+          key: "18",
+          label: "Hotels",
+          icon: <HomeOutlined />,
+          onClick: () => navigate("hotels"),
+        },
+        {
+          key: "19",
+          label: "Transportation",
+          icon: <CarOutlined />,
+          onClick: () => navigate("transportations"),
+        },
+      ],
     },
     // TODO put them in nested like current and past bookings ---- products,wishlist,orders
   ];
 
   return (
     <CustomLayout sideBarItems={sideBarItems}>
+    
       <Routes>
         <Route path="/" element={<Plans />} />
         <Route path="profile" element={<Profile />} />
@@ -161,6 +206,12 @@ const Tourist = () => {
         <Route path="complaints" element={<Complaints />} />
         <Route path="touristHistory" element={<TouristHistory />} />
         <Route path="auth/signin" element={<SignIn />} />
+
+        <Route path="hotels" element={<Hotels />} />
+        <Route path="services" element={<ThirdParty />} />
+        <Route path="transportations" element={<Transportations />} />
+
+        <Route path="bookFlight" element={<BookFlight />} />
       </Routes>
     </CustomLayout>
   );

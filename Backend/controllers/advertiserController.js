@@ -542,7 +542,6 @@ exports.requestDeletion = async (req, res) => {
             new Date(activity.date) > new Date()
           ) {
             hasUpcomingActivity = true;
-            console.log("Upcoming activity found");
             break;
           }
         }
@@ -627,7 +626,6 @@ exports.getAdvertiserDetails = async (req, res) => {
   const advertiserId = req.params.id;
 
   try {
-    console.log(`Fetching details for advertiser with ID: ${advertiserId}`);
     
     // Find the advertiser by ID and populate image references
     const advertiser = await Advertiser.findById(advertiserId)
@@ -640,10 +638,6 @@ exports.getAdvertiserDetails = async (req, res) => {
       return res.status(404).json({ message: "Advertiser not found." });
     }
 
-    // Log details for debugging
-    console.log("Advertiser ID:", advertiser.id); // Full object of ID
-    console.log("Taxation Reg Card:", advertiser.taxationRegCard);
-    console.log("Logo:", advertiser.logo);
 
     // Construct the response object with image paths for ID and Taxation Registration Card
     const responseAdvertiser = {
@@ -668,6 +662,36 @@ exports.getAdvertiserDetails = async (req, res) => {
     res.status(200).json(responseAdvertiser);
   } catch (error) {
     console.error("Error fetching advertiser details:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+// req28 - tatos (Not Done Yet)
+exports.viewSalesReport = async (req, res) => {
+  const advertiserId = req.params.id;
+  try {
+    const advertiser = await Advertiser.findById(advertiserId);
+    if (!advertiser) {
+      return res.status(404).json({ message: "Advertiser not found" });
+    }
+    if (advertiser.pending) {
+      return res.status(401).json({ message: "Waiting for admin approval" });
+    }
+    if (!advertiser.acceptedTerms) {
+      return res.status(401).json({ message: "Terms and Conditions must be accepted" });
+    }
+    if(advertiser.requestingDeletion){
+      return res.status(401).json({ message: "Advertiser is requesting deletion" });
+    }
+    const activities = await Activity.find({ advertiserId });
+    if (!activities || activities.length === 0) {
+      return res.status(404).json({ message: "No activities found for this advertiser" });
+    }
+    const sales = activities.map(activity => activity.sales);
+    const totalSales = sales.reduce((acc, curr) => acc + curr, 0);
+    res.status(200).json({ totalSales });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };

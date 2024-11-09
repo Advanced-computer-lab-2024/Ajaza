@@ -42,7 +42,6 @@ async function searchFlights(accessToken) {
       }
     });
 
-    console.log('Flight Offers:', response.data);
   } catch (error) {
     console.error('Error searching for flights:', error.response ? error.response.data : error.message);
   }
@@ -60,7 +59,6 @@ async function bookFlight(accessToken, flightOfferId, data) {
         }
       });
   
-      console.log('Flight booked successfully:', response.data);
       return response.data; // Return booking confirmation details
     } catch (error) {
       console.error('Error booking flight:', error.response ? error.response.data : error.message);
@@ -85,7 +83,6 @@ async function searchHotels(accessToken, cityCode, checkInDate, checkOutDate) {
         }
         });
 
-        console.log('Hotel Offers:', response.data);
         return response.data; // Return hotel offers
     } catch (error) {
         console.error('Error searching hotels:', error.response ? error.response.data : error.message);
@@ -105,7 +102,6 @@ async function bookHotel(accessToken, hotelOfferId, data) {
         }
         });
 
-        console.log('Hotel booked successfully:', response.data);
         return response.data; // Return booking confirmation details
     } catch (error) {
         console.error('Error booking hotel:', error.response ? error.response.data : error.message);

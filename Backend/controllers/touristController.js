@@ -277,8 +277,6 @@ exports.cancelItineraryBooking = async (req, res) => {
       return res.status(404).json({ message: "Tourist not found" });
     }
 
-    console.log(tourist.itineraryBookings);
-    console.log(itineraryId);
 
     const bookingIndex = tourist.itineraryBookings.findIndex(
       (booking) => booking.itineraryId.toString() === itineraryId
@@ -363,7 +361,7 @@ exports.redeemPoints = async (req, res) => {
 
     // Respond with the updated tourist data
     res.status(200).json({
-      message: "Points redeemed successfully!",
+      message: "Points redeemed successfully!" + maxRedeemablePoints + " added to wallet",
       wallet: tourist.wallet,
       points: tourist.points,
     });
@@ -869,7 +867,6 @@ exports.birthdayEventTriggered = async (usersWithBirthdayToday) => {
       await tourist.save();
     }
 
-    //console.log("Promo code created successfully:", newPromoCode);
   } catch (error) {
     console.error("Error creating promo code:", error);
   }
@@ -933,11 +930,6 @@ exports.getHistory = async (req, res) => {
             tourist.itineraryBookings[i].itineraryId._id
           ),
         });
-        console.log(
-          "Itinerary guide id:",
-          tourist.itineraryBookings[i].itineraryId.guideId
-        );
-        console.log("Tourist gave feedback:", tourist.gaveFeedback);
         const guideNumberOfTimesRated = tourist.gaveFeedback.filter((el) =>
           el.equals(tourist.itineraryBookings[i].itineraryId.guideId)
         ).length;
@@ -952,11 +944,7 @@ exports.getHistory = async (req, res) => {
             );
           }
         ).length;
-        console.log("Guide number of times rated:", guideNumberOfTimesRated);
-        console.log(
-          "Number of bookings with guide:",
-          numberOfBookingsWithGuide
-        );
+        
         const guideName = await Guide.findById(
           tourist.itineraryBookings[i].itineraryId.guideId
         ).select("username");
@@ -975,14 +963,13 @@ exports.getHistory = async (req, res) => {
     for (let i = 0; i < tourist.orders.length; i++) {
       if(tourist.orders[i].date < currentDate && tourist.orders[i].status != "Cancelled") {
         for (let j = 0; j < tourist.orders[i].products.length; j++) {
-          console.log("alooooo: ", tourist.orders[i].products[j].productId._id);
           products.push({
             productId: tourist.orders[i].products[j].productId._id,
             name: tourist.orders[i].products[j].productId.name,
             sellerName: tourist.orders[i].products[j].productId.sellerName,
             date: tourist.orders[i].date,
             gaveFeedback: tourist.gaveFeedback.includes(
-              tourist.orders[i].products[j].productId
+              tourist.orders[i].products[j].productId._id
             ),
           });
         }
@@ -997,7 +984,6 @@ exports.getHistory = async (req, res) => {
     });
   } catch (error) {
     console.error("Error retrieving past activity bookings:", error);
-    throw error;
   }
 };
 
@@ -1405,3 +1391,31 @@ const processPayment = async (amount, paymentMethodId) => {
     throw new Error(error.message);
   }
 };
+
+// req66
+exports.getSavedEvents = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+
+
+    const tourist = await Tourist.findById(touristId)
+      .populate("activityBookmarks")
+      .populate("itineraryBookmarks")
+    ;
+    if (!tourist) {
+      console.log("Tourist not found");
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    let activities = tourist.activityBookmarks;
+    let itineraries = tourist.itineraryBookmarks;
+    console.log("yemken",activities, itineraries);
+
+    res.status(200).json({ activities: activities, itineraries: itineraries });
+  } catch (error) {
+    console.error("Error retrieving saved events:", error);
+    res
+      .status(500)
+      .json({ message: "An error occurred while retrieving the saved events" });
+  }
+}

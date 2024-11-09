@@ -9,6 +9,7 @@ import {
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
 import SelectCurrency from "./SelectCurrency";
+import { useNavigate } from "react-router-dom";
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -35,6 +36,10 @@ const currencyRates = {
 };
 
 const Products = () => {
+  const navigate = useNavigate();
+  const cardOnclick = (element) => {
+    navigate(element["_id"]);
+  };
   const [combinedElements, setCombinedElements] = useState([]);
   const [currency, setCurrency] = useState("USD");
   const propMapping = {
@@ -49,7 +54,7 @@ const Products = () => {
     "Quantity Available": "quantity",
   };
   const searchFields = ["name"];
-  const constProps = { rateDisplay: true , currency, currencyRates};
+  const constProps = { rateDisplay: true, currency, currencyRates };
   const sortFields = ["avgRating", "price"];
   const [filterFields, setfilterFields] = useState({
     price: {
@@ -65,13 +70,11 @@ const Products = () => {
     },
   });
 
-
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [productResponse] = await Promise.all([
-          axios.get(`${apiUrl}product`),
+          axios.get(`${apiUrl}product/notArchived`),
         ]);
         let products = productResponse.data;
 
@@ -98,8 +101,19 @@ const Products = () => {
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-        <SelectCurrency basePrice={null} currency={currency} onCurrencyChange={handleCurrencyChange} />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "16px",
+        }}
+      >
+        <SelectCurrency
+          basePrice={null}
+          currency={currency}
+          onCurrencyChange={handleCurrencyChange}
+        />
       </div>
       <SearchFilterSortContainer
         cardComponent={BasicCard}
@@ -110,10 +124,10 @@ const Products = () => {
         fields={fields}
         sortFields={sortFields}
         filterFields={filterFields}
+        cardOnclick={cardOnclick}
       />
     </div>
   );
-  
 };
 
 export default Products;

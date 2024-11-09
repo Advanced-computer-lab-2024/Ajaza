@@ -4,6 +4,7 @@ import {
   DeleteOutlined,
   PlusOutlined,
   MinusCircleOutlined,
+  FlagOutlined,
 } from "@ant-design/icons";
 import {
   Avatar,
@@ -291,8 +292,28 @@ const Itineraries = () => {
                     onClick={() => deleteItinerary(itinerary._id)}
                   />,
                 ]}
-                style={{ minWidth: 300, margin: "10px" }}
+                style={{
+                  minWidth: 300,
+                  margin: "10px",
+                  border:
+                    itinerary.isFlagged && itinerary.hidden
+                      ? "3px solid red"
+                      : "none",
+                  position: "relative", // Set position to relative for positioning flag
+                }}
               >
+                {itinerary.isFlagged && itinerary.hidden && (
+                  <FlagOutlined
+                    style={{
+                      position: "absolute",
+                      top: "8px",
+                      right: "8px",
+                      color: "red",
+                      fontSize: "25px",
+                    }}
+                  />
+                )}
+
                 <Card.Meta
                   title={itinerary.name}
                   description={
@@ -360,6 +381,10 @@ const Itineraries = () => {
                           "No feedback available"
                         )}
                       </p> */}
+                      <p>
+                        <strong>Flagged:</strong>{" "}
+                        {itinerary.isFlagged ? "Yes" : "No"}
+                      </p>
                     </div>
                   }
                 />

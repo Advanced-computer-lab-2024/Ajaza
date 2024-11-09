@@ -14,8 +14,8 @@ const CreateAdvertiser = () => {
     email: "",
     username: "",
     password: "",
-    document1: null,
-    document2: null,
+    document1: [],
+    document2: [],
   });
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false); // Loading state for displaying the wait message
@@ -26,26 +26,27 @@ const CreateAdvertiser = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleFileChange = (name) => (e) => {
-    if (name === "document1") {
-      setFormData((prevData) => ({ ...prevData, document1: e.fileList }));
-    } else if (name === "document2") {
-      setFormData((prevData) => ({ ...prevData, document2: e.fileList }));
-    }
+  const handleFileChange = (name) => (info) => {
+    let fileList = [...info.fileList];
+    setFormData((prevData) => ({ ...prevData, [name]: fileList }));
   };
 
   const nextStep = async () => {
+    setLoading(true)
     // Validate the registration form before moving to the next step
     try {
       await validateRegistrationForm();
       setCurrentStep(2);
     } catch (error) {
       message.error(error.message);
+      
+    }finally{
+      setLoading(false)
     }
   };
 
   const previousStep = () => {
-    setCurrentStep(1);
+      setCurrentStep(1);
   };
 
   const validateRegistrationForm = async () => {
@@ -79,6 +80,7 @@ const CreateAdvertiser = () => {
   };
 
   const registerAdvertiser = async () => {
+  setLoading(true)
   try {
     await validateUploadForm(); // Validate upload form before submitting
 
@@ -96,8 +98,10 @@ const CreateAdvertiser = () => {
       formDataToSubmit.append("taxationRegCard", formData.document2[0].originFileObj);
       
     }
-    navigate("/auth/signin");
+   
 
+    navigate("/auth/signin");
+      
     const response = await axios.post(
       "http://localhost:5000/advertiser/guestAdvertiserCreateProfile",
       formDataToSubmit,
@@ -122,6 +126,9 @@ const CreateAdvertiser = () => {
       message.error(`Failed to advertiser: ${errorDetails}`);
     }
   }
+  finally{
+    setLoading(false)
+  }
 };
 
 const validateUploadForm = () => {
@@ -136,7 +143,13 @@ const validateUploadForm = () => {
   });
 };
 
-
+const beforeUpload = (file) => {
+  const isImage = file.type.startsWith("image/");
+  if (!isImage) {
+    message.error("You can only upload image files!");
+  }
+  return isImage || Upload.LIST_IGNORE;
+};
 
   return (
     <>
@@ -192,8 +205,9 @@ const validateUploadForm = () => {
                   type="primary"
                   onClick={nextStep}
                   size="s"
-                  value="Next"
+                  value={loading?"":"Next"}
                   rounded={true}
+                  loading={loading}
                 />
               </Form.Item>
             </>
@@ -206,15 +220,17 @@ const validateUploadForm = () => {
                 label="ID"
                 name="document1"
                 valuePropName="fileList"
-                getValueFromEvent={handleFileChange("document1")}
+                getValueFromEvent={(e) => e.fileList}
                 extra="Upload your ID."
               >
                 <Upload
                   name="doc1"
                   listType="text"
-                  beforeUpload={() => false}
+                  beforeUpload={beforeUpload}
                   maxCount={1}
                   fileList={formData.document1}
+                  onChange={handleFileChange("document1")}
+                  accept="image/*" // Only accept image files
                 >
                   <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
                 </Upload>
@@ -225,15 +241,17 @@ const validateUploadForm = () => {
                 label="Taxation Registry Card"
                 name="document2"
                 valuePropName="fileList"
-                getValueFromEvent={handleFileChange("document2")}
+                getValueFromEvent={(e) => e.fileList}
                 extra="Upload your Taxation Registry Card."
               >
                 <Upload
                   name="doc2"
                   listType="text"
-                  beforeUpload={() => false}
+                  beforeUpload={beforeUpload}
                   maxCount={1}
                   fileList={formData.document2}
+                  onChange={handleFileChange("document2")}
+                  accept="image/*" // Only accept image files
                 >
                   <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
                 </Upload>

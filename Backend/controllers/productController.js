@@ -27,6 +27,18 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
+exports.getNotArchivedProducts = async (req, res) => {
+  try {
+    const products = await Product.find({hidden: { $ne: true }, archived: { $ne: true },});
+    if(!products || products.length === 0){
+      //return res.status(404).json({ message: "No products found" });
+    }
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get all products including hidden
 exports.getAllProductsEH = async (req, res) => {
   try {
@@ -141,6 +153,9 @@ exports.giveFeedback = async (req, res) => {
       },
       { new: true }
     );
+
+    tourist.gaveFeedback.push(productId);
+    await tourist.save();
 
     if (!updatedProduct) {
       return res.status(404).json({ message: "Product not found" });
@@ -278,9 +293,6 @@ exports.adminSellerEditProduct = async (req, res) => {
   const id = req.params.id;
   const productId = req.params.productId;
 
-  // Log the IDs for debugging
-  console.log(`Received ID: ${id}`);
-  console.log(`Received Product ID: ${productId}`);
 
   // Initialize flags
   let isSeller = false;
@@ -393,12 +405,6 @@ exports.adminSellerArchiveProduct = async (req, res) => {
   const archive = req.body.archived; // Direct access without conversion
 
 
-  // // Log the IDs for debugging
-  // console.log(`Received ID: ${id}`);
-  // console.log(`Received Product ID: ${productId}`);
-  // console.log(`Request body archive value: ${archive}`);
-  // console.log(`Type of request body archive value: ${typeof archive}`);
-
   // Initialize flags
   let isSeller = false;
   let isAdmin = false;
@@ -449,9 +455,6 @@ exports.adminSellerArchiveProduct = async (req, res) => {
       }
     }
 
-    // // Check if the product is already archived and the request body has archive set to true
-    // console.log(`Product archived status: ${product.archived}`);
-    // console.log(`Request body archive value: ${archive}`);
 
     if (product.archived && archive === true) {
       return res.status(400).json({ error: "Product is already archived" });

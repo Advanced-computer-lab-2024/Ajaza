@@ -100,7 +100,8 @@ router.patch("/requestDeletion/:id", advertiserController.requestDeletion);
 
 router.post("/validateEmailUsername", advertiserController.validateEmailUsername); // New route for email and username validation
 
-//req12
+
+router.get('/viewSalesReport/:id', advertiserController.viewSalesReport);
 
 
 module.exports = router;

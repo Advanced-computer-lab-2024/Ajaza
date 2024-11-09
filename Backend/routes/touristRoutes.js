@@ -82,7 +82,7 @@ router.post("/emailShare/:id", touristController.emailShare);
 router.patch("/redeemPoints/:id", touristController.redeemPoints);
 
 // req40
-router.get("/flights/searchFlights", apiController.searchFlights);
+router.post("/flights/searchFlights", apiController.searchFlights);
 /*needs (origin and destination are IATA)
 origin,
 destination,
@@ -109,7 +109,7 @@ stops,
 */
 
 // req41
-router.get('/hotels/searchHotels', apiController.searchHotels);
+router.post('/hotels/searchHotels', apiController.searchHotels);
 /*
 needs
 dest_id, 
@@ -117,6 +117,8 @@ checkInDate,
 checkOutDate,
 count
 */
+
+router.get('/hotels/fetchImagesPlz/:hotelName', apiController.fetchImagesPlz);
 
 router.post('/hotels/bookHotel/:id', apiController.bookHotel);
 /*needs
@@ -144,13 +146,30 @@ score
 */
 
 // req42
-router.get('/transportation/searchTransportation', apiController.searchTransfer7);
+router.post('/transportation/searchTransportation', apiController.searchTransfer7);
 /*needs
 IATA,
 endAddressLine,
 startDateTime
 */
 
+router.post('/transportation/bookTransportation/:id', apiController.bookTransfer);
+/*needs
+touristId (params),
+transferType, 
+start_dateTime, 
+start_locationCode, 
+end_dateTime, 
+end_address_line, 
+end_address_cityName, 
+vehicle_code, 
+vehicle_description, 
+vehicle_seats, 
+quotation_monetaryAmount, 
+quotation_currencyCode, 
+distance_value, 
+distance_unit
+*/
 router.get('/transportation/getGeoLocation', apiController.testGeoLocation);
 
 // req61
@@ -239,5 +258,10 @@ router.post(
 
 // Add delivery address route
 router.post("/add-delivery-address", touristController.addDeliveryAddress);
+
+router.get("/3rdparty/:id", apiController.getAll3rdPartyData);
+
+// req66
+router.get("/getSavedEvents/:id", touristController.getSavedEvents);
 
 module.exports = router;

@@ -206,7 +206,7 @@ const AllAccounts = () => {
     >
       <div style={{ flex: 1 }}>
         <Title level={2} style={{ textAlign: "center", marginBottom: "20px" }}>
-          All User Accounts
+          Accepted Accounts
         </Title>
 
         {loading ? (

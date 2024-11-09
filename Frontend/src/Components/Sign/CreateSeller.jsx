@@ -14,8 +14,8 @@ const CreateSeller = () => {
     email: "",
     username: "",
     password: "",
-    document1: null,
-    document2: null,
+    document1: [],
+    document2: [],
   });
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false); // Loading state for displaying the wait message
@@ -26,21 +26,22 @@ const CreateSeller = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleFileChange = (name) => (e) => {
-    if (name === "document1") {
-      setFormData((prevData) => ({ ...prevData, document1: e.fileList }));
-    } else if (name === "document2") {
-      setFormData((prevData) => ({ ...prevData, document2: e.fileList }));
-    }
+  const handleFileChange = (name) => (info) => {
+    let fileList = [...info.fileList];
+    setFormData((prevData) => ({ ...prevData, [name]: fileList }));
   };
 
   const nextStep = async () => {
+    setLoading(true)
     // Validate the registration form before moving to the next step
     try {
       await validateRegistrationForm();
       setCurrentStep(2);
     } catch (error) {
       message.error(error.message);
+    }
+    finally{
+      setLoading(false)
     }
   };
 
@@ -79,6 +80,7 @@ const CreateSeller = () => {
   };
 
   const registerSeller = async () => {
+  setLoading(true)
   try {
     await validateUploadForm(); // Validate upload form before submitting
 
@@ -121,6 +123,10 @@ const CreateSeller = () => {
       const errorDetails = error.response?.data?.message || error.response?.data?.error || "Failed to create Seller.";
       message.error(`Failed to Seller: ${errorDetails}`);
     }
+    
+  }
+  finally{
+    setLoading(false)
   }
 };
 
@@ -134,6 +140,14 @@ const validateUploadForm = () => {
     }
     resolve();
   });
+};
+
+const beforeUpload = (file) => {
+  const isImage = file.type.startsWith("image/");
+  if (!isImage) {
+    message.error("You can only upload image files!");
+  }
+  return isImage || Upload.LIST_IGNORE;
 };
 
 
@@ -192,8 +206,9 @@ const validateUploadForm = () => {
                   type="primary"
                   onClick={nextStep}
                   size="s"
-                  value="Next"
+                  value={loading?"":"Next"}
                   rounded={true}
+                  loading={loading}
                 />
               </Form.Item>
             </>
@@ -206,15 +221,17 @@ const validateUploadForm = () => {
                 label="ID"
                 name="document1"
                 valuePropName="fileList"
-                getValueFromEvent={handleFileChange("document1")}
+                getValueFromEvent={(e) => e.fileList}
                 extra="Upload your ID."
               >
                 <Upload
                   name="doc1"
                   listType="text"
-                  beforeUpload={() => false}
+                  beforeUpload={beforeUpload}
                   maxCount={1}
                   fileList={formData.document1}
+                  onChange={handleFileChange("document1")}
+                  accept="image/*" // Only accept image files
                 >
                   <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
                 </Upload>
@@ -225,15 +242,17 @@ const validateUploadForm = () => {
                 label="Taxation Registry Card"
                 name="document2"
                 valuePropName="fileList"
-                getValueFromEvent={handleFileChange("document2")}
+                getValueFromEvent={(e) => e.fileList}
                 extra="Upload your Taxation Registry Card."
               >
                 <Upload
                   name="doc2"
                   listType="text"
-                  beforeUpload={() => false}
+                  beforeUpload={beforeUpload}
                   maxCount={1}
                   fileList={formData.document2}
+                  onChange={handleFileChange("document2")}
+                  accept="image/*" // Only accept image files
                 >
                   <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
                 </Upload>

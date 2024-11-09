@@ -328,7 +328,6 @@ exports.sellerUpdateProfile = async (req, res) => {
       return res.status(401).json({ message: "Seller is pending approval" });
     }
     // Proceed with the update
-    console.log(filteredBody);
     const updatedSeller = await Seller.findByIdAndUpdate(
       sellerId,
       filteredBody,
@@ -657,7 +656,6 @@ exports.getSellerDetails = async (req, res) => {
   const sellerId = req.params.id;
 
   try {
-    console.log(`Fetching details for seller with ID: ${sellerId}`);
     
     // Find the advertiser by ID and populate image references
     const seller = await Seller.findById(sellerId)
@@ -670,10 +668,6 @@ exports.getSellerDetails = async (req, res) => {
       return res.status(404).json({ message: "Seller not found." });
     }
 
-    // Log details for debugging
-    console.log("Seller ID:", seller.id); // Full object of ID
-    console.log("Taxation Reg Card:", seller.taxationRegCard);
-    console.log("Logo:", seller.logo);
 
     // Construct the response object with image paths for ID and Taxation Registration Card
     const responseSeller = {
@@ -701,3 +695,104 @@ exports.getSellerDetails = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+//req 28 - tatos (Not Done Yet)
+
+// exports.viewSalesReport = async (req, res) => {
+//   const sellerId = req.params.id;
+//   try {
+//     // Check if the seller exists
+//     const seller = await Seller.findById(sellerId);
+//     if (!seller) {
+//       return res.status(404).json({ message: "Seller not found" });
+//     }
+//     if (seller.pending) {
+//       return res.status(401).json({ message: "Waiting for admin approval" });
+//     }
+//     if (!seller.acceptedTerms) {
+//       return res.status(401).json({ message: "Terms and Conditions must be accepted" });
+//     }
+//     if(seller.requestingDeletion){
+//       return res.status(401).json({ message: "Seller is requesting deletion" });
+//     }
+//     // Find all tourists
+//     const tourists = await Tourist.find();
+
+//     let orders = [];
+
+//     // Iterate through each tourist to find orders matching the sellerId
+//     tourists.forEach(tourist => {
+//       const matchingOrders = tourist.orders.filter(order => order.sellerId === sellerId);
+//       orders = orders.concat(matchingOrders);
+//     });
+
+//     // Log the orders found
+//     console.log('Orders found:', orders);
+
+//     // Calculate the total sales by multiplying the price by the quantity for each order
+//     const totalSales = orders.reduce((total, order) => total + (order.price * order.quantity), 0);
+    
+//     const salesDetails = orders.map(order => ({
+//       productName: order.productName,
+//       dateOfOrder: order.dateOfOrder,
+//       quantity: order.quantity,
+//       price: order.price
+//     }));
+
+//     // Log the total sales and sales details
+//     console.log('Total Sales:', totalSales);
+//     console.log('Sales Details:', salesDetails);
+
+//     // Return the total sales and additional details
+//     res.status(200).json({ totalSales, salesDetails });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+
+//method 2: (incorrect but works for now):
+exports.viewSalesReport = async (req, res) => {
+  sellerId = req.params.id;
+  try {
+    const seller = await Seller.findById(sellerId);
+    if (!seller) {
+      return res.status(404).json({ message: "Seller not found" });
+    }
+    if (seller.pending) {
+      return res.status(401).json({ message: "Seller is pending approval" });
+    }
+    if (!seller.acceptedTerms) {
+      return res.status(401).json({ message: "Seller has not accepted terms and conditions" });
+    }
+    if (seller.requestingDeletion) {
+      return res.status(401).json({ message: "Seller is requesting deletion" });
+    }
+
+    // Find all products sold by the seller
+    const products = await Product.find({ sellerId: sellerId });
+    console.log(products); // Log the products found
+
+    if (products.length === 0) {
+      return res.status(404).json({ message: "No products found for this seller" });
+    }
+    let totalSales = 0;
+    let salesDetails = [];
+    for (const product of products) {
+      if (product.sales > 0){
+        totalSales += product.sales * product.price;
+        salesDetails.push({
+          productName: product.name,
+          sales: product.sales,
+          price: product.price,
+          sellerName: product.sellerName
+        });
+      }
+    }
+    res.status(200).json({ totalSales, salesDetails });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}

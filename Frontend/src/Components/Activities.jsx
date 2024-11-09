@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, FlagOutlined } from "@ant-design/icons";
 import {
   InputNumber,
   Card,
@@ -12,6 +12,7 @@ import {
   Select,
   DatePicker,
   Switch,
+  Tag,
 } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
@@ -107,6 +108,7 @@ const Activities = () => {
         newActivity
       );
       setActivitiesData([...activitiesData, response.data]);
+      console.log("activity:", response.data);
       message.success("Activity created successfully!");
       setIsModalVisible(false);
       form.resetFields();
@@ -276,8 +278,27 @@ const Activities = () => {
                   onClick={() => deleteActivity(activity._id)}
                 />,
               ]}
-              style={{ minWidth: 300 }}
+              style={{
+                minWidth: 300,
+                border:
+                  activity.isFlagged && activity.hidden
+                    ? "3px solid red"
+                    : "none",
+                position: "relative", // Set position to relative for positioning flag
+              }}
             >
+              {activity.isFlagged && activity.hidden && (
+                <FlagOutlined
+                  style={{
+                    position: "absolute",
+                    top: "8px",
+                    right: "8px",
+                    color: "red",
+                    fontSize: "25px",
+                  }}
+                />
+              )}
+
               <Card.Meta
                 title={activity.name}
                 description={
@@ -325,6 +346,10 @@ const Activities = () => {
                     </p>
                     <p>
                       <strong>Discounts:</strong> {activity.discounts}%
+                    </p>
+                    <p>
+                      <strong>Flagged:</strong>{" "}
+                      {activity.isFlagged ? "Yes" : "No"}
                     </p>
                   </div>
                 }
@@ -443,8 +468,8 @@ const Activities = () => {
             <Input type="number" />
           </Form.Item>
           <Form.Item name="isOpen" label="isOpen" valuePropName="checked">
-              <Switch />
-            </Form.Item>
+            <Switch />
+          </Form.Item>
 
           <Form.Item name="discounts" label="Discount" initialValue={0}>
             <InputNumber min={0} max={100} placeholder="Enter discount value" />

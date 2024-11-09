@@ -20,9 +20,7 @@ router.get('/myComplaints/:touristId', complaintController.getTouristComplaints)
 // req73
 router.post('/fileComplaint/:id', complaintController.fileComplaint);
 
-
 //req 76
-
 router.put('/resolve/:id', complaintController.resolveComplaint);
 
 //req 77

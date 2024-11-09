@@ -10,13 +10,14 @@ import axios from "axios";
 import BasicCard from "../Common/BasicCard";
 import { jwtDecode } from "jwt-decode";
 import SelectCurrency from "../Tourist/SelectCurrency";
+import { useNavigate } from "react-router-dom";
 
-/*const token = localStorage.getItem("token");
+const token = localStorage.getItem("token");
 let decodedToken = null;
 if (token) {
   decodedToken = jwtDecode(token);
 }
-const userid = decodedToken ? decodedToken.userId : null; */
+const userid = decodedToken ? decodedToken.userId : null;
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -43,6 +44,10 @@ const currencyRates = {
 };
 
 const ItinerariesAdmin = () => {
+  const navigate = useNavigate();
+  const cardOnclick = (element) => {
+    navigate(element["_id"]);
+  };
   const [combinedElements, setCombinedElements] = useState([]);
   // propName:fieldName
   const propMapping = {
@@ -60,12 +65,8 @@ const ItinerariesAdmin = () => {
   };
   const [currency, setCurrency] = useState("USD");
   const searchFields = ["name"];
-  const constProps = { rateDisplay: true , currency, currencyRates};
+  const constProps = { rateDisplay: true, currency, currencyRates };
   const sortFields = ["avgRating", "price"];
-
-
- 
-
 
   const [filterFields, setfilterFields] = useState({
     tags: {
@@ -230,22 +231,33 @@ const ItinerariesAdmin = () => {
     setCurrency(selectedCurrency);
   };
 
-
   return (
-  <div>
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-    <SelectCurrency basePrice={null} currency={currency} onCurrencyChange={handleCurrencyChange} />
-  </div>
-    <SearchFilterSortContainer
-      cardComponent={BasicCard}
-      elements={combinedElements}
-      propMapping={propMapping}
-      searchFields={searchFields}
-      constProps={constProps}
-      fields={fields}
-      sortFields={sortFields}
-      filterFields={filterFields}
-    />
+    <div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "16px",
+        }}
+      >
+        <SelectCurrency
+          basePrice={null}
+          currency={currency}
+          onCurrencyChange={handleCurrencyChange}
+        />
+      </div>
+      <SearchFilterSortContainer
+        cardComponent={BasicCard}
+        elements={combinedElements}
+        propMapping={propMapping}
+        searchFields={searchFields}
+        constProps={constProps}
+        fields={fields}
+        sortFields={sortFields}
+        filterFields={filterFields}
+        cardOnclick={cardOnclick}
+      />
     </div>
   );
 };

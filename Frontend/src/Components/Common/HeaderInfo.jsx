@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Carousel,
   Row,
@@ -83,9 +83,12 @@ const HeaderInfo = ({
   const [isSaved, setIsSaved] = useState(false);
   const [promoCode, setPromoCode] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
+  const selectedDateRef = useRef(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [priceString, setPriceString] = useState("");
-  const [email, setEmail] = useState("");
+  const emailRef = useRef(null);
+  const [selectedPrice, setSelectedPrice] = useState(price);
+  const selectedPriceRef = useRef(null);
 
   useEffect(() => {
     // check user
@@ -103,10 +106,10 @@ const HeaderInfo = ({
           );
         }
 
-        console.log("isItemBooked:", isItemBooked);
-        console.log("iten booked", user.itineraryBookings);
-        console.log("user.activityBookings:", user.activityBookings);
-        console.log("user:", user);
+        // console.log("isItemBooked:", isItemBooked);
+        // console.log("iten booked", user.itineraryBookings);
+        // console.log("user.activityBookings:", user.activityBookings);
+        // console.log("user:", user);
 
         setIsBooked(isItemBooked);
       }
@@ -163,7 +166,7 @@ const HeaderInfo = ({
         <div>
           <Input
             placeholder="Enter recipient's email"
-            onChange={(e) => setEmail(e.target.value)}
+            ref={emailRef}
             style={{ marginBottom: 10 }}
           />
         </div>
@@ -177,7 +180,14 @@ const HeaderInfo = ({
           message.error("Could not extract details from the URL");
           return;
         }
-        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        const email = emailRef.current.input.value;
+
+        if (!email) {
+          message.error("Please enter an email address.");
+          return;
+        }
+
         const baseUrl = document.baseURI;
         const shareLink = `${baseUrl}`;
         try {
@@ -201,7 +211,7 @@ const HeaderInfo = ({
         }
       },
       onCancel: () => {
-        setEmail("");
+        emailRef.current.input.value = "";
       },
     });
   };
@@ -213,29 +223,66 @@ const HeaderInfo = ({
 
   // product wishlist
 
-  const updateTokenInLocalStorage = (newToken) => {
-    localStorage.setItem("token", newToken);
+  const getNewToken = async () => {
+    try {
+      const response = await axios.post(`${apiUrl}api/auth/generate-token`, {
+        id: userid,
+        role: decodedToken.role,
+      });
+
+      const { token: newToken } = response.data;
+
+      if (newToken) {
+        localStorage.setItem("token", newToken); // Store the new token
+        // console.log("Updated token:", newToken);
+        decodedToken = jwtDecode(newToken);
+        // console.log(newToken);
+      }
+    } catch (error) {
+      console.error("Error getting new token:", error);
+      message.error("Failed to refresh token. Please try again.");
+    }
   };
+
+  useEffect(() => {
+    if (selectedDate) {
+      selectedDateRef.current = selectedDate; // Update the ref with the new value
+    }
+  }, [selectedDate]);
+
+  useEffect(() => {
+    if (selectedPrice) {
+      selectedPriceRef.current = selectedPrice;
+    }
+  }, [selectedPrice]);
 
   const bookItem = async () => {
     try {
       const touristId = userid;
       const useWallet = user.wallet > 0;
-      const total = Number(price);
-      let FinalDate = selectedDate;
+      let total;
+      let FinalDate;
       if (type === "activity") {
+        total = selectedPriceRef.current;
         FinalDate = date;
+      } else if (type === "itinerary") {
+        total = price;
+        FinalDate = selectedDateRef.current;
       }
+      // const total =
+      //   type === "activity" ? selectedPriceRef.current : price;
+      // const FinalDate = type === "activity" ? date : selectedDateRef.current;
       if (spots <= 0) {
-        alert(`Error booking ${type}: No spots available.`);
-        return; // Early return if no spots are available
+        message.error(`Error booking ${type}: No spots available.`);
+        return;
       }
-      const endpoint =
-        type === "activity"
-          ? `${apiUrl}tourist/${touristId}/activity/${id}/book`
-          : `${apiUrl}tourist/${touristId}/itinerary/${id}/book`;
-      console.log("Booking endpoint:", endpoint);
-      console.log(type);
+      let endpoint;
+      if (type === "activity") {
+        endpoint = `${apiUrl}tourist/${touristId}/activity/${id}/book`;
+      } else if (type === "itinerary") {
+        endpoint = `${apiUrl}tourist/${touristId}/itinerary/${id}/book`;
+      }
+      console.log("Price:", total);
 
       const response = await axios.post(endpoint, {
         useWallet,
@@ -243,22 +290,33 @@ const HeaderInfo = ({
         date: FinalDate,
         promoCode: promoCode || null,
       });
-      console.log(price);
-      alert(`${type} booked successfully!`);
 
-      if (response.data.token) {
-        updateTokenInLocalStorage(response.data.token);
-        console.log("NEWWW TOKKEENN:" , response.data.token)
+      let capital ="";
+      if(type === "activity"){
+        capital = "Activity";
+      }else{
+        capital = "Itinerary";
       }
+      message.success(`${capital} booked successfully!`);
+
       setIsBooked(true);
+      await getNewToken();
     } catch (error) {
       console.error(`Error booking ${type}:`, error);
-      alert(`Error booking ${type}: ${error.message}`);
+      message.error(`Error booking ${type}: ${error.message}`);
     }
   };
 
   const showBookingModal = () => {
     let currentSelectedDate;
+    let currentprice;
+
+    const discountedPriceLower = priceLower - (discounts / 100) * priceLower;
+    const discountedPriceUpper = priceUpper - (discounts / 100) * priceUpper;
+    const discountedMiddlePrice =
+      (discountedPriceLower + discountedPriceUpper) / 2;
+
+    //const middlePrice = (priceLower + priceUpper) / 2;
     Modal.confirm({
       title: `Confirm Booking for ${name}`,
       content: (
@@ -281,6 +339,31 @@ const HeaderInfo = ({
               ))}
             </Select>
           )}
+          {type === "activity" && (
+            <Select
+              placeholder="Select price"
+              onChange={(value) => {
+                setSelectedPrice(value);
+                currentprice = value;
+                console.log("Selected Price:", currentprice); // Log the selected price
+              }}
+              style={{ width: "100%", marginBottom: 10 }}
+            >
+              <Option value={discountedPriceLower}>
+                {discountedPriceLower.toFixed(2)}$
+              </Option>
+              <Option value={discountedMiddlePrice}>
+                {discountedMiddlePrice.toFixed(2)}$
+              </Option>
+              <Option value={discountedPriceUpper}>
+                {discountedPriceUpper.toFixed(2)}$
+              </Option>
+              {/* <Option value={priceLower}>${priceLower}</Option>
+              <Option value={middlePrice}>${middlePrice}</Option>
+              <Option value={priceUpper}>${priceUpper}</Option> */}
+            </Select>
+          )}
+
           <Input
             placeholder="Enter promo code"
             onChange={(e) => setPromoCode(e.target.value)}
@@ -291,14 +374,23 @@ const HeaderInfo = ({
       //onOk: bookItem,
       onOk: () => {
         console.log("here:", currentSelectedDate);
-        if (!currentSelectedDate) {
+        if (!selectedDateRef.current && type === "itinerary") {
           Modal.error({
             title: "Booking Date Required",
             content: "Please select a booking date to proceed.",
           }); // Prevents modal from closing
           return false;
         }
-        return bookItem(); // Calls the booking function if date is selected
+
+        if (!currentprice && type === "activity") {
+          Modal.error({
+            title: "Price Selection Required",
+            content: "Please select a price to proceed with the booking.",
+          });
+          return false;
+        }
+
+        return bookItem({ date: currentSelectedDate, total: currentprice }); // Calls the booking function if date is selected
       },
       onCancel: () => {
         setSelectedDate(null);
@@ -310,25 +402,33 @@ const HeaderInfo = ({
   const cancelBookingItem = async () => {
     try {
       const touristId = userid;
-      const endpoint =
-        type === "activity"
-          ? `${apiUrl}tourist/${touristId}/activity/${id}/cancel`
-          : `${apiUrl}tourist/${touristId}/itinerary/${id}/cancel`;
+      let endpoint;
+      if (type === "activity") {
+        endpoint = `${apiUrl}tourist/${touristId}/activity/${id}/cancel`;
+      } else if (type === "itinerary") {
+        endpoint = `${apiUrl}tourist/${touristId}/itinerary/${id}/cancel`;
+      }
 
       const response = await axios.delete(endpoint);
       if (response.status === 200) {
-        alert(`${type} booking canceled successfully!`);
-      } else {
-        alert(`Problem: ${response.data.message}`);
-      }
 
-      if (response.data.token) {
-        updateTokenInLocalStorage(response.data.token);
+        let capital ="";
+        if(type === "activity"){
+          capital = "Activity";
+        }else{
+          capital = "Itinerary";
+        }
+
+        message.success(`${capital} booking canceled successfully!`);
+        setIsBooked(false);
+        await getNewToken();
+      } else {
+        message.error(`Problem: ${response.data.message}`);
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Please try again.";
       console.error(`Error canceling ${type} booking:`, error);
-      alert(`Failed to cancel the booking: ${errorMessage}`);
+      message.error(`Failed to cancel the booking: ${errorMessage}`);
     }
   };
 
