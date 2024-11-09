@@ -82,6 +82,7 @@ const Item = ({
         creatorName={creatorName}
         discounts={discounts}
         language={language}
+      
         pickUp={pickUp}
         dropOff={dropOff}
         timelineItems={timelineItems}

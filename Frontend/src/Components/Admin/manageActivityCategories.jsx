@@ -106,6 +106,7 @@ const ManageActivityCategories = () => {
   };
 
   return (
+    
     <div>
       <Title level={2} style={{ display: "inline-block" }}>
         Activity Categories
@@ -189,6 +190,7 @@ const ManageActivityCategories = () => {
         />
       </Modal>
     </div>
+  
   );
 };
 
