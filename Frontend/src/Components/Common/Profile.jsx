@@ -235,6 +235,7 @@ const Profile = () => {
       icon: <WarningFilled style={{ color: "#ff4d4f" }} />,
       onOk: () => {
         localStorage.removeItem("token");
+        localStorage.removeItem("selectedMenuKey");
         message.success("Logged Out");
         navigate("/");
       },

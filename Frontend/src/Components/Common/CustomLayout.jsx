@@ -103,8 +103,8 @@ const CustomLayout = ({
                 />
               )}
 
-            {(decodedToken.role !== "governor" ||
-              decodedToken.role !== "admin") && (
+            {(decodedToken.role == "governor" ||
+              decodedToken.role == "admin") && (
               <div
                 className="hover"
                 style={{
@@ -139,6 +139,15 @@ const CustomLayout = ({
     });
   };
 
+  const [selectedKey, setSelectedKey] = useState(
+    localStorage.getItem("selectedMenuKey") || "1"
+  );
+
+  const handleMenuClick = (e) => {
+    setSelectedKey(e.key);
+    localStorage.setItem("selectedMenuKey", e.key);
+  };
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider
@@ -152,8 +161,9 @@ const CustomLayout = ({
         <Menu
           theme="dark"
           mode="inline"
-          defaultSelectedKeys={["1"]}
+          defaultSelectedKeys={[selectedKey]}
           items={sideBarItems}
+          onClick={handleMenuClick}
         />
       </Sider>
       <Layout>
