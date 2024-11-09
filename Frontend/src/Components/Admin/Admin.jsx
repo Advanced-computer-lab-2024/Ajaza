@@ -48,10 +48,10 @@ const Admin = () => {
       }
     } else {
       navigate("/auth/signin");
-    }*/
+    }
   }, [navigate]);
   return (
-   <AdminCustomLayout>
+    <AdminCustomLayout>
       <Content style={{ padding: "24px", minHeight: "280px" }}>
         <Routes>
           <Route
@@ -61,19 +61,24 @@ const Admin = () => {
           <Route path="add-Accounts" element={<AddAccounts />} />
           <Route path="/" element={<AllAccounts />} />
           <Route path="examine-Accounts" element={<ExamineAccounts />} />
-          <Route path="examine-Accounts/:accountId/:accountType" element={<ExamineAccountDetails />} />
+          <Route
+            path="examine-Accounts/:accountId/:accountType"
+            element={<ExamineAccountDetails />}
+          />
           <Route path="tourists-Complaints" element={<TouristsComplaints />} />
-          <Route path="tourists-Complaints/:id" element={<ComplaintDetails />} />
+          <Route
+            path="tourists-Complaints/:id"
+            element={<ComplaintDetails />}
+          />
           <Route path="events" element={<Events />} />
           <Route path="events/:id" element={<Event />} />
-           
+
           <Route path="itinerariesAdmin" element={<ItinerariesAdmin />} />
           <Route path="itinerariesAdmin/:id" element={<ItineraryAdmin />} />
 
-
           <Route path="preference-tags" element={<ManagePreferenceTags />} />
           <Route path="myProducts" element={<MyProducts />} />
-        
+
           <Route path="profile" element={<Profile />} />
           <Route path="archive" element={<ArchivedProds />} />
           <Route path="change-password" element={<ChangePasswordForm />} />
