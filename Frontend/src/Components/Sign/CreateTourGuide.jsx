@@ -247,7 +247,7 @@ const CreateTourGuide = () => {
                   listType="text"
                   beforeUpload={beforeUpload}
                   fileList={formData.document2}
-                  multiple
+                  maxCount={3}
                   onChange={handleFileChange("document2")}
                   accept="image/*" // Only accept image files
                 >
