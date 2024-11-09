@@ -194,21 +194,6 @@ const AdminCustomLayout = ({ children }) => {
               icon: <ExclamationCircleOutlined />,
               label: "Complaints",
             },
-            {
-              key: "96",
-              icon: <StarOutlined />,
-              label: "Itineraries",
-            },
-            {
-              key: "97",
-              icon: <StarOutlined />,
-              label: "Activities",
-            },
-            {
-              key: "99",
-              icon: <ExclamationCircleOutlined />,
-              label: "Complaints",
-            },
           ]}
         />
       </Sider>
