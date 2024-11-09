@@ -17,12 +17,20 @@ import MyProducts from "./MyProducts";
 import ArchivedProds from "./ArchivedProds";
 //import Products from "../Tourist/Products";
 import Products from "./ProductsEvenArch";
+import ExamineAccounts from "./ExamineAccounts";
 import ChangePasswordForm from "../Common/changePassword";
 import SignIn from "../Sign/SignIn";
 import { jwtDecode } from "jwt-decode";
-
+import TouristsComplaints from "./TouristsComplaints";
+import Events from "./Events";
+import Event from "./Event";
+import ItinerariesAdmin from "./ItinerariesAdmin";
+import ItineraryAdmin from "./ItineraryAdmin";
+import ComplaintDetails from "./ComplaintDetails";
+import ExamineAccountDetails from "./ExamineAccountDetails";
 const { Content } = Layout;
-
+// username: alisuper
+// password: 12345a
 const Admin = () => {
   const navigate = useNavigate();
   useEffect(() => {
@@ -40,10 +48,10 @@ const Admin = () => {
       }
     } else {
       navigate("/auth/signin");
-    }
+    }*/
   }, [navigate]);
   return (
-    <AdminCustomLayout>
+   <AdminCustomLayout>
       <Content style={{ padding: "24px", minHeight: "280px" }}>
         <Routes>
           <Route
@@ -52,9 +60,20 @@ const Admin = () => {
           />
           <Route path="add-Accounts" element={<AddAccounts />} />
           <Route path="/" element={<AllAccounts />} />
+          <Route path="examine-Accounts" element={<ExamineAccounts />} />
+          <Route path="examine-Accounts/:accountId/:accountType" element={<ExamineAccountDetails />} />
+          <Route path="tourists-Complaints" element={<TouristsComplaints />} />
+          <Route path="tourists-Complaints/:id" element={<ComplaintDetails />} />
+          <Route path="events" element={<Events />} />
+          <Route path="events/:id" element={<Event />} />
+           
+          <Route path="itinerariesAdmin" element={<ItinerariesAdmin />} />
+          <Route path="itinerariesAdmin/:id" element={<ItineraryAdmin />} />
+
+
           <Route path="preference-tags" element={<ManagePreferenceTags />} />
           <Route path="myProducts" element={<MyProducts />} />
-          <Route path="products" element={<Products />} />
+        
           <Route path="profile" element={<Profile />} />
           <Route path="archive" element={<ArchivedProds />} />
           <Route path="change-password" element={<ChangePasswordForm />} />

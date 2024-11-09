@@ -647,28 +647,26 @@ exports.getPendingGuides = async (req, res) => {
   }
 };
 
-
 exports.getGuideDetails = async (req, res) => {
   const guideId = req.params.id;
 
   try {
-    
-    // Find the guide by ID and populate image references
+    // Find the guide by ID and populate only the `id` field for the main ID image reference
     const guide = await Guide.findById(guideId)
-      .populate({ path: 'id', select: '_id' })  // Populate with _id to construct the image path
-      .populate({ path: 'certificates', select: '_id' })
+      .populate({ path: 'id', select: '_id' })  // Only populate `id` for the main ID image
       .exec();
 
     if (!guide) {
       return res.status(404).json({ message: "Guide not found." });
     }
 
+    // Construct the image paths for certificates from the stored strings
+    const certificates = guide.certificates.map(cert => `uploads/${cert}.jpg`);
 
-    // Construct the response object with image paths for ID and Taxation Registration Card
+    // Construct the response object with image paths for ID and certificates
     const responseGuide = {
       id: guide.id ? `uploads/${guide.id._id}.jpg` : null,
-      certificates: guide.certificates ? `uploads/${guide.certificates._id}.jpg` : null,
-     // logo: advertiser.logo ? `uploads/${advertiser.logo._id}.jpg` : null,
+      certificates: certificates,
       username: guide.username,
       email: guide.email,
       link: guide.link || null,
@@ -693,6 +691,8 @@ exports.getGuideDetails = async (req, res) => {
 
 
 
+
+//req 28 - tatos (Not Done Yet)
 //req 28 - tatos (Not Done Yet)
 exports.viewSalesReport = async (req, res) => {
   const guideId = req.params.id;
@@ -707,28 +707,48 @@ exports.viewSalesReport = async (req, res) => {
     if (!guide.acceptedTerms) {
       return res.status(401).json({ message: "Terms and Conditions must be accepted" });
     }
-    if(guide.requestingDeletion){
+    if (guide.requestingDeletion) {
       return res.status(401).json({ message: "Tour Guide is requesting deletion" });
     }
-    const itineraries = await Itinerary.find({ guideId });
-    if (!itineraries || itineraries.length === 0) {
-      return res.status(404).json({ message: "No itineraries found for this guide" });
+
+    const tourists = await Tourist.find({ "itineraryBookings.itineraryId": { $exists: true } });
+    if (!tourists || tourists.length === 0) {
+      return res.status(404).json({ message: "No itinerary bookings found" });
     }
-    const salesReport = [];
-    for (const itinerary of itineraries) {
-      const bookings = await Booking.find({ itineraryId: itinerary._id });
-      for (const booking of bookings) {
-        salesReport.push({
-          itineraryName: itinerary.name,
-          touristName: booking.touristName,
-          date: booking.date,
-          price: booking.price,
+
+
+    let itineraryIds = [];
+    tourists.forEach(tourist => {
+      itineraryIds = itineraryIds.concat(tourist.itineraryBookings.map(booking => booking.itineraryId));
+    });
+
+    let totalSales = 0;
+    const report = [];
+
+    // Fetch each itinerary and compare guideId
+    for (const itineraryId of itineraryIds) {
+      const itinerary = await Itinerary.findById(itineraryId).exec();
+      
+
+      if (itinerary && (itinerary.guideId.toString() === guideId)) {
+        totalSales += itinerary.price;
+        report.push({
+          name: itinerary.name,
+          price: itinerary.price,
+          language: itinerary.language,
+          accesibility: itinerary.accessibility
         });
       }
     }
+
+    console.log(`Total Sales: ${totalSales}`);
+
+    res.status(200).json({
+      totalSales,
+      report
+    });
+    
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-
-
-}
+};

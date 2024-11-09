@@ -5,6 +5,7 @@ import {
   NumberOutlined,
   StarOutlined,
   MenuUnfoldOutlined,
+  ExclamationCircleOutlined,
   WarningFilled,
   UserOutlined,
   BellFilled,
@@ -91,6 +92,14 @@ const AdminCustomLayout = ({ children }) => {
       navigate("/Admin/manage-activity-categories"); // New navigation for activity categories
     } else if (key === "setting:1") {
       navigate("/Admin/add-Accounts");
+    } else if (key === "setting:3") {
+      navigate("/Admin/examine-Accounts");
+    } else if (key === "99") {
+      navigate("/Admin/tourists-Complaints");
+    } else if (key === "97") {
+      navigate("/Admin/events");
+    } else if (key === "96") {
+      navigate("/Admin/itinerariesAdmin");
     } else if (key === "11") {
       navigate("/Admin/preference-tags");
     } else if (key == "12") {
@@ -132,11 +141,15 @@ const AdminCustomLayout = ({ children }) => {
 
               children: [
                 {
+                  label: "Pending Accounts",
+                  key: "setting:3",
+                },
+                {
                   label: "Add Accounts",
                   key: "setting:1",
                 },
                 {
-                  label: "Manage Accounts",
+                  label: "Accepted Accounts",
                   key: "setting:2",
                 },
               ],
@@ -165,6 +178,36 @@ const AdminCustomLayout = ({ children }) => {
               key: "14",
               icon: <StarOutlined />,
               label: "Change Password",
+            },
+            {
+              key: "96",
+              icon: <StarOutlined />,
+              label: "Itineraries",
+            },
+            {
+              key: "97",
+              icon: <StarOutlined />,
+              label: "Activities",
+            },
+            {
+              key: "99",
+              icon: <ExclamationCircleOutlined />,
+              label: "Complaints",
+            },
+            {
+              key: "96",
+              icon: <StarOutlined />,
+              label: "Itineraries",
+            },
+            {
+              key: "97",
+              icon: <StarOutlined />,
+              label: "Activities",
+            },
+            {
+              key: "99",
+              icon: <ExclamationCircleOutlined />,
+              label: "Complaints",
             },
           ]}
         />
