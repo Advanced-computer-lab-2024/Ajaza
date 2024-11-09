@@ -4,18 +4,15 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import Venues from "../Venues";
 import { CalendarOutlined, ContainerOutlined } from "@ant-design/icons";
 import Profile from "../Common/Profile";
-import ChangePasswordForm from "../Common/changePassword"; 
+import ChangePasswordForm from "../Common/changePassword";
 import SignIn from "../Sign/SignIn";
 import { jwtDecode } from "jwt-decode";
-
 
 const TourismGovernor = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log("Token:", token);
-    console.log("decodedToken:", jwtDecode(token));
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
@@ -54,7 +51,7 @@ const TourismGovernor = () => {
     {
       key: "4",
       icon: <CalendarOutlined />,
-      label: "Change My Password",
+      label: "Change Password",
       onClick: () => navigate("change-password"),
     },
   ];
@@ -64,7 +61,7 @@ const TourismGovernor = () => {
       <Routes>
         <Route path="/" element={<Venues />} />
         <Route path="profile" element={<Profile />} />
-        <Route path="change-password"  element={<ChangePasswordForm />}  />
+        <Route path="change-password" element={<ChangePasswordForm />} />
         <Route path="auth/signin" element={<SignIn />} />
       </Routes>
     </CustomLayout>

@@ -17,7 +17,7 @@ const upload = multer({ storage });
 
 const uploadFiles = upload.fields([
   { name: "id", maxCount: 1 },
-  { name: "certificates", maxCount: 3 },
+  { name: "certificates", maxCount: 10 },
 ]);
 
 const uploadIdCertificatesImage = async (req, res, next) => {

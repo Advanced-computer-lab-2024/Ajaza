@@ -2,7 +2,14 @@ import React from "react";
 import { CustomLayout } from "../Common";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Itineraries from "./Itineraries";
-import { CalendarOutlined, ContainerOutlined, CheckOutlined, BookOutlined, HomeOutlined, CarOutlined } from "@ant-design/icons";
+import {
+  CalendarOutlined,
+  ContainerOutlined,
+  CheckOutlined,
+  BookOutlined,
+  HomeOutlined,
+  CarOutlined,
+} from "@ant-design/icons";
 import { apiUrl } from "../Common/Constants";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -25,7 +32,7 @@ import TouristHistory from "./TouristHistory";
 import Activity from "../Common/Activity";
 import ChangePasswordForm from "../Common/changePassword";
 import Itinerary from "../Common/Itinerary";
-import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import FlightTakeoffIcon from "@mui/icons-material/FlightTakeoff";
 import BookFlight from "./BookFlight";
 import { Colors } from "../Common/Constants";
 import Hotels from "./Hotels";
@@ -36,6 +43,7 @@ import TouristSelectedComplaint from "./TouristSelectedComplaint";
 const Tourist = () => {
   const [response, setResponse] = useState([]);
   const navigate = useNavigate();
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     // console.log("Token:", token);
@@ -186,7 +194,6 @@ const Tourist = () => {
 
   return (
     <CustomLayout sideBarItems={sideBarItems}>
-    
       <Routes>
         <Route path="/" element={<Plans />} />
         <Route path="profile" element={<Profile />} />
