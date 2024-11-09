@@ -681,18 +681,42 @@ exports.viewSalesReport = async (req, res) => {
     if (!advertiser.acceptedTerms) {
       return res.status(401).json({ message: "Terms and Conditions must be accepted" });
     }
-    if(advertiser.requestingDeletion){
+    if (advertiser.requestingDeletion) {
       return res.status(401).json({ message: "Advertiser is requesting deletion" });
     }
-    const activities = await Activity.find({ advertiserId });
-    if (!activities || activities.length === 0) {
-      return res.status(404).json({ message: "No activities found for this advertiser" });
+
+    const tourists = await Tourist.find({ "activityBookings.activityId": { $exists: true } });
+    if (!tourists || tourists.length === 0) {
+      return res.status(404).json({ message: "No activity bookings found" });
     }
-    const sales = activities.map(activity => activity.sales);
-    const totalSales = sales.reduce((acc, curr) => acc + curr, 0);
-    res.status(200).json({ totalSales });
+
+    let totalSales = 0;
+    const report = [];
+
+    // Iterate through each tourist's activityBookings
+    for (const tourist of tourists) {
+      for (const booking of tourist.activityBookings) {
+        const activity = await Activity.findById(booking.activityId).exec();
+        if (activity && activity.advertiserId.toString() === advertiserId) {
+          totalSales += booking.total; // Add the total field from activityBookings to totalSales
+          report.push({
+            name: activity.name,
+            date: activity.date,
+            category: activity.category,
+            price: booking.total // Use the total field from activityBookings
+          });
+        }
+      }
+    }
+
+    console.log(`Total Sales: ${totalSales}`);
+
+    res.status(200).json({
+      totalSales,
+      report
+    });
+    
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-

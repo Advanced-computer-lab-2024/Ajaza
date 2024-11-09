@@ -694,6 +694,7 @@ exports.getGuideDetails = async (req, res) => {
 
 
 //req 28 - tatos (Not Done Yet)
+//req 28 - tatos (Not Done Yet)
 exports.viewSalesReport = async (req, res) => {
   const guideId = req.params.id;
   try {
@@ -707,28 +708,48 @@ exports.viewSalesReport = async (req, res) => {
     if (!guide.acceptedTerms) {
       return res.status(401).json({ message: "Terms and Conditions must be accepted" });
     }
-    if(guide.requestingDeletion){
+    if (guide.requestingDeletion) {
       return res.status(401).json({ message: "Tour Guide is requesting deletion" });
     }
-    const itineraries = await Itinerary.find({ guideId });
-    if (!itineraries || itineraries.length === 0) {
-      return res.status(404).json({ message: "No itineraries found for this guide" });
+
+    const tourists = await Tourist.find({ "itineraryBookings.itineraryId": { $exists: true } });
+    if (!tourists || tourists.length === 0) {
+      return res.status(404).json({ message: "No itinerary bookings found" });
     }
-    const salesReport = [];
-    for (const itinerary of itineraries) {
-      const bookings = await Booking.find({ itineraryId: itinerary._id });
-      for (const booking of bookings) {
-        salesReport.push({
-          itineraryName: itinerary.name,
-          touristName: booking.touristName,
-          date: booking.date,
-          price: booking.price,
+
+
+    let itineraryIds = [];
+    tourists.forEach(tourist => {
+      itineraryIds = itineraryIds.concat(tourist.itineraryBookings.map(booking => booking.itineraryId));
+    });
+
+    let totalSales = 0;
+    const report = [];
+
+    // Fetch each itinerary and compare guideId
+    for (const itineraryId of itineraryIds) {
+      const itinerary = await Itinerary.findById(itineraryId).exec();
+      
+
+      if (itinerary && (itinerary.guideId.toString() === guideId)) {
+        totalSales += itinerary.price;
+        report.push({
+          name: itinerary.name,
+          price: itinerary.price,
+          language: itinerary.language,
+          accesibility: itinerary.accessibility
         });
       }
     }
+
+    console.log(`Total Sales: ${totalSales}`);
+
+    res.status(200).json({
+      totalSales,
+      report
+    });
+    
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-
-
-}
+};
