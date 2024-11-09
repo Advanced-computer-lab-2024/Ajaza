@@ -17,10 +17,9 @@ import MyProducts from "./MyProducts";
 import ArchivedProds from "./ArchivedProds";
 //import Products from "../Tourist/Products";
 import Products from "./ProductsEvenArch";
-import ChangePasswordForm from "../Common/changePassword"; 
+import ChangePasswordForm from "../Common/changePassword";
 import SignIn from "../Sign/SignIn";
 import { jwtDecode } from "jwt-decode";
-
 
 const { Content } = Layout;
 
@@ -28,8 +27,6 @@ const Admin = () => {
   const navigate = useNavigate();
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log("Token:", token);
-    console.log("decodedToken:", jwtDecode(token));
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
@@ -60,7 +57,7 @@ const Admin = () => {
           <Route path="products" element={<Products />} />
           <Route path="profile" element={<Profile />} />
           <Route path="archive" element={<ArchivedProds />} />
-          <Route path="change-password"  element={<ChangePasswordForm />}  />
+          <Route path="change-password" element={<ChangePasswordForm />} />
           <Route path="auth/signin" element={<SignIn />} />
         </Routes>
       </Content>

@@ -73,7 +73,7 @@ const Venues = () => {
   if (token) {
     decodedToken = jwtDecode(token);
   }
-  const userid = decodedToken.userId;
+  const userid = decodedToken?.userId;
 
   const fetchVenues = async () => {
     try {
@@ -88,7 +88,9 @@ const Venues = () => {
   };
 
   useEffect(() => {
-    fetchVenues();
+    if (decodedToken?.role == "governor") {
+      fetchVenues();
+    }
   }, []);
 
   const createVenue = async (values) => {

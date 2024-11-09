@@ -53,7 +53,6 @@ const SignIn = () => {
       //     "Content-Type": "application/json",
       //   },
       // };
-      
 
       try {
         const apiResponse = await axios.post(
@@ -64,40 +63,50 @@ const SignIn = () => {
           console.log(apiResponse.data);
 
           const token = apiResponse.data.token;
+          console.log(token);
+
           const decodedToken = jwtDecode(token);
           const role = decodedToken.role;
           console.log("role:", role);
-          console.log("requesting deletion:",decodedToken?.userDetails?.requestingDeletion);
-          console.log("accepted terms:",decodedToken?.userDetails?.acceptedTerms);
-          console.log("pending:",decodedToken?.userDetails?.pending);
+          console.log(
+            "requesting deletion:",
+            decodedToken?.userDetails?.requestingDeletion
+          );
+          console.log(
+            "accepted terms:",
+            decodedToken?.userDetails?.acceptedTerms
+          );
+          console.log("pending:", decodedToken?.userDetails?.pending);
           if (decodedToken?.userDetails?.requestingDeletion) {
             message.error(<>You have requested to delete your account</>);
             return;
           }
 
-          if (  // condition 0,0 --not pending and did not accept terms
-            (decodedToken?.userDetails?.pending === false) &&
-            (decodedToken?.userDetails?.acceptedTerms === false)
+          if (
+            // condition 0,0 --not pending and did not accept terms
+            decodedToken?.userDetails?.pending === false &&
+            decodedToken?.userDetails?.acceptedTerms === false
           ) {
             // Redirect to Terms and Conditions page
-            if (role === "guide" || role === "advertiser" || role === "seller") {
-              console.log("is pending:",decodedToken.userDetails.pending);
+            if (
+              role === "guide" ||
+              role === "advertiser" ||
+              role === "seller"
+            ) {
+              console.log("is pending:", decodedToken.userDetails.pending);
               navigate(`/auth/terms-and-conditions?role=${decodedToken.role}`); // Redirect to terms and conditions page
               localStorage.setItem("token", apiResponse.data.token);
               return;
-            }
-            else {
+            } else {
               // Redirect to the user's respective page
               navigate(`/${decodedToken.role}`);
               localStorage.setItem("token", apiResponse.data.token);
             }
-
-          } 
-          else if (decodedToken?.userDetails?.pending === true) {  // conditions 1,0 and 1,1 --pending
+          } else if (decodedToken?.userDetails?.pending === true) {
+            // conditions 1,0 and 1,1 --pending
             message.error("Account is still pending");
             return;
-          }
-          else {
+          } else {
             //conditon 0,1 --not pending and accepted terms
             // Redirect to the user's respective page
             navigate(`/${decodedToken.role}`);

@@ -100,8 +100,10 @@ const Itineraries = () => {
   };
 
   useEffect(() => {
-    fetchItineraries();
-    fetchTags();
+    if (decodedToken?.role == "guide") {
+      fetchItineraries();
+      fetchTags();
+    }
   }, []);
 
   const createItinerary = async (values) => {
@@ -246,7 +248,6 @@ const Itineraries = () => {
     setIsModalVisible(false);
     form.resetFields();
   };
-  console.log("allooo:", itinerariesData);
 
   return (
     <div style={{ display: "flex" }}>

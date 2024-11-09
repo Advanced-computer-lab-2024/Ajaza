@@ -3,6 +3,7 @@ import Icon, {
   BellFilled,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  WarningFilled,
   UploadOutlined,
   UserOutlined,
   VideoCameraOutlined,
@@ -10,7 +11,7 @@ import Icon, {
   ContainerOutlined,
   HourglassFilled,
 } from "@ant-design/icons";
-import { Flex, Button, Layout, Menu, theme } from "antd";
+import { Flex, Button, Layout, Menu, theme, message, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
 
 import IconFloatButton from "./IconFloatButton";
@@ -66,49 +67,78 @@ const CustomLayout = ({
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const decodedToken = jwtDecode(token);
-    setUser(decodedToken.userDetails);
-
-    setNavBarItems(
-      <Flex justify="center" style={{ width: "100%", position: "relative" }}>
-        <div
-          id="logo"
-          style={{ position: "relative", right: 40, bottom: 3 }}
-          onClick={() => navigate("/")}
-        >
-          <img
-            src={image}
-            alt="Ajaza Logo"
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      setUser(decodedToken.userDetails);
+      setNavBarItems(
+        <Flex justify="center" style={{ width: "100%", position: "relative" }}>
+          <div id="logo" style={{ position: "relative", right: 40, bottom: 3 }}>
+            <img
+              src={image}
+              alt="Ajaza Logo"
+              style={{
+                width: "58px",
+              }}
+            />
+          </div>
+          <Flex
+            align={"center"}
             style={{
-              width: "58px",
+              position: "absolute",
+              right: "28px",
+              top: "0",
+              bottom: "0",
+              margin: "auto 0",
             }}
-          />
-        </div>
-        <Flex
-          align={"center"}
-          style={{
-            position: "absolute",
-            right: "28px",
-            top: "0",
-            bottom: "0",
-            margin: "auto 0",
-          }}
-        >
-          <IconFloatButton icon={BellFilled} badge={{ count: 5 }} />
-          {decodedToken.role !== "governor" &&
-            decodedToken.role !== "admin" && (
-              <UserOutlined
+          >
+            <IconFloatButton icon={BellFilled} badge={{ count: 5 }} />
+            {decodedToken.role !== "governor" &&
+              decodedToken.role !== "admin" && (
+                <UserOutlined
+                  className="hover"
+                  style={{ fontSize: "20px", marginLeft: "30px" }}
+                  onClick={() => {
+                    navigate(`/${decodedToken.role}/profile`);
+                  }}
+                />
+              )}
+
+            {(decodedToken.role !== "governor" ||
+              decodedToken.role !== "admin") && (
+              <div
                 className="hover"
-                style={{ fontSize: "20px", marginLeft: "30px" }}
-                onClick={() => {
-                  navigate(`/${decodedToken.role}/profile`);
+                style={{
+                  display: "flex",
+                  marginLeft: "20px",
+                  fontWeight: "bold",
+                  color: Colors.warning,
                 }}
-              />
+                onClick={confirmLogOut}
+              >
+                Log Out
+              </div>
             )}
+          </Flex>
         </Flex>
-      </Flex>
-    );
+      );
+    }
   }, []);
+
+  const confirmLogOut = async (id) => {
+    Modal.confirm({
+      title: "Are you sure you want to log out?",
+      // content: "This action is irreversable",
+      okText: "Log Out",
+      okType: "danger",
+      icon: <WarningFilled style={{ color: "#ff4d4f" }} />,
+      onOk: () => {
+        localStorage.removeItem("token");
+        message.success("Logged Out");
+        navigate("/");
+      },
+    });
+  };
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider
