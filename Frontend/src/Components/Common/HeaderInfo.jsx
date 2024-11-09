@@ -302,8 +302,11 @@ const HeaderInfo = ({
       setIsBooked(true);
       await getNewToken();
     } catch (error) {
-      console.error(`Error booking ${type}:`, error);
-      message.error(`Error booking ${type}: ${error.message}`);
+      // console.error(`Error booking ${type}:`, error);
+      // message.error(`Error booking ${type}: ${error.message}`);
+      const errorMessage = error.response?.data?.message || "Please try again.";
+      console.error(`Error ${type} booking:`, error);
+      message.error(`Error booking: ${errorMessage}`);
     }
   };
 

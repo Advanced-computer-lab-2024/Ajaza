@@ -1,3 +1,6 @@
+import axios from "axios";
+import { message } from "antd";
+
 export const Colors = {
   grey: {
     900: "#1a1a1a",
@@ -130,4 +133,22 @@ export const convertDateToString = (datetimeString) => {
   const readableDate = date.toLocaleString("en-US", options);
 
   return readableDate;
+};
+
+export const getSetNewToken = async (userId, role) => {
+  console.log(role);
+  console.log(userId);
+
+  try {
+    const response = await axios.post(`${apiUrl}api/auth/generate-token`, {
+      id: userId,
+      role: role,
+    });
+
+    const { token: newToken } = response.data;
+
+    if (newToken) {
+      localStorage.setItem("token", newToken); // Store the new token
+    }
+  } catch (error) {}
 };

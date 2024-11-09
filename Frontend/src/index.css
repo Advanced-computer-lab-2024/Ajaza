@@ -30,10 +30,6 @@ input[type="search"]::-webkit-search-results-decoration {
   cursor: pointer;
 }
 
-#logo:hover {
-  cursor: pointer;
-}
-
 .scrollModern::-webkit-scrollbar {
   height: 5px;
   width: 10px;

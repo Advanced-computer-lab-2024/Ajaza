@@ -18,6 +18,9 @@ import {
   Select,
   InputNumber,
   Switch,
+  Divider,
+  Tag,
+  Typography,
 } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
@@ -39,6 +42,7 @@ const Itineraries = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingItineraryId, setEditingItineraryId] = useState(null);
   const [tags, setTags] = useState([]);
+  const { Title, Text } = Typography;
 
   const [form] = Form.useForm();
   const [options, setOptions] = useState([]);
@@ -100,8 +104,10 @@ const Itineraries = () => {
   };
 
   useEffect(() => {
-    fetchItineraries();
-    fetchTags();
+    if (decodedToken?.role == "guide") {
+      fetchItineraries();
+      fetchTags();
+    }
   }, []);
 
   const createItinerary = async (values) => {
@@ -246,7 +252,6 @@ const Itineraries = () => {
     setIsModalVisible(false);
     form.resetFields();
   };
-  console.log("allooo:", itinerariesData);
 
   return (
     <div style={{ display: "flex" }}>
@@ -256,10 +261,10 @@ const Itineraries = () => {
           style={{
             marginBottom: "20px",
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "flex-start",
           }}
         >
-          <AntButton
+          {/* <AntButton
             style={{
               width: "30px",
               height: "30px",
@@ -267,6 +272,12 @@ const Itineraries = () => {
               backgroundColor: Colors.primary.default,
             }}
             icon={<PlusOutlined style={{ color: "white" }} />}
+            onClick={showModal}
+          /> */}
+          <Button
+            size={"s"}
+            value={"Create Itinerary"}
+            rounded={true}
             onClick={showModal}
           />
         </div>
@@ -293,13 +304,19 @@ const Itineraries = () => {
                   />,
                 ]}
                 style={{
-                  minWidth: 300,
-                  margin: "10px",
+                  minWidth: 370,
+                  maxWidth: 370,
+                  maxHeight: 700,
+                  marginBottom: "8px",
+                  marginRight: "12px",
                   border:
                     itinerary.isFlagged && itinerary.hidden
                       ? "3px solid red"
-                      : "none",
+                      : "1px solid #e8e8e8",
                   position: "relative", // Set position to relative for positioning flag
+                  borderRadius: "12px", // Rounded corners
+                  padding: "16px", // Padding inside the card
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
                 }}
               >
                 {itinerary.isFlagged && itinerary.hidden && (
@@ -315,76 +332,106 @@ const Itineraries = () => {
                 )}
 
                 <Card.Meta
-                  title={itinerary.name}
+                  title={
+                    <Title
+                      level={4}
+                      style={{
+                        fontWeight: "600",
+                        marginBottom: "10px",
+                        fontSize: "18px",
+                        color: "#1b696a", // You can customize this color as needed
+                      }}
+                    >
+                      {itinerary.name}
+                    </Title>
+                  }
                   description={
                     <div>
+                      <p>{itinerary.description}</p>
                       <p>
-                        <strong>Price:</strong> {itinerary.price}
+                        <Text strong>Price:</Text>{" "}
+                        <span style={{ color: "#5b8b77" }}>
+                          {itinerary.price}
+                        </span>
                       </p>
                       <p>
-                        <strong>Language:</strong> {itinerary.language}
+                        <Text strong>Language:</Text> {itinerary.language}
                       </p>
                       <p>
-                        <strong>Pick Up Location:</strong> {itinerary.pickUp}
+                        <Text strong>Pick Up Location:</Text> {itinerary.pickUp}
                       </p>
                       <p>
-                        <strong>Drop Off Location:</strong> {itinerary.dropOff}
+                        <Text strong>Drop Off Location:</Text>{" "}
+                        {itinerary.dropOff}
                       </p>
                       <p>
-                        <strong>Maximum Tourists:</strong>{" "}
+                        <Text strong>Maximum Tourists:</Text>{" "}
                         {itinerary.maxTourists}
                       </p>
                       <p>
-                        <strong>Active:</strong>{" "}
+                        <Text strong>Active:</Text>{" "}
                         {itinerary.active ? "Yes" : "No"}
                       </p>
                       <p>
-                        <strong>Accessibility:</strong>{" "}
-                        {itinerary.accessibility || "Not specified"}
+                        <Text strong>Accessibility:</Text>{" "}
+                        <span>
+                          {itinerary.accessibility || "Not specified"}
+                        </span>
                       </p>
                       <p>
-                        <strong>Tags:</strong>{" "}
-                        {itinerary.tags?.join(", ") || "None"}
+                        <Text strong>Tags:</Text>{" "}
+                        {itinerary.tags?.map((tagId) => (
+                          <Tag
+                            key={tagId}
+                            color="#1b696a"
+                            style={{ margin: "3px" }}
+                          >
+                            {tags.find((tag) => tag._id === tagId)?.tag ||
+                              tagId}
+                          </Tag>
+                        )) || "None"}
                       </p>
                       <p>
-                        <strong>Available Dates:</strong>
-                        {itinerary.availableDateTime.length > 0
-                          ? itinerary.availableDateTime
-                              .map(
-                                (dateEntry) =>
-                                  `${new Date(
-                                    dateEntry.date
-                                  ).toLocaleDateString()} (Spots: ${
-                                    dateEntry.spots
-                                  })`
-                              )
-                              .join(", ")
-                          : "No available dates"}
+                        <Text strong>Available Dates:</Text>{" "}
+                        <span>
+                          {itinerary.availableDateTime.length > 0
+                            ? itinerary.availableDateTime
+                                .map(
+                                  (dateEntry) =>
+                                    `${new Date(
+                                      dateEntry.date
+                                    ).toLocaleDateString()} (Spots: ${
+                                      dateEntry.spots
+                                    })`
+                                )
+                                .join(", ")
+                            : "No available dates"}
+                        </span>
                       </p>
                       <p>
-                        <strong>Timeline:</strong>
-                        {itinerary.timeline.length > 0
-                          ? itinerary.timeline
-                              .map(
-                                (entry) =>
-                                  `Start: ${entry.start}, Duration: ${entry.duration} mins, type: ${entry.type}`
-                              )
-                              .join(", ")
-                          : "No timeline available"}
+                        <Text strong>Timeline:</Text>{" "}
+                        <span>
+                          {itinerary.timeline.length > 0
+                            ? itinerary.timeline
+                                .map(
+                                  (entry) =>
+                                    `Start: ${entry.start}, Duration: ${entry.duration} mins, type: ${entry.type}`
+                                )
+                                .join(", ")
+                            : "No timeline available"}
+                        </span>
                       </p>
-                      {/* <p><strong>Feedback:</strong> 
-                        {itinerary.feedback.length > 0 ? (
-                          itinerary.feedback.map(fb => 
-                            `Rating: ${fb.rating}, Comments: ${fb.comments}`
-                          ).join(", ")
-                        ) : (
-                          "No feedback available"
-                        )}
-                      </p> */}
                       <p>
-                        <strong>Flagged:</strong>{" "}
-                        {itinerary.isFlagged ? "Yes" : "No"}
+                        <Text strong>Flagged:</Text>{" "}
+                        <span
+                          style={{
+                            color: itinerary.isFlagged ? "red" : "#555",
+                          }}
+                        >
+                          {itinerary.isFlagged ? "Yes" : "No"}
+                        </span>
                       </p>
+                      <Divider style={{ margin: "12px 0" }} />
                     </div>
                   }
                 />
