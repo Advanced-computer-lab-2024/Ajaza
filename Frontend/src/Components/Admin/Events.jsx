@@ -165,7 +165,7 @@ const Events = () => {
       try {
         const [activityResponse, categoryResponse, tagResponse] =
           await Promise.all([
-            axios.get(`${apiUrl}activity`),
+            axios.get(`${apiUrl}activity/admin`),
             axios.get(`${apiUrl}category`),
             axios.get(`${apiUrl}tag`),
           ]);

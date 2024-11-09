@@ -647,28 +647,26 @@ exports.getPendingGuides = async (req, res) => {
   }
 };
 
-
 exports.getGuideDetails = async (req, res) => {
   const guideId = req.params.id;
 
   try {
-    
-    // Find the guide by ID and populate image references
+    // Find the guide by ID and populate only the `id` field for the main ID image reference
     const guide = await Guide.findById(guideId)
-      .populate({ path: 'id', select: '_id' })  // Populate with _id to construct the image path
-      .populate({ path: 'certificates', select: '_id' })
+      .populate({ path: 'id', select: '_id' })  // Only populate `id` for the main ID image
       .exec();
 
     if (!guide) {
       return res.status(404).json({ message: "Guide not found." });
     }
 
+    // Construct the image paths for certificates from the stored strings
+    const certificates = guide.certificates.map(cert => `uploads/${cert}.jpg`);
 
-    // Construct the response object with image paths for ID and Taxation Registration Card
+    // Construct the response object with image paths for ID and certificates
     const responseGuide = {
       id: guide.id ? `uploads/${guide.id._id}.jpg` : null,
-      certificates: guide.certificates ? `uploads/${guide.certificates._id}.jpg` : null,
-     // logo: advertiser.logo ? `uploads/${advertiser.logo._id}.jpg` : null,
+      certificates: certificates,
       username: guide.username,
       email: guide.email,
       link: guide.link || null,

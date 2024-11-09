@@ -29,7 +29,8 @@ import ItineraryAdmin from "./ItineraryAdmin";
 import ComplaintDetails from "./ComplaintDetails";
 import ExamineAccountDetails from "./ExamineAccountDetails";
 const { Content } = Layout;
-
+// username: alisuper
+// password: 12345a
 const Admin = () => {
   const navigate = useNavigate();
   useEffect(() => {
