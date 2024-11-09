@@ -1,12 +1,15 @@
 
 
 import React, { useEffect, useState } from "react";
-import { message , Card} from "antd";
+import { message , Card, Button} from "antd";
 import axios from "axios";
 import { apiUrl } from "../Common/Constants"; 
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
+import { BarsOutlined } from "@ant-design/icons";
 
 const Complaints = () => {
+  const navigate = useNavigate();
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [touristId, setTouristId] = useState(null);
@@ -40,6 +43,11 @@ const Complaints = () => {
     fetchComplaints();
   }, [touristId]);
 
+  const handleDetailsView = async (complaint) => {
+    navigate(`/tourist/complaints/${complaint._id}`);
+   // setSelectedComplaint(complaint); // Set the selected complaint
+  };
+
   return (
     <div>
       <h2>My Complaints</h2>
@@ -68,9 +76,18 @@ const Complaints = () => {
                 padding: "16px"
               }}
             >
-              <p><strong>Body:</strong> {complaint.body}</p>
+              
               <p><strong>Status:</strong> {complaint.pending ? "Pending" : "Resolved"}</p>
               <p><strong>Date:</strong> {new Date(complaint.date).toLocaleDateString()}</p>
+              <Button
+                      type="default"
+                      icon={<BarsOutlined />}
+                      onClick={() => handleDetailsView(complaint)}
+                      style={{ color: "blue" }}
+                    >
+                      View Details
+                    </Button>
+              
             </Card>
           ))}
         </div>
