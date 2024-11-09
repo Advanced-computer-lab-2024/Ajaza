@@ -6,6 +6,14 @@ const complaintSchema = new mongoose.Schema({
   body: { type: String, required: true }, // Detailed description of the complaint
   date: { type: Date, default: Date.now }, // Date the complaint was made
   pending: { type: Boolean, default: true }, // Indicates if the complaint is pending resolution
+
+  replies: [
+    {
+      name: { type: String, required: true },
+      text: { type: String, required: true },
+      date: { type: Date, default: Date.now }
+    }
+  ]
 });
 
 // Create the model

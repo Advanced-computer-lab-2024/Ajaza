@@ -19,8 +19,13 @@ import ExamineAccounts from "./ExamineAccounts";
 import ChangePasswordForm from "../Common/changePassword"; 
 import SignIn from "../Sign/SignIn";
 import { jwtDecode } from "jwt-decode";
-
-
+import TouristsComplaints from "./TouristsComplaints";
+import Events from "./Events";
+import Event from "./Event";
+import ItinerariesAdmin from "./ItinerariesAdmin";
+import ItineraryAdmin from "./ItineraryAdmin";
+import ComplaintDetails from "./ComplaintDetails";
+import ExamineAccountDetails from "./ExamineAccountDetails";
 const { Content } = Layout;
 
 const Admin = () => {
@@ -55,6 +60,16 @@ const Admin = () => {
           <Route path="add-Accounts" element={<AddAccounts />} />
           <Route path="/" element={<AllAccounts />} />
           <Route path="examine-Accounts" element={<ExamineAccounts />} />
+          <Route path="examine-Accounts/:accountId/:accountType" element={<ExamineAccountDetails />} />
+          <Route path="tourists-Complaints" element={<TouristsComplaints />} />
+          <Route path="tourists-Complaints/:id" element={<ComplaintDetails />} />
+          <Route path="events" element={<Events />} />
+          <Route path="events/:id" element={<Event />} />
+           
+          <Route path="itinerariesAdmin" element={<ItinerariesAdmin />} />
+          <Route path="itinerariesAdmin/:id" element={<ItineraryAdmin />} />
+
+
           <Route path="preference-tags" element={<ManagePreferenceTags />} />
           <Route path="myProducts" element={<MyProducts />} />
           <Route path="products" element={<Products />} />

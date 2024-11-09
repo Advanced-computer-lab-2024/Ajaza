@@ -13,10 +13,12 @@ import { SearchOutlined, BarsOutlined } from "@ant-design/icons";
 import { apiUrl } from "../Common/Constants";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom"; 
 
 const { Title } = Typography;
 
 const ExamineAccounts = () => {
+    const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchUsername, setSearchUsername] = useState("");
@@ -56,6 +58,10 @@ const ExamineAccounts = () => {
 
   // Handle the view details button click
   const handleDetailsView = async(account) => {
+    console.log(account.type);
+  // navigate(`/Admin/examine-Accounts/${account._id}`);
+    navigate(`/admin/examine-Accounts/${account._id}/${account.type}`);
+    
    if(account.type === "guide"){
     
     setSelectedAccount(account); // Set the selected account
@@ -120,17 +126,45 @@ if(account.type === "advertiser"){
   };
 
   // Handle accept user
-  const handleAccept = () => {
+  const handleAccept = async() => {
+
+    let accountID = selectedAccount._id;
+    if(selectedAccount.type === "seller"){
+        await axios.put(apiUrl + `seller/accept/${accountID}`);
+    }
     
+    else if(selectedAccount.type === "guide"){
+        await axios.put(apiUrl + `guide/accept/${accountID}`);
+    }
+    else if(selectedAccount.type === "advertiser"){
+        await axios.put(apiUrl + `advertiser/accept/${accountID}`);
+    }
+
+    console.log(accountID);
     message.success("User accepted.");
+    fetchAccounts();
     // Add your logic for accepting the user here (e.g., updating user status)
     setSelectedAccount(null); // Reset selection
   };
 
   // Handle reject user
-  const handleReject = () => {
-    message.error("User rejected.");
-    // Add your logic for rejecting the user here (e.g., updating user status)
+  const handleReject = async () => {
+    let accountID = selectedAccount._id;
+    if(selectedAccount.type === "seller"){
+        await axios.delete(apiUrl + `seller/reject/${accountID}`);
+    }
+    
+    else if(selectedAccount.type === "guide"){
+        await axios.delete(apiUrl + `guide/reject/${accountID}`);
+    }
+    else if(selectedAccount.type === "advertiser"){
+        await axios.delete(apiUrl + `advertiser/reject/${accountID}`);
+    }
+
+    console.log(accountID);
+    message.success("User rejected.");
+    fetchAccounts();
+    // Add your logic for accepting the user here (e.g., updating user status)
     setSelectedAccount(null); // Reset selection
   };
 
