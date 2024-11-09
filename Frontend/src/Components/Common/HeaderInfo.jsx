@@ -106,10 +106,10 @@ const HeaderInfo = ({
           );
         }
 
-        console.log("isItemBooked:", isItemBooked);
-        console.log("iten booked", user.itineraryBookings);
-        console.log("user.activityBookings:", user.activityBookings);
-        console.log("user:", user);
+        // console.log("isItemBooked:", isItemBooked);
+        // console.log("iten booked", user.itineraryBookings);
+        // console.log("user.activityBookings:", user.activityBookings);
+        // console.log("user:", user);
 
         setIsBooked(isItemBooked);
       }
@@ -268,8 +268,6 @@ const HeaderInfo = ({
       } else if (type === "itinerary") {
         total = price;
         FinalDate = selectedDateRef.current;
-      } else {
-        message.error("This Feature is not avaliable :) ");
       }
       // const total =
       //   type === "activity" ? selectedPriceRef.current : price;
