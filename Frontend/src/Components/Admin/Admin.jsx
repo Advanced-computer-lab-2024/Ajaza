@@ -35,7 +35,13 @@ const Admin = () => {
   const navigate = useNavigate();
   useEffect(() => {
     const token = localStorage.getItem("token");
+
+    console.log("Token:", token);
+   // console.log("decodedToken:", jwtDecode(token));
+ 
+
     if (token) {
+
       try {
         const decodedToken = jwtDecode(token);
         // Check if the token is valid and if the user role is 'advertiser'
