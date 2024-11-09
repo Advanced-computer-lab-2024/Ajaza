@@ -17,6 +17,9 @@ let decodedToken = null;
 if (token) {
   decodedToken = jwtDecode(token);
 }
+
+console.log(decodedToken);
+
 const userid = decodedToken ? decodedToken.userId : null;
 
 const convertCategoriesToValues = (categoriesArray) => {

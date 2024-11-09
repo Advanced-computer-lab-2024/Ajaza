@@ -25,7 +25,7 @@ import {
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import "./Profile.css";
-import { apiUrl } from "../Common/Constants";
+import { apiUrl, getSetNewToken } from "../Common/Constants";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
@@ -226,16 +226,37 @@ const Profile = () => {
     });
   };
 
+  const confirmLogOut = async (id) => {
+    Modal.confirm({
+      title: "Are you sure you want to log out?",
+      // content: "This action is irreversable",
+      okText: "Log Out",
+      okType: "danger",
+      icon: <WarningFilled style={{ color: "#ff4d4f" }} />,
+      onOk: () => {
+        localStorage.removeItem("token");
+        message.success("Logged Out");
+        navigate("/");
+      },
+    });
+  };
+
   const [preferences, setPreferences] = useState({
     preferredTags: [],
     preferredCategories: [],
   });
-  const [tags, setTags] = useState([]); 
+  const [tags, setTags] = useState([]);
   const additionalTags = [
-    "Monuments", "Museums", "Religious Sites", "Palaces/Castles",
-    "1800s-1850s", "1850s-1900s", "1900s-1950s", "1950s-2000s"
+    "Monuments",
+    "Museums",
+    "Religious Sites",
+    "Palaces/Castles",
+    "1800s-1850s",
+    "1850s-1900s",
+    "1900s-1950s",
+    "1950s-2000s",
   ];
-  const [categories, setCategories] = useState([]); 
+  const [categories, setCategories] = useState([]);
   const token = localStorage.getItem("token");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [openKeys, setOpenKeys] = useState(["preferences"]);
@@ -249,146 +270,166 @@ const Profile = () => {
 
   //req39
   useEffect(() => {
-
-  
     const fetchProfile = async () => {
       try {
-        const response = await axios.get(`${apiUrl}tourist/touristReadProfile/${touristId}`);
+        const response = await axios.get(
+          `${apiUrl}tourist/touristReadProfile/${touristId}`
+        );
         const { preferredTags, preferredCategories } = response.data;
         setPreferences({ preferredTags, preferredCategories });
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        console.error("Error fetching profile:", error);
       }
     };
     fetchProfile();
 
-  const fetchTags = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}tag`);
-      const fetchedTags = response.data.map(tag => tag.tag);
-      setTags([...fetchedTags, ...additionalTags]); 
-    } catch (error) {
-      console.error('Error fetching tags:', error);
-    }
-  };
+    const fetchTags = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}tag`);
+        const fetchedTags = response.data.map((tag) => tag.tag);
+        setTags([...fetchedTags, ...additionalTags]);
+      } catch (error) {
+        console.error("Error fetching tags:", error);
+      }
+    };
 
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get(`${apiUrl}category`);
-      setCategories(response.data.map(category => category.category)); 
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}category`);
+        setCategories(response.data.map((category) => category.category));
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
 
-  fetchTags();
-  fetchCategories();
-},[]);
-
+    fetchTags();
+    fetchCategories();
+  }, []);
 
   const handleTagsChange = async (tag) => {
     const updatedTags = preferences.preferredTags.includes(tag)
-      ? preferences.preferredTags.filter(t => t !== tag)
+      ? preferences.preferredTags.filter((t) => t !== tag)
       : [...preferences.preferredTags, tag];
 
-    setPreferences(prev => ({ ...prev, preferredTags: updatedTags }));
+    setPreferences((prev) => ({ ...prev, preferredTags: updatedTags }));
 
     try {
       await axios.patch(`${apiUrl}tourist/${touristId}`, {
         preferredTags: updatedTags,
         preferredCategories: preferences.preferredCategories,
       });
-      message.success('Tags updated');
+
+      const dec = jwtDecode(localStorage.getItem("token"));
+      await getSetNewToken(dec?.userDetails?._id, dec?.role);
+
+      message.success("Tags updated");
     } catch (error) {
-      console.error('Error saving tags:', error);
-      message.error('Failed to update tags');
+      console.error("Error saving tags:", error);
+      message.error("Failed to update tags");
     }
     //setDropdownOpen(true);
     setOpenKeys(["preferences"]);
-    };
+  };
 
   const handleCategoriesChange = async (category) => {
     const updatedCategories = preferences.preferredCategories.includes(category)
-      ? preferences.preferredCategories.filter(c => c !== category)
+      ? preferences.preferredCategories.filter((c) => c !== category)
       : [...preferences.preferredCategories, category];
 
-    setPreferences(prev => ({ ...prev, preferredCategories: updatedCategories }));
+    setPreferences((prev) => ({
+      ...prev,
+      preferredCategories: updatedCategories,
+    }));
     try {
       await axios.patch(`${apiUrl}tourist/${touristId}`, {
         preferredTags: preferences.preferredTags,
         preferredCategories: updatedCategories,
       });
-      message.success('Categories updated');
+      message.success("Categories updated");
     } catch (error) {
-      console.error('Error saving categories:', error);
-      message.error('Failed to update categories');
+      console.error("Error saving categories:", error);
+      message.error("Failed to update categories");
     }
     //setDropdownOpen(true);
     setOpenKeys(["preferences"]);
-    };
-    
-    
-    const handleOpenChange = (nextOpen) => {
-      if (nextOpen) {
-        setOpen(nextOpen);
-      }
+  };
+
+  const handleOpenChange = (nextOpen) => {
+    if (nextOpen) {
+      setOpen(nextOpen);
     }
-   
-    
-  const preferencesMenu = ( 
-    <Menu 
-    selectedKeys={[...preferences.preferredTags, ...preferences.preferredCategories]} 
-    openKeys={openKeys} 
-    onOpenChange={(keys) => setOpenKeys(keys)}
+  };
+
+  const preferencesMenu = (
+    <Menu
+      selectedKeys={[
+        ...preferences.preferredTags,
+        ...preferences.preferredCategories,
+      ]}
+      openKeys={openKeys}
+      onOpenChange={(keys) => setOpenKeys(keys)}
     >
-      <Menu.SubMenu key="preferences"  title="Preferences">
-      <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-        <Menu.ItemGroup title="Tags">
-        {tags.map(tag => (
-            <Menu.Item
-              key={tag}
-              onClick={(e) =>{
-                e.domEvent.preventDefault();
-                 handleTagsChange(tag) 
-                 handleOpenChange(true)
+      <Menu.SubMenu key="preferences" title="Preferences">
+        <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+          <Menu.ItemGroup title="Tags">
+            {tags.map((tag) => (
+              <Menu.Item
+                key={tag}
+                onClick={(e) => {
+                  e.domEvent.preventDefault();
+                  handleTagsChange(tag);
+                  handleOpenChange(true);
                 }}
-                 
-              style={{
-                backgroundColor: preferences.preferredTags.includes(tag) ? '#e6f7ff' : 'white',
-              }}
-            >
-              {tag}
-            </Menu.Item>
-          ))}
-        </Menu.ItemGroup>
-        <Menu.ItemGroup title="Categories">
-        {categories.map(category => (
-            <Menu.Item
-              key={category}
-              onClick={(e) =>{ 
-                e.domEvent.preventDefault();
-                handleCategoriesChange(category)
-                handleOpenChange(true)
-              }}
+                style={{
+                  backgroundColor: preferences.preferredTags.includes(tag)
+                    ? "#e6f7ff"
+                    : "white",
+                }}
+              >
+                {tag}
+              </Menu.Item>
+            ))}
+          </Menu.ItemGroup>
+          <Menu.ItemGroup title="Categories">
+            {categories.map((category) => (
+              <Menu.Item
+                key={category}
+                onClick={(e) => {
+                  e.domEvent.preventDefault();
+                  handleCategoriesChange(category);
+                  handleOpenChange(true);
+                }}
                 open={dropdownOpen}
                 onOpenChange={(open) => setDropdownOpen(open)}
-              style={{
-                backgroundColor: preferences.preferredCategories.includes(category) ? '#e6f7ff' : 'white',
-              }}
-            >
-              {category}
-            </Menu.Item>
-          ))}
-        </Menu.ItemGroup>
+                style={{
+                  backgroundColor: preferences.preferredCategories.includes(
+                    category
+                  )
+                    ? "#e6f7ff"
+                    : "white",
+                }}
+              >
+                {category}
+              </Menu.Item>
+            ))}
+          </Menu.ItemGroup>
         </div>
       </Menu.SubMenu>
     </Menu>
   );
-  
 
   return (
     <>
-      <Flex justify="right">
+      <Flex justify="left">
+        <Button
+          type="primary"
+          style={{ fontWeight: "bold" }}
+          danger
+          onClick={() => confirmLogOut()}
+        >
+          Log out
+        </Button>
+
         <Button
           style={{ marginLeft: "auto" }}
           type="primary"
@@ -423,21 +464,33 @@ const Profile = () => {
               style={{ backgroundColor: "#87d068" }}
             />
           )}
-            {role === "seller" && (
-                <div>
-                <img src={logo} alt="Logo" style={{ width: '100px', height: '100px' }} />
-                </div>
-            )}
-            {role === "advertiser" && (
-                <div>
-                <img src={logo} alt="Logo" style={{ width: '100px', height: '100px' }} />
-                </div>
-            )}
-            {role === "guide" && photo && (
-                <div>
-                <img src={photo} alt="Photo" style={{ width: '100px', height: '100px' }} />
-                </div>
-            )}
+          {role === "seller" && (
+            <div>
+              <img
+                src={logo}
+                alt="Logo"
+                style={{ width: "100px", height: "100px" }}
+              />
+            </div>
+          )}
+          {role === "advertiser" && (
+            <div>
+              <img
+                src={logo}
+                alt="Logo"
+                style={{ width: "100px", height: "100px" }}
+              />
+            </div>
+          )}
+          {role === "guide" && photo && (
+            <div>
+              <img
+                src={photo}
+                alt="Photo"
+                style={{ width: "100px", height: "100px" }}
+              />
+            </div>
+          )}
           {isEditing ? (
             <Form
               form={form}
@@ -651,17 +704,17 @@ const Profile = () => {
           ) : (
             // Display profile details (non-edit view)
             userDetails && (
-                <div>
+              <div>
                 {role === "guide" && (
                   <>
-                  <a href="image">
+                    <a href="image">
                       <EditOutlined />
                     </a>
-                  <Title level={2}>{userDetails.username}</Title>
-                <div>
-                  <strong>Email: </strong>
-                  <span>{userDetails.email}</span>
-                </div>
+                    <Title level={2}>{userDetails.username}</Title>
+                    <div>
+                      <strong>Email: </strong>
+                      <span>{userDetails.email}</span>
+                    </div>
                     {userDetails.mobile && (
                       <div>
                         <strong>Mobile: </strong>
@@ -685,14 +738,14 @@ const Profile = () => {
                 )}
                 {role === "advertiser" && (
                   <>
-                  <a href="image">
+                    <a href="image">
                       <EditOutlined />
                     </a>
-                  <Title level={2}>{userDetails.username}</Title>
-                <div>
-                  <strong>Email: </strong>
-                  <span>{userDetails.email}</span>
-                </div>
+                    <Title level={2}>{userDetails.username}</Title>
+                    <div>
+                      <strong>Email: </strong>
+                      <span>{userDetails.email}</span>
+                    </div>
                     <div>
                       <strong>Link: </strong>
                       <span>{userDetails.link}</span>
@@ -705,43 +758,62 @@ const Profile = () => {
                 )}
                 {role === "tourist" && (
                   <>
-                   {/* Preferences Menu */}
-                   <Dropdown 
+                    {/* Preferences Menu */}
+                    <Dropdown
                       overlay={preferencesMenu}
                       onOpenChange={handleOpenChange}
-                      trigger={['click']}
-                      open={dropdownOpen} 
+                      trigger={["click"]}
+                      open={dropdownOpen}
                       //onOpenChange={(open) => setDropdownOpen(open)}
                     >
-                    <Button style={{
-                      position: "absolute",
-                      top: 20,
-                      right: 20,
-                      border: "none",
-                      background: "none",
-                      color: "#1890ff",
-                      fontSize: "16px",
-                    }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setDropdownOpen(!dropdownOpen);
-                    }}
-                  >
-                      View and Edit Preferences 
-                    </Button>
-                  </Dropdown>
-                  {userDetails && userDetails.badge && (
-                    <div style={{ marginTop: '10px' }}>
-                      {userDetails.badge === 1 && <img src="http://localhost:3000/1.jpg" alt="Bronze Badge" style={{ width: '50px', height: '50px' }} />}
-                      {userDetails.badge === 2 && <img src="http://localhost:3000/2.jpg" alt="Silver Badge" style={{ width: '50px', height: '50px' }} />}
-                      {userDetails.badge === 3 && <img src="http://localhost:3000/3.jpg" alt="Gold Badge" style={{ width: '50px', height: '50px' }} />}
+                      <Button
+                        style={{
+                          position: "absolute",
+                          top: 20,
+                          right: 20,
+                          border: "none",
+                          background: "none",
+                          color: "#1890ff",
+                          fontSize: "16px",
+                        }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setDropdownOpen(!dropdownOpen);
+                        }}
+                      >
+                        View and Edit Preferences
+                      </Button>
+                    </Dropdown>
+                    {userDetails && userDetails.badge && (
+                      <div style={{ marginTop: "10px" }}>
+                        {userDetails.badge === 1 && (
+                          <img
+                            src="http://localhost:3000/1.jpg"
+                            alt="Bronze Badge"
+                            style={{ width: "50px", height: "50px" }}
+                          />
+                        )}
+                        {userDetails.badge === 2 && (
+                          <img
+                            src="http://localhost:3000/2.jpg"
+                            alt="Silver Badge"
+                            style={{ width: "50px", height: "50px" }}
+                          />
+                        )}
+                        {userDetails.badge === 3 && (
+                          <img
+                            src="http://localhost:3000/3.jpg"
+                            alt="Gold Badge"
+                            style={{ width: "50px", height: "50px" }}
+                          />
+                        )}
+                      </div>
+                    )}
+                    <Title level={2}>{userDetails.username}</Title>
+                    <div>
+                      <strong>Email: </strong>
+                      <span>{userDetails.email}</span>
                     </div>
-                  )}
-                  <Title level={2}>{userDetails.username}</Title>
-                <div>
-                  <strong>Email: </strong>
-                  <span>{userDetails.email}</span>
-                </div>
                     {userDetails.mobile && (
                       <div>
                         <strong>Mobile: </strong>
@@ -788,14 +860,14 @@ const Profile = () => {
                 )}
                 {role === "seller" && (
                   <>
-                  <a href="image">
+                    <a href="image">
                       <EditOutlined />
                     </a>
-                  <Title level={2}>{userDetails.username}</Title>
-                <div>
-                  <strong>Email: </strong>
-                  <span>{userDetails.email}</span>
-                </div>
+                    <Title level={2}>{userDetails.username}</Title>
+                    <div>
+                      <strong>Email: </strong>
+                      <span>{userDetails.email}</span>
+                    </div>
                     {userDetails.name && (
                       <div>
                         <strong>Name: </strong>

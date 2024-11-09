@@ -14,8 +14,6 @@ const Advertiser = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log("Token:", token);
-    console.log("decodedToken:", jwtDecode(token));
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
@@ -31,7 +29,7 @@ const Advertiser = () => {
       navigate("/auth/signin");
     }
   }, [navigate]);
-  
+
   const sideBarItems = [
     {
       key: "1",
@@ -47,7 +45,7 @@ const Advertiser = () => {
       <Routes>
         <Route path="/" element={<Activities />} />
         <Route path="profile" element={<Profile />} />
-        <Route path="change-password"  element={<ChangePasswordForm />}  />
+        <Route path="change-password" element={<ChangePasswordForm />} />
         <Route path="image" element={<Image />} />
         <Route path="auth/signin" element={<SignIn />} />
       </Routes>
