@@ -10,6 +10,7 @@ import axios from "axios";
 import BasicCard from "../Common/BasicCard";
 import SelectCurrency from "./SelectCurrency";
 import { useNavigate } from "react-router-dom";
+import { useCurrency } from "./CurrencyContext";
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -45,8 +46,11 @@ const Plans = () => {
     EUR: 0.91,
   };
 
-  const [currency, setCurrency] = useState("USD");
-  const fields = { Categories: "category", Tags: "tags", Type: "type" };
+  const { currency, setCurrency } = useCurrency();
+
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+  };  const fields = { Categories: "category", Tags: "tags", Type: "type" };
   const searchFields = ["name", "category", "tags"];
   const constProps = { rateDisplay: true, currency, currencyRates };
   const sortFields = ["avgRating", "price"];
@@ -181,9 +185,7 @@ const Plans = () => {
     fetchData();
   }, []);
 
-  const handleCurrencyChange = (selectedCurrency) => {
-    setCurrency(selectedCurrency);
-  };
+
   return (
     <div>
       <div
@@ -198,6 +200,7 @@ const Plans = () => {
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
+          style={{left:1000 , top:55}}
         />
       </div>
       <SearchFilterSortContainer

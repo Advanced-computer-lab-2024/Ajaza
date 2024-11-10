@@ -22,6 +22,7 @@ import {
   Select,
 } from "antd";
 import SelectCurrency from "../Tourist/SelectCurrency";
+import { useCurrency } from "../Tourist/CurrencyContext";
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -56,8 +57,11 @@ const MyProducts = () => {
   const [userId, setUserId] = useState(null);
   const [refreshElements, setRefreshElements] = useState(false);
   const [isArchiveModalVisible, setIsArchiveModalVisible] = useState(false);
-  const [currency, setCurrency] = useState("USD");
+  const { currency, setCurrency } = useCurrency();
 
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+  };
 
   const propMapping = {
     title: "name",
@@ -165,9 +169,7 @@ const MyProducts = () => {
     console.log("NOURSALAH user", userId);
   }, [archivingProductId, userId]);
 
-  const handleCurrencyChange = (selectedCurrency) => {
-    setCurrency(selectedCurrency);
-  };
+
 
 
   return (
