@@ -21,13 +21,12 @@ import {
   SettingOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
-import ArchiveIcon from '@mui/icons-material/Archive';
+import ArchiveIcon from "@mui/icons-material/Archive";
 import Search from "./Search";
 import { DownOutlined, InboxOutlined } from "@ant-design/icons";
 import { apiUrl } from "./Constants";
 import axios from "axios";
 import CustomButton from "./CustomButton";
-
 
 function mapPropsToValues(element, propMapping) {
   if (!propMapping || !element) {
@@ -179,12 +178,13 @@ const SearchFilterSortContainerEditCreate = ({
   setRefreshElements,
   userId,
   loading,
+  removeSearchFilterSort,
 }) => {
   const [displayedElements, setDisplayedElements] = useState(null);
   const [searchValue, setSearchValue] = useState("");
   const [sortField, setSortField] = useState(null);
   const [sortAsc, setSortAsc] = useState(true);
-  const [filterFn, setFilterFn] = useState(() => { });
+  const [filterFn, setFilterFn] = useState(() => {});
   const [filterCriteria, setFilterCriteria] = useState(null);
   const [filterField, setFilterField] = useState(null);
   const [form] = Form.useForm();
@@ -247,7 +247,6 @@ const SearchFilterSortContainerEditCreate = ({
   //   }
   //   setDisplayedElements(temp);
   // }, [searchValue, sortField, sortAsc, filterField, filterCriteria, filterFn, elements]);
-
 
   // useEffect(() => {
   //   console.log(displayedElements);
@@ -347,8 +346,6 @@ const SearchFilterSortContainerEditCreate = ({
     setEditingProductId(product._id);
   };
 
-
-
   const createProduct = async (formValues) => {
     try {
       const formData = new FormData();
@@ -395,9 +392,7 @@ const SearchFilterSortContainerEditCreate = ({
       form.resetFields();
       setEditingProductId(null);
     } catch (error) {
-      message.error(
-        "Failed to create activity." + error?.response?.data?.error
-      );
+      message.error("Failed to edit Product." + error?.response?.data?.error);
     }
   };
 
@@ -412,8 +407,6 @@ const SearchFilterSortContainerEditCreate = ({
     });
   };
 
-
-
   const normFile = (e) => {
     if (Array.isArray(e)) {
       return e;
@@ -423,49 +416,56 @@ const SearchFilterSortContainerEditCreate = ({
   const handleFileChange = ({ fileList: newFileList }) =>
     setFileList(newFileList);
 
-
-
   filterItems = generateFilterItems(filterFields);
   return (
     <>
-      <Flex align="center">
-        {searchFields ? (
-          <Search
-            activateHover={false}
-            searchValue={searchValue}
-            setSearchValue={setSearchValue}
-          />
-        ) : null}
+      {removeSearchFilterSort ? null : (
+        <Flex align="center" justify="center" style={{ marginBottom: "30px" }}>
+          {searchFields ? (
+            <Search
+              activateHover={false}
+              searchValue={searchValue}
+              setSearchValue={setSearchValue}
+              style={{ width: "600px" }}
+              inputStyleParam={{ paddingLeft: "40px" }}
+            />
+          ) : null}
 
-        <Dropdown
-          menu={{
-            selectable: true,
-            items: filterItems,
-          }}
-        >
-          <a onClick={(e) => e.preventDefault()} style={{ marginLeft: "auto" }}>
-            <Space>
-              Filter
-              <DownOutlined />
-            </Space>
-          </a>
-        </Dropdown>
+          <Flex style={{ position: "absolute", right: "70px" }}>
+            <Dropdown
+              menu={{
+                selectable: true,
+                items: filterItems,
+              }}
+            >
+              <a
+                onClick={(e) => e.preventDefault()}
+                style={{ marginLeft: "auto" }}
+              >
+                <Space>
+                  Filter
+                  <DownOutlined />
+                </Space>
+              </a>
+            </Dropdown>
 
-        <Dropdown
-          menu={{
-            items: sortItems,
-            selectable: true,
-            defaultSelectedKeys: ["3"],
-          }}
-        >
-          <Typography.Link style={{ marginLeft: "30px" }}>
-            <Space>
-              Sort
-              <DownOutlined />
-            </Space>
-          </Typography.Link>
-        </Dropdown>
-      </Flex>
+            <Dropdown
+              menu={{
+                items: sortItems,
+                selectable: true,
+                defaultSelectedKeys: ["3"],
+              }}
+            >
+              <Typography.Link style={{ marginLeft: "30px" }}>
+                <Space>
+                  Sort
+                  <DownOutlined />
+                </Space>
+              </Typography.Link>
+            </Dropdown>
+          </Flex>
+        </Flex>
+      )}
       <Row gutter={[horizontalGap, verticalGap]}>
         {displayedElements?.map((element, index) => {
           const mappedProps = mapPropsToValues(element, propMapping);
@@ -482,17 +482,18 @@ const SearchFilterSortContainerEditCreate = ({
                     key="edit"
                     onClick={() => showEditModal(element)}
                   />,
-                  setArchivingProductId ? <ArchiveIcon
-                    key="archive"
-                    onClick={() => showArchiveModal(element)}
-                  /> : null,
+                  setArchivingProductId ? (
+                    <ArchiveIcon
+                      key="archive"
+                      onClick={() => showArchiveModal(element)}
+                    />
+                  ) : null,
                 ]}
               />
             </Col>
           );
         })}
       </Row>
-
 
       <Modal
         title={editingProductId ? "Edit Product" : "Create Product"}

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   MenuFoldOutlined,
+  CalendarOutlined,
   NumberOutlined,
   StarOutlined,
   MenuUnfoldOutlined,
@@ -186,12 +187,12 @@ const AdminCustomLayout = ({ children }) => {
             },
             {
               key: "96",
-              icon: <StarOutlined />,
+              icon: <CalendarOutlined />,
               label: "Itineraries",
             },
             {
               key: "97",
-              icon: <StarOutlined />,
+              icon: <CalendarOutlined />,
               label: "Activities",
             },
             {

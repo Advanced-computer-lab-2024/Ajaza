@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { EditOutlined, DeleteOutlined, InboxOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  InboxOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import {
   Avatar,
   Card,
@@ -19,7 +24,7 @@ import {
 import axios from "axios";
 import Button from "./Common/CustomButton";
 import { jwtDecode } from "jwt-decode";
-import { apiUrl } from "./Common/Constants";
+import { apiUrl, Colors } from "./Common/Constants";
 import MapComponent from "./Common/Map";
 
 const { Option } = Select;
@@ -373,10 +378,15 @@ const Venues = () => {
             justifyContent: "flex-start",
           }}
         >
-          <Button
-            size={"s"}
-            value={"Create Venue"}
-            rounded={true}
+          <AntButton
+            style={{
+              backgroundColor: Colors.primary.default,
+              border: "none",
+              width: "30px",
+              height: "30px",
+              marginLeft: "auto",
+            }}
+            icon={<PlusOutlined style={{ color: "white" }} />}
             onClick={showModal}
           />
         </div>

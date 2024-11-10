@@ -13,21 +13,20 @@ import {
 import { BarsOutlined } from "@ant-design/icons";
 import { apiUrl } from "../Common/Constants";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import ComplaintDetails from "./ComplaintDetails";
-
 
 const { Title } = Typography;
 
 const TouristsComplaints = () => {
-const navigate = useNavigate(); // Initialize the navigate function
+  const navigate = useNavigate(); // Initialize the navigate function
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedComplaint, setSelectedComplaint] = useState(null); // State for the selected account
 
   const [isDescending, setIsDescending] = useState(true); // Initial state for sorting order
 
-  const [reply, setReply] = useState(""); 
+  const [reply, setReply] = useState("");
 
   // Function to toggle sort order
   const toggleSortOrder = (order) => {
@@ -40,7 +39,6 @@ const navigate = useNavigate(); // Initialize the navigate function
     setComplaints(sortedComplaints);
   };
 
-  
   // Fetch complaints from the API
   const fetchComplaints = async () => {
     try {
@@ -51,12 +49,12 @@ const navigate = useNavigate(); // Initialize the navigate function
           ? "pending"
           : "resolved";
         return updatedComplaint;
-      }) 
-      //.filter((complaint) => complaint.status === "pending"); 
+      });
+      //.filter((complaint) => complaint.status === "pending");
 
       // Sort complaints by default (descending)
-      complaintsData = complaintsData.sort((a, b) =>
-        new Date(b.date) - new Date(a.date)
+      complaintsData = complaintsData.sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
       );
 
       setComplaints(complaintsData);
@@ -106,12 +104,9 @@ const navigate = useNavigate(); // Initialize the navigate function
       console.error("Error sending reply", error);
       message.error("Failed to send reply.");
     }
-  }
+  };
 
-
-
-  const handleOptionOne = async() => {
-
+  const handleOptionOne = async () => {
     let response = await axios.get(apiUrl + "complaint");
     let complaintsData = response.data.map((complaint) => {
       let updatedComplaint = { ...complaint };
@@ -119,22 +114,24 @@ const navigate = useNavigate(); // Initialize the navigate function
         ? "pending"
         : "resolved";
       return updatedComplaint;
-    }) 
-    //.filter((complaint) => complaint.status === "pending"); 
+    });
+    //.filter((complaint) => complaint.status === "pending");
 
     // Sort complaints by default (descending)
-    complaintsData = complaintsData.sort((a, b) =>
-      new Date(b.date) - new Date(a.date)
+    complaintsData = complaintsData.sort(
+      (a, b) => new Date(b.date) - new Date(a.date)
     );
 
     //setComplaints(complaintsData);
 
-  //  fetchComplaints(); 
-    const filteredComplaints = complaintsData.filter(complaint => complaint.status === "pending");
+    //  fetchComplaints();
+    const filteredComplaints = complaintsData.filter(
+      (complaint) => complaint.status === "pending"
+    );
     setComplaints(filteredComplaints);
     message.info("Pending complaints selected");
   };
-  
+
   const handleOptionTwo = async () => {
     let response = await axios.get(apiUrl + "complaint");
     let complaintsData = response.data.map((complaint) => {
@@ -143,22 +140,24 @@ const navigate = useNavigate(); // Initialize the navigate function
         ? "pending"
         : "resolved";
       return updatedComplaint;
-    }) 
-    //.filter((complaint) => complaint.status === "pending"); 
+    });
+    //.filter((complaint) => complaint.status === "pending");
 
     // Sort complaints by default (descending)
-    complaintsData = complaintsData.sort((a, b) =>
-      new Date(b.date) - new Date(a.date)
+    complaintsData = complaintsData.sort(
+      (a, b) => new Date(b.date) - new Date(a.date)
     );
 
-   // setComplaints(complaintsData);
+    // setComplaints(complaintsData);
 
-  //  fetchComplaints(); 
-    const filteredComplaints = complaintsData.filter(complaint => complaint.status === "resolved");
+    //  fetchComplaints();
+    const filteredComplaints = complaintsData.filter(
+      (complaint) => complaint.status === "resolved"
+    );
     setComplaints(filteredComplaints);
     message.info("Resolved complaints selected");
   };
-  
+
   const handleOptionThree = () => {
     // Show all complaints
     fetchComplaints(); // Re-fetch all complaints to reset to the full list
@@ -175,9 +174,7 @@ const navigate = useNavigate(); // Initialize the navigate function
       <Menu.Item onClick={() => toggleSortOrder("desc")}>
         Newest First
       </Menu.Item>
-      <Menu.Item onClick={() => toggleSortOrder("asc")}>
-        Oldest First
-      </Menu.Item>
+      <Menu.Item onClick={() => toggleSortOrder("asc")}>Oldest First</Menu.Item>
     </Menu>
   );
   const menu = (
@@ -204,14 +201,14 @@ const navigate = useNavigate(); // Initialize the navigate function
         Complaints
       </Title>
 
-      <Dropdown overlay={menu} trigger={['click']}>
+      <Dropdown overlay={menu} trigger={["click"]}>
         <Button
           style={{
             position: "absolute",
             top: 0,
             right: 0,
             backgroundColor: "#1890ff", // Blue color
-            color: "white", // White text 
+            color: "white", // White text
             marginTop: "20px", // Push it down a bit from the top
             marginRight: "300px", // Add some space from the right edge
           }}
@@ -219,10 +216,9 @@ const navigate = useNavigate(); // Initialize the navigate function
           Filter
         </Button>
       </Dropdown>
-    
 
       {/* Dropdown Button for Sorting - Positioned at the top right of the component */}
-      <Dropdown overlay={sortMenu} trigger={['click']}>
+      <Dropdown overlay={sortMenu} trigger={["click"]}>
         <Button
           type="primary"
           style={{
@@ -244,39 +240,45 @@ const navigate = useNavigate(); // Initialize the navigate function
           {/* If a complaint is selected, show it in a large card */}
           {selectedComplaint ? (
             <div>
-            <Card
-              title={`${selectedComplaint.title}`}
-              bordered={false}
-              style={{
-                width: "100%",
-                textAlign: "center",
-                boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-              }}
-            >
-              <p>Body: {selectedComplaint.body}</p>
-              <p>Date: {new Date(selectedComplaint.date).toLocaleDateString()}</p>
-              <p>Status: {selectedComplaint.status}</p>
+              <Card
+                title={`${selectedComplaint.title}`}
+                bordered={false}
+                style={{
+                  width: "100%",
+                  textAlign: "center",
+                  boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                }}
+              >
+                <p>
+                  <strong>Body:</strong> {selectedComplaint.body}
+                </p>
+                <p>
+                  <strong>Date: </strong>
+                  {new Date(selectedComplaint.date).toLocaleDateString()}
+                </p>
+                <p>
+                  <strong>Status:</strong> {selectedComplaint.status}
+                </p>
 
-              <div style={{ marginTop: 20 }}>
-                <Button
-                  type="primary"
-                  onClick={handleAccept}
-                  style={{ marginRight: 10 }}
-                >
-                  Resolve
-                </Button>
-                <Button
-                  type="default"
-                  onClick={handleReject}
-                >
-                  Reply
-                </Button>
-              </div>
-            </Card>
-            <p><h3>Replies: </h3></p>
+                <div style={{ marginTop: 20 }}>
+                  <Button
+                    type="primary"
+                    onClick={handleAccept}
+                    style={{ marginRight: 10 }}
+                  >
+                    Resolve
+                  </Button>
+                  <Button type="default" onClick={handleReject}>
+                    Reply
+                  </Button>
+                </div>
+              </Card>
+              <p>
+                <h3>Replies: </h3>
+              </p>
 
-{/* Display each word as a separate card */}
-       {selectedComplaint.body.split(' ').map((word, index) => (
+              {/* Display each word as a separate card */}
+              {selectedComplaint.body.split(" ").map((word, index) => (
                 <Card key={index} style={{ marginBottom: "10px" }}>
                   <p>{word}</p>
                 </Card>
@@ -298,56 +300,57 @@ const navigate = useNavigate(); // Initialize the navigate function
                   Send Reply
                 </Button>
               </div>
-
-
-
-
-        </div>
-           
+            </div>
           ) : (
             <Row gutter={[16, 16]} justify="center">
-            {complaints.length > 0 ? (
-              complaints.map((complaint) => (
-                <Col
-                  span={8} // Keep the same span regardless of complaint count
-                  key={complaint._id}
-                  style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}
-                  onClick={() => handleDetailsView(complaint)}
-                >
-                  <Card
-                    title={`Title: ${complaint.title}`}
-                    bordered={false}
+              {complaints.length > 0 ? (
+                complaints.map((complaint) => (
+                  <Col
+                    span={8} // Keep the same span regardless of complaint count
+                    key={complaint._id}
                     style={{
-                      width: "300px", // Set fixed width for consistent card size
-                      minHeight: "200px",
                       display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      boxShadow: "0 4px 8px rgba(0,0,0,0.1)"
+                      justifyContent: "center",
+                      marginBottom: "20px",
                     }}
+                    onClick={() => handleDetailsView(complaint)}
                   >
-                    <p>Status: {complaint.status}</p>
-                    <p>Date: {new Date(complaint.date).toLocaleDateString()}</p>
-                    <Button
-                      type="default"
-                      icon={<BarsOutlined />}
-                      onClick={() => handleDetailsView(complaint)}
-                      style={{ color: "blue" }}
+                    <Card
+                      title={`Title: ${complaint.title}`}
+                      bordered={false}
+                      style={{
+                        width: "300px", // Set fixed width for consistent card size
+                        minHeight: "200px",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                      }}
                     >
-                      View Details
-                    </Button>
-                  </Card>
+                      <p>
+                        <strong>Status: </strong> {complaint.status}
+                      </p>
+                      <p>
+                        <strong>Date: </strong>{" "}
+                        {new Date(complaint.date).toLocaleDateString()}
+                      </p>
+                      <Button
+                        type="default"
+                        icon={<BarsOutlined />}
+                        onClick={() => handleDetailsView(complaint)}
+                        style={{ color: "blue" }}
+                      >
+                        View Details
+                      </Button>
+                    </Card>
+                  </Col>
+                ))
+              ) : (
+                <Col span={24} style={{ textAlign: "center" }}>
+                  <p>No complaints found.</p>
                 </Col>
-              ))
-            ) : (
-              <Col span={24} style={{ textAlign: "center" }}>
-                <p>No complaints found.</p>
-              </Col>
-            )}
-          </Row>
-          
-
-
+              )}
+            </Row>
           )}
         </>
       )}
