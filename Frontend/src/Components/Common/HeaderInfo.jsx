@@ -125,11 +125,10 @@ const HeaderInfo = ({
             (booking) => booking.itineraryId === id
           );
         }
-
-        // console.log("isItemBooked:", isItemBooked);
-        // console.log("iten booked", user.itineraryBookings);
-        // console.log("user.activityBookings:", user.activityBookings);
-        // console.log("user:", user);
+        console.log("isItemBooked:", isItemBooked);
+        console.log("iten booked", user.itineraryBookings);
+        console.log("user.activityBookings:", user.activityBookings);
+        console.log("user:", user);
 
         setIsBooked(isItemBooked);
       }
@@ -268,6 +267,7 @@ const HeaderInfo = ({
         // console.log("Updated token:", newToken);
         decodedToken = jwtDecode(newToken);
         // console.log(newToken);
+        console.log("new token fetched successfully");
       }
     } catch (error) {
       console.error("Error getting new token:", error);
@@ -291,7 +291,8 @@ const HeaderInfo = ({
     try {
       const touristId = userid;
       console.log("here1234", touristId);
-      const useWallet = user.wallet > 0;
+      // const useWallet = user.wallet > 0;
+      const useWallet = true;
       let total;
       let FinalDate;
       if (type === "activity") {

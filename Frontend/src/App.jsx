@@ -14,6 +14,7 @@ import { BellFilled, UserOutlined } from "@ant-design/icons";
 import { IconButton, SideBar } from "./Components/Common";
 import { Colors } from "./Components/Common/Constants";
 import Profile from "./Components/Common/Profile";
+import Notifications from "./Components/Common/Notifications";
 import Itineraries from "./Components/Itineraries";
 import Activities from "./Components/Activities";
 import Venues from "./Components/Venues";
@@ -94,8 +95,7 @@ function App() {
             <Route path="/advertiser/*" element={<Advertiser />} />
             <Route path="/admin/*" element={<Admin />} />
             <Route path="/profile" element={<Profile />} />
-
-
+            <Route path="/notifications" element={<Notifications />} />
             <Route path="/governor/*" element={<TourismGovernor />} />
             <Route path="/seller/*" element={<Seller />} />
             <Route path="/guest/*" element={<Guest />} />
