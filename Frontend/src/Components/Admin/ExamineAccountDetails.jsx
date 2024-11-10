@@ -23,6 +23,13 @@ const ExamineAccountDetails = () => {
     const [imageCert1, setImageCert1] = useState("");
     const [imageCert2, setImageCert2] = useState("");
     const [imageCert3, setImageCert3] = useState("");
+    const [imageCert4, setImageCert4] = useState("");
+    const [imageCert5, setImageCert5] = useState("");
+    const [imageCert6, setImageCert6] = useState("");
+    const [imageCert7, setImageCert7] = useState("");
+    const [imageCert8, setImageCert8] = useState("");
+    const [imageCert9, setImageCert9] = useState("");
+    const [imageCert10, setImageCert10] = useState("");
 
     useEffect(() => {
         const fetchAccountDetails = async () => {
@@ -40,6 +47,13 @@ const ExamineAccountDetails = () => {
                     setImageCert1(hisCertificates[0] ? `http://localhost:3000/${hisCertificates[0]}` : "");
                     setImageCert2(hisCertificates[1] ? `http://localhost:3000/${hisCertificates[1]}` : "");
                     setImageCert3(hisCertificates[2] ? `http://localhost:3000/${hisCertificates[2]}` : "");
+                     setImageCert4(hisCertificates[3] ? `http://localhost:3000/${hisCertificates[3]}` : "");
+                    setImageCert5(hisCertificates[4] ? `http://localhost:3000/${hisCertificates[4]}` : "");
+                    setImageCert6(hisCertificates[5] ? `http://localhost:3000/${hisCertificates[5]}` : "");
+                    setImageCert7(hisCertificates[6] ? `http://localhost:3000/${hisCertificates[6]}` : "");
+                    setImageCert8(hisCertificates[7] ? `http://localhost:3000/${hisCertificates[7]}` : "");
+                    setImageCert9(hisCertificates[8] ? `http://localhost:3000/${hisCertificates[8]}` : "");
+                    setImageCert10(hisCertificates[9] ? `http://localhost:3000/${hisCertificates[9]}` : "");
 
                     setLoading(false);
                 } else if (accountType === "seller" || accountType === "advertiser") {
@@ -111,8 +125,24 @@ const ExamineAccountDetails = () => {
         <>
             <h3>Certificates:</h3>
             {imageCert1 && <img src={imageCert1} alt="Certificate 1" width="500px" height="500px" />}
+            <br/>
             {imageCert2 && <img src={imageCert2} alt="Certificate 2" width="500px" height="500px" />}
+            <br/>
             {imageCert3 && <img src={imageCert3} alt="Certificate 3" width="500px" height="500px" />}
+            <br/>
+            {imageCert4 && <img src={imageCert4} alt="Certificate 4" width="500px" height="500px" />}
+            <br/>
+            {imageCert5 && <img src={imageCert5} alt="Certificate 5" width="500px" height="500px" />}
+            <br/>
+            {imageCert6 && <img src={imageCert6} alt="Certificate 6" width="500px" height="500px" />}
+            <br/>
+            {imageCert7 && <img src={imageCert7} alt="Certificate 7" width="500px" height="500px" />}
+            <br/>
+            {imageCert8 && <img src={imageCert8} alt="Certificate 8" width="500px" height="500px" />}
+            <br/>
+            {imageCert9 && <img src={imageCert9} alt="Certificate 9" width="500px" height="500px" />}
+            <br/>
+            {imageCert10 && <img src={imageCert10} alt="Certificate 10" width="500px" height="500px" />}
         </>
     )}
 
