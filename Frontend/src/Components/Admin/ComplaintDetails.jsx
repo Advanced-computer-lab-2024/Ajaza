@@ -33,7 +33,8 @@ const ComplaintRepliesTimeline = ({ complaint }) => {
         items={
           complaint.replies?.map((reply) => ({
             
-            label:  reply.name + ":    " + new Date(reply.date).toLocaleDateString(),
+            
+            label:  (reply.name === "Admin" ? "You" : reply.name) + ":    " + new Date(reply.date).toLocaleDateString(),
             children: reply.text,
           })) || []
         }
@@ -94,7 +95,7 @@ const ComplaintDetails = () => {
     try {
       await axios.post(apiUrl + `complaint/replies/${complaint._id}`, {
         text: reply,
-        name: "admin",
+        name: "Admin",
         
       });
       setReply(""); // Clear the input field after sending

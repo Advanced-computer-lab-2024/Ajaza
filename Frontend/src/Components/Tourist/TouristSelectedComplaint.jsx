@@ -29,7 +29,7 @@ const ComplaintRepliesTimeline = ({ complaint }) => {
         mode={mode}
         items={
           complaint.replies?.map((reply) => ({
-            label: new Date(reply.date).toLocaleDateString(),
+            label: (reply.name === "Admin" ? "Admin:" : "You:") + "  " +  new Date(reply.date).toLocaleDateString(),
             children: reply.text,
           })) || []
         }
@@ -50,6 +50,7 @@ const TouristSelectedComplaint = () => {
   const fetchComplaintDetails = async () => {
     try {
       const response = await axios.get(`${apiUrl}complaint/${id}`);
+      
       const complaint = {
         ...response.data,
         status: response.data.pending ? "pending" : "resolved", // Add the 'status' based on 'pending'
@@ -88,8 +89,11 @@ const TouristSelectedComplaint = () => {
     }
 
     try {
+      const response = await axios.get(`${apiUrl}complaint/${id}`);
+      let touristUsername = response.data.touristId.username;
       await axios.post(apiUrl + `complaint/replies/${complaint._id}`, {
         text: reply,
+        name: touristUsername,
         
       });
       setReply(""); // Clear the input field after sending
