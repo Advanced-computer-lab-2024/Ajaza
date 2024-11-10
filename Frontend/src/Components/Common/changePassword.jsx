@@ -17,6 +17,8 @@ import { apiUrl } from "../Common/Constants";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
 
+import { useAdminMenuKey } from "../Admin/AdminMenuKeyContext";
+
 const ChangePasswordForm = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
@@ -24,6 +26,8 @@ const ChangePasswordForm = () => {
   const [role, setRole] = useState("");
   const [userId, setUserId] = useState(null);
   const [token, setToken] = useState("");
+
+  //const { selectedMenuKey, updateSelectedMenuKey } = useAdminMenuKey();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -79,7 +83,9 @@ const ChangePasswordForm = () => {
       message.success("Password updated successfully!");
       if (role === "governor") {
         navigate("/governor/");
+        localStorage.setItem("selectedMenuKey", 1);
       } else if (role === "admin") {
+        // updateSelectedMenuKey("setting:2");
         navigate("/admin");
       } else {
         if (role) {

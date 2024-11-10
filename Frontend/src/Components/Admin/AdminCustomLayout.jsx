@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   MenuFoldOutlined,
@@ -15,10 +15,12 @@ import IconFloatButton from "../Common/IconFloatButton";
 import { Colors } from "../Common/Constants";
 
 import image from "../../Assets/logo-cropped.svg";
+import { useAdminMenuKey } from "./AdminMenuKeyContext";
 
 const { Header, Sider, Content } = Layout;
 
 const AdminCustomLayout = ({ children }) => {
+  const { selectedMenuKey, updateSelectedMenuKey } = useAdminMenuKey();
   const navigate = useNavigate();
   //  const [user, setUser] = useState("");
   const [collapsed, setCollapsed] = useState(true);
@@ -86,6 +88,8 @@ const AdminCustomLayout = ({ children }) => {
   } = theme.useToken();
 
   const handleMenuClick = ({ key }) => {
+    updateSelectedMenuKey(key);
+    localStorage.setItem("selectedMenuKey", key);
     if (key === "setting:2") {
       navigate("/admin");
     } else if (key === "5") {
@@ -126,6 +130,7 @@ const AdminCustomLayout = ({ children }) => {
         <Menu
           theme="dark"
           mode="inline"
+          defaultSelectedKeys={[selectedMenuKey]}
           onClick={handleMenuClick}
           style={{ transition: "all 0.3s ease" }}
           items={[

@@ -470,7 +470,7 @@ const Profile = () => {
               <img
                 src={logo}
                 alt="Logo"
-                style={{ width: "100px", height: "100px" }}
+                style={{ width: "100px", height: "100px", borderRadius: "50%" }}
               />
             </div>
           )}
@@ -479,7 +479,7 @@ const Profile = () => {
               <img
                 src={logo}
                 alt="Logo"
-                style={{ width: "100px", height: "100px" }}
+                style={{ width: "100px", height: "100px", borderRadius: "50%" }}
               />
             </div>
           )}
@@ -488,7 +488,7 @@ const Profile = () => {
               <img
                 src={photo}
                 alt="Photo"
-                style={{ width: "100px", height: "100px" }}
+                style={{ width: "100px", height: "100px", borderRadius: "50%" }}
               />
             </div>
           )}
