@@ -33,7 +33,7 @@ router.delete("/deleteGuides", guideController.deleteGuidesRequestingDeletion);
 
 // req52 & req53
 router.post(
-  "/:touristId/guide/:itineraryId/feedback",
+  "/:touristId/guide/:guideId/feedback",
   guideController.giveGuideFeedback
 );
 //req 7

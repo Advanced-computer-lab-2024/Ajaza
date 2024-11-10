@@ -106,6 +106,8 @@ exports.giveGuideFeedback = async (req, res) => {
     // Find the guide and append feedback
     const guide = await Guide.findById(guideId);
     if (!guide) {
+      console.log(touristId);
+      console.log(guideId);
       return res.status(404).json({ message: "Guide not found" });
     }
 

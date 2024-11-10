@@ -981,7 +981,8 @@ exports.getHistory = async (req, res) => {
           guides.push({
             guideId: tourist.itineraryBookings[i].itineraryId.guideId,
             name: guideName.username,
-            gaveFeedback: numberOfBookingsWithGuide < guideNumberOfTimesRated,
+            gaveFeedback: tourist.gaveFeedback.includes(tourist.itineraryBookings[i].itineraryId.guideId),
+            //gaveFeedback: numberOfBookingsWithGuide < guideNumberOfTimesRated,
           });
           guideNames.push(guideName.username);
         }
