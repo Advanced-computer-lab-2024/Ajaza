@@ -38,7 +38,7 @@ const Admin = () => {
     const token = localStorage.getItem("token");
 
     console.log("Token:", token);
-    // console.log("decodedToken:", jwtDecode(token));
+    console.log("decodedToken:", jwtDecode(token));
 
     if (token) {
       try {
