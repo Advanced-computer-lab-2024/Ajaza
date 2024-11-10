@@ -143,6 +143,7 @@ const Venues = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    if (!token) return;
     const decodedToken = jwtDecode(token);
     setUser(decodedToken?.userDetails);
   }, []);

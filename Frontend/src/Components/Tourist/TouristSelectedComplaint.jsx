@@ -5,9 +5,6 @@ import axios from "axios";
 import { apiUrl } from "../Common/Constants";
 import { Card, Button, Input, message, Timeline, Radio } from "antd";
 
-
-const token = localStorage.getItem("token");
-
 // Define ComplaintRepliesTimeline as a separate component
 const ComplaintRepliesTimeline = ({ complaint }) => {
   const [mode, setMode] = useState("left");
@@ -32,8 +29,7 @@ const ComplaintRepliesTimeline = ({ complaint }) => {
         mode={mode}
         items={
           complaint.replies?.map((reply) => ({
-            
-            label:  reply.name + "    " + new Date(reply.date).toLocaleDateString(),
+            label: new Date(reply.date).toLocaleDateString(),
             children: reply.text,
           })) || []
         }
@@ -43,7 +39,7 @@ const ComplaintRepliesTimeline = ({ complaint }) => {
   );
 };
 
-const ComplaintDetails = () => {
+const TouristSelectedComplaint = () => {
                                                                    
   const { id } = useParams(); // Get the complaint ID from the URL
   const [complaint, setComplaint] = useState(null);
@@ -121,15 +117,7 @@ const ComplaintDetails = () => {
         <p>Date: {new Date(complaint.date).toLocaleDateString()}</p>
         <p>Status: {complaint.status}</p>
 
-        <div style={{ marginTop: 20 }}>
-          <Button
-            type="primary"
-            onClick={handleAccept}
-            style={{ marginRight: 10 }}
-          >
-            Resolve
-          </Button>
-        </div>
+       
       </Card>
       <br/>
       <br/>
@@ -156,4 +144,4 @@ const ComplaintDetails = () => {
   );
 };
 
-export default ComplaintDetails;
+export default TouristSelectedComplaint;

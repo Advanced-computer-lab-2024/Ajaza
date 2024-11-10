@@ -39,7 +39,7 @@ import Hotels from "./Hotels";
 import SignIn from "../Sign/SignIn";
 import ThirdParty from "./ThirdParty";
 import Transportations from "./Transportations";
-
+import TouristSelectedComplaint from "./TouristSelectedComplaint";
 const Tourist = () => {
   const [response, setResponse] = useState([]);
   const navigate = useNavigate();
@@ -211,6 +211,7 @@ const Tourist = () => {
         <Route path="redeemPoints" element={<RedeemPoints />} />
         <Route path="fileComplaint" element={<FileComplaint />} />
         <Route path="complaints" element={<Complaints />} />
+        <Route path="complaints/:id" element={<TouristSelectedComplaint />} />
         <Route path="touristHistory" element={<TouristHistory />} />
         <Route path="auth/signin" element={<SignIn />} />
 

@@ -221,7 +221,6 @@ const Itineraries = () => {
         combinedArray = combinedArray.map((element) => {
           return { ...element, avgRating: getAvgRating(element.feedback) };
         });
-        console.log(combinedArray);
 
         setCombinedElements(combinedArray);
       } catch (error) {
