@@ -152,13 +152,15 @@ const ItineraryAdmin = () => {
           pickUp={itinerary?.pickUp}
           dropOff={itinerary?.dropOff}
           creatorName={itinerary?.guideId?.username}
-          type={"activity"}
+          type={"itinerary"}
+          isFlagged={itinerary?.isFlagged}
+          handleFlagClick={handleFlagClick}
           availableDates={itinerary.availableDateTime}
         />
       )}
 
       {/* Flag Button and Discount Offer */}
-      <div
+      {/* <div
         style={{
           display: "flex",
           flexDirection: "column",
@@ -183,11 +185,10 @@ const ItineraryAdmin = () => {
           }}
         ></button>
 
-        {/* Display the Discount */}
         <div style={{ fontSize: "16px", fontWeight: "bold" }}>
           Flag as Inappropriate
         </div>
-      </div>
+      </div> */}
 
       {/* Confirmation Modal */}
       <Modal
@@ -195,15 +196,16 @@ const ItineraryAdmin = () => {
         visible={isModalVisible}
         onOk={confirmFlag}
         onCancel={cancelFlag}
-        okText="Yes"
-        cancelText="No"
+        okType="danger"
+        okText="Flag"
+        cancelText="Cancel"
       >
         <p>Are you sure you want to flag this itinerary as Inappropriate?</p>
       </Modal>
 
       {/* Confirmation Modal */}
       <Modal
-        title="Confirm Flag"
+        title="Confirm UnFlag"
         visible={unflagisModalVisible}
         onOk={confirmUnFlag}
         onCancel={cancelUnFlag}

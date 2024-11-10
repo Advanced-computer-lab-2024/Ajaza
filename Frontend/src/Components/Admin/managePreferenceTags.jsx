@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Card, Button, Typography, Modal, Input, message } from "antd";
-import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  MinusOutlined,
+} from "@ant-design/icons";
 import { apiUrl } from "../Common/Constants";
 import Admin from "./Admin";
 import { jwtDecode } from "jwt-decode";
-
 
 const { Title } = Typography;
 
@@ -66,7 +70,7 @@ const ManagePreferenceTags = () => {
   // Handle delete tag
   const handleDelete = async (tagId) => {
     try {
-      await axios.delete( apiUrl + `tag/${tagId}`);
+      await axios.delete(apiUrl + `tag/${tagId}`);
       const updatedCategories = categories.filter((tag) => tag._id !== tagId);
       setCategories(updatedCategories);
       message.success("Preference Tag deleted successfully!");
@@ -87,8 +91,9 @@ const ManagePreferenceTags = () => {
       const token = localStorage.getItem("token");
       const decodedToken = jwtDecode(token);
       console.log(decodedToken);
-      const response = await axios.post( apiUrl + "tag", {
-        tag: newtagName, adminId: decodedToken.userDetails._id,
+      const response = await axios.post(apiUrl + "tag", {
+        tag: newtagName,
+        adminId: decodedToken.userDetails._id,
       });
 
       if (response.status === 201) {
@@ -116,6 +121,7 @@ const ManagePreferenceTags = () => {
           marginBottom: "24px",
           display: "flex",
           alignItems: "center",
+          justifyContent: "center",
         }}
       >
         {addingtag && (
@@ -140,18 +146,18 @@ const ManagePreferenceTags = () => {
 
         <Button
           type="primary"
-          icon={<PlusOutlined />}
+          icon={addingtag ? <MinusOutlined /> : <PlusOutlined />}
           onClick={() => setAddingtag(!addingtag)}
         >
-          Add Tag
+          {addingtag ? "Close Tag" : "Add Tag"}
         </Button>
       </div>
 
       <div
         style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "16px",
+          display: "grid",
+          gridTemplateColumns: "22% 22% 22% 22%",
+          gridGap: "4%",
         }}
       >
         {categories.map((tag) => (
@@ -191,4 +197,3 @@ const ManagePreferenceTags = () => {
 };
 
 export default ManagePreferenceTags;
-

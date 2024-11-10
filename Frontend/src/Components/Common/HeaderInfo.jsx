@@ -10,6 +10,7 @@ import {
   Input,
   Menu,
   message,
+  Button,
 } from "antd";
 import { Colors, apiUrl } from "./Constants";
 import CustomButton from "./CustomButton";
@@ -18,6 +19,9 @@ import {
   ShareAltOutlined,
   HeartOutlined,
   HeartFilled,
+  FlagFilled,
+  FlagOutlined,
+  FlagTwoTone,
 } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 
@@ -26,6 +30,8 @@ import { convertDateToString, camelCaseToNormalText } from "./Constants";
 import Timeline from "./Timeline";
 import { Dropdown } from "antd";
 import { useLocation } from "react-router-dom";
+import "./HeaderInfo.css";
+
 const { Option } = Select;
 
 const token = localStorage.getItem("token");
@@ -76,6 +82,8 @@ const HeaderInfo = ({
   avgRating,
   colSpan,
   desc,
+  isFlagged,
+  handleFlagClick,
 }) => {
   const [multiplePhotos, setMultiplePhotos] = useState(false);
 
@@ -135,7 +143,6 @@ const HeaderInfo = ({
       if (priceLower == priceUpper) {
         const priceLowerTemp = priceLower - (discounts / 100) * priceLower;
         setPriceString(`${priceLowerTemp}`);
-
       } else if (priceLower && priceUpper && priceLower !== priceUpper) {
         const priceLowerTemp = priceLower - (discounts / 100) * priceLower;
         const priceUpperTemp = priceUpper - (discounts / 100) * priceUpper;
@@ -735,8 +742,44 @@ const HeaderInfo = ({
                   }}
                 />
               </Dropdown>
-
-              {(type === "activity" || type === "itinerary") &&
+              {(type == "activity" || type == "itinerary") &&
+              decodedToken?.role == "admin" ? (
+                isFlagged ? (
+                  <Button
+                    style={{ height: "40px" }}
+                    className="flagButton"
+                    icon={
+                      <FlagTwoTone
+                        twoToneColor={Colors.warningDark}
+                        style={{ color: Colors.warning, fontSize: "25px" }}
+                      />
+                    }
+                    onClick={handleFlagClick}
+                  >
+                    <div
+                      style={{ fontWeight: "bold", color: Colors.warningDark }}
+                    >
+                      UnFlag
+                    </div>
+                  </Button>
+                ) : (
+                  <Button
+                    className="flagButton"
+                    style={{ height: "40px" }}
+                    icon={
+                      <FlagOutlined
+                        style={{ color: Colors.warning, fontSize: "25px" }}
+                      />
+                    }
+                    onClick={handleFlagClick}
+                  >
+                    <div style={{ fontWeight: "bold", color: Colors.warning }}>
+                      Flag
+                    </div>
+                  </Button>
+                )
+              ) : (
+                (type === "activity" || type === "itinerary") &&
                 (isBooked ? (
                   <CustomButton
                     size={"s"}
@@ -755,7 +798,8 @@ const HeaderInfo = ({
                     value={"Book"}
                     onClick={showBookingModal}
                   />
-                ))}
+                ))
+              )}
             </Flex>
           </Flex>
           <Flex
