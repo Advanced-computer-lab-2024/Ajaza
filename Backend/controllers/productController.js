@@ -16,10 +16,11 @@ exports.createProduct = async (req, res) => {
 
 // Get all products req81
 exports.getAllProducts = async (req, res) => {
+  console.log("reached");
   try {
     const products = await Product.find({hidden: { $ne: true }/*, archived: { $ne: true },*/});
     if(!products || products.length === 0){
-      //return res.status(404).json({ message: "No products found" });
+      return res.status(404).json({ message: "No products found" });
     }
     res.status(200).json(products);
   } catch (error) {
