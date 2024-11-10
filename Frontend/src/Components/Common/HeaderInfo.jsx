@@ -384,16 +384,19 @@ const HeaderInfo = ({
               style={{ width: "100%", marginBottom: 10 }}
             >
               <Option value={discountedPriceLower}>
-                {discountedPriceLower.toFixed(2)}$
+                {currencySymbol}
+                {discountedPriceLower.toFixed(2)}
               </Option>
               {priceUpper !== priceLower && (
                 <Option value={discountedMiddlePrice}>
-                  {discountedMiddlePrice.toFixed(2)}$
+                  {currencySymbol}
+                  {discountedMiddlePrice.toFixed(2)}
                 </Option>
               )}
               {priceUpper !== priceLower && (
                 <Option value={discountedPriceUpper}>
-                  {discountedPriceUpper.toFixed(2)}$
+                  {currencySymbol}
+                  {discountedPriceUpper.toFixed(2)}
                 </Option>
               )}
             </Select>
