@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Item from "./Item";
-import { Form } from "antd";
+import { Form, Spin, Flex } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { apiUrl } from "./Constants";
+import { apiUrl, Colors } from "./Constants";
+import LoadingSpinner from "./LoadingSpinner";
 import SelectCurrency from "../Tourist/SelectCurrency";
 import { useCurrency } from "../Tourist/CurrencyContext";
+
 const Itinerary = () => {
   const { id } = useParams();
   const [itinerary, setItinerary] = useState(null);
@@ -15,7 +18,8 @@ const Itinerary = () => {
 
   const handleCurrencyChange = (newCurrency) => {
     setCurrency(newCurrency);
-  };  const [currencyRates] = useState({
+  };
+  const [currencyRates] = useState({
     EGP: 48.58,
     USD: 1,
     EUR: 0.91,
@@ -61,18 +65,21 @@ const Itinerary = () => {
   //   itinerary?.availableDateTime?.map((d) => d.date).join(", ") || "";
 
   if (!itinerary) {
-    return <div>Loading itienerary... </div>;
+    return <LoadingSpinner />;
   }
-  console.log(itinerary);
 
-
-  const convertedPrice = itinerary ? (itinerary.price * currencyRates[currency]).toFixed(2) : 0;
+  const convertedPrice = itinerary
+    ? (itinerary.price * currencyRates[currency]).toFixed(2)
+    : 0;
 
   return (
     <>
-       <SelectCurrency currency={currency} onCurrencyChange={handleCurrencyChange} style={{left:500, top:45}}/>
-
-
+      <SelectCurrency
+        currency={currency}
+        onCurrencyChange={handleCurrencyChange}
+        style={{ left: 500, top: 45 }}
+      />
+      {itinerary && (
         <Item
           id={itinerary._id}
           name={itinerary.name}
@@ -94,7 +101,7 @@ const Itinerary = () => {
           type={"itinerary"}
           availableDates={itinerary.availableDateTime}
         />
-  
+      )}
     </>
   );
 };

@@ -4,6 +4,7 @@ import { Form } from "antd";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { apiUrl } from "./Constants";
+import LoadingSpinner from "./LoadingSpinner";
 import SelectCurrency from "../Tourist/SelectCurrency";
 import { useCurrency } from "../Tourist/CurrencyContext";
 const Activity = () => {
@@ -14,7 +15,8 @@ const Activity = () => {
 
   const handleCurrencyChange = (newCurrency) => {
     setCurrency(newCurrency);
-  };  const [currencyRates] = useState({
+  };
+  const [currencyRates] = useState({
     EGP: 48.58,
     USD: 1,
     EUR: 0.91,
@@ -58,15 +60,23 @@ const Activity = () => {
     return <div>Loading activity...</div>;
   }
 
-  const discount = 10;
+  if (!activity) {
+    return <LoadingSpinner />;
+  }
 
-  
-
-  const convertedLowerPrice = activity ? (activity.lower * currencyRates[currency]).toFixed(2) : 0;
-  const convertedUpperPrice = activity ? (activity.upper * currencyRates[currency]).toFixed(2) : 0;
+  const convertedLowerPrice = activity
+    ? (activity.lower * currencyRates[currency]).toFixed(2)
+    : 0;
+  const convertedUpperPrice = activity
+    ? (activity.upper * currencyRates[currency]).toFixed(2)
+    : 0;
   return (
     <>
-   <SelectCurrency currency={currency} onCurrencyChange={handleCurrencyChange} style={{left:400, top:45}}/>
+      <SelectCurrency
+        currency={currency}
+        onCurrencyChange={handleCurrencyChange}
+        style={{ left: 400, top: 45 }}
+      />
 
       <Item
         id={activity?._id}
@@ -76,9 +86,9 @@ const Activity = () => {
           setActivity({ ...activity, feedback: newFeedback })
         }
         tags={activity?.tags || []}
-        price={`${convertedLowerPrice} - ${convertedUpperPrice}`} 
-        priceLower={convertedLowerPrice} 
-        priceUpper={convertedUpperPrice} 
+        price={`${convertedLowerPrice} - ${convertedUpperPrice}`}
+        priceLower={convertedLowerPrice}
+        priceUpper={convertedUpperPrice}
         category={activity?.category}
         location={activity?.location}
         transportation={activity?.transportation}

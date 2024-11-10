@@ -18,6 +18,8 @@ const CreateTourGuide = () => {
   });
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false); // Loading state for displaying the wait message
+  const [canNext, setCanNext] = useState(true);
+
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -31,18 +33,17 @@ const CreateTourGuide = () => {
   };
 
   const nextStep = async () => {
-    setLoading(true)
+    if (!canNext) return;
+    setLoading(true);
     // Validate the registration form before moving to the next step
     try {
       await validateRegistrationForm();
       setCurrentStep(2);
     } catch (error) {
       message.error(error.message);
+    } finally {
+      setLoading(false);
     }
-      finally{
-        setLoading(false)
-    }
-    
   };
 
   const previousStep = () => {
@@ -65,22 +66,24 @@ const CreateTourGuide = () => {
 
     // Check for existing username and email in the database
     try {
-      const response = await axios.post("http://localhost:5000/guide/validateEmailUsername", {
-        email,
-        username,
-      });
+      const response = await axios.post(
+        "http://localhost:5000/guide/validateEmailUsername",
+        {
+          email,
+          username,
+        }
+      );
 
       if (response.data.exists) {
         throw new Error(response.data.message); // Use custom error message from backend
       }
-      
     } catch (error) {
       throw new Error(error.response?.data?.message || "Validation failed.");
     }
   };
 
   const registerTourGuide = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       await validateUploadForm(); // Validate upload form before submitting
 
@@ -95,7 +98,10 @@ const CreateTourGuide = () => {
 
       if (formData.document2 && formData.document2.length > 0) {
         for (let i = 0; i < formData.document2.length; i++) {
-          formDataToSubmit.append("certificates", formData.document2[i].originFileObj);
+          formDataToSubmit.append(
+            "certificates",
+            formData.document2[i].originFileObj
+          );
         }
       }
       navigate("/auth/signin");
@@ -115,17 +121,21 @@ const CreateTourGuide = () => {
       if (response.status === 201) {
         navigate("/auth/signin");
       }
-
     } catch (error) {
-      if (error.message === "Please upload your ID!" || error.message === "Please upload your certificates!") {
+      if (
+        error.message === "Please upload your ID!" ||
+        error.message === "Please upload your certificates!"
+      ) {
         message.error(error.message);
       } else {
-        const errorDetails = error.response?.data?.message || error.response?.data?.error || "Failed to create tour guide.";
+        const errorDetails =
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to create tour guide.";
         message.error(`Failed to create tour guide: ${errorDetails}`);
       }
-    }
-    finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -147,6 +157,28 @@ const CreateTourGuide = () => {
       message.error("You can only upload image files!");
     }
     return isImage || Upload.LIST_IGNORE;
+  };
+
+  const passwordStrengthValidator = (_, value) => {
+    if (!value) {
+      return Promise.resolve(); // Skip validation if no value is present (the 'required' rule will handle this)
+    }
+
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+
+    if (!regex.test(value)) {
+      setCanNext(false);
+
+      return Promise.reject(
+        new Error(
+          "Password must be at least 8 characters long, contain an uppercase letter, a lowercase letter, a number, and a special character."
+        )
+      );
+    }
+    setCanNext(true);
+
+    return Promise.resolve(); // pw is strong
   };
 
   return (
@@ -176,15 +208,25 @@ const CreateTourGuide = () => {
                   { type: "email", message: "Please enter a valid email!" },
                 ]}
               >
-                <Input name="email" value={formData.email} onChange={handleInputChange} />
+                <Input
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                />
               </Form.Item>
 
               <Form.Item
                 label="Username"
                 name="username"
-                rules={[{ required: true, message: "Please input your username!" }]}
+                rules={[
+                  { required: true, message: "Please input your username!" },
+                ]}
               >
-                <Input name="username" value={formData.username} onChange={handleInputChange} />
+                <Input
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                />
               </Form.Item>
 
               <Form.Item
@@ -192,10 +234,14 @@ const CreateTourGuide = () => {
                 name="password"
                 rules={[
                   { required: true, message: "Please input your password!" },
-                  { min: 6, message: "Password must be at least 6 characters!" },
+                  { validator: passwordStrengthValidator },
                 ]}
               >
-                <Input.Password name="password" value={formData.password} onChange={handleInputChange} />
+                <Input.Password
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                />
               </Form.Item>
 
               <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
@@ -203,7 +249,7 @@ const CreateTourGuide = () => {
                   type="primary"
                   onClick={nextStep}
                   size="s"
-                  value={loading?"":"Next"}
+                  value={loading ? "" : "Next"}
                   rounded={true}
                   loading={loading}
                 />
@@ -230,7 +276,11 @@ const CreateTourGuide = () => {
                   onChange={handleFileChange("document1")}
                   accept="image/*" // Only accept image files
                 >
-                  <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
+                  <CustomButton
+                    icon={<UploadOutlined />}
+                    size="m"
+                    value="Upload"
+                  />
                 </Upload>
               </Form.Item>
 
@@ -251,7 +301,11 @@ const CreateTourGuide = () => {
                   onChange={handleFileChange("document2")}
                   accept="image/*" // Only accept image files
                 >
-                  <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
+                  <CustomButton
+                    icon={<UploadOutlined />}
+                    size="m"
+                    value="Upload"
+                  />
                 </Upload>
               </Form.Item>
 
@@ -263,7 +317,7 @@ const CreateTourGuide = () => {
                   value="Previous"
                   rounded={true}
                 />
-                
+
                 <CustomButton
                   type="primary"
                   onClick={registerTourGuide}

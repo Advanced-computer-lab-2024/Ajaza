@@ -11,6 +11,7 @@ const bcrypt = require("bcrypt");
 const Product = require("../models/Product");
 const Tag = require("../models/Tag");
 const Category = require("../models/Category");
+const Img = require("../models/Img");
 
 // Create a new admin
 exports.createAdmin = async (req, res) => {
@@ -158,6 +159,15 @@ exports.adminDeletesAdminFromSystem = async (req, res) => {
       return res.status(404).json({ message: "Admin not found" });
     }
     res.status(200).json({ message: "Admin deleted successfully", result });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.deleteImgs = async (req, res) => {
+  try {
+    await Img.deleteMany({});
+    res.status(200).json({ message: "done" });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

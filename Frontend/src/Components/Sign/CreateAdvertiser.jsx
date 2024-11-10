@@ -19,6 +19,7 @@ const CreateAdvertiser = () => {
   });
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false); // Loading state for displaying the wait message
+  const [canNext, setCanNext] = useState(true);
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -32,21 +33,21 @@ const CreateAdvertiser = () => {
   };
 
   const nextStep = async () => {
-    setLoading(true)
+    if (!canNext) return;
+    setLoading(true);
     // Validate the registration form before moving to the next step
     try {
       await validateRegistrationForm();
       setCurrentStep(2);
     } catch (error) {
       message.error(error.message);
-      
-    }finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
 
   const previousStep = () => {
-      setCurrentStep(1);
+    setCurrentStep(1);
   };
 
   const validateRegistrationForm = async () => {
@@ -65,91 +66,118 @@ const CreateAdvertiser = () => {
 
     // Check for existing username and email in the database
     try {
-      const response = await axios.post("http://localhost:5000/advertiser/validateEmailUsername", {
-        email,
-        username,
-      });
+      const response = await axios.post(
+        "http://localhost:5000/advertiser/validateEmailUsername",
+        {
+          email,
+          username,
+        }
+      );
 
       if (response.data.exists) {
         throw new Error(response.data.message); // Use custom error message from backend
       }
-      
     } catch (error) {
       throw new Error(error.response?.data?.message || "Validation failed.");
     }
   };
 
   const registerAdvertiser = async () => {
-  setLoading(true)
-  try {
-    await validateUploadForm(); // Validate upload form before submitting
+    setLoading(true);
+    try {
+      await validateUploadForm(); // Validate upload form before submitting
 
-    const formDataToSubmit = new FormData();
-    formDataToSubmit.append("username", formData.username);
-    formDataToSubmit.append("pass", formData.password);
-    formDataToSubmit.append("email", formData.email);
+      const formDataToSubmit = new FormData();
+      formDataToSubmit.append("username", formData.username);
+      formDataToSubmit.append("pass", formData.password);
+      formDataToSubmit.append("email", formData.email);
 
-    if (formData.document1 && formData.document1.length > 0) {
-      formDataToSubmit.append("id", formData.document1[0].originFileObj);
-    }
-
-    if (formData.document2 && formData.document2.length > 0) {
-
-      formDataToSubmit.append("taxationRegCard", formData.document2[0].originFileObj);
-      
-    }
-   
-
-    navigate("/auth/signin");
-      
-    const response = await axios.post(
-      "http://localhost:5000/advertiser/guestAdvertiserCreateProfile",
-      formDataToSubmit,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      if (formData.document1 && formData.document1.length > 0) {
+        formDataToSubmit.append("id", formData.document1[0].originFileObj);
       }
-    );
 
-    message.success("Advertiser created successfully!");
+      if (formData.document2 && formData.document2.length > 0) {
+        formDataToSubmit.append(
+          "taxationRegCard",
+          formData.document2[0].originFileObj
+        );
+      }
 
-    if (response.status === 201) {
       navigate("/auth/signin");
+
+      const response = await axios.post(
+        "http://localhost:5000/advertiser/guestAdvertiserCreateProfile",
+        formDataToSubmit,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      message.success("Advertiser created successfully!");
+
+      if (response.status === 201) {
+        navigate("/auth/signin");
+      }
+    } catch (error) {
+      if (
+        error.message === "Please upload your ID!" ||
+        error.message === "Please upload your Taxation Registry Card!"
+      ) {
+        message.error(error.message);
+      } else {
+        const errorDetails =
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to create advertiser.";
+        message.error(`Failed to advertiser: ${errorDetails}`);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const validateUploadForm = () => {
+    return new Promise((resolve, reject) => {
+      if (!formData.document1 || formData.document1.length === 0) {
+        reject(new Error("Please upload your ID!"));
+      }
+      if (!formData.document2 || formData.document2.length === 0) {
+        reject(new Error("Please upload your Taxation Registry Card!"));
+      }
+      resolve();
+    });
+  };
+
+  const beforeUpload = (file) => {
+    const isImage = file.type.startsWith("image/");
+    if (!isImage) {
+      message.error("You can only upload image files!");
+    }
+    return isImage || Upload.LIST_IGNORE;
+  };
+
+  const passwordStrengthValidator = (_, value) => {
+    if (!value) {
+      return Promise.resolve(); // Skip validation if no value is present (the 'required' rule will handle this)
     }
 
-  } catch (error) {
-    if (error.message === "Please upload your ID!" || error.message === "Please upload your Taxation Registry Card!") {
-      message.error(error.message);
-    } else {
-      const errorDetails = error.response?.data?.message || error.response?.data?.error || "Failed to create advertiser.";
-      message.error(`Failed to advertiser: ${errorDetails}`);
-    }
-  }
-  finally{
-    setLoading(false)
-  }
-};
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
 
-const validateUploadForm = () => {
-  return new Promise((resolve, reject) => {
-    if (!formData.document1 || formData.document1.length === 0) {
-      reject(new Error("Please upload your ID!"));
+    if (!regex.test(value)) {
+      setCanNext(false);
+      return Promise.reject(
+        new Error(
+          "Password must be at least 8 characters long, contain an uppercase letter, a lowercase letter, a number, and a special character."
+        )
+      );
     }
-    if (!formData.document2 || formData.document2.length === 0) {
-      reject(new Error("Please upload your Taxation Registry Card!"));
-    }
-    resolve();
-  });
-};
 
-const beforeUpload = (file) => {
-  const isImage = file.type.startsWith("image/");
-  if (!isImage) {
-    message.error("You can only upload image files!");
-  }
-  return isImage || Upload.LIST_IGNORE;
-};
+    setCanNext(true);
+    return Promise.resolve(); // pw is strong
+  };
 
   return (
     <>
@@ -178,15 +206,25 @@ const beforeUpload = (file) => {
                   { type: "email", message: "Please enter a valid email!" },
                 ]}
               >
-                <Input name="email" value={formData.email} onChange={handleInputChange} />
+                <Input
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                />
               </Form.Item>
 
               <Form.Item
                 label="Username"
                 name="username"
-                rules={[{ required: true, message: "Please input your username!" }]}
+                rules={[
+                  { required: true, message: "Please input your username!" },
+                ]}
               >
-                <Input name="username" value={formData.username} onChange={handleInputChange} />
+                <Input
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                />
               </Form.Item>
 
               <Form.Item
@@ -194,10 +232,14 @@ const beforeUpload = (file) => {
                 name="password"
                 rules={[
                   { required: true, message: "Please input your password!" },
-                  { min: 6, message: "Password must be at least 6 characters!" },
+                  { validator: passwordStrengthValidator },
                 ]}
               >
-                <Input.Password name="password" value={formData.password} onChange={handleInputChange} />
+                <Input.Password
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                />
               </Form.Item>
 
               <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
@@ -205,7 +247,7 @@ const beforeUpload = (file) => {
                   type="primary"
                   onClick={nextStep}
                   size="s"
-                  value={loading?"":"Next"}
+                  value={loading ? "" : "Next"}
                   rounded={true}
                   loading={loading}
                 />
@@ -232,7 +274,11 @@ const beforeUpload = (file) => {
                   onChange={handleFileChange("document1")}
                   accept="image/*" // Only accept image files
                 >
-                  <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
+                  <CustomButton
+                    icon={<UploadOutlined />}
+                    size="m"
+                    value="Upload"
+                  />
                 </Upload>
               </Form.Item>
 
@@ -253,7 +299,11 @@ const beforeUpload = (file) => {
                   onChange={handleFileChange("document2")}
                   accept="image/*" // Only accept image files
                 >
-                  <CustomButton icon={<UploadOutlined />} size="m" value="Upload" />
+                  <CustomButton
+                    icon={<UploadOutlined />}
+                    size="m"
+                    value="Upload"
+                  />
                 </Upload>
               </Form.Item>
 
@@ -265,7 +315,7 @@ const beforeUpload = (file) => {
                   value="Previous"
                   rounded={true}
                 />
-                
+
                 <CustomButton
                   type="primary"
                   onClick={registerAdvertiser}
