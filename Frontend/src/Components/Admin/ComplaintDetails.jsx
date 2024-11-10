@@ -5,7 +5,6 @@ import axios from "axios";
 import { apiUrl } from "../Common/Constants";
 import { Card, Button, Input, message, Timeline, Radio } from "antd";
 
-
 const token = localStorage.getItem("token");
 
 // Define ComplaintRepliesTimeline as a separate component
@@ -18,8 +17,7 @@ const ComplaintRepliesTimeline = ({ complaint }) => {
 
   return (
     <>
-    <Card
-        
+      <Card
         bordered={false}
         style={{
           width: "100%",
@@ -27,24 +25,24 @@ const ComplaintRepliesTimeline = ({ complaint }) => {
           boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
         }}
       >
-     
-      <Timeline
-        mode={mode}
-        items={
-          complaint.replies?.map((reply) => ({
-            
-            label:  (reply.name === "Admin" ? "You" : reply.name) + ":    " + new Date(reply.date).toLocaleDateString(),
-            children: reply.text,
-          })) || []
-        }
-      />
+        <Timeline
+          mode={mode}
+          items={
+            complaint.replies?.map((reply) => ({
+              label:
+                (reply.name === "Admin" ? "You" : reply.name) +
+                ":    " +
+                new Date(reply.date).toLocaleDateString(),
+              children: reply.text,
+            })) || []
+          }
+        />
       </Card>
     </>
   );
 };
 
 const ComplaintDetails = () => {
-                                                                   
   const { id } = useParams(); // Get the complaint ID from the URL
   const [complaint, setComplaint] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -70,7 +68,6 @@ const ComplaintDetails = () => {
     fetchComplaintDetails();
   }, [id]); // Fetch new complaint data whenever the ID changes
 
-
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -95,7 +92,6 @@ const ComplaintDetails = () => {
       await axios.post(apiUrl + `complaint/replies/${complaint._id}`, {
         text: reply,
         name: "Admin",
-        
       });
       setReply(""); // Clear the input field after sending
       message.success("Reply sent successfully!");
@@ -118,9 +114,17 @@ const ComplaintDetails = () => {
           boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
         }}
       >
-        <p>Body: {complaint.body}</p>
-        <p>Date: {new Date(complaint.date).toLocaleDateString()}</p>
-        <p>Status: {complaint.status}</p>
+        <p>
+          <strong>Body: </strong>
+          {complaint.body}
+        </p>
+        <p>
+          <strong>Date: </strong>{" "}
+          {new Date(complaint.date).toLocaleDateString()}
+        </p>
+        <p>
+          <strong>Status:</strong> {complaint.status}
+        </p>
 
         <div style={{ marginTop: 20 }}>
           <Button
@@ -132,8 +136,8 @@ const ComplaintDetails = () => {
           </Button>
         </div>
       </Card>
-      <br/>
-      <br/>
+      <br />
+      <br />
       <h3>Replies:</h3>
       <ComplaintRepliesTimeline complaint={complaint} />
 

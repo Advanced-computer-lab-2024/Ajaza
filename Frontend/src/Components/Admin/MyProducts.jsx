@@ -10,7 +10,11 @@ import {
 } from "../Common/Constants";
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
-import { EditOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  PlusOutlined,
+  TranslationOutlined,
+} from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 import CustomButton from "../Common/CustomButton";
 import {
@@ -22,6 +26,7 @@ import {
   Button as AntButton,
   Select,
   Button,
+  Flex,
 } from "antd";
 import SelectCurrency from "../Tourist/SelectCurrency";
 import { useCurrency } from "../Tourist/CurrencyContext";
@@ -180,19 +185,19 @@ const MyProducts = () => {
 
   return (
     <>
-      <Button
-        icon={<PlusOutlined style={{ color: "white" }} />}
-        onClick={createOnclick}
-        style={{
-          backgroundColor: Colors.primary.default,
-          border: "none",
-          width: "30px",
-          height: "30px",
-          position: "relative",
-          top: "90px",
-          right: "600px",
-        }}
-      />
+      <Flex justify="end">
+        <Button
+          icon={<PlusOutlined style={{ color: "white" }} />}
+          onClick={createOnclick}
+          style={{
+            backgroundColor: Colors.primary.default,
+            border: "none",
+            width: "30px",
+            height: "30px",
+            marginLeft: "auto",
+          }}
+        />
+      </Flex>
       <div
         style={{
           display: "flex",
@@ -205,7 +210,7 @@ const MyProducts = () => {
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
-          style={{ left: 1070, top: 58 }}
+          style={{ left: 1070, top: -29 }}
         />
       </div>
       <SearchFilterSortContainerEditCreate
@@ -228,6 +233,7 @@ const MyProducts = () => {
         setArchiveProductId={setArchivingProductId}
         setIsArchiveModalVisible={setIsArchiveModalVisible} // Pass this as a prop
         onArchive={archiveProduct}
+        removeSearchFilterSort={true}
       />
       <Modal
         title="Confirm Archive"
