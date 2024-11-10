@@ -264,35 +264,50 @@ if(account.type === "advertiser"){
               </div>
             </Card>
           ) : (
-            <Row gutter={16}>
-              {accounts.length > 0 ? (
-                accounts.map((account) => (
-                  <Col
-                    span={8}
-                    key={account._id}
-                    style={{ marginBottom: "16px" }}
-                    onClick={() => handleDetailsView(account)} // On click, show the account details
+
+            <Row gutter={[16, 16]} justify="center">
+            {accounts.length > 0 ? (
+              accounts.map((account) => (
+                <Col
+                  span={8} // Keep the same span regardless of complaint count
+                  key={accounts._id}
+                  style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}
+                  onClick={() => handleDetailsView(account)}
+                >
+                  <Card
+                    title={`Username: ${account.username}`}
+                    bordered={false}
+                    style={{
+                      width: "300px", // Set fixed width for consistent card size
+                      minHeight: "200px",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      boxShadow: "0 4px 8px rgba(0,0,0,0.1)"
+                    }}
                   >
-                    <Card title={`Username: ${account.username}`} bordered={false}>
-                      <p>Account Type: {account.type}</p>
-                      <p>Email: {account.email}</p>
-                      <Button
-                        type="default"
-                        icon={<BarsOutlined />}
-                        onClick={() => handleDetailsView(account)} // Pass the whole account object
-                        style={{ color: "blue" }}
-                      >
-                        View Details
-                      </Button>
-                    </Card>
-                  </Col>
-                ))
-              ) : (
-                <Col span={24} style={{ textAlign: "center" }}>
-                  <p>No accounts found.</p>
+                    <p>Account Type: {account.type}</p>
+                    <p>Email: {account.email}</p>
+                    <Button
+                      type="default"
+                      icon={<BarsOutlined />}
+                      onClick={() => handleDetailsView(account)}
+                      style={{ color: "blue" }}
+                    >
+                      View Details
+                    </Button>
+                  </Card>
                 </Col>
-              )}
-            </Row>
+              ))
+            ) : (
+              <Col span={24} style={{ textAlign: "center" }}>
+                <p>No Accounts found.</p>
+              </Col>
+            )}
+          </Row>
+
+
+
           )}
         </>
       )}

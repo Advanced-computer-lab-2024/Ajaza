@@ -157,6 +157,7 @@ exports.addReplyToComplaint = async (req, res) => {
   const { text } = req.body;
   const complaintId = req.params.id;
   const date = req.body.date || Date.now(); // Use current date if no date is provided
+  
 
   if (!text) {
     return res.status(400).json({ message: 'text of the reply are required.' });
