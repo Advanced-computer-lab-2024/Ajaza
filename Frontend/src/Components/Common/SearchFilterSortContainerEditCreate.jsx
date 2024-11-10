@@ -390,7 +390,17 @@ const SearchFilterSortContainerEditCreate = ({
   
       // Check if a new photo is being uploaded
       if (formValues.photo && formValues.photo.length > 0) {
-        formData.append("photo", formValues.photo[0].originFileObj);
+        const file = formValues.photo[0].originFileObj;
+  
+        // Validate the file type
+        const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!validImageTypes.includes(file.type)) {
+          message.error("You can only upload image files (JPEG, PNG, GIF, WEBP).");
+          return; // Exit the function if the file type is invalid
+        }
+  
+        // Append the valid photo to FormData
+        formData.append("photo", file);
       }
   
       const response = await axios.patch(
@@ -414,7 +424,6 @@ const SearchFilterSortContainerEditCreate = ({
       );
     }
   };
-
   const showArchiveModal = (product) => {
     Modal.confirm({
       title: "Are you sure you want to archive this product?",
