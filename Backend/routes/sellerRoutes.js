@@ -13,6 +13,9 @@ router.get("/", sellerController.getAllSellers);
 
 //req 12
 router.get("/pending", sellerController.getPendingSellers);
+
+router.get("/accepted", sellerController.getAcceptedSellers);
+
 router.get('/details/:id', sellerController.getSellerDetails);
 
 
