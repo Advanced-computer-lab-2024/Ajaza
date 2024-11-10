@@ -104,7 +104,7 @@ const Transportations = () => {
       }
     } catch (error) {
       console.error("Error fetching transportation data:", error);
-      message.error("Failed to fetch transportation data. Please try again.");
+      message.error("Failed to fetch transportation data. Please try again. Make sure you entered a valid address line.");
     } finally {
         //message.success("Successfully fetched transportation data.");
         if(response) {
