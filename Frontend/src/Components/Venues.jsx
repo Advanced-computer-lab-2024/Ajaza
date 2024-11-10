@@ -686,19 +686,21 @@ const Venues = () => {
             </Input.Group>
           </Form.Item>
 
-          <Form.Item name="tags" label="Tags">
-            <Select
-              mode="multiple"
-              placeholder="Select tags"
-              style={{ width: "100%" }}
-            >
-              {allowedTagNames.map((tag) => (
-                <Option key={tag} value={tag}>
-                  {tag}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
+          {editingVenueId && (
+            <Form.Item name="tags" label="Tags">
+              <Select
+                mode="multiple"
+                placeholder="Select tags"
+                style={{ width: "100%" }}
+              >
+                {allowedTagNames.map((tag) => (
+                  <Option key={tag} value={tag}>
+                    {tag}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          )}
 
           {!editingVenueId && (
             <Form.Item

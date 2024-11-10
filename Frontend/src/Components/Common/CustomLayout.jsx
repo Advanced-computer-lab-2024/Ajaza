@@ -91,7 +91,12 @@ const CustomLayout = ({
               margin: "auto 0",
             }}
           >
-            <IconFloatButton icon={BellFilled} badge={{ count: 5 }} />
+            <IconFloatButton
+              icon={BellFilled}
+              badge={{ count: 5 }}
+              onClick={() => navigate("/notifications")} 
+            />
+            
             {decodedToken.role !== "governor" &&
               decodedToken.role !== "admin" && (
                 <UserOutlined
