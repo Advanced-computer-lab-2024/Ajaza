@@ -40,6 +40,8 @@ const Item = ({
   openingHours,
   desc,
   availableDates,
+  isFlagged,
+  handleFlagClick,
 }) => {
   const [user, setUser] = useState(null);
   const [avgRating, setAvgRating] = useState(null);
@@ -82,7 +84,6 @@ const Item = ({
         creatorName={creatorName}
         discounts={discounts}
         language={language}
-      
         pickUp={pickUp}
         dropOff={dropOff}
         timelineItems={timelineItems}
@@ -91,6 +92,8 @@ const Item = ({
         colSpan={colSpan}
         desc={desc}
         availableDates={availableDates}
+        isFlagged={isFlagged}
+        handleFlagClick={handleFlagClick}
       />
 
       {type == "venue" ? (
