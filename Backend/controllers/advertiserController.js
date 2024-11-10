@@ -30,6 +30,16 @@ exports.getAllAdvertisers = async (req, res) => {
   }
 };
 
+exports.getAcceptedAdvertisers = async (req, res) => {
+  try {
+    const advertisers = await Advertiser.find({ pending: false });
+    res.status(200).json(advertisers);
+  } catch (error) {
+    console.error("Error fetching accepted advertisers:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get advertiser by ID
 exports.getAdvertiserById = async (req, res) => {
   try {

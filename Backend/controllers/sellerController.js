@@ -30,6 +30,16 @@ exports.getAllSellers = async (req, res) => {
   }
 };
 
+exports.getAcceptedSellers = async(req, res) => {
+  try {
+    const sellers = await Seller.find({ pending: false });
+    res.status(200).json(sellers);
+  } catch (error) {
+    console.error("Error fetching accepted sellers:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get seller by ID (seller Read profile)
 exports.getSellerById = async (req, res) => {
   try {

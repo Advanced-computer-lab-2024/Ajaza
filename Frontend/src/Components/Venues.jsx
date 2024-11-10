@@ -191,6 +191,7 @@ const Venues = () => {
           native: venueToEdit.price.native,
           student: venueToEdit.price.student,
         },
+        tags: venueToEdit.tags || [],
       });
       setSelectedLocation(venueToEdit.location);
       setIsModalVisible(true);
@@ -207,6 +208,7 @@ const Venues = () => {
     // Check each field and add it to updatedData if it has changed
     if (values.name !== venueToEdit.name) updatedData.name = values.name;
     if (values.desc !== venueToEdit.desc) updatedData.desc = values.desc;
+    if (values.tags !== venueToEdit.tags) updatedData.tags = values.tags;
     if (selectedLocation !== venueToEdit.location) {
       updatedData.location = selectedLocation;
     }
@@ -673,6 +675,21 @@ const Venues = () => {
               </Form.Item>
             </Input.Group>
           </Form.Item>
+
+          <Form.Item name="tags" label="Tags">
+            <Select
+              mode="multiple"
+              placeholder="Select tags"
+              style={{ width: "100%" }}
+            >
+              {allowedTagNames.map((tag) => (
+                <Option key={tag} value={tag}>
+                  {tag}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
           {!editingVenueId && (
             <Form.Item
               label="Pictures"
