@@ -4,6 +4,7 @@ import { Form } from "antd";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { apiUrl } from "./Constants";
+import LoadingSpinner from "./LoadingSpinner";
 
 const Activity = () => {
   const { id } = useParams();
@@ -48,7 +49,9 @@ const Activity = () => {
     return <div>Loading activity...</div>;
   }
 
-  const discount = 10;
+  if (!activity) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <>

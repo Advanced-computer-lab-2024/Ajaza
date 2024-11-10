@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Item from "./Item";
-import { Form } from "antd";
+import { Form, Spin, Flex } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { apiUrl } from "./Constants";
+import { apiUrl, Colors } from "./Constants";
+import LoadingSpinner from "./LoadingSpinner";
 
 const Itinerary = () => {
   const { id } = useParams();
@@ -51,9 +53,8 @@ const Itinerary = () => {
   //   itinerary?.availableDateTime?.map((d) => d.date).join(", ") || "";
 
   if (!itinerary) {
-    return <div>Loading itienerary... </div>;
+    return <LoadingSpinner />;
   }
-  console.log(itinerary);
 
   return (
     <>

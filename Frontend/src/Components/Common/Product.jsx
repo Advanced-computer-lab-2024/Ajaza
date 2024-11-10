@@ -5,6 +5,7 @@ import { Form } from "antd";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { apiUrl } from "./Constants";
+import LoadingSpinner from "./LoadingSpinner";
 
 const Product = () => {
   let { id } = useParams();
@@ -168,7 +169,9 @@ const Product = () => {
 
   const sellerName = "Ajaza";
 
-  console.log(product);
+  if (!product) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <>

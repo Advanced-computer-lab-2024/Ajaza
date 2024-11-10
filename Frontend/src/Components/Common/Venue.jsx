@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { apiUrl, calculateYourPriceRet } from "./Constants";
 import { jwtDecode } from "jwt-decode";
+import LoadingSpinner from "./LoadingSpinner";
 
 const Venue = () => {
   const { id } = useParams();
@@ -39,7 +40,9 @@ const Venue = () => {
     }
   }, [user, venue]);
 
-  console.log(venue);
+  if (!venue) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <>

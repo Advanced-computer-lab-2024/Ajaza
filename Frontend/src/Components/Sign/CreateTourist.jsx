@@ -51,7 +51,8 @@ const CreateTourist = () => {
       }
     } catch (error) {
       console.error("Error creating tourist:", error);
-      const errorDetails = error.response?.data?.error || "Failed to create tourist.";
+      const errorDetails =
+        error.response?.data?.error || "Failed to create tourist.";
       // Display the error message with the custom prefix
       message.error(`Failed to create tourist: ${errorDetails}`);
     }
@@ -63,6 +64,25 @@ const CreateTourist = () => {
 
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
+  };
+
+  const passwordStrengthValidator = (_, value) => {
+    if (!value) {
+      return Promise.resolve(); // Skip validation if no value is present (the 'required' rule will handle this)
+    }
+
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+
+    if (!regex.test(value)) {
+      return Promise.reject(
+        new Error(
+          "Password must be at least 8 characters long, contain an uppercase letter, a lowercase letter, a number, and a special character."
+        )
+      );
+    }
+
+    return Promise.resolve(); // pw is strong
   };
 
   return (
@@ -108,7 +128,7 @@ const CreateTourist = () => {
             name="password"
             rules={[
               { required: true, message: "Please input your password!" },
-              { min: 6, message: "Password must be at least 6 characters!" },
+              { validator: passwordStrengthValidator },
             ]}
           >
             <Input.Password />
@@ -154,7 +174,6 @@ const CreateTourist = () => {
           >
             <DatePicker />
           </Form.Item>
-
 
           <Form.Item
             label="Occupation"
