@@ -86,13 +86,13 @@ exports.deleteAdvertiser = async (req, res) => {
 // Middleware logic moved to controller
 const validateEmail = (email) => {
   if (!email) {
-    return { isValid: false, message: 'Email is required' };
+    return { isValid: false, message: "Email is required" };
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (!emailRegex.test(email)) {
-    return { isValid: false, message: 'Invalid email format' };
+    return { isValid: false, message: "Invalid email format" };
   }
 
   return { isValid: true };
@@ -100,7 +100,7 @@ const validateEmail = (email) => {
 
 const checkEmailAvailability = async (email) => {
   if (!email) {
-    return { isAvailable: false, message: 'Email is required' };
+    return { isAvailable: false, message: "Email is required" };
   }
 
   try {
@@ -111,7 +111,10 @@ const checkEmailAvailability = async (email) => {
     const guideExists = await Guide.exists({ email });
 
     if (touristExists || advertiserExists || sellerExists || guideExists) {
-      return { isAvailable: false, message: 'Email is already associated with an account' };
+      return {
+        isAvailable: false,
+        message: "Email is already associated with an account",
+      };
     }
 
     return { isAvailable: true };
@@ -122,7 +125,7 @@ const checkEmailAvailability = async (email) => {
 
 const checkUsernameAvailability = async (username) => {
   if (!username) {
-    return { isAvailable: false, message: 'Username is required' };
+    return { isAvailable: false, message: "Username is required" };
   }
 
   try {
@@ -134,8 +137,15 @@ const checkUsernameAvailability = async (username) => {
     const guideExists = await Guide.exists({ username });
     const governorExists = await Governor.exists({ username });
 
-    if (adminExists || touristExists || advertiserExists || sellerExists || guideExists || governorExists) {
-      return { isAvailable: false, message: 'Username is already taken' };
+    if (
+      adminExists ||
+      touristExists ||
+      advertiserExists ||
+      sellerExists ||
+      guideExists ||
+      governorExists
+    ) {
+      return { isAvailable: false, message: "Username is already taken" };
     }
 
     return { isAvailable: true };
@@ -176,7 +186,9 @@ exports.guestAdvertiserCreateProfile = async (req, res) => {
     }
 
     // Check for unique username
-    const usernameAvailability = await checkUsernameAvailability(filteredBody.username);
+    const usernameAvailability = await checkUsernameAvailability(
+      filteredBody.username
+    );
     if (!usernameAvailability.isAvailable) {
       return res.status(400).json({ message: usernameAvailability.message });
     }
@@ -308,7 +320,11 @@ exports.advertiserUpdateProfile = async (req, res) => {
 
     // Generate a new JWT token
     const token = jwt.sign(
-      { userId: updatedAdvertiser._id, role: "advertiser", userDetails: updatedAdvertiser }, // Include user data in the token
+      {
+        userId: updatedAdvertiser._id,
+        role: "advertiser",
+        userDetails: updatedAdvertiser,
+      }, // Include user data in the token
       process.env.JWT_SECRET, // Use the environment variable
       { expiresIn: "1h" }
     );
@@ -404,7 +420,9 @@ exports.acceptTerms = async (req, res) => {
       return res.status(400).json({ message: "User is pending approval" });
     }
     if (user.acceptedTerms && value === true) {
-      return res.status(400).json({ message: "User has already accepted terms" });
+      return res
+        .status(400)
+        .json({ message: "User has already accepted terms" });
     }
     if (value === false) {
       user.acceptedTerms = false;
@@ -584,8 +602,7 @@ exports.requestDeletion = async (req, res) => {
   }
 };
 
-
-exports.validateEmailUsername = async(req, res) =>{
+exports.validateEmailUsername = async (req, res) => {
   const { email, username } = req.body; // Destructure email and username from request body
   try {
     // Validate email
@@ -607,22 +624,21 @@ exports.validateEmailUsername = async(req, res) =>{
     }
     // If all validations pass, return a success message
     return res.status(200).json({ message: "Everything is valid!" });
-  }
-  catch (error) {
+  } catch (error) {
     res.status(400).json({ error: error.message });
   }
-}
+};
 
 // returns all advertisers that are pending
 exports.getPendingAdvertisers = async (req, res) => {
   try {
     // Fetch advertisers with pending status
-    const pendingAdvertisers = await Advertiser.find({ "pending" : true }).exec();
-    
-    if (pendingAdvertisers.length === 0) {
-      return res.status(404).json({ message: "No advertisers with pending status found." });
-    }
-    
+    const pendingAdvertisers = await Advertiser.find({ pending: true }).exec();
+
+    // if (pendingAdvertisers.length === 0) {
+    //   return res.status(404).json({ message: "No advertisers with pending status found." });
+    // }
+
     // Return the found pending advertisers
     res.status(200).json(pendingAdvertisers);
   } catch (error) {
@@ -636,24 +652,24 @@ exports.getAdvertiserDetails = async (req, res) => {
   const advertiserId = req.params.id;
 
   try {
-    
     // Find the advertiser by ID and populate image references
     const advertiser = await Advertiser.findById(advertiserId)
-      .populate({ path: 'id', select: '_id' })  // Populate with _id to construct the image path
-      .populate({ path: 'taxationRegCard', select: '_id' })
-      .populate({ path: 'logo', select: '_id' })
+      .populate({ path: "id", select: "_id" }) // Populate with _id to construct the image path
+      .populate({ path: "taxationRegCard", select: "_id" })
+      .populate({ path: "logo", select: "_id" })
       .exec();
 
     if (!advertiser) {
       return res.status(404).json({ message: "Advertiser not found." });
     }
 
-
     // Construct the response object with image paths for ID and Taxation Registration Card
     const responseAdvertiser = {
       id: advertiser.id ? `uploads/${advertiser.id._id}.jpg` : null,
-      taxationRegCard: advertiser.taxationRegCard ? `uploads/${advertiser.taxationRegCard._id}.jpg` : null,
-     // logo: advertiser.logo ? `uploads/${advertiser.logo._id}.jpg` : null,
+      taxationRegCard: advertiser.taxationRegCard
+        ? `uploads/${advertiser.taxationRegCard._id}.jpg`
+        : null,
+      // logo: advertiser.logo ? `uploads/${advertiser.logo._id}.jpg` : null,
       username: advertiser.username,
       email: advertiser.email,
       link: advertiser.link || null,
@@ -676,7 +692,6 @@ exports.getAdvertiserDetails = async (req, res) => {
   }
 };
 
-
 // req28 - tatos (Not Done Yet)
 exports.viewSalesReport = async (req, res) => {
   const advertiserId = req.params.id;
@@ -689,13 +704,19 @@ exports.viewSalesReport = async (req, res) => {
       return res.status(401).json({ message: "Waiting for admin approval" });
     }
     if (!advertiser.acceptedTerms) {
-      return res.status(401).json({ message: "Terms and Conditions must be accepted" });
+      return res
+        .status(401)
+        .json({ message: "Terms and Conditions must be accepted" });
     }
     if (advertiser.requestingDeletion) {
-      return res.status(401).json({ message: "Advertiser is requesting deletion" });
+      return res
+        .status(401)
+        .json({ message: "Advertiser is requesting deletion" });
     }
 
-    const tourists = await Tourist.find({ "activityBookings.activityId": { $exists: true } });
+    const tourists = await Tourist.find({
+      "activityBookings.activityId": { $exists: true },
+    });
     if (!tourists || tourists.length === 0) {
       return res.status(404).json({ message: "No activity bookings found" });
     }
@@ -713,7 +734,7 @@ exports.viewSalesReport = async (req, res) => {
             name: activity.name,
             date: activity.date,
             category: activity.category,
-            price: booking.total // Use the total field from activityBookings
+            price: booking.total, // Use the total field from activityBookings
           });
         }
       }
@@ -723,9 +744,8 @@ exports.viewSalesReport = async (req, res) => {
 
     res.status(200).json({
       totalSales,
-      report
+      report,
     });
-    
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { EditOutlined, DeleteOutlined, FlagOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  FlagOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import {
   InputNumber,
   Card,
@@ -22,6 +27,7 @@ import { jwtDecode } from "jwt-decode";
 import { apiUrl } from "./Common/Constants";
 import MapComponent from "./Common/Map";
 import dayjs from "dayjs";
+import { Colors } from "./Common/Constants";
 
 // Create an axios instance with default headers
 const apiClient = axios.create({
@@ -253,9 +259,15 @@ const Activities = () => {
           justifyContent: "flex-start",
         }}
       >
-        <Button
-          size={"s"}
-          value={"Create Activity"}
+        <AntButton
+          style={{
+            backgroundColor: Colors.primary.default,
+            border: "none",
+            width: "30px",
+            height: "30px",
+            marginLeft: "auto",
+          }}
+          icon={<PlusOutlined style={{ color: "white" }} />}
           rounded={true}
           onClick={showModal}
         />
@@ -550,6 +562,16 @@ const Activities = () => {
               {
                 required: true,
                 message: "Please input the number of available spots!",
+              },
+              {
+                validator: (_, value) =>
+                  value >= 0
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error(
+                          "The number of spots must be greater than or equal to zero"
+                        )
+                      ),
               },
             ]}
           >
