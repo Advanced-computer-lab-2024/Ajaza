@@ -28,6 +28,7 @@ import ItinerariesAdmin from "./ItinerariesAdmin";
 import ItineraryAdmin from "./ItineraryAdmin";
 import ComplaintDetails from "./ComplaintDetails";
 import ExamineAccountDetails from "./ExamineAccountDetails";
+import { AdminMenuKeyProvider } from "./AdminMenuKeyContext";
 const { Content } = Layout;
 // username: alisuper
 // password: 12345a
@@ -37,11 +38,9 @@ const Admin = () => {
     const token = localStorage.getItem("token");
 
     console.log("Token:", token);
-   // console.log("decodedToken:", jwtDecode(token));
- 
+    // console.log("decodedToken:", jwtDecode(token));
 
     if (token) {
-
       try {
         const decodedToken = jwtDecode(token);
         // Check if the token is valid and if the user role is 'advertiser'
@@ -57,41 +56,46 @@ const Admin = () => {
     }
   }, [navigate]);
   return (
-    <AdminCustomLayout>
-      <Content style={{ padding: "24px", minHeight: "280px" }}>
-        <Routes>
-          <Route
-            path="manage-activity-categories"
-            element={<ManageActivityCategories />}
-          />
-          <Route path="add-Accounts" element={<AddAccounts />} />
-          <Route path="/" element={<AllAccounts />} />
-          <Route path="examine-Accounts" element={<ExamineAccounts />} />
-          <Route
-            path="examine-Accounts/:accountId/:accountType"
-            element={<ExamineAccountDetails />}
-          />
-          <Route path="tourists-Complaints" element={<TouristsComplaints />} />
-          <Route
-            path="tourists-Complaints/:id"
-            element={<ComplaintDetails />}
-          />
-          <Route path="events" element={<Events />} />
-          <Route path="events/:id" element={<Event />} />
+    <AdminMenuKeyProvider>
+      <AdminCustomLayout>
+        <Content style={{ padding: "24px", minHeight: "280px" }}>
+          <Routes>
+            <Route
+              path="manage-activity-categories"
+              element={<ManageActivityCategories />}
+            />
+            <Route path="add-Accounts" element={<AddAccounts />} />
+            <Route path="/" element={<AllAccounts />} />
+            <Route path="examine-Accounts" element={<ExamineAccounts />} />
+            <Route
+              path="examine-Accounts/:accountId/:accountType"
+              element={<ExamineAccountDetails />}
+            />
+            <Route
+              path="tourists-Complaints"
+              element={<TouristsComplaints />}
+            />
+            <Route
+              path="tourists-Complaints/:id"
+              element={<ComplaintDetails />}
+            />
+            <Route path="events" element={<Events />} />
+            <Route path="events/:id" element={<Event />} />
 
-          <Route path="itinerariesAdmin" element={<ItinerariesAdmin />} />
-          <Route path="itinerariesAdmin/:id" element={<ItineraryAdmin />} />
+            <Route path="itinerariesAdmin" element={<ItinerariesAdmin />} />
+            <Route path="itinerariesAdmin/:id" element={<ItineraryAdmin />} />
 
-          <Route path="preference-tags" element={<ManagePreferenceTags />} />
-          <Route path="myProducts" element={<MyProducts />} />
+            <Route path="preference-tags" element={<ManagePreferenceTags />} />
+            <Route path="myProducts" element={<MyProducts />} />
 
-          <Route path="profile" element={<Profile />} />
-          <Route path="archive" element={<ArchivedProds />} />
-          <Route path="change-password" element={<ChangePasswordForm />} />
-          <Route path="auth/signin" element={<SignIn />} />
-        </Routes>
-      </Content>
-    </AdminCustomLayout>
+            <Route path="profile" element={<Profile />} />
+            <Route path="archive" element={<ArchivedProds />} />
+            <Route path="change-password" element={<ChangePasswordForm />} />
+            <Route path="auth/signin" element={<SignIn />} />
+          </Routes>
+        </Content>
+      </AdminCustomLayout>
+    </AdminMenuKeyProvider>
   );
 };
 
