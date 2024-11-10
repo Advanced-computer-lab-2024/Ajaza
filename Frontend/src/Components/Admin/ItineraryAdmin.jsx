@@ -153,7 +153,7 @@ const ItineraryAdmin = () => {
           dropOff={itinerary?.dropOff}
           creatorName={itinerary?.guideId?.username}
           type={"itinerary"}
-          isFlagged={itinerary?.flagged}
+          isFlagged={itinerary?.isFlagged}
           handleFlagClick={handleFlagClick}
           availableDates={itinerary.availableDateTime}
         />
@@ -196,15 +196,16 @@ const ItineraryAdmin = () => {
         visible={isModalVisible}
         onOk={confirmFlag}
         onCancel={cancelFlag}
-        okText="Yes"
-        cancelText="No"
+        okType="danger"
+        okText="Flag"
+        cancelText="Cancel"
       >
         <p>Are you sure you want to flag this itinerary as Inappropriate?</p>
       </Modal>
 
       {/* Confirmation Modal */}
       <Modal
-        title="Confirm Flag"
+        title="Confirm UnFlag"
         visible={unflagisModalVisible}
         onOk={confirmUnFlag}
         onCancel={cancelUnFlag}

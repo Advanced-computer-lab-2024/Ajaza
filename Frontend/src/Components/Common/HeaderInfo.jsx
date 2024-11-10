@@ -746,7 +746,7 @@ const HeaderInfo = ({
               decodedToken?.role == "admin" ? (
                 isFlagged ? (
                   <Button
-                    style={{ width: "40px", height: "40px" }}
+                    style={{ height: "40px" }}
                     className="flagButton"
                     icon={
                       <FlagTwoTone
@@ -755,18 +755,28 @@ const HeaderInfo = ({
                       />
                     }
                     onClick={handleFlagClick}
-                  />
+                  >
+                    <div
+                      style={{ fontWeight: "bold", color: Colors.warningDark }}
+                    >
+                      UnFlag
+                    </div>
+                  </Button>
                 ) : (
                   <Button
                     className="flagButton"
-                    style={{ width: "40px", height: "40px" }}
+                    style={{ height: "40px" }}
                     icon={
                       <FlagOutlined
                         style={{ color: Colors.warning, fontSize: "25px" }}
                       />
                     }
                     onClick={handleFlagClick}
-                  />
+                  >
+                    <div style={{ fontWeight: "bold", color: Colors.warning }}>
+                      Flag
+                    </div>
+                  </Button>
                 )
               ) : (
                 (type === "activity" || type === "itinerary") &&
