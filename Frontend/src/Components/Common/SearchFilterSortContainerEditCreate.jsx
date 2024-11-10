@@ -396,7 +396,7 @@ const SearchFilterSortContainerEditCreate = ({
       setEditingProductId(null);
     } catch (error) {
       message.error(
-        "Failed to create activity." + error?.response?.data?.error
+        "Failed to edit Product." + error?.response?.data?.error
       );
     }
   };
