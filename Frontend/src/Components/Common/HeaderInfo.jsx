@@ -10,6 +10,7 @@ import {
   Input,
   Menu,
   message,
+  Button,
 } from "antd";
 import { Colors, apiUrl } from "./Constants";
 import CustomButton from "./CustomButton";
@@ -18,6 +19,9 @@ import {
   ShareAltOutlined,
   HeartOutlined,
   HeartFilled,
+  FlagFilled,
+  FlagOutlined,
+  FlagTwoTone,
 } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 
@@ -26,6 +30,8 @@ import { convertDateToString, camelCaseToNormalText } from "./Constants";
 import Timeline from "./Timeline";
 import { Dropdown } from "antd";
 import { useLocation } from "react-router-dom";
+import "./HeaderInfo.css";
+
 const { Option } = Select;
 
 const token = localStorage.getItem("token");
@@ -76,6 +82,8 @@ const HeaderInfo = ({
   avgRating,
   colSpan,
   desc,
+  isFlagged,
+  handleFlagClick,
 }) => {
   const [multiplePhotos, setMultiplePhotos] = useState(false);
 
@@ -92,6 +100,8 @@ const HeaderInfo = ({
 
   useEffect(() => {
     // check user
+    console.log(userid);
+
     // get if this item is booked setIsBooked accordingly:
     const checkIfBooked = () => {
       if (user) {
@@ -130,8 +140,10 @@ const HeaderInfo = ({
       if (price) {
         setPriceString(price - (discounts / 100) * price);
       }
-
-      if (priceLower && priceUpper) {
+      if (priceLower == priceUpper) {
+        const priceLowerTemp = priceLower - (discounts / 100) * priceLower;
+        setPriceString(`${priceLowerTemp}`);
+      } else if (priceLower && priceUpper && priceLower !== priceUpper) {
         const priceLowerTemp = priceLower - (discounts / 100) * priceLower;
         const priceUpperTemp = priceUpper - (discounts / 100) * priceUpper;
 
@@ -259,6 +271,7 @@ const HeaderInfo = ({
   const bookItem = async () => {
     try {
       const touristId = userid;
+      console.log("here1234", touristId);
       const useWallet = user.wallet > 0;
       let total;
       let FinalDate;
@@ -291,10 +304,10 @@ const HeaderInfo = ({
         promoCode: promoCode || null,
       });
 
-      let capital ="";
-      if(type === "activity"){
+      let capital = "";
+      if (type === "activity") {
         capital = "Activity";
-      }else{
+      } else {
         capital = "Itinerary";
       }
       message.success(`${capital} booked successfully!`);
@@ -355,15 +368,16 @@ const HeaderInfo = ({
               <Option value={discountedPriceLower}>
                 {discountedPriceLower.toFixed(2)}$
               </Option>
-              <Option value={discountedMiddlePrice}>
-                {discountedMiddlePrice.toFixed(2)}$
-              </Option>
-              <Option value={discountedPriceUpper}>
-                {discountedPriceUpper.toFixed(2)}$
-              </Option>
-              {/* <Option value={priceLower}>${priceLower}</Option>
-              <Option value={middlePrice}>${middlePrice}</Option>
-              <Option value={priceUpper}>${priceUpper}</Option> */}
+              {priceUpper !== priceLower && (
+                <Option value={discountedMiddlePrice}>
+                  {discountedMiddlePrice.toFixed(2)}$
+                </Option>
+              )}
+              {priceUpper !== priceLower && (
+                <Option value={discountedPriceUpper}>
+                  {discountedPriceUpper.toFixed(2)}$
+                </Option>
+              )}
             </Select>
           )}
 
@@ -414,11 +428,10 @@ const HeaderInfo = ({
 
       const response = await axios.delete(endpoint);
       if (response.status === 200) {
-
-        let capital ="";
-        if(type === "activity"){
+        let capital = "";
+        if (type === "activity") {
           capital = "Activity";
-        }else{
+        } else {
           capital = "Itinerary";
         }
 
@@ -729,26 +742,63 @@ const HeaderInfo = ({
                   }}
                 />
               </Dropdown>
-
-              {isBooked ? (
-                <CustomButton
-                  size={"s"}
-                  style={{
-                    width: "120px",
-                    backgroundColor: Colors.warning,
-                    fontWeight: "bold",
-                  }}
-                  value={"Cancel Booking"}
-                  onClick={cancelBookingItem}
-                />
+              {(type == "activity" || type == "itinerary") &&
+              decodedToken?.role == "admin" ? (
+                isFlagged ? (
+                  <Button
+                    style={{ height: "40px" }}
+                    className="flagButton"
+                    icon={
+                      <FlagTwoTone
+                        twoToneColor={Colors.warningDark}
+                        style={{ color: Colors.warning, fontSize: "25px" }}
+                      />
+                    }
+                    onClick={handleFlagClick}
+                  >
+                    <div
+                      style={{ fontWeight: "bold", color: Colors.warningDark }}
+                    >
+                      UnFlag
+                    </div>
+                  </Button>
+                ) : (
+                  <Button
+                    className="flagButton"
+                    style={{ height: "40px" }}
+                    icon={
+                      <FlagOutlined
+                        style={{ color: Colors.warning, fontSize: "25px" }}
+                      />
+                    }
+                    onClick={handleFlagClick}
+                  >
+                    <div style={{ fontWeight: "bold", color: Colors.warning }}>
+                      Flag
+                    </div>
+                  </Button>
+                )
               ) : (
-                <CustomButton
-                  size={"s"}
-                  style={{ fontSize: "16px", fontWeight: "bold" }}
-                  value={"Book"}
-                  //onClick={bookItem}
-                  onClick={showBookingModal}
-                />
+                (type === "activity" || type === "itinerary") &&
+                (isBooked ? (
+                  <CustomButton
+                    size={"s"}
+                    style={{
+                      width: "120px",
+                      backgroundColor: Colors.warning,
+                      fontWeight: "bold",
+                    }}
+                    value={"Cancel Booking"}
+                    onClick={cancelBookingItem}
+                  />
+                ) : (
+                  <CustomButton
+                    size={"s"}
+                    style={{ fontSize: "16px", fontWeight: "bold" }}
+                    value={"Book"}
+                    onClick={showBookingModal}
+                  />
+                ))
               )}
             </Flex>
           </Flex>

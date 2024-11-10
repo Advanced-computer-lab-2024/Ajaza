@@ -126,41 +126,15 @@ exports.resolveComplaint = async (req, res) => {
   }
 };
 
-// Add a reply to a complaint by ID
-// exports.addReplyToComplaint = async (req, res) => {
-//   const { text, name } = req.body;
-//   const complaintId = req.params.id;
-//   const date = req.body.date || Date.now(); // Use current date if no date is provided
-
-//   if (!text || !name) {
-//     return res.status(400).json({ message: 'Name and text of the reply are required.' });
-//   }
-
-//   try {
-//     const complaint = await Complaint.findById(complaintId);
-//     if (!complaint) {
-//       return res.status(404).json({ message: 'Complaint not found' });
-//     }
-//     name = "You";
-//     // Add the new reply to the replies array
-//     complaint.replies.push({ name, text, date });
-
-//     // Save the updated complaint
-//     const updatedComplaint = await complaint.save();
-//     res.status(200).json({ message: 'Reply added successfully', complaint: updatedComplaint });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
+//Add a reply to a complaint by ID
 exports.addReplyToComplaint = async (req, res) => {
-  const { text } = req.body;
+  const { text, name } = req.body;
   const complaintId = req.params.id;
   const date = req.body.date || Date.now(); // Use current date if no date is provided
   
 
-  if (!text) {
-    return res.status(400).json({ message: 'text of the reply are required.' });
+  if (!text || !name) {
+    return res.status(400).json({ message: 'Name and text of the reply are required.' });
   }
 
   try {
@@ -168,7 +142,7 @@ exports.addReplyToComplaint = async (req, res) => {
     if (!complaint) {
       return res.status(404).json({ message: 'Complaint not found' });
     }
-     const name = "You";
+    //name = "You";
     // Add the new reply to the replies array
     complaint.replies.push({ name, text, date });
 
@@ -179,3 +153,29 @@ exports.addReplyToComplaint = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// exports.addReplyToComplaint = async (req, res) => {
+//   const { text } = req.body;
+//   const complaintId = req.params.id;
+//   const date = req.body.date || Date.now(); // Use current date if no date is provided
+
+//   if (!text) {
+//     return res.status(400).json({ message: 'text of the reply are required.' });
+//   }
+
+//   try {
+//     const complaint = await Complaint.findById(complaintId);
+//     if (!complaint) {
+//       return res.status(404).json({ message: 'Complaint not found' });
+//     }
+//      const name = "You";
+//     // Add the new reply to the replies array
+//     complaint.replies.push({ name, text, date });
+
+//     // Save the updated complaint
+//     const updatedComplaint = await complaint.save();
+//     res.status(200).json({ message: 'Reply added successfully', complaint: updatedComplaint });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };

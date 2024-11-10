@@ -480,7 +480,7 @@ exports.searchTransfer7 = async (req,res) => {
   let endCountryCode;
   let endGeoCode = await getGeolocation(endAddressLine);
   if(!endGeoCode) {
-    res.status(404).json({ error: "Invalid address line" });
+    return res.status(404).json({ error: "Invalid address line" });
   }
   switch(IATA) {
     case "CDG":

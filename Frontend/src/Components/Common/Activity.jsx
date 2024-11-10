@@ -4,11 +4,23 @@ import { Form } from "antd";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { apiUrl } from "./Constants";
-
+import LoadingSpinner from "./LoadingSpinner";
+import SelectCurrency from "../Tourist/SelectCurrency";
+import { useCurrency } from "../Tourist/CurrencyContext";
 const Activity = () => {
   const { id } = useParams();
   const [activity, setActivity] = useState(null);
   const [advertiser, setAdvertiser] = useState(null);
+  const { currency, setCurrency } = useCurrency();
+
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+  };
+  const [currencyRates] = useState({
+    EGP: 48.58,
+    USD: 1,
+    EUR: 0.91,
+  });
 
   useEffect(() => {
     const fetchActivity = async () => {
@@ -48,10 +60,24 @@ const Activity = () => {
     return <div>Loading activity...</div>;
   }
 
-  const discount = 10;
+  if (!activity) {
+    return <LoadingSpinner />;
+  }
 
+  const convertedLowerPrice = activity
+    ? (activity.lower * currencyRates[currency]).toFixed(2)
+    : 0;
+  const convertedUpperPrice = activity
+    ? (activity.upper * currencyRates[currency]).toFixed(2)
+    : 0;
   return (
     <>
+      <SelectCurrency
+        currency={currency}
+        onCurrencyChange={handleCurrencyChange}
+        style={{ left: 400, top: 45 }}
+      />
+
       <Item
         id={activity?._id}
         name={activity?.name}
@@ -60,9 +86,9 @@ const Activity = () => {
           setActivity({ ...activity, feedback: newFeedback })
         }
         tags={activity?.tags || []}
-        price={`${activity?.lower || 0} - ${activity?.upper || 0}`} // Display price range
-        priceLower={activity?.lower}
-        priceUpper={activity?.upper}
+        price={`${convertedLowerPrice} - ${convertedUpperPrice}`}
+        priceLower={convertedLowerPrice}
+        priceUpper={convertedUpperPrice}
         category={activity?.category}
         location={activity?.location}
         transportation={activity?.transportation}

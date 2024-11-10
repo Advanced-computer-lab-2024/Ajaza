@@ -11,6 +11,7 @@ import BasicCard from "../Common/BasicCard";
 import { jwtDecode } from "jwt-decode";
 import SelectCurrency from "./SelectCurrency";
 import { useNavigate } from "react-router-dom";
+import { useCurrency } from "./CurrencyContext";
 
 const token = localStorage.getItem("token");
 let decodedToken = null;
@@ -59,7 +60,12 @@ const Activities = () => {
   const cardOnclick = (element) => {
     navigate(element["_id"]);
   };
-  const [currency, setCurrency] = useState("USD");
+  const { currency, setCurrency } = useCurrency();
+
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+  };
+
   const fields = { Categories: "category", Tags: "tags", Date: "date" };
   const searchFields = ["name", "category", "tags"];
   const constProps = { rateDisplay: true, currency, currencyRates };
@@ -224,9 +230,7 @@ const Activities = () => {
     fetchData();
   }, []);
 
-  const handleCurrencyChange = (selectedCurrency) => {
-    setCurrency(selectedCurrency);
-  };
+
 
   return (
     <div>
@@ -242,6 +246,7 @@ const Activities = () => {
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
+          style={{left:1000 , top:55}}
         />
       </div>
       <SearchFilterSortContainer

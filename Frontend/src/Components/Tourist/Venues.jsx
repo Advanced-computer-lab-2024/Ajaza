@@ -10,7 +10,7 @@ import {
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
 import SelectCurrency from "./SelectCurrency";
-
+import { useCurrency } from "./CurrencyContext";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 
@@ -63,8 +63,11 @@ const Venues = () => {
     Tags: "tags",
   };
 
-  const [currency, setCurrency] = useState("USD");
-  const searchFields = ["name", "tags"];
+  const { currency, setCurrency } = useCurrency();
+
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+  };  const searchFields = ["name", "tags"];
   const constProps = { rateDisplay: true, currency, currencyRates };
   const sortFields = ["avgRating", "price"];
   const [filterFields, setfilterFields] = useState({
@@ -145,9 +148,7 @@ const Venues = () => {
     setUser(decodedToken?.userDetails);
   }, []);
 
-  const handleCurrencyChange = (selectedCurrency) => {
-    setCurrency(selectedCurrency);
-  };
+
 
   return (
     <div>
@@ -163,6 +164,7 @@ const Venues = () => {
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
+          style={{left:1000 , top:55}}
         />
       </div>
       <SearchFilterSortContainer

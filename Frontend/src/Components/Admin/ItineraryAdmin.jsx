@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Item from "../Common/Item";
-import { Form,Modal } from "antd";
+import { Form, Modal } from "antd";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { apiUrl } from "../Common/Constants";
@@ -14,7 +14,7 @@ const ItineraryAdmin = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility
   const [unflagisModalVisible, unflagsetIsModalVisible] = useState(false); // Modal visibility
 
- /* useEffect(() => {
+  /* useEffect(() => {
     const savedFlagState = localStorage.getItem(`flagClicked-${id}`);
     setIsFlagRed(savedFlagState === "true"); // Set to true if previously clicked
   }, [id]);*/
@@ -48,30 +48,24 @@ const ItineraryAdmin = () => {
 
   useEffect(() => {
     if (itinerary) {
-     
-        if(itinerary.hidden === true  ){
+      if (itinerary.hidden === true) {
+        setIsFlagRed(true);
 
-            setIsFlagRed(true);
-
-           // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
-        }
-       else{
+        // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
+      } else {
         setIsFlagRed(false);
-       }
-
-
-
+      }
 
       setTimelineItems({
         timeline: itinerary?.timeline,
         availableDateTime: itinerary?.availableDateTime,
       });
-    //  console.log(itinerary?.timeline);
+      //  console.log(itinerary?.timeline);
     }
   }, [itinerary]);
 
   const onSubmitWriteReview = (values) => {
-   // console.log(values); // Handle review form submission logic here
+    // console.log(values); // Handle review form submission logic here
   };
 
   // Ensure we handle the state when feedback is added or modified
@@ -82,21 +76,16 @@ const ItineraryAdmin = () => {
     }));
   };
   const handleFlagClick = () => {
-
-
     if (!isFlagRed) {
       setIsModalVisible(true); // Open the modal
-    }
-    else{
-        unflagsetIsModalVisible(true);  
+    } else {
+      unflagsetIsModalVisible(true);
     }
   };
 
-
-
   const confirmFlag = async () => {
-  //  setIsFlagRed(true);
-   // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
+    //  setIsFlagRed(true);
+    // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
     try {
       const response =   await axios.patch(`${apiUrl}itinerary/hide/${id}`);
       //fetchItinerary();
@@ -114,17 +103,17 @@ const ItineraryAdmin = () => {
 
   const confirmUnFlag = async () => {
     //  setIsFlagRed(true);
-     // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
-      try {
-        const response =   await axios.patch(`${apiUrl}itinerary/unhide/${id}`);
-         console.log(response.data);
-         setItinerary(response.data.updatedItinerary);
-        //  setActivity(response.data);
-        } catch (error) {
-          console.error("Error hiding event:", error);
-        }
-      unflagsetIsModalVisible(false); // Close the modal
-    };
+    // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
+    try {
+      const response = await axios.patch(`${apiUrl}itinerary/unhide/${id}`);
+      console.log(response.data);
+      setItinerary(response.data.updatedItinerary);
+      //  setActivity(response.data);
+    } catch (error) {
+      console.error("Error hiding event:", error);
+    }
+    unflagsetIsModalVisible(false); // Close the modal
+  };
 
   // Handle modal cancellation
   const cancelFlag = () => {
@@ -172,37 +161,42 @@ const ItineraryAdmin = () => {
           dropOff={itinerary?.dropOff}
           creatorName={itinerary?.guideId?.username}
           type={"itinerary"}
+          isFlagged={itinerary?.isFlagged}
+          handleFlagClick={handleFlagClick}
           availableDates={itinerary.availableDateTime}
         />
       )}
 
-
       {/* Flag Button and Discount Offer */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", marginTop: "20px" }}>
+      {/* <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          marginTop: "20px",
+        }}
+      >
         <button
           onClick={handleFlagClick}
           style={{
             width: "50px",
             height: "30px",
             backgroundColor: isFlagRed ? "red" : "gray", // Red if clicked, gray otherwise
-            clipPath: "polygon(0 0, 100% 0, 100% 50%, 0 50%, 0% 100%, 50% 50%, 0% 0%)", // Flag shape
+            clipPath:
+              "polygon(0 0, 100% 0, 100% 50%, 0 50%, 0% 100%, 50% 50%, 0% 0%)", // Flag shape
             border: "none",
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            marginBottom: "10px" 
+            marginBottom: "10px",
           }}
-        >
-        
-        </button>
-        
+        ></button>
 
-        {/* Display the Discount */}
         <div style={{ fontSize: "16px", fontWeight: "bold" }}>
           Flag as Inappropriate
         </div>
-      </div>
+      </div> */}
 
       {/* Confirmation Modal */}
       <Modal
@@ -210,15 +204,16 @@ const ItineraryAdmin = () => {
         visible={isModalVisible}
         onOk={confirmFlag}
         onCancel={cancelFlag}
-        okText="Yes"
-        cancelText="No"
+        okType="danger"
+        okText="Flag"
+        cancelText="Cancel"
       >
         <p>Are you sure you want to flag this itinerary as Inappropriate?</p>
       </Modal>
 
       {/* Confirmation Modal */}
       <Modal
-        title="Confirm Flag"
+        title="Confirm UnFlag"
         visible={unflagisModalVisible}
         onOk={confirmUnFlag}
         onCancel={cancelUnFlag}

@@ -1,15 +1,29 @@
 import React, { useEffect, useState } from "react";
 import Item from "./Item";
-import { Form } from "antd";
+import { Form, Spin, Flex } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { apiUrl } from "./Constants";
+import { apiUrl, Colors } from "./Constants";
+import LoadingSpinner from "./LoadingSpinner";
+import SelectCurrency from "../Tourist/SelectCurrency";
+import { useCurrency } from "../Tourist/CurrencyContext";
 
 const Itinerary = () => {
   const { id } = useParams();
   const [itinerary, setItinerary] = useState(null);
   const [timelineItems, setTimelineItems] = useState(null);
   const [writeReviewForm] = Form.useForm();
+  const { currency, setCurrency } = useCurrency();
+
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+  };
+  const [currencyRates] = useState({
+    EGP: 48.58,
+    USD: 1,
+    EUR: 0.91,
+  });
 
   useEffect(() => {
     const fetchItinerary = async () => {
@@ -51,12 +65,20 @@ const Itinerary = () => {
   //   itinerary?.availableDateTime?.map((d) => d.date).join(", ") || "";
 
   if (!itinerary) {
-    return <div>Loading itienerary... </div>;
+    return <LoadingSpinner />;
   }
-  console.log(itinerary);
+
+  const convertedPrice = itinerary
+    ? (itinerary.price * currencyRates[currency]).toFixed(2)
+    : 0;
 
   return (
     <>
+      <SelectCurrency
+        currency={currency}
+        onCurrencyChange={handleCurrencyChange}
+        style={{ left: 500, top: 45 }}
+      />
       {itinerary && (
         <Item
           id={itinerary._id}
@@ -67,7 +89,7 @@ const Itinerary = () => {
           writeReviewForm={writeReviewForm}
           onSubmitWriteReview={onSubmitWriteReview}
           tags={itinerary?.tags}
-          price={itinerary?.price}
+          price={convertedPrice}
           transportation={{ from: itinerary?.pickUp, to: itinerary?.dropOff }}
           active={itinerary?.active}
           accessibility={itinerary?.accessibility} // Optional: If you want to display accessibility info

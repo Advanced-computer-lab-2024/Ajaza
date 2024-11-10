@@ -117,6 +117,7 @@ const Image = () => {
 
         setUserDetails(decodedToken.userDetails);
         message.success("Profile updated successfully!");
+        navigate(`/${role}/profile`);
       } else {
         message.error("Failed to update profile.");
         console.log("Error updating profile:", apiResponse);
@@ -162,7 +163,7 @@ const Image = () => {
               <img
                 src={logo}
                 alt="Logo"
-                style={{ width: "100px", height: "100px" }}
+                style={{ width: "100px", height: "100px", borderRadius: "50%" }}
               />
               {console.log("Logo path:", logo, "end")} {/* Check logo path */}
             </div>
@@ -172,7 +173,7 @@ const Image = () => {
               <img
                 src={logo}
                 alt="Logo"
-                style={{ width: "100px", height: "100px" }}
+                style={{ width: "100px", height: "100px", borderRadius: "50%" }}
               />
               {console.log("Logo path:", logo, "end")} {/* Check logo path */}
             </div>
@@ -183,7 +184,7 @@ const Image = () => {
               <img
                 src={photo}
                 alt="Photo"
-                style={{ width: "100px", height: "100px" }}
+                style={{ width: "100px", height: "100px", borderRadius: "50%" }}
               />
             </div>
           )}

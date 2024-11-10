@@ -208,6 +208,7 @@ exports.cancelActivityBooking = async (req, res) => {
 
     const activity = await Activity.findById(activityId);
     if (!activity) {
+      console.log("activityId",activityId);
       return res.status(404).json({ message: "Activity not found" });
     }
 
@@ -215,6 +216,7 @@ exports.cancelActivityBooking = async (req, res) => {
     const hoursDifference = (new Date(activity.date) - now) / (1000 * 60 * 60); // difference in hours
 
     if (hoursDifference < 48) {
+      console.log("cannot cancel within 48 hours");
       return res.status(400).json({
         message:
           "Cannot cancel the activity within 48 hours of its scheduled time.",
@@ -223,6 +225,7 @@ exports.cancelActivityBooking = async (req, res) => {
 
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
+      console.log("touristId",touristId);
       return res.status(404).json({ message: "Tourist not found" });
     }
 
@@ -232,6 +235,7 @@ exports.cancelActivityBooking = async (req, res) => {
     );
 
     if (bookingIndex === -1) {
+      console.log("no booking found");
       return res
         .status(404)
         .json({ message: "Activity booking not found for this tourist." });
@@ -248,6 +252,7 @@ exports.cancelActivityBooking = async (req, res) => {
     activity.spots += 1;
     await activity.save();
 
+    console.log("booking cancelled");
     res.status(200).json({
       message: "Activity booking canceled successfully",
       refund: totalPaid,
@@ -269,11 +274,13 @@ exports.cancelItineraryBooking = async (req, res) => {
 
     const itinerary = await Itinerary.findById(itineraryId);
     if (!itinerary) {
+      console.log("iten id",itineraryId);
       return res.status(404).json({ message: "Itinerary not found" });
     }
 
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
+      console.log("touristId",touristId);
       return res.status(404).json({ message: "Tourist not found" });
     }
 
@@ -283,6 +290,7 @@ exports.cancelItineraryBooking = async (req, res) => {
     );
 
     if (bookingIndex === -1) {
+      console.log("no booking found");
       return res
         .status(404)
         .json({ message: "Itinerary booking not found for this tourist." });
@@ -294,6 +302,7 @@ exports.cancelItineraryBooking = async (req, res) => {
     const hoursDifference = (new Date(itineraryDate) - now) / (1000 * 60 * 60); // difference in hours
 
     if (hoursDifference < 48) {
+      console.log("cannot cancel within 48 hours");
       return res.status(400).json({
         message:
           "Cannot cancel the itinerary within 48 hours of its scheduled time.",
@@ -309,6 +318,7 @@ exports.cancelItineraryBooking = async (req, res) => {
     if (availableDate) {
       availableDate.spots += 1;
     } else {
+      console.log("no available date found");
       return res.status(404).json({
         message: "Available DateTime not found (cannot restore spots)",
       });
@@ -322,7 +332,7 @@ exports.cancelItineraryBooking = async (req, res) => {
 
     await tourist.save();
     await itinerary.save();
-
+    console.log("booking cancelled");
     res.status(200).json({
       message: "Itinerary booking canceled successfully",
       refund: totalPaid,
@@ -378,15 +388,18 @@ exports.bookActivity = async (req, res) => {
 
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
+      console.log("touristId",touristId);
       return res.status(404).json({ message: "Tourist not found" });
     }
 
     if (!isAdult(tourist.dob)) {
+      console.log("not adult");
       return res.status(418).json({ message: "Tourist is not an adult" });
     }
 
     //this condition may be commented since handling it in the frontend
     if (promoCode && tourist.usedPromoCodes.includes(promoCode)) {
+      console.log("promo code already used");
       return res
         .status(404)
         .json({ message: "You already used this promo code" });
@@ -394,11 +407,13 @@ exports.bookActivity = async (req, res) => {
 
     const activity = await Activity.findById(activityId);
     if (!activity) {
+      console.log("activityId",activityId);
       return res.status(404).json({ message: "Activity not found" });
     }
 
     // check if the activity is open for booking
-    if (!activity.isOpen && activity.spots <= 0) {
+    if (!activity.isOpen || activity.spots <= 0) {
+      console.log("activity not open");
       return res
         .status(400)
         .json({ message: "This activity is not open for booking" });
@@ -407,6 +422,7 @@ exports.bookActivity = async (req, res) => {
     // if the wallet is being used, check if the tourist has enough balance
     if (useWallet) {
       if (tourist.wallet < total) {
+        console.log("insufficient wallet balance");
         return res.status(400).json({ message: "Insufficient wallet balance" });
       }
 
@@ -422,6 +438,7 @@ exports.bookActivity = async (req, res) => {
           return res.status(400).json({ message: "Payment failed" });
         }
       } catch (error) {
+        console.log("payment failed");
         return res
           .status(400)
           .json({ message: `Payment failed: ${error.message}` });
@@ -484,8 +501,10 @@ exports.bookActivity = async (req, res) => {
     await tourist.save();
     await activity.save();
 
+    console.log("activity booked");
     res.status(200).json({ message: "Activity booked successfully", tourist });
   } catch (error) {
+    console.log("error",error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -496,24 +515,29 @@ exports.bookItinerary = async (req, res) => {
     const { useWallet, total, date, promoCode, paymentMethodId } = req.body; // Boolean to check if wallet should be used for payment, and total passed from frontend
 
     if (!date || !total) {
+      console.log("date and total required");
       return res.status(400).json({ message: "Date and total are required" });
     }
 
     if (date < new Date()) {
+      console.log("date must be in the future");
       return res.status(400).json({ message: "Date must be in the future" });
     }
 
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
+      console.log("touristId",touristId);
       return res.status(404).json({ message: "Tourist not found" });
     }
 
     if (!isAdult(tourist.dob)) {
+      console.log("not adult");
       return res.status(400).json({ message: "Tourist is not an adult" });
     }
 
     //unnecessary condition
     if (promoCode && tourist.usedPromoCodes.includes(promoCode)) {
+      console.log("promo code already used");
       return res
         .status(404)
         .json({ message: "You already used this promo code" });
@@ -521,11 +545,13 @@ exports.bookItinerary = async (req, res) => {
 
     const itinerary = await Itinerary.findById(itineraryId);
     if (!itinerary) {
+      console.log("itineraryId",itineraryId);
       return res.status(404).json({ message: "Itinerary not found" });
     }
 
     // check if the itinerary is open for booking
     if (!itinerary.active) {
+      console.log("itinerary not open");
       return res
         .status(400)
         .json({ message: "This itinerary is not open for booking" });
@@ -537,6 +563,7 @@ exports.bookItinerary = async (req, res) => {
     );
 
     if (!availableDate || availableDate.spots <= 0) {
+      console.log("no spots available");
       return res.status(400).json({
         message: "No spots available for this itinerary on the selected date",
       });
@@ -547,6 +574,7 @@ exports.bookItinerary = async (req, res) => {
     // if the wallet is being used, check if the tourist has enough balance
     if (useWallet && useWallet === true) {
       if (tourist.wallet < total) {
+        console.log("insufficient wallet balance");
         return res.status(400).json({ message: "Insufficient wallet balance" });
       }
 
@@ -625,6 +653,7 @@ exports.bookItinerary = async (req, res) => {
     await tourist.save();
     await itinerary.save();
 
+    console.log("itinerary booked");
     res.status(200).json({ message: "Itinerary booked successfully", tourist });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -726,7 +755,7 @@ exports.adminDeletesTouristFromSystem = async (req, res) => {
   try {
     const deletedtourist = await Tourist.findByIdAndDelete(touristId);
     if (!deletedtourist) {
-      return res.status(404).json({ message: "Tourist not found" });
+      return res.status(404).json({ message: "not found" });
     }
     res.status(200).json({ message: "Tourist deleted successfully" });
   } catch (error) {

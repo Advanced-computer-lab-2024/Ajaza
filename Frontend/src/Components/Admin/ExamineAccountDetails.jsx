@@ -30,6 +30,7 @@ const ExamineAccountDetails = () => {
     const [imageCert8, setImageCert8] = useState("");
     const [imageCert9, setImageCert9] = useState("");
     const [imageCert10, setImageCert10] = useState("");
+    
 
     useEffect(() => {
         const fetchAccountDetails = async () => {

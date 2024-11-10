@@ -26,6 +26,7 @@ import axios from "axios";
 import Button from "./Common/CustomButton";
 import { jwtDecode } from "jwt-decode";
 import { apiUrl, Colors } from "./Common/Constants";
+import { Color } from "antd/es/color-picker";
 
 const { Option } = Select;
 
@@ -274,9 +275,15 @@ const Itineraries = () => {
             icon={<PlusOutlined style={{ color: "white" }} />}
             onClick={showModal}
           /> */}
-          <Button
-            size={"s"}
-            value={"Create Itinerary"}
+          <AntButton
+            style={{
+              backgroundColor: Colors.primary.default,
+              border: "none",
+              width: "30px",
+              height: "30px",
+              marginLeft: "auto",
+            }}
+            icon={<PlusOutlined style={{ color: "white" }} />}
             rounded={true}
             onClick={showModal}
           />

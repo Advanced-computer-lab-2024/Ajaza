@@ -10,6 +10,7 @@ import axios from "axios";
 import BasicCard from "../Common/BasicCard";
 import SelectCurrency from "./SelectCurrency";
 import { useNavigate } from "react-router-dom";
+import { useCurrency } from "./CurrencyContext";
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -41,8 +42,12 @@ const Products = () => {
     navigate(element["_id"]);
   };
   const [combinedElements, setCombinedElements] = useState([]);
-  const [currency, setCurrency] = useState("USD");
-  const propMapping = {
+  const { currency, setCurrency } = useCurrency();
+
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+  };
+    const propMapping = {
     title: "name",
     extra: "price",
     rating: "avgRating",
@@ -95,10 +100,7 @@ const Products = () => {
     fetchData();
   }, []);
 
-  const handleCurrencyChange = (selectedCurrency) => {
-    setCurrency(selectedCurrency);
-  };
-
+ 
   return (
     <div>
       <div
@@ -113,6 +115,7 @@ const Products = () => {
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
+          style={{left:1000 , top:55}}
         />
       </div>
       <SearchFilterSortContainer
