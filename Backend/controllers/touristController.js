@@ -950,7 +950,7 @@ exports.getHistory = async (req, res) => {
     let guides = [];
     let guideNames = [];
     for (let i = 0; i < tourist.itineraryBookings.length; i++) {
-      if (tourist.itineraryBookings[i].date < currentDate) {
+      if (tourist.itineraryBookings[i].date < currentDate && tourist.itineraryBookings[i].itineraryId) {
         itineraries.push({
           itineraryId: tourist.itineraryBookings[i].itineraryId._id,
           name: tourist.itineraryBookings[i].itineraryId.name,
