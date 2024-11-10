@@ -249,7 +249,7 @@ const MyProducts = () => {
       >
         <p>Are you sure you want to archive this product?</p>
       </Modal>
-      ;
+      
     </>
   );
 };

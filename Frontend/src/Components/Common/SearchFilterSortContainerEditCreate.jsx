@@ -382,10 +382,28 @@ const SearchFilterSortContainerEditCreate = ({
 
   const editProduct = async (formValues) => {
     try {
+      const formData = new FormData();
+      
+      // Append all fields to FormData
+      Object.entries(formValues).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+  
+      // Check if a new photo is being uploaded
+      if (formValues.photo && formValues.photo.length > 0) {
+        formData.append("photo", formValues.photo[0].originFileObj);
+      }
+  
       const response = await axios.patch(
         `${apiUrl}product/${userId}/product/${editingProductId}/adminSellerEditProduct`,
-        formValues
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
+  
       setRefreshElements((prev) => !prev);
       message.success("Product updated successfully!");
       setIsModalVisible(false);
