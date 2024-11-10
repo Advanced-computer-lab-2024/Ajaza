@@ -61,7 +61,7 @@ export const RedeemPoints = () => {
     <div>
       <h2>Redeem Points</h2>
       <p>Your current points: {points}</p>
-      <p>Your wallet balance: EGP {wallet}</p>
+      <p>Your wallet balance: USD {wallet}</p>
       {points < 10000 ? (
         <Tooltip title="You must have at least 10000 points to redeem">
           <span> 

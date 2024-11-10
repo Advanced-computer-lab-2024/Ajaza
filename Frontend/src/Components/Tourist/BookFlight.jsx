@@ -7,6 +7,7 @@ import BasicCard from '../Common/BasicCard';
 import SelectCurrency from './SelectCurrency';
 import image from "../../Assets/login.jpg";
 import CustomButton from '../Common/CustomButton';
+import { useCurrency } from './CurrencyContext';
 
 const { Option } = Select;
 
@@ -19,8 +20,11 @@ const currencyRates = {
 export const BookFlight = () => {
     const [flights, setFlights] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [currency, setCurrency] = useState("USD");
-    const [touristId, setTouristId] = useState(null);
+    const { currency, setCurrency } = useCurrency();
+
+    const handleCurrencyChange = (newCurrency) => {
+      setCurrency(newCurrency);
+    };    const [touristId, setTouristId] = useState(null);
     const [wallet, setWallet] = useState(0);
 
     useEffect(() => {
@@ -61,15 +65,17 @@ export const BookFlight = () => {
             console.log("aaallllooooo",origin, destination, departureDate, count);
             setFlights(response.data);
         } catch (error) {
-            console.error("Error fetching flights:", error);
+            if (error.response && error.response.status === 429) {
+                message.error("API quota limit has been reached. Please try again later.");
+            } else {
+                message.error("Error fetching flights. Please try again.");
+            }
         } finally {
             setLoading(false);
         }
     };
 
-    const handleCurrencyChange = (selectedCurrency) => {
-        setCurrency(selectedCurrency);
-    };
+
 
     const handleBookFlight = async (flight) => {
       
@@ -593,7 +599,7 @@ export const BookFlight = () => {
                 <Form.Item>
                     <CustomButton size="s" value="Search Flights" htmlType="submit" loading={loading} />
                 </Form.Item>
-                <SelectCurrency currency={currency} onCurrencyChange={handleCurrencyChange} />
+                <SelectCurrency currency={currency} onCurrencyChange={handleCurrencyChange} style={{top:15}}/>
             </Form>
 
             <div style={{ marginTop: '20px', display: 'flex', flexWrap: 'wrap', gap: '16px' }}>

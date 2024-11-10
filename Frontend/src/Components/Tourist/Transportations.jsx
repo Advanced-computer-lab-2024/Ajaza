@@ -21,6 +21,8 @@ import axios from "axios";
 import { apiUrl } from "../Common/Constants";
 import moment from 'moment';
 import { useNavigate } from "react-router-dom";
+import SelectCurrency from "./SelectCurrency";
+import { useCurrency } from "./CurrencyContext";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -34,6 +36,7 @@ const cityOptions = [
 ];
 
 
+
 const Transportations = () => {
   const [firstDate, setFirstDate] = useState(null);
   const [transportations, setTransportations] = useState([]);
@@ -44,7 +47,23 @@ const Transportations = () => {
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
   const [selectedTransportation, setSelectedTransportation] = useState(null);
   const [touristId, setTouristId] = useState(localStorage.getItem("touristId"));
+  const { currency, setCurrency } = useCurrency();
+
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+  }; 
+   const [currencyRates] = useState({
+    EGP: 48.58,
+    USD: 1,
+    EUR: 0.91,
+  });
   const navigate = useNavigate(); // useNavigate hook for programmatic navigation
+
+
+  const convertPrice = (price, hotelCurrency) => {
+    const conversionRate = currencyRates[currency] / currencyRates[hotelCurrency];
+    return (price * conversionRate).toFixed(2);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -115,6 +134,8 @@ const Transportations = () => {
       message.error("You must be logged in to book a transportation.");
       return;
     }
+
+
 
     const bookingData = {
         transferType: selectedTransportation.transferType,
@@ -217,6 +238,11 @@ const Transportations = () => {
       transportations?.length > 0 && !formVisible && ( // Render list if hotels are available and form is not visible
         <Card style={{ width: "100%", maxWidth: 600, margin: "20px auto", padding: "20px" }}>
           <Title level={4}>Available Transportations</Title>
+          <SelectCurrency
+              currency={currency}
+              onCurrencyChange={handleCurrencyChange}
+              style={{ float: "right" , left:-700 , top: -70}}
+            />
           <List
             itemLayout="vertical"
             dataSource={transportations}
@@ -224,7 +250,7 @@ const Transportations = () => {
               <List.Item key={transportation.vehicle_code}>
                 <List.Item.Meta
                   title={transportation.vehicle_description}
-                  description={`City: ${transportation.end_address_cityName} | Price: ${transportation.quotation_monetaryAmount} ${transportation.quotation_currencyCode}`}
+                  description={`City: ${transportation.end_address_cityName} | Price: ${convertPrice(transportation.quotation_monetaryAmount, transportation.quotation_currencyCode)} ${currency}`}
                 />
                 <div>
                    Transfer Type: {transportation.transferType} <br />
@@ -253,7 +279,7 @@ const Transportations = () => {
           <>
             <p><strong>Vehicle Description:</strong> {selectedTransportation.vehicle_description}</p>
             <p><strong>City:</strong> {selectedTransportation.end_address_cityName}</p>
-            <p><strong>Price:</strong> {selectedTransportation.quotation_monetaryAmount} {selectedTransportation.quotation_currencyCode}</p>
+            <p><strong>Price:</strong> {convertPrice(selectedTransportation.quotation_monetaryAmount, selectedTransportation.quotation_currencyCode)} {currency}</p>
             <p><strong>Transfer Type:</strong> {selectedTransportation.transferType}</p>
             <p><strong>Start Date Time:</strong> {new Date(selectedTransportation.start_dateTime).toISOString().slice(0, 16).replace("T", " ")}</p>
             <p><strong>Start Airport:</strong> {selectedTransportation.start_locationCode}</p>

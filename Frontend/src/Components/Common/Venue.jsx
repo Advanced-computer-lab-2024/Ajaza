@@ -5,12 +5,22 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { apiUrl, calculateYourPriceRet } from "./Constants";
 import { jwtDecode } from "jwt-decode";
-
+import SelectCurrency from "../Tourist/SelectCurrency";
+import { useCurrency } from "../Tourist/CurrencyContext";
 const Venue = () => {
   const { id } = useParams();
   const [venue, setVenue] = useState(null);
   const [price, setPrice] = useState(null);
   const [user, setUser] = useState(null);
+  const { currency, setCurrency } = useCurrency();
+
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+  };  const [currencyRates] = useState({
+    EGP: 48.58,
+    USD: 1,
+    EUR: 0.91,
+  });
   useEffect(() => {
     const fetchVenue = async () => {
       try {
@@ -41,12 +51,17 @@ const Venue = () => {
 
   console.log(venue);
 
+
+
+  const convertedPrice = venue ? (price * currencyRates[currency]).toFixed(2) : 0;
+
   return (
     <>
+    <SelectCurrency currency={currency} onCurrencyChange={handleCurrencyChange} style={{left:500, top:45}}/>
       <Item
         name={venue?.name}
         photos={venue?.pictures}
-        price={price}
+        price={convertedPrice}
         tags={venue?.tags}
         location={venue?.location}
         type={"venue"}

@@ -49,6 +49,7 @@ import AddAccounts from "./Components/Admin/addAccounts";
 import CustomCard from "./Components/Card";
 import CreateTourist from "./Components/Sign/CreateTourist";
 import CreateSeller from "./Components/Sign/CreateSeller";
+import { CurrencyProvider } from "./Components/Tourist/CurrencyContext";
 const { Header, Footer, Sider, Content } = Layout;
 
 function App() {
@@ -113,7 +114,9 @@ function App() {
 export default function AppWrapper() {
   return (
     <Router>
+      <CurrencyProvider>
       <App />
+      </CurrencyProvider>
     </Router>
   );
 }

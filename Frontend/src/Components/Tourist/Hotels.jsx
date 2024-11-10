@@ -21,6 +21,8 @@ import axios from "axios";
 import { apiUrl } from "../Common/Constants";
 import moment from 'moment';
 import { useNavigate } from "react-router-dom";
+import SelectCurrency from "./SelectCurrency";
+import { useCurrency } from "./CurrencyContext";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -52,7 +54,23 @@ const Hotels = () => {
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [hotelImages, setHotelImages] = useState([]);
   const [touristId, setTouristId] = useState(localStorage.getItem("touristId"));
+  const { currency, setCurrency } = useCurrency();
+
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+  };  
+  const [currencyRates] = useState({
+    EGP: 48.58,
+    USD: 1,
+    EUR: 0.91,
+  });
   const navigate = useNavigate(); // useNavigate hook for programmatic navigation
+
+
+  const convertPrice = (price, hotelCurrency) => {
+    const conversionRate = currencyRates[currency] / currencyRates[hotelCurrency];
+    return (price * conversionRate).toFixed(2);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -92,11 +110,14 @@ const Hotels = () => {
       if (response.data.length === 0) {
         message.warning("No hotels found for the selected criteria.");
       }
+      else{
+        message.success("Successfully fetched hotel data.");
+
+      }
     } catch (error) {
       console.error("Error fetching hotel data:", error);
       message.error("Failed to fetch hotel data. Please try again.");
     } finally {
-        message.success("Successfully fetched hotel data.");
         if(response) {
             setHotels(response.data);
         }
@@ -135,6 +156,8 @@ const Hotels = () => {
       message.error("You must be logged in to book a hotel.");
       return;
     }
+
+ 
 
     const bookingData = {
       hotelName: selectedHotel.name,
@@ -241,6 +264,11 @@ const Hotels = () => {
       hotels.length > 0 && !formVisible && ( // Render list if hotels are available and form is not visible
         <Card style={{ width: "100%", maxWidth: 600, margin: "20px auto", padding: "20px" }}>
           <Title level={4}>Available Hotels</Title>
+          <SelectCurrency
+              currency={currency}
+              onCurrencyChange={handleCurrencyChange}
+              style={{ float: "right", left:-700 , top: -70 }}
+            />
           <List
             itemLayout="vertical"
             dataSource={hotels}
@@ -248,8 +276,7 @@ const Hotels = () => {
               <List.Item key={hotel.name}>
                 <List.Item.Meta
                   title={hotel.name}
-                  description={`City: ${hotel.city} | Price: ${hotel.price} ${hotel.currency}`}
-                />
+                  description={`City: ${hotel.city} | Price: ${convertPrice(hotel.price, hotel.currency)} ${currency}`}                />
                 <div>
                   Check-in: {hotel.checkin} <br />
                   Check-out: {hotel.checkout} <br />
@@ -272,7 +299,7 @@ const Hotels = () => {
         {selectedHotel && (
           <>
             <p><strong>City:</strong> {selectedHotel.city}</p>
-            <p><strong>Price:</strong> {selectedHotel.price} {selectedHotel.currency}</p>
+            <p><strong>Price:</strong> {convertPrice(selectedHotel.price, selectedHotel.currency)} {currency}</p>
             <p><strong>Check-in:</strong> {selectedHotel.checkin}</p>
             <p><strong>Check-out:</strong> {selectedHotel.checkout}</p>
             <p><strong>Score:</strong> {selectedHotel.score}</p>
