@@ -77,7 +77,7 @@ const Itinerary = () => {
       <SelectCurrency
         currency={currency}
         onCurrencyChange={handleCurrencyChange}
-        style={{ left: 0, top: 0 }}
+        style={{ left: -7, top: 45 }}
       />
       {itinerary && (
         <Item

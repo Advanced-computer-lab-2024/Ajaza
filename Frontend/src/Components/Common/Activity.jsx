@@ -71,7 +71,7 @@ const Activity = () => {
       <SelectCurrency
         currency={currency}
         onCurrencyChange={handleCurrencyChange}
-        style={{ left: 600, top: -15 }}
+        style={{ left: -7, top: 45 }}
       />
 
       <Item
