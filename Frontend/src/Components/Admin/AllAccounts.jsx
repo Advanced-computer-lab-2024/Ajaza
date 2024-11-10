@@ -43,7 +43,7 @@ const AllAccounts = () => {
       }
     } else {
       try {
-        let guides = await axios.get(apiUrl + "guide");
+        let guides = await axios.get(apiUrl + "guide/accepted");
 
         guides = guides.data.map((guide) => {
           return {
@@ -52,7 +52,7 @@ const AllAccounts = () => {
           };
         });
 
-        let advertisers = await axios.get(apiUrl + "advertiser");
+        let advertisers = await axios.get(apiUrl + "advertiser/accepted");
 
         advertisers = advertisers.data.map((advertiser) => {
           return {
@@ -79,7 +79,7 @@ const AllAccounts = () => {
           };
         });
 
-        let sellers = await axios.get(apiUrl + "seller");
+        let sellers = await axios.get(apiUrl + "seller/accepted");
         sellers = sellers.data.map((seller) => ({
           ...seller,
           type: "seller",
