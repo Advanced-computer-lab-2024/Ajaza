@@ -89,6 +89,7 @@ const Admin = () => {
             <Route path="myProducts" element={<MyProducts />} />
 
             <Route path="profile" element={<Profile />} />
+            <Route path="products" element={<Products />} />
             <Route path="archive" element={<ArchivedProds />} />
             <Route path="change-password" element={<ChangePasswordForm />} />
             <Route path="auth/signin" element={<SignIn />} />
