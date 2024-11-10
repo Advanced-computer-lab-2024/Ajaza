@@ -42,6 +42,7 @@ const Item = ({
   availableDates,
   isFlagged,
   handleFlagClick,
+  currency,
 }) => {
   const [user, setUser] = useState(null);
   const [avgRating, setAvgRating] = useState(null);
@@ -94,6 +95,7 @@ const Item = ({
         availableDates={availableDates}
         isFlagged={isFlagged}
         handleFlagClick={handleFlagClick}
+        currency={currency}
       />
 
       {type == "venue" ? (

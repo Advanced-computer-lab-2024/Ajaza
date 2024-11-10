@@ -581,7 +581,7 @@ const Activities = () => {
             <Switch />
           </Form.Item>
 
-          <Form.Item name="discounts" label="Discount" initialValue={0}>
+          <Form.Item name="discounts" label="Discount %" initialValue={0}>
             <InputNumber min={0} max={100} placeholder="Enter discount value" />
           </Form.Item>
 
