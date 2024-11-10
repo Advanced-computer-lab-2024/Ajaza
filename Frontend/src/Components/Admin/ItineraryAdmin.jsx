@@ -104,7 +104,7 @@ const ItineraryAdmin = () => {
       } catch (error) {
         console.error("Error hiding event:", error);
       }
-    fetchItinerary();
+    //fetchItinerary();
     setIsModalVisible(false); // Close the modal
   };
 

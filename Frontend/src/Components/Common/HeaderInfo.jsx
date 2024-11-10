@@ -92,6 +92,8 @@ const HeaderInfo = ({
 
   useEffect(() => {
     // check user
+    console.log(userid);
+
     // get if this item is booked setIsBooked accordingly:
     const checkIfBooked = () => {
       if (user) {
@@ -259,6 +261,7 @@ const HeaderInfo = ({
   const bookItem = async () => {
     try {
       const touristId = userid;
+      console.log("here1234", touristId);
       const useWallet = user.wallet > 0;
       let total;
       let FinalDate;
