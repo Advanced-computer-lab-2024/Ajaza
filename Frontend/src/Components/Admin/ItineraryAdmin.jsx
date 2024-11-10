@@ -152,13 +152,15 @@ const ItineraryAdmin = () => {
           pickUp={itinerary?.pickUp}
           dropOff={itinerary?.dropOff}
           creatorName={itinerary?.guideId?.username}
-          type={"activity"}
+          type={"itinerary"}
+          isFlagged={itinerary?.flagged}
+          handleFlagClick={handleFlagClick}
           availableDates={itinerary.availableDateTime}
         />
       )}
 
       {/* Flag Button and Discount Offer */}
-      <div
+      {/* <div
         style={{
           display: "flex",
           flexDirection: "column",
@@ -183,11 +185,10 @@ const ItineraryAdmin = () => {
           }}
         ></button>
 
-        {/* Display the Discount */}
         <div style={{ fontSize: "16px", fontWeight: "bold" }}>
           Flag as Inappropriate
         </div>
-      </div>
+      </div> */}
 
       {/* Confirmation Modal */}
       <Modal
