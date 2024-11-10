@@ -29,7 +29,7 @@ const ComplaintRepliesTimeline = ({ complaint }) => {
         mode={mode}
         items={
           complaint.replies?.map((reply) => ({
-            label: new Date(reply.date).toLocaleDateString(),
+            label: (reply.name === "Admin" ? "Admin:" : "You:") + "  " + new Date(reply.date).toLocaleDateString(),
             children: reply.text,
           })) || []
         }
@@ -88,10 +88,14 @@ const TouristSelectedComplaint = () => {
     }
 
     try {
+      const response = await axios.get(`${apiUrl}complaint/${id}`);
+      let touristUsername = response.data.touristId.username;
       await axios.post(apiUrl + `complaint/replies/${complaint._id}`, {
         text: reply,
+        name: touristUsername,
         
       });
+     
       setReply(""); // Clear the input field after sending
       message.success("Reply sent successfully!");
       fetchComplaintDetails();
