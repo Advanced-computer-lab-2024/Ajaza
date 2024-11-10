@@ -4,12 +4,13 @@ import SearchFilterSortContainerEditCreate from "../Common/SearchFilterSortConta
 import {
   apiUrl,
   calculateYourPrice,
+  Colors,
   comparePriceRange,
   getAvgRating,
 } from "../Common/Constants";
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
-import { EditOutlined } from "@ant-design/icons";
+import { EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 import CustomButton from "../Common/CustomButton";
 import {
@@ -20,6 +21,7 @@ import {
   Input,
   Button as AntButton,
   Select,
+  Button,
 } from "antd";
 import SelectCurrency from "../Tourist/SelectCurrency";
 import { useCurrency } from "../Tourist/CurrencyContext";
@@ -76,7 +78,7 @@ const MyProducts = () => {
     "Quantity Available": "quantity",
   };
   const searchFields = ["name"];
-  const constProps = { rateDisplay: true , currency, currencyRates};
+  const constProps = { rateDisplay: true, currency, currencyRates };
 
   const sortFields = ["avgRating", "price"];
   const [filterFields, setfilterFields] = useState({
@@ -103,15 +105,20 @@ const MyProducts = () => {
       setUserId(userId);
 
       try {
-        const productResponse = await axios.get(`${apiUrl}product/viewMyProducts/${userId}`);
+        const productResponse = await axios.get(
+          `${apiUrl}product/viewMyProducts/${userId}`
+        );
         let products = productResponse.data;
 
         // Filter out archived products
-        let nonArchivedProducts = products.filter((product) => !product.archived);
+        let nonArchivedProducts = products.filter(
+          (product) => !product.archived
+        );
         let combinedArray = nonArchivedProducts;
         combinedArray = combinedArray.map((element) => {
           return {
-            ...element, avgRating: getAvgRating(element.feedback),
+            ...element,
+            avgRating: getAvgRating(element.feedback),
             sales: element.sales || 0, // Ensure sales is set to 0 if not present
           };
         });
@@ -124,7 +131,6 @@ const MyProducts = () => {
       }
     };
 
-
     fetchData();
   }, [refreshElements]);
 
@@ -134,20 +140,25 @@ const MyProducts = () => {
       const decodedToken = jwtDecode(token);
       const userId = decodedToken.userDetails["_id"];
 
-      const response = await axios.patch(`${apiUrl}product/${userId}/product/${productId}/adminSellerArchiveProduct`, {
-        archived: true,
-      });
+      const response = await axios.patch(
+        `${apiUrl}product/${userId}/product/${productId}/adminSellerArchiveProduct`,
+        {
+          archived: true,
+        }
+      );
       console.log("API Response:", response.data);
       console.log("inside prodID", productId);
       console.log("inside userID", userId);
 
       setRefreshElements((prev) => !prev); // Refresh elements
-
     } catch (error) {
-      message.error(`Failed to archive product: ${error.response?.data?.message || error.message}`);
+      message.error(
+        `Failed to archive product: ${
+          error.response?.data?.message || error.message
+        }`
+      );
     }
   };
-
 
   const createOnclick2 = (product) => {
     if (product && product._id) {
@@ -157,33 +168,45 @@ const MyProducts = () => {
     }
   };
 
-
   const createOnclick = () => {
     setEditingProductId(null);
     setIsModalVisible(true);
   };
-
 
   useEffect(() => {
     console.log("NOURSALAH arch", archivingProductId);
     console.log("NOURSALAH user", userId);
   }, [archivingProductId, userId]);
 
-
-
-
   return (
-
     <>
-
-      <CustomButton
-        size={"s"}
-        value={"Create Product"}
+      <Button
+        icon={<PlusOutlined style={{ color: "white" }} />}
         onClick={createOnclick}
+        style={{
+          backgroundColor: Colors.primary.default,
+          border: "none",
+          width: "30px",
+          height: "30px",
+          position: "relative",
+          top: "90px",
+          right: "600px",
+        }}
       />
-
-<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-        <SelectCurrency basePrice={null} currency={currency} onCurrencyChange={handleCurrencyChange} />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "16px",
+        }}
+      >
+        <SelectCurrency
+          basePrice={null}
+          currency={currency}
+          onCurrencyChange={handleCurrencyChange}
+          style={{ left: 1070, top: 58 }}
+        />
       </div>
       <SearchFilterSortContainerEditCreate
         cardComponent={BasicCard}
@@ -206,7 +229,6 @@ const MyProducts = () => {
         setIsArchiveModalVisible={setIsArchiveModalVisible} // Pass this as a prop
         onArchive={archiveProduct}
       />
-
       <Modal
         title="Confirm Archive"
         open={isArchiveModalVisible}
@@ -220,8 +242,8 @@ const MyProducts = () => {
         onCancel={() => setIsArchiveModalVisible(false)}
       >
         <p>Are you sure you want to archive this product?</p>
-      </Modal>;
-
+      </Modal>
+      ;
     </>
   );
 };
