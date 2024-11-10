@@ -30,6 +30,17 @@ exports.getAllGuides = async (req, res) => {
   }
 };
 
+
+exports.getAcceptedGuides = async (req, res) => {
+  try {
+    const guides = await Guide.find({ pending: false });
+    res.status(200).json(guides);
+  } catch (error) {
+    console.error("Error fetching accepted guides:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get guide by ID
 exports.getGuideById = async (req, res) => {
   try {

@@ -16,6 +16,8 @@ router.get("/", advertiserController.getAllAdvertisers);
 //req 12
 router.get("/pending", advertiserController.getPendingAdvertisers);
 
+router.get("/accepted" , advertiserController.getAcceptedAdvertisers);
+
 router.get("/details/:id", advertiserController.getAdvertiserDetails);
 
 router.get("/:id", advertiserController.getAdvertiserById);

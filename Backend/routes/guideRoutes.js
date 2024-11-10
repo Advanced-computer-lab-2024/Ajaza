@@ -10,8 +10,12 @@ const uploadIdCertificatesImage = require("../middleware/uploadIdCertificatesIma
 
 router.post("/", guideController.createGuide);
 
+
 //req 12
 router.get("/pending", guideController.getPendingGuides);
+
+router.get("/accepted", guideController.getAcceptedGuides);
+
 router.get('/details/:id', guideController.getGuideDetails);
 
 
