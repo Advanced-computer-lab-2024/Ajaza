@@ -178,6 +178,7 @@ const SearchFilterSortContainerEditCreate = ({
   setRefreshElements,
   userId,
   loading,
+  removeSearchFilterSort,
 }) => {
   const [displayedElements, setDisplayedElements] = useState(null);
   const [searchValue, setSearchValue] = useState("");
@@ -391,9 +392,7 @@ const SearchFilterSortContainerEditCreate = ({
       form.resetFields();
       setEditingProductId(null);
     } catch (error) {
-      message.error(
-        "Failed to edit Product." + error?.response?.data?.error
-      );
+      message.error("Failed to edit Product." + error?.response?.data?.error);
     }
   };
 
@@ -420,51 +419,53 @@ const SearchFilterSortContainerEditCreate = ({
   filterItems = generateFilterItems(filterFields);
   return (
     <>
-      <Flex align="center" justify="center" style={{ marginBottom: "30px" }}>
-        {searchFields ? (
-          <Search
-            activateHover={false}
-            searchValue={searchValue}
-            setSearchValue={setSearchValue}
-            style={{ width: "600px" }}
-            inputStyleParam={{ paddingLeft: "40px" }}
-          />
-        ) : null}
+      {removeSearchFilterSort ? null : (
+        <Flex align="center" justify="center" style={{ marginBottom: "30px" }}>
+          {searchFields ? (
+            <Search
+              activateHover={false}
+              searchValue={searchValue}
+              setSearchValue={setSearchValue}
+              style={{ width: "600px" }}
+              inputStyleParam={{ paddingLeft: "40px" }}
+            />
+          ) : null}
 
-        <Flex style={{ position: "absolute", right: "70px" }}>
-          <Dropdown
-            menu={{
-              selectable: true,
-              items: filterItems,
-            }}
-          >
-            <a
-              onClick={(e) => e.preventDefault()}
-              style={{ marginLeft: "auto" }}
+          <Flex style={{ position: "absolute", right: "70px" }}>
+            <Dropdown
+              menu={{
+                selectable: true,
+                items: filterItems,
+              }}
             >
-              <Space>
-                Filter
-                <DownOutlined />
-              </Space>
-            </a>
-          </Dropdown>
+              <a
+                onClick={(e) => e.preventDefault()}
+                style={{ marginLeft: "auto" }}
+              >
+                <Space>
+                  Filter
+                  <DownOutlined />
+                </Space>
+              </a>
+            </Dropdown>
 
-          <Dropdown
-            menu={{
-              items: sortItems,
-              selectable: true,
-              defaultSelectedKeys: ["3"],
-            }}
-          >
-            <Typography.Link style={{ marginLeft: "30px" }}>
-              <Space>
-                Sort
-                <DownOutlined />
-              </Space>
-            </Typography.Link>
-          </Dropdown>
+            <Dropdown
+              menu={{
+                items: sortItems,
+                selectable: true,
+                defaultSelectedKeys: ["3"],
+              }}
+            >
+              <Typography.Link style={{ marginLeft: "30px" }}>
+                <Space>
+                  Sort
+                  <DownOutlined />
+                </Space>
+              </Typography.Link>
+            </Dropdown>
+          </Flex>
         </Flex>
-      </Flex>
+      )}
       <Row gutter={[horizontalGap, verticalGap]}>
         {displayedElements?.map((element, index) => {
           const mappedProps = mapPropsToValues(element, propMapping);
