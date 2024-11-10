@@ -64,7 +64,7 @@ const Venue = () => {
       <SelectCurrency
         currency={currency}
         onCurrencyChange={handleCurrencyChange}
-        style={{ left: 500, top: 45 }}
+        style={{ left: -7, top: 45 }}
       />
       <Item
         name={venue?.name}
@@ -76,6 +76,7 @@ const Venue = () => {
         openingHours={venue?.openingHours}
         creatorName={venue?.governorId?.username}
         desc={venue?.desc}
+        currency={currency}
       />
     </>
   );

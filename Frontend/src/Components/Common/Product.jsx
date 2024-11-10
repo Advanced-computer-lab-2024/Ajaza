@@ -193,7 +193,7 @@ const Product = () => {
       <SelectCurrency
         currency={currency}
         onCurrencyChange={handleCurrencyChange}
-        style={{ left: 500, top: 45 }}
+        style={{ left: -7, top: 45 }}
       />
       <Item
         // name={product?.name}
@@ -206,6 +206,7 @@ const Product = () => {
         sales={product?.sales}
         feedbacks={product?.feedback}
         type={"product"}
+        currency={currency}
       />
     </>
   );

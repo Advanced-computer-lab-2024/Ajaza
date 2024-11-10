@@ -1,4 +1,3 @@
-
 // import React, { useEffect, useState } from "react";
 // import { useNavigate } from "react-router-dom";
 // import { Card, Flex, Rate } from "antd";
@@ -53,7 +52,7 @@
 //   };
 
 //   const convertedPrice =
-//     typeof extra === "string" && extra.includes("-") ? convertPriceRange(extra) : 
+//     typeof extra === "string" && extra.includes("-") ? convertPriceRange(extra) :
 //     ((Number(extra) || 0) * (currencyRates?.[currency] || 1)).toFixed(2);
 
 //   useEffect(() => {
@@ -112,9 +111,8 @@
 
 // export default BasicCard;
 
-
 import React, { useEffect, useState } from "react";
-import { Card, Flex, Rate } from "antd";
+import { Card, Divider, Flex, Rate } from "antd";
 import styles from "./BasicCard.module.css";
 import "./BasicCard.css";
 
@@ -158,15 +156,20 @@ const BasicCard = ({
 
   const convertPriceRange = (priceRange) => {
     const [lower, upper] = priceRange.split("-").map(Number);
-    const convertedLower = (lower * (currencyRates?.[currency] || 1)).toFixed(2);
-    const convertedUpper = (upper * (currencyRates?.[currency] || 1)).toFixed(2);
+    const convertedLower = (lower * (currencyRates?.[currency] || 1)).toFixed(
+      2
+    );
+    const convertedUpper = (upper * (currencyRates?.[currency] || 1)).toFixed(
+      2
+    );
     return `${convertedLower} - ${convertedUpper}`;
   };
 
   // Handle `extra` safely to avoid errors with `.split()`
-  const convertedPrice = typeof extra === "string" && extra.includes("-")
-    ? convertPriceRange(extra)
-    : ((Number(extra) || 0) * (currencyRates?.[currency] || 1)).toFixed(2);
+  const convertedPrice =
+    typeof extra === "string" && extra.includes("-")
+      ? convertPriceRange(extra)
+      : ((Number(extra) || 0) * (currencyRates?.[currency] || 1)).toFixed(2);
 
   useEffect(() => {
     if (dateTime) setDateTimeFormatted(formatDateTime(dateTime));
@@ -192,20 +195,23 @@ const BasicCard = ({
       hoverable={hoverable}
     >
       <div onClick={onClick} style={{ padding: "24px" }}>
-        {Object.entries(fields).map(([key, value]) => (
-          value !== undefined && (
-            <div
-              key={key}
-              style={{
-                width: "100%",
-                textOverflow: "ellipsis",
-                overflowX: "hidden",
-              }}
-            >
-              <span style={{ fontWeight: "bold" }}>{key}</span>: {String(value)}
-            </div>
-          )
-        ))}
+        {Object.entries(fields).map(
+          ([key, value]) =>
+            value !== undefined && (
+              <div
+                key={key}
+                style={{
+                  width: "100%",
+                  textOverflow: "ellipsis",
+                  overflowX: "hidden",
+                  marginTop: "10px",
+                }}
+              >
+                <span style={{ fontWeight: "bold" }}>{key}</span>:{" "}
+                {String(value)}
+              </div>
+            )
+        )}
         {dateTime && dateTimeFormatted && (
           <>
             <div style={{ fontWeight: "bold" }}>Dates/Times Available</div>
@@ -214,6 +220,7 @@ const BasicCard = ({
             ))}
           </>
         )}
+        <Divider />
         {rateDisplay && (
           <Rate allowHalf disabled={!rateEnabled} value={avgRating} />
         )}

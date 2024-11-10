@@ -84,6 +84,7 @@ const HeaderInfo = ({
   desc,
   isFlagged,
   handleFlagClick,
+  currency,
 }) => {
   const [multiplePhotos, setMultiplePhotos] = useState(false);
 
@@ -97,11 +98,20 @@ const HeaderInfo = ({
   const emailRef = useRef(null);
   const [selectedPrice, setSelectedPrice] = useState(price);
   const selectedPriceRef = useRef(null);
+  const [currencySymbol, setCurrencySymbol] = useState(
+    currency == "EGP" ? "£" : currency == "EUR" ? "€" : "$"
+  );
 
   useEffect(() => {
-    // check user
-    console.log(userid);
+    console.log(currency);
+    setCurrencySymbol(currency == "EGP" ? "£" : currency == "EUR" ? "€" : "$");
+  }, [currency]);
 
+  useEffect(() => {
+    console.log(currencySymbol);
+  }, [currencySymbol]);
+
+  useEffect(() => {
     // get if this item is booked setIsBooked accordingly:
     const checkIfBooked = () => {
       if (user) {
@@ -138,14 +148,23 @@ const HeaderInfo = ({
   useEffect(() => {
     if (discounts) {
       if (price) {
-        setPriceString(price - (discounts / 100) * price);
+        setPriceString((price - (discounts / 100) * price).toFixed(2));
       }
       if (priceLower == priceUpper) {
-        const priceLowerTemp = priceLower - (discounts / 100) * priceLower;
+        const priceLowerTemp = (
+          priceLower -
+          (discounts / 100) * priceLower
+        ).toFixed(2);
         setPriceString(`${priceLowerTemp}`);
       } else if (priceLower && priceUpper && priceLower !== priceUpper) {
-        const priceLowerTemp = priceLower - (discounts / 100) * priceLower;
-        const priceUpperTemp = priceUpper - (discounts / 100) * priceUpper;
+        const priceLowerTemp = (
+          priceLower -
+          (discounts / 100) * priceLower
+        ).toFixed(2);
+        const priceUpperTemp = (
+          priceUpper -
+          (discounts / 100) * priceUpper
+        ).toFixed(2);
 
         setPriceString(`${priceLowerTemp} - ${priceUpperTemp}`);
       }
@@ -295,7 +314,6 @@ const HeaderInfo = ({
       } else if (type === "itinerary") {
         endpoint = `${apiUrl}tourist/${touristId}/itinerary/${id}/book`;
       }
-      console.log("Price:", total);
 
       const response = await axios.post(endpoint, {
         useWallet,
@@ -570,7 +588,8 @@ const HeaderInfo = ({
               color: Colors.grey[700],
             }}
           >
-            ${priceString}
+            {currencySymbol}
+            {priceString}
           </Flex>
           {discounts ? (
             <Flex
@@ -588,7 +607,8 @@ const HeaderInfo = ({
                   marginRight: "5px",
                 }}
               >
-                ${price}
+                {currencySymbol}
+                {price}
               </div>
               <div
                 style={{
@@ -680,8 +700,6 @@ const HeaderInfo = ({
           <Col span={colSpan} style={{ marginTop: "50px" }}>
             <Row justify="center">
               {Object.entries(timelineItems).map(([key, value]) => {
-                console.log(timelineItems);
-
                 return (
                   <Col
                     span={key == "availableDateTime" ? 16 : 8}
