@@ -45,6 +45,30 @@ exports.getAllActivitiesNH = async (req, res) => {
   }
 };
 
+exports.getAllHasBookings = async (req, res) => {
+  try {
+
+    const touristId = req.params.id;
+
+    const tourist = await Tourist.findById(touristId);
+
+    if(!tourist) {
+      return res.status(404).json({message: "Tourist not found"});
+    }
+    const currentDate = new Date();
+    const activityIds = tourist.activityBookings.map(booking => booking.activityId);
+    const activitiesT = await Activity.find({
+      _id: { $in: activityIds },
+      date: { $gt: currentDate }
+    }).populate("advertiserId");    
+    const activities = await Activity.find({hidden: { $ne: true }, isOpen: { $ne: false }, date: { $gt: currentDate }}).populate("advertiserId");
+    const combinedActivities = [...activities, ...activitiesT];
+    res.status(200).json(combinedActivities);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 // Get activity by ID
 exports.getActivityById = async (req, res) => {
   try {
