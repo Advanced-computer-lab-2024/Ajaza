@@ -26,6 +26,9 @@ router.get("/upcomingItineraries", itineraryController.getUpcomingItineraries);
 
 router.get("/:id", itineraryController.getItineraryById);
 
+router.get("/future/:id", itineraryController.getItineraryByIdF);
+
+
 router.patch("/:id", itineraryController.updateItinerary);
 
 router.delete("/:id", itineraryController.deleteItinerary);
