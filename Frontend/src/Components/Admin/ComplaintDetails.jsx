@@ -126,15 +126,17 @@ const ComplaintDetails = () => {
           <strong>Status:</strong> {complaint.status}
         </p>
 
-        <div style={{ marginTop: 20 }}>
-          <Button
-            type="primary"
-            onClick={handleAccept}
-            style={{ marginRight: 10 }}
-          >
-            Resolve
-          </Button>
-        </div>
+        {complaint?.pending ? (
+          <div style={{ marginTop: 20 }}>
+            <Button
+              type="primary"
+              onClick={handleAccept}
+              style={{ marginRight: 10 }}
+            >
+              Resolve
+            </Button>
+          </div>
+        ) : null}
       </Card>
       <br />
       <br />
