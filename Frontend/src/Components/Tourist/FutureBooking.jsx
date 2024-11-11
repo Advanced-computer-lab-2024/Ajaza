@@ -11,6 +11,7 @@ import BasicCard from "../Common/BasicCard";
 import SelectCurrency from "./SelectCurrency";
 import { useNavigate } from "react-router-dom";
 import { useCurrency } from "./CurrencyContext";
+import { jwtDecode } from "jwt-decode";
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -89,24 +90,32 @@ const Plans = () => {
   });
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    const decodedToken = jwtDecode(token);
+    console.log(decodedToken);
+
     const fetchData = async () => {
       try {
         const [
           activityResponse,
           itineraryResponse,
-          venueResponse,
           categoryResponse,
           tagResponse,
         ] = await Promise.all([
-          axios.get(`${apiUrl}activity/notHidden`),
-          axios.get(`${apiUrl}itinerary/notHidden`),
-          axios.get(`${apiUrl}venue/notHidden`),
+          axios.get(
+            `${apiUrl}activity/notHidden/orHasBookings/${decodedToken?.userId}`
+          ),
+          axios.get(
+            `${apiUrl}itinerary/notHidden/orHasBookings/${decodedToken?.userId} `
+          ),
           axios.get(`${apiUrl}category`),
           axios.get(`${apiUrl}tag`),
         ]);
         let activities = activityResponse.data;
         let itineraries = itineraryResponse.data;
-        let venues = venueResponse.data;
+        console.log(activities);
+        console.log(itineraries);
+
         let categories = categoryResponse.data;
         let tags = tagResponse.data;
 
@@ -157,10 +166,6 @@ const Plans = () => {
           },
         };
 
-        venues = venues.map((venue) => {
-          return calculateYourPrice(venue, "egypt", "student");
-        });
-
         activities = activities.map((activity) => {
           return { ...activity, price: `${activity.lower}-${activity.upper}` };
         });
@@ -171,7 +176,6 @@ const Plans = () => {
             ...itinerary,
             type: "Itinerary",
           })),
-          ...venues.map((venue) => ({ ...venue, type: "Venue" })),
         ];
 
         combinedArray = combinedArray.map((element) => {
@@ -219,7 +223,7 @@ const Plans = () => {
           } else if (element?.type.toLowerCase() == "venue") {
             type = "venues";
           }
-          navigate(`${type}/${element?._id}`);
+          navigate(`/tourist/${type}/${element?._id}`);
         }}
       />
     </div>
