@@ -29,7 +29,7 @@ import MapView from "./MapView";
 import { convertDateToString, camelCaseToNormalText } from "./Constants";
 import Timeline from "./Timeline";
 import { Dropdown } from "antd";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./HeaderInfo.css";
 
 const { Option } = Select;
@@ -101,6 +101,7 @@ const HeaderInfo = ({
   const [currencySymbol, setCurrencySymbol] = useState(
     currency == "EGP" ? "£" : currency == "EUR" ? "€" : "$"
   );
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log(currency);
@@ -343,6 +344,25 @@ const HeaderInfo = ({
   };
 
   const showBookingModal = () => {
+    console.log("here");
+
+    if (!decodedToken) {
+      message.warning(
+        <div>
+          <a
+            style={{
+              textDecoration: "underline",
+              color: Colors.primary.default,
+            }}
+            onClick={() => navigate("/auth/signin")}
+          >
+            Sign In
+          </a>{" "}
+          in to book
+        </div>
+      );
+      return;
+    }
     let currentSelectedDate;
     let currentprice;
 
@@ -384,19 +404,28 @@ const HeaderInfo = ({
               }}
               style={{ width: "100%", marginBottom: 10 }}
             >
-              <Option value={discountedPriceLower}>
-                {currencySymbol}
+              <Option
+                value={discountedPriceLower}
+                style={{ color: "#cd7f32", fontWeight: "bold" }}
+              >
+                Bronze Tier: {currencySymbol}
                 {discountedPriceLower.toFixed(2)}
               </Option>
               {priceUpper !== priceLower && (
-                <Option value={discountedMiddlePrice}>
-                  {currencySymbol}
+                <Option
+                  value={discountedMiddlePrice}
+                  style={{ color: "#c0c0c0", fontWeight: "bold" }}
+                >
+                  Silver Tier: {currencySymbol}
                   {discountedMiddlePrice.toFixed(2)}
                 </Option>
               )}
               {priceUpper !== priceLower && (
-                <Option value={discountedPriceUpper}>
-                  {currencySymbol}
+                <Option
+                  value={discountedPriceUpper}
+                  style={{ color: "#ffd700", fontWeight: "bold" }}
+                >
+                  Gold Tier: {currencySymbol}
                   {discountedPriceUpper.toFixed(2)}
                 </Option>
               )}

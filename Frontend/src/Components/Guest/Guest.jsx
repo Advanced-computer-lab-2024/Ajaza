@@ -10,9 +10,13 @@ import SearchFilterSortContainer from "../Common/SearchFilterSortContainer";
 import Profile from "../Common/Profile";
 import Plans from "../Tourist/Plans";
 import Itineraries from "../Tourist/Itineraries";
+import Itinerary from "../Common/Itinerary";
 import Products from "../Tourist/Products";
+import Product from "../Common/Product";
 import Venues from "../Tourist/Venues";
+import Venue from "../Common/Venue";
 import Activities from "../Tourist/Activities";
+import Activity from "../Common/Activity";
 
 const Guest = () => {
   const [response, setResponse] = useState([]);
@@ -46,14 +50,18 @@ const Guest = () => {
       onClick: () => navigate("activities"),
     },
   ];
-
   return (
     <CustomLayout guest={true} sideBarItems={sideBarItems}>
       <Routes>
         <Route path="/" element={<Plans />} />
         <Route path="itineraries" element={<Itineraries />} />
+        <Route path="itineraries/:id" element={<Itinerary />} />
+
         <Route path="venues" element={<Venues />} />
+        <Route path="venues/:id" element={<Venue />} />
+
         <Route path="activities" element={<Activities />} />
+        <Route path="activities/:id" element={<Activity />} />
       </Routes>
     </CustomLayout>
   );
