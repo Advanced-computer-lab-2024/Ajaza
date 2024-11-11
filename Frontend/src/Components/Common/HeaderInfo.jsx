@@ -344,9 +344,8 @@ const HeaderInfo = ({
   };
 
   const showBookingModal = () => {
-    console.log("here");
-
-    if (!decodedToken) {
+    const temp = localStorage.getItem("token");
+    if (!temp) {
       message.warning(
         <div>
           <a
