@@ -5,9 +5,6 @@ import CustomButton from "../Common/CustomButton";
 import { useNavigate } from "react-router-dom";
 import image from "../../Assets/logo.svg";
 
-
-
-
 const { Header, Content, Footer, Sider } = Layout;
 
 const AuthLayout = ({ children }) => {
@@ -29,9 +26,24 @@ const AuthLayout = ({ children }) => {
           padding: "0 20px",
         }}
       >
-          <div id="logo" style={{ position: 'relative' }}>
-            <img src={image} alt="Ajaza Logo" style={{ width: '155px', height: 'auto', position: 'absolute', left: -40 , top:-77}} />
-           </div>
+        <div
+          className="hover"
+          id="logo"
+          style={{ position: "relative" }}
+          onClick={() => navigate("/")}
+        >
+          <img
+            src={image}
+            alt="Ajaza Logo"
+            style={{
+              width: "155px",
+              height: "auto",
+              position: "absolute",
+              left: -40,
+              top: -77,
+            }}
+          />
+        </div>
 
         <div style={{ marginLeft: "auto" }}>
           <CustomButton
