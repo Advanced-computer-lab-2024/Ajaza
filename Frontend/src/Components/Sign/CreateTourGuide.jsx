@@ -104,7 +104,16 @@ const CreateTourGuide = () => {
           );
         }
       }
+
+      // Display the success message
+      message.success("Tour Guide created successfully!");
+
+
+      // Delay before navigate since the reload done by axios request is faster than the message display
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // 1-second delay
+      
       navigate("/auth/signin");
+
 
       const response = await axios.post(
         "http://localhost:5000/guide/guestGuideCreateProfile",
