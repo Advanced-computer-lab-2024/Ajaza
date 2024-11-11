@@ -11,6 +11,8 @@ router.patch("/unhide/:id", activityController.unhideActivity);
 
 router.get("/", activityController.getAllActivities);
 
+router.get("/nothidden/orHasBookings/:id", activityController.getAllHasBookings);
+
 //admin activities
 router.get("/admin", activityController.getAdminActivities);
 //not hidden

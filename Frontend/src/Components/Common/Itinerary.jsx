@@ -28,7 +28,7 @@ const Itinerary = () => {
   useEffect(() => {
     const fetchItinerary = async () => {
       try {
-        const response = await axios.get(`${apiUrl}itinerary/${id}`);
+        const response = await axios.get(`${apiUrl}itinerary/future/${id}`);
         setItinerary(response.data);
       } catch (error) {
         console.error("Error fetching itinerary:", error);

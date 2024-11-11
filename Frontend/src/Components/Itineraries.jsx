@@ -43,6 +43,8 @@ const Itineraries = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingItineraryId, setEditingItineraryId] = useState(null);
   const [tags, setTags] = useState([]);
+  const [canEdit, setCanEdit] = useState(true);
+  const [touristsData, setTouristsData] = useState([]);
   const { Title, Text } = Typography;
 
   const [form] = Form.useForm();
@@ -104,10 +106,21 @@ const Itineraries = () => {
     }
   };
 
+  const fetchTourists = async () => {
+    try {
+      const response = await apiClient.get("/tourist/");
+      setTouristsData(response.data);
+      console.log("Tourists:", response.data); // Debugging line
+    } catch (error) {
+      console.error("Error fetching tourists:", error);
+    }
+  };
+
   useEffect(() => {
     if (decodedToken?.role == "guide") {
       fetchItineraries();
       fetchTags();
+      fetchTourists();
     }
   }, []);
 
@@ -229,6 +242,13 @@ const Itineraries = () => {
   };
 
   const openEditModal = (itineraryId) => {
+    const isBooked = touristsData.some((tourist) =>
+      tourist.itineraryBookings?.some(
+        (booking) => booking.itineraryId === itineraryId
+      )
+    );
+    setCanEdit(isBooked);
+
     setEditingItineraryId(itineraryId);
     const itineraryToEdit = itinerariesData.find(
       (itinerary) => itinerary._id === itineraryId
@@ -533,7 +553,7 @@ const Itineraries = () => {
                 },
               ]}
             >
-              <InputNumber
+              <InputNumber  
                 min={1}
                 placeholder="Enter max tourists"
                 style={{ width: "100%" }}
@@ -541,8 +561,9 @@ const Itineraries = () => {
             </Form.Item>
 
             <Form.Item name="active" label="Active" valuePropName="checked">
-              <Switch />
+              <Switch disabled={!canEdit} />
             </Form.Item>
+
             <Form.Item name="tags" label="Tags">
               <Select mode="multiple" placeholder="Select Tags" allowClear>
                 {tags.map((tag) => (

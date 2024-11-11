@@ -1047,7 +1047,7 @@ async function sendEmail(email, subject, html) {
 
 //req63
 exports.getFutureBookings = async (req, res) => {
-  const { touristId } = req.params.id;
+  const touristId = req.params.id;
   const currentDate = new Date();
 
   try {
@@ -1066,12 +1066,14 @@ exports.getFutureBookings = async (req, res) => {
           (new Date(tourist.activityBookings[i].activityId.date) -
             currentDate) /
           (1000 * 60 * 60);
-        activities.push({
-          activityId: tourist.activityBookings[i].activityId._id,
-          name: tourist.activityBookings[i].activityId.name,
-          date: tourist.activityBookings[i].activityId.date,
-          canBeCancelled: hoursDifference > 48,
-        });
+        if(tourist.activityBookings[i].activityId) {
+          activities.push({
+            activityId: tourist.activityBookings[i].activityId._id,
+            name: tourist.activityBookings[i].activityId.name,
+            date: tourist.activityBookings[i].activityId.date,
+            canBeCancelled: hoursDifference > 48,
+          });
+      ``}
       }
     }
     let itineraries = [];
@@ -1080,12 +1082,14 @@ exports.getFutureBookings = async (req, res) => {
         const hoursDifference =
           (new Date(tourist.itineraryBookings[i].date) - currentDate) /
           (1000 * 60 * 60);
-        itineraries.push({
-          itineraryId: tourist.itineraryBookings[i].itineraryId._id,
-          name: tourist.itineraryBookings[i].itineraryId.name,
-          date: tourist.itineraryBookings[i].date,
-          canBeCancelled: hoursDifference > 48,
-        });
+        if(tourist.itineraryBookings[i].itineraryId) {
+          itineraries.push({
+            itineraryId: tourist.itineraryBookings[i].itineraryId._id,
+            name: tourist.itineraryBookings[i].itineraryId.name,
+            date: tourist.itineraryBookings[i].date,
+            canBeCancelled: hoursDifference > 48,
+          });
+        }
       }
     }
 
