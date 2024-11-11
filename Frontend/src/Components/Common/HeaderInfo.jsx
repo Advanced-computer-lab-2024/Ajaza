@@ -94,20 +94,25 @@ const HeaderInfo = ({
   const [currencySymbol, setCurrencySymbol] = useState(
     currency == "EGP" ? "£" : currency == "EUR" ? "€" : "$"
   );
-  let token = null;
-  let decodedToken = null;
-  let userid = null;
+  const [token, setToken] = useState(null);
+  const [decodedToken, setDecodedToken] = useState(null);
+  var userid = null;
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    token = localStorage.getItem("token");
-    decodedToken = null;
-    if (token) {
-      decodedToken = jwtDecode(token);
+    const tempToken = localStorage.getItem("token");
+    setToken(tempToken);
+    if (tempToken) {
+      setDecodedToken(jwtDecode(tempToken));
     }
+  }, []);
+
+  useEffect(() => {
     userid = decodedToken ? decodedToken.userId : null;
-  });
+  }, [decodedToken]);
+
+  console.log("decoded external", decodedToken);
 
   useEffect(() => {
     console.log(currency);
