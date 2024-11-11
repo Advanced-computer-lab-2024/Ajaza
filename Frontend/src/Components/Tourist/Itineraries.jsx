@@ -10,6 +10,8 @@ import axios from "axios";
 import BasicCard from "../Common/BasicCard";
 import { jwtDecode } from "jwt-decode";
 import SelectCurrency from "./SelectCurrency";
+import { useNavigate } from "react-router-dom";
+import { useCurrency } from "./CurrencyContext";
 
 const token = localStorage.getItem("token");
 let decodedToken = null;
@@ -43,6 +45,10 @@ const currencyRates = {
 };
 
 const Itineraries = () => {
+  const navigate = useNavigate();
+  const cardOnclick = (element) => {
+    navigate(element["_id"]);
+  };
   const [combinedElements, setCombinedElements] = useState([]);
   // propName:fieldName
   const propMapping = {
@@ -58,14 +64,13 @@ const Itineraries = () => {
     "Drop off": "dropOff",
     Tags: "tags",
   };
-  const [currency, setCurrency] = useState("USD");
-  const searchFields = ["name"];
-  const constProps = { rateDisplay: true , currency, currencyRates};
+  const { currency, setCurrency } = useCurrency();
+
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+  };  const searchFields = ["name"];
+  const constProps = { rateDisplay: true, currency, currencyRates };
   const sortFields = ["avgRating", "price"];
-
-
- 
-
 
   const [filterFields, setfilterFields] = useState({
     tags: {
@@ -216,7 +221,6 @@ const Itineraries = () => {
         combinedArray = combinedArray.map((element) => {
           return { ...element, avgRating: getAvgRating(element.feedback) };
         });
-        console.log(combinedArray);
 
         setCombinedElements(combinedArray);
       } catch (error) {
@@ -226,26 +230,35 @@ const Itineraries = () => {
     fetchData();
   }, []);
 
-  const handleCurrencyChange = (selectedCurrency) => {
-    setCurrency(selectedCurrency);
-  };
-
 
   return (
-  <div>
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-    <SelectCurrency basePrice={null} currency={currency} onCurrencyChange={handleCurrencyChange} />
-  </div>
-    <SearchFilterSortContainer
-      cardComponent={BasicCard}
-      elements={combinedElements}
-      propMapping={propMapping}
-      searchFields={searchFields}
-      constProps={constProps}
-      fields={fields}
-      sortFields={sortFields}
-      filterFields={filterFields}
-    />
+    <div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "16px",
+        }}
+      >
+        <SelectCurrency
+          basePrice={null}
+          currency={currency}
+          onCurrencyChange={handleCurrencyChange}
+          style={{left:1000 , top:55}}
+        />
+      </div>
+      <SearchFilterSortContainer
+        cardComponent={BasicCard}
+        elements={combinedElements}
+        propMapping={propMapping}
+        searchFields={searchFields}
+        constProps={constProps}
+        fields={fields}
+        sortFields={sortFields}
+        filterFields={filterFields}
+        cardOnclick={cardOnclick}
+      />
     </div>
   );
 };

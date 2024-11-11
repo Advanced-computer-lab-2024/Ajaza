@@ -10,6 +10,7 @@ import {
 import Search from "./Search";
 import { DownOutlined } from "@ant-design/icons";
 import { Dropdown, Space, Typography } from "antd";
+import { jwtDecode } from "jwt-decode";
 
 function mapPropsToValues(element, propMapping) {
   if (!propMapping || !element) {
@@ -71,6 +72,57 @@ const filterSearchArray = (elements, searchValue, searchFields) => {
 };
 
 const sortElements = (elements, sortField, sortAsc) => {
+  if (!sortField) {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      return elements;
+    }
+    const decodedToken = jwtDecode(token);
+    const preferredCategories =
+      decodedToken?.userDetails?.preferredCategories || [];
+    const preferredTags = decodedToken?.userDetails?.preferredTags || [];
+
+    console.log(preferredTags);
+    console.log(preferredCategories);
+
+    return elements.sort((a, b) => {
+      // Check if 'a' and 'b' contain any preferred categories or tags
+      const aHasPreferredCategory = a.categories?.some((category) =>
+        preferredCategories.includes(category)
+      );
+      const bHasPreferredCategory = b.categories?.some((category) =>
+        preferredCategories.includes(category)
+      );
+      const aHasPreferredTag = a.tags?.some((tag) =>
+        preferredTags.includes(tag)
+      );
+      const bHasPreferredTag = b.tags?.some((tag) =>
+        preferredTags.includes(tag)
+      );
+
+      // Prioritize elements containing preferred categories or tags
+      if (aHasPreferredCategory || aHasPreferredTag) {
+        if (!(bHasPreferredCategory || bHasPreferredTag)) {
+          // a contains but b doesnt contain preferred tag or categ
+          return -1; // 'a' should come before 'b'
+        }
+      } else if (bHasPreferredCategory || bHasPreferredTag) {
+        return 1; // 'b' should come before 'a'
+      }
+
+      // If both have preferred categories/tags or neither, sort by a field if provided
+      if (sortField) {
+        if (sortAsc) {
+          return a[sortField] > b[sortField] ? 1 : -1;
+        } else {
+          return a[sortField] < b[sortField] ? 1 : -1;
+        }
+      }
+
+      return 0;
+    });
+  }
+
   return [...elements].sort((a, b) => {
     let aValue = a[sortField];
     let bValue = b[sortField];
@@ -81,6 +133,10 @@ const sortElements = (elements, sortField, sortAsc) => {
       if (b[sortField].length != null) {
         bValue = b.lower;
       }
+    }
+
+    if (!sortField) {
+      console.log("here");
     }
 
     if (isNaN(aValue)) return sortAsc ? -1 : 1;
@@ -149,6 +205,7 @@ const SearchFilterSortContainer = ({
   cardsPerRow = 3,
   horizontalGap = 30,
   verticalGap = 30,
+  cardOnclick,
   loading,
 }) => {
   const [displayedElements, setDisplayedElements] = useState(null);
@@ -159,12 +216,18 @@ const SearchFilterSortContainer = ({
   const [filterCriteria, setFilterCriteria] = useState(null);
   const [filterField, setFilterField] = useState(null);
 
+  // if (!cardOnclick) {
+  //   cardOnclick = (element) => {
+  //     navigate(element["_id"]);
+  //   };
+  // }
   const navigate = useNavigate();
 
   const span = 24 / cardsPerRow;
 
   useEffect(() => {
-    setDisplayedElements(elements);
+    const temp = sortElements(elements, sortField, sortAsc);
+    setDisplayedElements(temp);
   }, [elements]);
 
   // useEffect(() => {
@@ -206,7 +269,16 @@ const SearchFilterSortContainer = ({
   //   console.log(displayedElements);
   // }, [displayedElements]);
 
-  const sortItems = [];
+  const sortItems = [
+    {
+      key: 0,
+      label: `None`,
+      onClick: () => {
+        setSortAsc(false);
+        setSortField(null);
+      },
+    },
+  ];
   sortFields?.forEach((field, index) => {
     const fieldName = convertToTitleCase(field);
     sortItems.push({
@@ -354,7 +426,6 @@ const SearchFilterSortContainer = ({
             menu={{
               items: sortItems,
               selectable: true,
-              defaultSelectedKeys: ["3"],
             }}
           >
             <Typography.Link style={{ marginLeft: "30px" }}>
@@ -378,7 +449,9 @@ const SearchFilterSortContainer = ({
                 {...combinedProps}
                 fields={mappedFields}
                 onClick={() => {
-                  navigate(element["_id"]);
+                  if (cardOnclick) {
+                    cardOnclick(element);
+                  }
                 }}
               />
             </Col>

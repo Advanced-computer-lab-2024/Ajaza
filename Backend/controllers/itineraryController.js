@@ -19,16 +19,24 @@ exports.createItinerary = async (req, res) => {
 exports.getAllItineraries = async (req, res) => {
   try {
     const itineraries = await Itinerary.find().populate("guideId");
-    14;
     res.status(200).json(itineraries);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+exports.getAdminItineraries = async (req, res) => {
+  try {
+    const itineraries = await Itinerary.find({$nor: [{ hidden: true, isFlagged: false }]}).populate("guideId");
+    res.status(200).json(itineraries);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 // Get all itineraries not hidden
 exports.getAllItinerariesNH = async (req, res) => {
-  console.log("\n\n\n\n");
 
   try {
     const currentDate = new Date();
@@ -44,15 +52,12 @@ exports.getAllItinerariesNH = async (req, res) => {
 
         // Modify the timeline for each itinerary
         for (const item of itineraryObj.timeline) {
-          console.log("Item ID:", item.id);
 
           if (item.type === "Activity") {
             const activity = await Activity.findById(item.id);
-            console.log("Activity Found:", activity);
             item.id = activity; // Replace ObjectId with full document
           } else if (item.type === "Venue") {
             const venue = await Venue.findById(item.id);
-            console.log("Venue Found:", venue);
             item.id = venue; // Replace ObjectId with full document
           }
         }
@@ -90,15 +95,12 @@ exports.getItineraryById = async (req, res) => {
 
     // Modify the timeline for each itinerary
     for (const item of itineraryObj.timeline) {
-      console.log("Item ID:", item.id);
 
       if (item.type === "Activity") {
         const activity = await Activity.findById(item.id);
-        console.log("Activity Found:", activity);
         item.id = activity; // Replace ObjectId with full document
       } else if (item.type === "Venue") {
         const venue = await Venue.findById(item.id);
-        console.log("Venue Found:", venue);
         item.id = venue; // Replace ObjectId with full document
       }
     }
@@ -285,7 +287,7 @@ exports.readItinerariesOfGuide = async (req, res) => {
   try {
     const { guideId } = req.params; // Get guideId from the URL
 
-    const itineraries = await Itinerary.find({ guideId, hidden: false });
+    const itineraries = await Itinerary.find({ guideId, $or: [{ hidden: false },{ hidden: true, isFlagged: true }] });
     const guide = await Guide.findById(guideId);
     if (!guide) {
       return res.status(404).json({ message: "Guide not found" });
@@ -468,30 +470,97 @@ exports.getItinerariesByPreferrences = async (req, res) => {
 
 //flag and delete itenerary han call delete 3ady baa a3taked.
 // flag and hide itinerary
+// Hide an itinerary
 exports.hideItinerary = async (req, res) => {
-  const { id: itineraryId } = req.params; // Extract itineraryId from req.params
-
-  console.log("ENGYY"); // Check if function is reached
+  const { id: itineraryId } = req.params;
 
   try {
-      // Update the itinerary to set hidden to true
-      const updatedItinerary = await Itinerary.findByIdAndUpdate(
-          itineraryId,
-          { hidden: true },
-          { new: true }
-      );
+    // Update the itinerary to be hidden and flagged
+    const updatedItinerary = await Itinerary.findByIdAndUpdate(
+      itineraryId,
+      { hidden: true, isFlagged: true },
+      { new: true }
+    );
 
-      if (!updatedItinerary) {
-          return res.status(404).json({ message: 'Itinerary not found' });
-      }
+    if (!updatedItinerary) {
+      return res.status(404).json({ message: 'Itinerary not found' });
+    }
 
-      console.log(`Itinerary ${itineraryId} has been hidden successfully.`);
-      res.status(200).json({ message: `Itinerary ${itineraryId} has been hidden successfully.`, updatedItinerary });
+    // Get the guideId associated with this itinerary
+    const selectedGuideId = updatedItinerary.guideId;
+
+    // Find the guide by ID
+    const guide = await Guide.findById(selectedGuideId);
+
+    if (!guide) {
+      return res.status(404).json({ message: 'Guide not found' });
+    }
+
+    // Create a notification for the guide
+    const notificationText = `Your itinerary with ID ${itineraryId} has been flagged as inappropriate.`;
+    guide.notifications.push({
+      text: notificationText,
+      seen: false, // Set to false initially
+    });
+
+    // Save the updated guide
+    await guide.save();
+
+    res.status(200).json({
+      message: `Itinerary ${itineraryId} has been hidden successfully and the guide has been notified.`,
+      updatedItinerary,
+    });
   } catch (error) {
-      console.error(`Error hiding itinerary: ${error.message}`);
-      res.status(500).json({ message: `Error hiding itinerary: ${error.message}` });
+    console.error(`Error hiding itinerary: ${error.message}`);
+    res.status(500).json({ message: `Error hiding itinerary: ${error.message}` });
   }
 };
 
+// Unhide an itinerary
+exports.unhideItinerary = async (req, res) => {
+  const { id: itineraryId } = req.params;
 
+  try {
+    // Update the itinerary to be unhidden and unflagged
+    const updatedItinerary = await Itinerary.findByIdAndUpdate(
+      itineraryId,
+      { hidden: false, isFlagged: false },
+      { new: true }
+    );
+
+    if (!updatedItinerary) {
+      return res.status(404).json({ message: 'Itinerary not found' });
+    }
+
+    // Get the guideId associated with this itinerary
+    const selectedGuideId = updatedItinerary.guideId;
+
+    // Find the guide by ID
+    const guide = await Guide.findById(selectedGuideId);
+
+    if (!guide) {
+      return res.status(404).json({ message: 'Guide not found' });
+    }
+
+    // Remove the notification related to the hidden/flagged itinerary
+    const notificationText = `Your itinerary with ID ${itineraryId} has been flagged as inappropriate.`;
+    const notificationIndex = guide.notifications.findIndex(
+      (notification) => notification.text === notificationText
+    );
+
+    if (notificationIndex !== -1) {
+      // Remove the notification from the array
+      guide.notifications.splice(notificationIndex, 1);
+      await guide.save(); // Save the updated guide
+    }
+
+    res.status(200).json({
+      message: `Itinerary ${itineraryId} has been unhidden successfully and the notification has been removed.`,
+      updatedItinerary,
+    });
+  } catch (error) {
+    console.error(`Error unhiding itinerary: ${error.message}`);
+    res.status(500).json({ message: `Error unhiding itinerary: ${error.message}` });
+  }
+};
 

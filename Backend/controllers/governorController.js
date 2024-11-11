@@ -74,7 +74,6 @@ exports.createGovernorVenue = async (req, res) => {
     const { governorId } = req.params;
     const { name, desc, pictures, location, openingHours, price, tags } =
       req.body;
-    console.log(req.body);
     const governor = await Governor.findById(governorId);
     if (!governor) {
       return res.status(404).json({ message: "Governor not found" });

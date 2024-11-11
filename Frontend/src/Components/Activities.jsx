@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  FlagOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import {
   InputNumber,
   Card,
@@ -12,6 +17,9 @@ import {
   Select,
   DatePicker,
   Switch,
+  Tag,
+  Divider,
+  Typography,
 } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
@@ -19,6 +27,7 @@ import { jwtDecode } from "jwt-decode";
 import { apiUrl } from "./Common/Constants";
 import MapComponent from "./Common/Map";
 import dayjs from "dayjs";
+import { Colors } from "./Common/Constants";
 
 // Create an axios instance with default headers
 const apiClient = axios.create({
@@ -37,6 +46,7 @@ const Activities = () => {
   const [tags, setTags] = useState([]);
   const [form] = Form.useForm();
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const { Title, Text } = Typography;
 
   const token = localStorage.getItem("token");
   let decodedToken = null;
@@ -107,6 +117,7 @@ const Activities = () => {
         newActivity
       );
       setActivitiesData([...activitiesData, response.data]);
+      console.log("activity:", response.data);
       message.success("Activity created successfully!");
       setIsModalVisible(false);
       form.resetFields();
@@ -248,13 +259,20 @@ const Activities = () => {
           justifyContent: "flex-start",
         }}
       >
-        <Button
-          size={"s"}
-          value={"Create Activity"}
+        <AntButton
+          style={{
+            backgroundColor: Colors.primary.default,
+            border: "none",
+            width: "30px",
+            height: "30px",
+            marginLeft: "auto",
+          }}
+          icon={<PlusOutlined style={{ color: "white" }} />}
           rounded={true}
           onClick={showModal}
         />
       </div>
+
       {loading ? (
         <p>Loading activities...</p>
       ) : (
@@ -276,56 +294,110 @@ const Activities = () => {
                   onClick={() => deleteActivity(activity._id)}
                 />,
               ]}
-              style={{ minWidth: 300 }}
+              style={{
+                minWidth: 370,
+                maxWidth: 370,
+                maxHeight: 700,
+                marginBottom: "8px",
+                marginRight: "12px",
+                border:
+                  activity.isFlagged && activity.hidden
+                    ? "3px solid red"
+                    : "1px solid #e8e8e8",
+                position: "relative", // Set position to relative for positioning flag
+                borderRadius: "12px", // Rounded corners
+                padding: "16px", // Padding inside the card
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)", // Subtle shadow effect
+              }}
             >
+              {activity.isFlagged && activity.hidden && (
+                <FlagOutlined
+                  style={{
+                    position: "absolute",
+                    top: "8px",
+                    right: "8px",
+                    color: "red",
+                    fontSize: "25px",
+                  }}
+                />
+              )}
               <Card.Meta
-                title={activity.name}
+                title={
+                  <Title
+                    level={4}
+                    style={{
+                      fontWeight: "600",
+                      marginBottom: "10px",
+                      fontSize: "18px",
+                      color: "#1b696a", // You can customize this color as needed
+                    }}
+                  >
+                    {activity.name}
+                  </Title>
+                }
                 description={
                   <div>
                     <p>{activity.description}</p>
+
                     <p>
-                      <strong>Location:</strong>{" "}
-                      {
-                        <a
-                          href={activity.location}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {activity.location}
-                        </a>
-                      }
+                      <Text strong>Location:</Text>{" "}
+                      <a
+                        href={activity.location}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: "#1890ff" }}
+                      >
+                        {activity.location}
+                      </a>
                     </p>
                     <p>
-                      <strong>Datetime:</strong>{" "}
+                      <Text strong>Datetime:</Text>{" "}
                       {new Date(activity.date).toLocaleString()}
                     </p>
                     <p>
-                      <strong>Upper Limit:</strong> {activity.upper}
+                      <Text strong>Upper Limit:</Text> {activity.upper}
                     </p>
                     <p>
-                      <strong>Lower Limit:</strong> {activity.lower}
+                      <Text strong>Lower Limit:</Text> {activity.lower}
+                    </p>
+
+                    <p>
+                      <Text strong>Categories:</Text> {activity.category}
+                    </p>
+
+                    <p>
+                      <Text strong>Tags:</Text>
+                      {activity.tags.map((tagId) => (
+                        <Tag
+                          key={tagId}
+                          color="#1b696a"
+                          style={{ margin: "3px" }}
+                        >
+                          {tags.find((tag) => tag._id === tagId)?.tag || tagId}
+                        </Tag>
+                      )) || "None"}
+                    </p>
+
+                    <p>
+                      <Text strong>Available Spots:</Text> {activity.spots}
                     </p>
                     <p>
-                      <strong>Categories:</strong> {activity.category}
+                      <Text strong>Is Open:</Text>{" "}
+                      {activity.isOpen ? "Yes" : "No"}
                     </p>
                     <p>
-                      <strong>Tags:</strong>{" "}
-                      {activity.tags
-                        .map(
-                          (tagId) =>
-                            tags.find((tag) => tag._id === tagId)?.tag || tagId
-                        )
-                        .join(", ")}
-                    </p>{" "}
-                    <p>
-                      <strong>Available Spots:</strong> {activity.spots}
+                      <Text strong>Discounts:</Text> {activity.discounts}%
                     </p>
                     <p>
-                      <strong>IsOpen:</strong> {activity.isOpen ? "Yes" : "No"}
+                      <Text strong>Flagged:</Text>{" "}
+                      <span
+                        style={{ color: activity.isFlagged ? "red" : "#555" }}
+                      >
+                        {activity.isFlagged ? "Yes" : "No"}
+                      </span>{" "}
                     </p>
-                    <p>
-                      <strong>Discounts:</strong> {activity.discounts}%
-                    </p>
+
+                    <Divider style={{ margin: "12px 0" }} />
                   </div>
                 }
               />
@@ -360,9 +432,26 @@ const Activities = () => {
             label="Date"
             rules={[
               { required: true, message: "Please input the activity date!" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  const today = dayjs().startOf("day");
+                  if (value && value.isBefore(today)) {
+                    return Promise.reject(
+                      new Error("The date cannot be in the past")
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              }),
             ]}
           >
-            <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" />
+            <DatePicker
+              showTime
+              format="YYYY-MM-DD HH:mm:ss"
+              disabledDate={(current) =>
+                current && current < dayjs().endOf("day")
+              } // Disable dates before today
+            />
           </Form.Item>
 
           <Form.Item
@@ -395,6 +484,24 @@ const Activities = () => {
             label="Upper Limit"
             rules={[
               { required: true, message: "Please input the upper limit!" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  let lower = getFieldValue("lower");
+                  console.log("low", lower);
+                  if (
+                    lower !== undefined &&
+                    value !== undefined &&
+                    lower > value
+                  ) {
+                    return Promise.reject(
+                      new Error(
+                        "Upper limit must be greater than or equal to Lower limit"
+                      )
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              }),
             ]}
           >
             <Input type="number" />
@@ -405,6 +512,24 @@ const Activities = () => {
             label="Lower Limit"
             rules={[
               { required: true, message: "Please input the lower limit!" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  let upper = getFieldValue("upper");
+                  console.log("up", upper);
+                  if (
+                    upper !== undefined &&
+                    value !== undefined &&
+                    value > upper
+                  ) {
+                    return Promise.reject(
+                      new Error(
+                        "Lower limit must be less than or equal to Upper limit"
+                      )
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              }),
             ]}
           >
             <Input type="number" />
@@ -438,15 +563,25 @@ const Activities = () => {
                 required: true,
                 message: "Please input the number of available spots!",
               },
+              {
+                validator: (_, value) =>
+                  value >= 0
+                    ? Promise.resolve()
+                    : Promise.reject(
+                        new Error(
+                          "The number of spots must be greater than or equal to zero"
+                        )
+                      ),
+              },
             ]}
           >
             <Input type="number" />
           </Form.Item>
           <Form.Item name="isOpen" label="isOpen" valuePropName="checked">
-              <Switch />
-            </Form.Item>
+            <Switch />
+          </Form.Item>
 
-          <Form.Item name="discounts" label="Discount" initialValue={0}>
+          <Form.Item name="discounts" label="Discount %" initialValue={0}>
             <InputNumber min={0} max={100} placeholder="Enter discount value" />
           </Form.Item>
 

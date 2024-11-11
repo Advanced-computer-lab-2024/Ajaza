@@ -4,10 +4,10 @@ const Itinerary = require("../models/Itinerary");
 const jwt = require("jsonwebtoken"); // For decoding the JWT
 const bcrypt = require("bcrypt"); // For hashing passwords
 
-const Admin = require('../models/Admin'); // Adjust path as necessary
-const Advertiser = require('../models/Advertiser'); // Adjust path as necessary
-const Seller = require('../models/Seller'); // Adjust path as necessary
-const Governor = require('../models/Governor'); // Adjust path as necessary
+const Admin = require("../models/Admin"); // Adjust path as necessary
+const Advertiser = require("../models/Advertiser"); // Adjust path as necessary
+const Seller = require("../models/Seller"); // Adjust path as necessary
+const Governor = require("../models/Governor"); // Adjust path as necessary
 
 // Create a new guide
 exports.createGuide = async (req, res) => {
@@ -26,6 +26,17 @@ exports.getAllGuides = async (req, res) => {
     const guides = await Guide.find();
     res.status(200).json(guides);
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+exports.getAcceptedGuides = async (req, res) => {
+  try {
+    const guides = await Guide.find({ pending: false });
+    res.status(200).json(guides);
+  } catch (error) {
+    console.error("Error fetching accepted guides:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -95,11 +106,12 @@ exports.giveGuideFeedback = async (req, res) => {
     // Find the guide and append feedback
     const guide = await Guide.findById(guideId);
     if (!guide) {
+      console.log(touristId);
+      console.log(guideId);
       return res.status(404).json({ message: "Guide not found" });
     }
 
     const touristName = tourist.username;
-
 
     guide.feedback.push({ touristName, rating, comments });
     tourist.gaveFeedback.push(guideId);
@@ -115,17 +127,16 @@ exports.giveGuideFeedback = async (req, res) => {
   }
 };
 
-
 // Middleware logic moved to controller
 const validateEmail = (email) => {
   if (!email) {
-    return { isValid: false, message: 'Email is required' };
+    return { isValid: false, message: "Email is required" };
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (!emailRegex.test(email)) {
-    return { isValid: false, message: 'Invalid email format' };
+    return { isValid: false, message: "Invalid email format" };
   }
 
   return { isValid: true };
@@ -133,7 +144,7 @@ const validateEmail = (email) => {
 
 const checkEmailAvailability = async (email) => {
   if (!email) {
-    return { isAvailable: false, message: 'Email is required' };
+    return { isAvailable: false, message: "Email is required" };
   }
 
   try {
@@ -144,7 +155,10 @@ const checkEmailAvailability = async (email) => {
     const guideExists = await Guide.exists({ email });
 
     if (touristExists || advertiserExists || sellerExists || guideExists) {
-      return { isAvailable: false, message: 'Email is already associated with an account' };
+      return {
+        isAvailable: false,
+        message: "Email is already associated with an account",
+      };
     }
 
     return { isAvailable: true };
@@ -155,7 +169,7 @@ const checkEmailAvailability = async (email) => {
 
 const checkUsernameAvailability = async (username) => {
   if (!username) {
-    return { isAvailable: false, message: 'Username is required' };
+    return { isAvailable: false, message: "Username is required" };
   }
 
   try {
@@ -167,8 +181,15 @@ const checkUsernameAvailability = async (username) => {
     const guideExists = await Guide.exists({ username });
     const governorExists = await Governor.exists({ username });
 
-    if (adminExists || touristExists || advertiserExists || sellerExists || guideExists || governorExists) {
-      return { isAvailable: false, message: 'Username is already taken' };
+    if (
+      adminExists ||
+      touristExists ||
+      advertiserExists ||
+      sellerExists ||
+      guideExists ||
+      governorExists
+    ) {
+      return { isAvailable: false, message: "Username is already taken" };
     }
 
     return { isAvailable: true };
@@ -196,7 +217,6 @@ exports.guestGuideCreateProfile = async (req, res) => {
   });
 
   try {
-    
     // Validate email
     const emailValidation = validateEmail(filteredBody.email);
     if (!emailValidation.isValid) {
@@ -210,7 +230,9 @@ exports.guestGuideCreateProfile = async (req, res) => {
     }
 
     // Check for unique username
-    const usernameAvailability = await checkUsernameAvailability(filteredBody.username);
+    const usernameAvailability = await checkUsernameAvailability(
+      filteredBody.username
+    );
     if (!usernameAvailability.isAvailable) {
       return res.status(400).json({ message: usernameAvailability.message });
     }
@@ -430,7 +452,9 @@ exports.acceptTerms = async (req, res) => {
       return res.status(400).json({ message: "User is pending approval" });
     }
     if (user.acceptedTerms && value === true) {
-      return res.status(400).json({ message: "User has already accepted terms" });
+      return res
+        .status(400)
+        .json({ message: "User has already accepted terms" });
     }
     if (value === false) {
       user.acceptedTerms = false;
@@ -605,7 +629,7 @@ exports.requestDeletion = async (req, res) => {
   }
 };
 
-exports.validateEmailUsername = async(req, res) =>{
+exports.validateEmailUsername = async (req, res) => {
   const { email, username } = req.body; // Destructure email and username from request body
   try {
     // Validate email
@@ -627,52 +651,46 @@ exports.validateEmailUsername = async(req, res) =>{
     }
     // If all validations pass, return a success message
     return res.status(200).json({ message: "Everything is valid!" });
-  }
-  catch (error) {
+  } catch (error) {
     res.status(400).json({ error: error.message });
   }
-}
-
+};
 
 // returns pending guides.
 exports.getPendingGuides = async (req, res) => {
   try {
     const pendingGuides = await Guide.find({ pending: true });
-    if (pendingGuides.length === 0) {
-      return res.status(404).json({ message: "No pending guides found." });
-    }
+    // if (pendingGuides.length === 0) {
+    //   return res.status(404).json({ message: "No pending guides found." });
+    // }
     res.status(200).json(pendingGuides);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-
 exports.getGuideDetails = async (req, res) => {
   const guideId = req.params.id;
 
   try {
-    console.log(`Fetching details for guide with ID: ${guideId}`);
-    
-    // Find the guide by ID and populate image references
+    // Find the guide by ID and populate only the `id` field for the main ID image reference
     const guide = await Guide.findById(guideId)
-      .populate({ path: 'id', select: '_id' })  // Populate with _id to construct the image path
-      .populate({ path: 'certificates', select: '_id' })
+      .populate({ path: "id", select: "_id" }) // Only populate `id` for the main ID image
       .exec();
 
     if (!guide) {
       return res.status(404).json({ message: "Guide not found." });
     }
 
-    // Log details for debugging
-    console.log("Guide ID:", guide.id); // Full object of ID
-    console.log("Certificate:", guide.certificates);
+    // Construct the image paths for certificates from the stored strings
+    const certificates = guide.certificates.map(
+      (cert) => `uploads/${cert}.jpg`
+    );
 
-    // Construct the response object with image paths for ID and Taxation Registration Card
+    // Construct the response object with image paths for ID and certificates
     const responseGuide = {
       id: guide.id ? `uploads/${guide.id._id}.jpg` : null,
-      certificates: guide.certificates ? `uploads/${guide.certificates._id}.jpg` : null,
-     // logo: advertiser.logo ? `uploads/${advertiser.logo._id}.jpg` : null,
+      certificates: certificates,
       username: guide.username,
       email: guide.email,
       link: guide.link || null,
@@ -691,6 +709,72 @@ exports.getGuideDetails = async (req, res) => {
     res.status(200).json(responseGuide);
   } catch (error) {
     console.error("Error fetching guide details:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//req 28 - tatos (Not Done Yet)
+//req 28 - tatos (Not Done Yet)
+exports.viewSalesReport = async (req, res) => {
+  const guideId = req.params.id;
+  try {
+    const guide = await Guide.findById(guideId);
+    if (!guide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+    if (guide.pending) {
+      return res.status(401).json({ message: "Waiting for admin approval" });
+    }
+    if (!guide.acceptedTerms) {
+      return res
+        .status(401)
+        .json({ message: "Terms and Conditions must be accepted" });
+    }
+    if (guide.requestingDeletion) {
+      return res
+        .status(401)
+        .json({ message: "Tour Guide is requesting deletion" });
+    }
+
+    const tourists = await Tourist.find({
+      "itineraryBookings.itineraryId": { $exists: true },
+    });
+    if (!tourists || tourists.length === 0) {
+      return res.status(404).json({ message: "No itinerary bookings found" });
+    }
+
+    let itineraryIds = [];
+    tourists.forEach((tourist) => {
+      itineraryIds = itineraryIds.concat(
+        tourist.itineraryBookings.map((booking) => booking.itineraryId)
+      );
+    });
+
+    let totalSales = 0;
+    const report = [];
+
+    // Fetch each itinerary and compare guideId
+    for (const itineraryId of itineraryIds) {
+      const itinerary = await Itinerary.findById(itineraryId).exec();
+
+      if (itinerary && itinerary.guideId.toString() === guideId) {
+        totalSales += itinerary.price;
+        report.push({
+          name: itinerary.name,
+          price: itinerary.price,
+          language: itinerary.language,
+          accesibility: itinerary.accessibility,
+        });
+      }
+    }
+
+    console.log(`Total Sales: ${totalSales}`);
+
+    res.status(200).json({
+      totalSales,
+      report,
+    });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };

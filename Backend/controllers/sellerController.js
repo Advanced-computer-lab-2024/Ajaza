@@ -30,6 +30,16 @@ exports.getAllSellers = async (req, res) => {
   }
 };
 
+exports.getAcceptedSellers = async(req, res) => {
+  try {
+    const sellers = await Seller.find({ pending: false });
+    res.status(200).json(sellers);
+  } catch (error) {
+    console.error("Error fetching accepted sellers:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get seller by ID (seller Read profile)
 exports.getSellerById = async (req, res) => {
   try {
@@ -109,13 +119,13 @@ exports.deleteSeller = async (req, res) => {
 // Middleware logic moved to controller
 const validateEmail = (email) => {
   if (!email) {
-    return { isValid: false, message: 'Email is required' };
+    return { isValid: false, message: "Email is required" };
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (!emailRegex.test(email)) {
-    return { isValid: false, message: 'Invalid email format' };
+    return { isValid: false, message: "Invalid email format" };
   }
 
   return { isValid: true };
@@ -123,7 +133,7 @@ const validateEmail = (email) => {
 
 const checkEmailAvailability = async (email) => {
   if (!email) {
-    return { isAvailable: false, message: 'Email is required' };
+    return { isAvailable: false, message: "Email is required" };
   }
 
   try {
@@ -134,7 +144,10 @@ const checkEmailAvailability = async (email) => {
     const guideExists = await Guide.exists({ email });
 
     if (touristExists || advertiserExists || sellerExists || guideExists) {
-      return { isAvailable: false, message: 'Email is already associated with an account' };
+      return {
+        isAvailable: false,
+        message: "Email is already associated with an account",
+      };
     }
 
     return { isAvailable: true };
@@ -145,7 +158,7 @@ const checkEmailAvailability = async (email) => {
 
 const checkUsernameAvailability = async (username) => {
   if (!username) {
-    return { isAvailable: false, message: 'Username is required' };
+    return { isAvailable: false, message: "Username is required" };
   }
 
   try {
@@ -157,8 +170,15 @@ const checkUsernameAvailability = async (username) => {
     const guideExists = await Guide.exists({ username });
     const governorExists = await Governor.exists({ username });
 
-    if (adminExists || touristExists || advertiserExists || sellerExists || guideExists || governorExists) {
-      return { isAvailable: false, message: 'Username is already taken' };
+    if (
+      adminExists ||
+      touristExists ||
+      advertiserExists ||
+      sellerExists ||
+      guideExists ||
+      governorExists
+    ) {
+      return { isAvailable: false, message: "Username is already taken" };
     }
 
     return { isAvailable: true };
@@ -186,8 +206,6 @@ exports.guestSellerCreateProfile = async (req, res) => {
   });
 
   try {
-    
-
     // Validate email
     const emailValidation = validateEmail(filteredBody.email);
     if (!emailValidation.isValid) {
@@ -201,7 +219,9 @@ exports.guestSellerCreateProfile = async (req, res) => {
     }
 
     // Check for unique username
-    const usernameAvailability = await checkUsernameAvailability(filteredBody.username);
+    const usernameAvailability = await checkUsernameAvailability(
+      filteredBody.username
+    );
     if (!usernameAvailability.isAvailable) {
       return res.status(400).json({ message: usernameAvailability.message });
     }
@@ -305,7 +325,7 @@ exports.sellerUpdateProfile = async (req, res) => {
   const allowedFields = ["email", "name", "desc", "logo"];
 
   // Filter the request body
-  const filteredBody = req.body;/*{};
+  const filteredBody = req.body; /*{};
   allowedFields.forEach((field) => {
     // Loop through the allowed fields
     if (req.body[field] !== undefined) {
@@ -328,7 +348,6 @@ exports.sellerUpdateProfile = async (req, res) => {
       return res.status(401).json({ message: "Seller is pending approval" });
     }
     // Proceed with the update
-    console.log(filteredBody);
     const updatedSeller = await Seller.findByIdAndUpdate(
       sellerId,
       filteredBody,
@@ -451,7 +470,9 @@ exports.acceptTerms = async (req, res) => {
       return res.status(400).json({ message: "User is pending approval" });
     }
     if (user.acceptedTerms && value === true) {
-      return res.status(400).json({ message: "User has already accepted terms" });
+      return res
+        .status(400)
+        .json({ message: "User has already accepted terms" });
     }
     if (value === false) {
       user.acceptedTerms = false;
@@ -588,8 +609,7 @@ exports.requestDeletion = async (req, res) => {
   }
 };
 
-
-exports.validateEmailUsername = async(req, res) =>{
+exports.validateEmailUsername = async (req, res) => {
   const { email, username } = req.body; // Destructure email and username from request body
   try {
     // Validate email
@@ -611,22 +631,21 @@ exports.validateEmailUsername = async(req, res) =>{
     }
     // If all validations pass, return a success message
     return res.status(200).json({ message: "Everything is valid!" });
-  }
-  catch (error) {
+  } catch (error) {
     res.status(400).json({ error: error.message });
   }
-}
+};
 
 // returns all sellers that are pending
 exports.getPendingSellers = async (req, res) => {
   try {
     // Fetch advertisers with pending status
-    const pendingSellers = await Seller.find({ "pending" : true }).exec();
-    
-    if (pendingSellers.length === 0) {
-      return res.status(404).json({ message: "No Sellers with pending status found." });
-    }
-    
+    const pendingSellers = await Seller.find({ pending: true }).exec();
+
+    // if (pendingSellers.length === 0) {
+    //   return res.status(404).json({ message: "No Sellers with pending status found." });
+    // }
+
     // Return the found pending advertisers
     res.status(200).json(pendingSellers);
   } catch (error) {
@@ -638,12 +657,14 @@ exports.getPendingSellers = async (req, res) => {
 exports.getPendingAdvertisers = async (req, res) => {
   try {
     // Fetch advertisers with pending status
-    const pendingAdvertisers = await Advertiser.find({ "pending" : true }).exec();
-    
+    const pendingAdvertisers = await Advertiser.find({ pending: true }).exec();
+
     if (pendingAdvertisers.length === 0) {
-      return res.status(404).json({ message: "No advertisers with pending status found." });
+      return res
+        .status(404)
+        .json({ message: "No advertisers with pending status found." });
     }
-    
+
     // Return the found pending advertisers
     res.status(200).json(pendingAdvertisers);
   } catch (error) {
@@ -657,29 +678,24 @@ exports.getSellerDetails = async (req, res) => {
   const sellerId = req.params.id;
 
   try {
-    console.log(`Fetching details for seller with ID: ${sellerId}`);
-    
     // Find the advertiser by ID and populate image references
     const seller = await Seller.findById(sellerId)
-      .populate({ path: 'id', select: '_id' })  // Populate with _id to construct the image path
-      .populate({ path: 'taxationRegCard', select: '_id' })
-      .populate({ path: 'logo', select: '_id' })
+      .populate({ path: "id", select: "_id" }) // Populate with _id to construct the image path
+      .populate({ path: "taxationRegCard", select: "_id" })
+      .populate({ path: "logo", select: "_id" })
       .exec();
 
     if (!seller) {
       return res.status(404).json({ message: "Seller not found." });
     }
 
-    // Log details for debugging
-    console.log("Seller ID:", seller.id); // Full object of ID
-    console.log("Taxation Reg Card:", seller.taxationRegCard);
-    console.log("Logo:", seller.logo);
-
     // Construct the response object with image paths for ID and Taxation Registration Card
     const responseSeller = {
       id: seller.id ? `uploads/${seller.id._id}.jpg` : null,
-      taxationRegCard: seller.taxationRegCard ? `uploads/${seller.taxationRegCard._id}.jpg` : null,
-     // logo: advertiser.logo ? `uploads/${advertiser.logo._id}.jpg` : null,
+      taxationRegCard: seller.taxationRegCard
+        ? `uploads/${seller.taxationRegCard._id}.jpg`
+        : null,
+      // logo: advertiser.logo ? `uploads/${advertiser.logo._id}.jpg` : null,
       username: seller.username,
       email: seller.email,
       link: seller.link || null,
@@ -698,6 +714,108 @@ exports.getSellerDetails = async (req, res) => {
     res.status(200).json(responseSeller);
   } catch (error) {
     console.error("Error fetching seller details:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//req 28 - tatos (Not Done Yet)
+
+// exports.viewSalesReport = async (req, res) => {
+//   const sellerId = req.params.id;
+//   try {
+//     // Check if the seller exists
+//     const seller = await Seller.findById(sellerId);
+//     if (!seller) {
+//       return res.status(404).json({ message: "Seller not found" });
+//     }
+//     if (seller.pending) {
+//       return res.status(401).json({ message: "Waiting for admin approval" });
+//     }
+//     if (!seller.acceptedTerms) {
+//       return res.status(401).json({ message: "Terms and Conditions must be accepted" });
+//     }
+//     if(seller.requestingDeletion){
+//       return res.status(401).json({ message: "Seller is requesting deletion" });
+//     }
+//     // Find all tourists
+//     const tourists = await Tourist.find();
+
+//     let orders = [];
+
+//     // Iterate through each tourist to find orders matching the sellerId
+//     tourists.forEach(tourist => {
+//       const matchingOrders = tourist.orders.filter(order => order.sellerId === sellerId);
+//       orders = orders.concat(matchingOrders);
+//     });
+
+//     // Log the orders found
+//     console.log('Orders found:', orders);
+
+//     // Calculate the total sales by multiplying the price by the quantity for each order
+//     const totalSales = orders.reduce((total, order) => total + (order.price * order.quantity), 0);
+
+//     const salesDetails = orders.map(order => ({
+//       productName: order.productName,
+//       dateOfOrder: order.dateOfOrder,
+//       quantity: order.quantity,
+//       price: order.price
+//     }));
+
+//     // Log the total sales and sales details
+//     console.log('Total Sales:', totalSales);
+//     console.log('Sales Details:', salesDetails);
+
+//     // Return the total sales and additional details
+//     res.status(200).json({ totalSales, salesDetails });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+//method 2: (incorrect but works for now):
+exports.viewSalesReport = async (req, res) => {
+  sellerId = req.params.id;
+  try {
+    const seller = await Seller.findById(sellerId);
+    if (!seller) {
+      return res.status(404).json({ message: "Seller not found" });
+    }
+    if (seller.pending) {
+      return res.status(401).json({ message: "Seller is pending approval" });
+    }
+    if (!seller.acceptedTerms) {
+      return res
+        .status(401)
+        .json({ message: "Seller has not accepted terms and conditions" });
+    }
+    if (seller.requestingDeletion) {
+      return res.status(401).json({ message: "Seller is requesting deletion" });
+    }
+
+    // Find all products sold by the seller
+    const products = await Product.find({ sellerId: sellerId });
+    console.log(products); // Log the products found
+
+    if (products.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No products found for this seller" });
+    }
+    let totalSales = 0;
+    let salesDetails = [];
+    for (const product of products) {
+      if (product.sales > 0) {
+        totalSales += product.sales * product.price;
+        salesDetails.push({
+          productName: product.name,
+          sales: product.sales,
+          price: product.price,
+          sellerName: product.sellerName,
+        });
+      }
+    }
+    res.status(200).json({ totalSales, salesDetails });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };

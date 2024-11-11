@@ -10,8 +10,9 @@ import {
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
 import SelectCurrency from "./SelectCurrency";
-
+import { useCurrency } from "./CurrencyContext";
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -45,6 +46,10 @@ const currencyRates = {
 };
 
 const Venues = () => {
+  const navigate = useNavigate();
+  const cardOnclick = (element) => {
+    navigate(element["_id"]);
+  };
   const [combinedElements, setCombinedElements] = useState([]);
   const [user, setUser] = useState(null);
   // propName:fieldName
@@ -58,8 +63,11 @@ const Venues = () => {
     Tags: "tags",
   };
 
-  const [currency, setCurrency] = useState("USD");
-  const searchFields = ["name", "tags"];
+  const { currency, setCurrency } = useCurrency();
+
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+  };  const searchFields = ["name", "tags"];
   const constProps = { rateDisplay: true, currency, currencyRates };
   const sortFields = ["avgRating", "price"];
   const [filterFields, setfilterFields] = useState({
@@ -135,13 +143,12 @@ const Venues = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    if (!token) return;
     const decodedToken = jwtDecode(token);
     setUser(decodedToken?.userDetails);
   }, []);
 
-  const handleCurrencyChange = (selectedCurrency) => {
-    setCurrency(selectedCurrency);
-  };
+
 
   return (
     <div>
@@ -157,6 +164,7 @@ const Venues = () => {
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
+          style={{left:1000 , top:55}}
         />
       </div>
       <SearchFilterSortContainer
@@ -168,6 +176,7 @@ const Venues = () => {
         fields={fields}
         sortFields={sortFields}
         filterFields={filterFields}
+        cardOnclick={cardOnclick}
       />
     </div>
   );

@@ -7,7 +7,7 @@ const adminSchema = new mongoose.Schema({
     {
       text: { type: String }, //shelt required
       seen: { type: Boolean, default: false },
-      productId: { type: Number }, // optional field for product-related notifications
+      productId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Product' }, 
     },
   ],
 });

@@ -1,13 +1,12 @@
 const multer = require("multer");
 const path = require("path");
-const fs = require("fs");
+const fs = require("fs").promises;
 const Img = require("../models/Img"); // Adjust the path if necessary
-const { ObjectId } = require("mongoose").Types;
 
 // Configure Multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "../Frontend/public/uploads/"); // The folder where images will be temporarily saved
+    cb(null, "../Frontend/public/uploads/"); // Temporary upload folder
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}_${file.originalname}`); // Temporary filename
@@ -18,73 +17,62 @@ const upload = multer({ storage });
 
 const uploadFiles = upload.fields([
   { name: "id", maxCount: 1 },
-  { name: "certificates", maxCount: 3 },
+  { name: "certificates", maxCount: 10 },
 ]);
 
 const uploadIdCertificatesImage = async (req, res, next) => {
   uploadFiles(req, res, async (err) => {
     if (err) {
-      return res.status(500).json({ error: "id mw" + err.message });
+      return res.status(500).json({ error: "File upload error: " + err.message });
     }
 
     try {
-      let idIdTobeAddedToBody = null;
-      let idCertTobeAddedToBody = [];
-      if (req.files && req.files["id"]) {
-        const idFile = req.files["id"][0]; // Access the first element of the 'id' array
+      let idIdToBeAddedToBody = null;
+      let idCertsToBeAddedToBody = [];
 
-        // Create a new document in the imgs collection
+      // Process 'id' file if it exists
+      if (req.files && req.files["id"]) {
+        const idFile = req.files["id"][0];
+
         const imgDoc = new Img();
         const savedImg = await imgDoc.save();
 
-        // Update the filename and path to include the new ID
         const newFilename = `${savedImg._id}.jpg`;
         const newPath = path.join("../Frontend/public/uploads", newFilename);
 
-        // Rename the file
-        fs.rename(idFile.path, newPath, async (renameErr) => {
-          if (renameErr) {
-            await Img.findByIdAndRemove(savedImg._id);
-            return res.status(500).json({ error: "Failed to rename file" });
-          }
+        await fs.rename(idFile.path, newPath);
 
-          // Update the path in the database (if needed)
-          savedImg.path = newPath; // You may want to add this field in your Img model
-          await savedImg.save();
+        savedImg.path = newPath;
+        await savedImg.save();
 
-          // Attach the image ID to the request for use in the next middleware
-          //req.id = savedImg._id;
-          //next();
-        });
-        idIdTobeAddedToBody = savedImg._id;
+        idIdToBeAddedToBody = savedImg._id;
       }
-      if (req.files && req.files["certificates"]) {
-        for (let i = 0; i < req.files["certificates"].length; i++) {
-          const idFile = req.files["certificates"][i];
 
+      // Process 'certificates' files if they exist
+      if (req.files && req.files["certificates"]) {
+        const certificatePromises = req.files["certificates"].map(async (certFile) => {
           const imgDoc = new Img();
           const savedImg = await imgDoc.save();
 
           const newFilename = `${savedImg._id}.jpg`;
           const newPath = path.join("../Frontend/public/uploads", newFilename);
 
-          fs.rename(idFile.path, newPath, async (renameErr) => {
-            if (renameErr) {
-              //await Img.findByIdAndRemove(savedImg._id);
-              return res.status(500).json({ error: "Failed to rename file" });
-            }
+          await fs.rename(certFile.path, newPath);
 
-            savedImg.path = newPath;
-            await savedImg.save();
-          });
-          idCertTobeAddedToBody.push(savedImg._id);
-        }
+          savedImg.path = newPath;
+          await savedImg.save();
+
+          return savedImg._id;
+        });
+
+        idCertsToBeAddedToBody = await Promise.all(certificatePromises);
       }
-      req.body.id = idIdTobeAddedToBody;
-      req.body.certificates = idCertTobeAddedToBody;
+
+      req.body.id = idIdToBeAddedToBody;
+      req.body.certificates = idCertsToBeAddedToBody;
       next();
     } catch (error) {
-      return res.status(500).json({ error: "id bottom mw" + error.message });
+      return res.status(500).json({ error: "File processing error: " + error.message });
     }
   });
 };

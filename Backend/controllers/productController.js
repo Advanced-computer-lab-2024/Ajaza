@@ -16,8 +16,21 @@ exports.createProduct = async (req, res) => {
 
 // Get all products req81
 exports.getAllProducts = async (req, res) => {
+  console.log("reached");
   try {
     const products = await Product.find({hidden: { $ne: true }/*, archived: { $ne: true },*/});
+    if(!products || products.length === 0){
+      return res.status(404).json({ message: "No products found" });
+    }
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getNotArchivedProducts = async (req, res) => {
+  try {
+    const products = await Product.find({hidden: { $ne: true }, archived: { $ne: true },});
     if(!products || products.length === 0){
       //return res.status(404).json({ message: "No products found" });
     }
@@ -141,6 +154,9 @@ exports.giveFeedback = async (req, res) => {
       },
       { new: true }
     );
+
+    tourist.gaveFeedback.push(productId);
+    await tourist.save();
 
     if (!updatedProduct) {
       return res.status(404).json({ message: "Product not found" });
@@ -278,9 +294,6 @@ exports.adminSellerEditProduct = async (req, res) => {
   const id = req.params.id;
   const productId = req.params.productId;
 
-  // Log the IDs for debugging
-  console.log(`Received ID: ${id}`);
-  console.log(`Received Product ID: ${productId}`);
 
   // Initialize flags
   let isSeller = false;
@@ -345,6 +358,15 @@ exports.adminSellerEditProduct = async (req, res) => {
       }
     });
 
+    // Check for uploaded files and update photo accordingly
+     if (req.files && req.files["photo"]) {
+      filteredBody.photo = req.body.photo; // Use the new photo ID from middleware
+      console.log("New photo uploaded:", filteredBody.photo); // Debugging line
+    } else {
+      filteredBody.photo = product.photo; // Retain existing photo
+      console.log("Retaining existing photo:", filteredBody.photo); // Debugging line
+    }
+
     // Update the product
     try {
       const updatedProduct = await Product.findByIdAndUpdate(
@@ -392,12 +414,6 @@ exports.adminSellerArchiveProduct = async (req, res) => {
   const productId = req.params.productId;
   const archive = req.body.archived; // Direct access without conversion
 
-
-  // // Log the IDs for debugging
-  // console.log(`Received ID: ${id}`);
-  // console.log(`Received Product ID: ${productId}`);
-  // console.log(`Request body archive value: ${archive}`);
-  // console.log(`Type of request body archive value: ${typeof archive}`);
 
   // Initialize flags
   let isSeller = false;
@@ -449,9 +465,6 @@ exports.adminSellerArchiveProduct = async (req, res) => {
       }
     }
 
-    // // Check if the product is already archived and the request body has archive set to true
-    // console.log(`Product archived status: ${product.archived}`);
-    // console.log(`Request body archive value: ${archive}`);
 
     if (product.archived && archive === true) {
       return res.status(400).json({ error: "Product is already archived" });

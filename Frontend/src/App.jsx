@@ -5,6 +5,7 @@ import {
   BrowserRouter as Router,
   Route,
   Routes,
+  useLocation,
   useNavigate,
 } from "react-router-dom";
 import CustomButton from "./Components/Common/CustomButton";
@@ -13,6 +14,7 @@ import { BellFilled, UserOutlined } from "@ant-design/icons";
 import { IconButton, SideBar } from "./Components/Common";
 import { Colors } from "./Components/Common/Constants";
 import Profile from "./Components/Common/Profile";
+import Notifications from "./Components/Common/Notifications";
 import Itineraries from "./Components/Itineraries";
 import Activities from "./Components/Activities";
 import Venues from "./Components/Venues";
@@ -23,6 +25,9 @@ import SellerForm from "./Components/Seller/SellerForm";
 import Product from "./Components/Seller/SellerProduct";
 import DisplayForm from "./Components/Seller/DisplayProduct";
 import TermsAndConditions from "./Components/Seller/TermsAndConditions";
+import { jwtDecode } from 'jwt-decode';
+
+
 
 //import ManageAccounts from "./manageAccounts";
 //import AddAccounts from "./addAccounts";
@@ -45,15 +50,20 @@ import AddAccounts from "./Components/Admin/addAccounts";
 import CustomCard from "./Components/Card";
 import CreateTourist from "./Components/Sign/CreateTourist";
 import CreateSeller from "./Components/Sign/CreateSeller";
+import { CurrencyProvider } from "./Components/Tourist/CurrencyContext";
 const { Header, Footer, Sider, Content } = Layout;
 
 function App() {
   const [searchValue, setSearchValue] = useState("");
   const navigate = useNavigate(); // Use navigate for routing
+  const location = useLocation();
 
   const testFunction = (param1, param2) => {
     console.log(param1, param2);
   };
+
+  const params = new URLSearchParams(location.search);
+  const role = params.get('role');
 
   return (
     <div className="App">
@@ -85,8 +95,7 @@ function App() {
             <Route path="/advertiser/*" element={<Advertiser />} />
             <Route path="/admin/*" element={<Admin />} />
             <Route path="/profile" element={<Profile />} />
-
-
+            <Route path="/notifications" element={<Notifications />} />
             <Route path="/governor/*" element={<TourismGovernor />} />
             <Route path="/seller/*" element={<Seller />} />
             <Route path="/guest/*" element={<Guest />} />
@@ -105,7 +114,9 @@ function App() {
 export default function AppWrapper() {
   return (
     <Router>
+      <CurrencyProvider>
       <App />
+      </CurrencyProvider>
     </Router>
   );
 }

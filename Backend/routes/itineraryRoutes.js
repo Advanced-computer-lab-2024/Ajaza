@@ -3,10 +3,17 @@ const router = express.Router();
 const itineraryController = require("../controllers/itineraryController");
 
 router.post("/", itineraryController.createItinerary);
+
 //req 33
 router.patch("/hide/:id", itineraryController.hideItinerary);
 
+router.patch("/unhide/:id", itineraryController.unhideItinerary);
+
 router.get("/", itineraryController.getAllItineraries);
+
+//get admin itin
+router.get("/admin", itineraryController.getAdminItineraries);
+
 //not hidden
 router.get("/notHidden", itineraryController.getAllItinerariesNH);
 //req44

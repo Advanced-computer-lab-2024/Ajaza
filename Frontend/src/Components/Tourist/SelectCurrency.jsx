@@ -6,7 +6,7 @@ import { Select } from "antd";
 
 const { Option } = Select;
 
-const SelectCurrency = ({ currency, onCurrencyChange }) => {
+const SelectCurrency = ({ currency, onCurrencyChange, style = {} }) => {
   const currencyRates = {
     EGP: 48.58,
     USD: 1,
@@ -18,7 +18,7 @@ const SelectCurrency = ({ currency, onCurrencyChange }) => {
   };
 
   return (
-    <Select value={currency} onChange={handleCurrencyChange} style={{ width: 70 }}>
+    <Select value={currency} onChange={handleCurrencyChange} style={{ width: 70, ...style}}>
       {Object.keys(currencyRates).map((curr) => (
         <Option key={curr} value={curr}>
           {curr}

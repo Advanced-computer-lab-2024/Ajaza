@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { EditOutlined, DeleteOutlined, InboxOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  InboxOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import {
   Avatar,
   Card,
@@ -12,11 +17,14 @@ import {
   Select,
   Upload,
   Flex,
+  Divider,
+  Tag,
+  Typography,
 } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
 import { jwtDecode } from "jwt-decode";
-import { apiUrl } from "./Common/Constants";
+import { apiUrl, Colors } from "./Common/Constants";
 import MapComponent from "./Common/Map";
 
 const { Option } = Select;
@@ -40,6 +48,8 @@ const Venues = () => {
   const [isTagModalVisible, setIsTagModalVisible] = useState(false);
   const [newTag, setNewTag] = useState("");
   const [preferenceTag, setPreferenceTag] = useState("");
+  const { Title, Text } = Typography;
+
   const allowedTagNames = [
     "Monuments",
     "Museums",
@@ -73,7 +83,7 @@ const Venues = () => {
   if (token) {
     decodedToken = jwtDecode(token);
   }
-  const userid = decodedToken.userId;
+  const userid = decodedToken?.userId;
 
   const fetchVenues = async () => {
     try {
@@ -88,7 +98,9 @@ const Venues = () => {
   };
 
   useEffect(() => {
-    fetchVenues();
+    if (decodedToken?.role == "governor") {
+      fetchVenues();
+    }
   }, []);
 
   const createVenue = async (values) => {
@@ -184,6 +196,7 @@ const Venues = () => {
           native: venueToEdit.price.native,
           student: venueToEdit.price.student,
         },
+        tags: venueToEdit.tags || [],
       });
       setSelectedLocation(venueToEdit.location);
       setIsModalVisible(true);
@@ -200,6 +213,7 @@ const Venues = () => {
     // Check each field and add it to updatedData if it has changed
     if (values.name !== venueToEdit.name) updatedData.name = values.name;
     if (values.desc !== venueToEdit.desc) updatedData.desc = values.desc;
+    if (values.tags !== venueToEdit.tags) updatedData.tags = values.tags;
     if (selectedLocation !== venueToEdit.location) {
       updatedData.location = selectedLocation;
     }
@@ -364,10 +378,15 @@ const Venues = () => {
             justifyContent: "flex-start",
           }}
         >
-          <Button
-            size={"s"}
-            value={"Create Venue"}
-            rounded={true}
+          <AntButton
+            style={{
+              backgroundColor: Colors.primary.default,
+              border: "none",
+              width: "30px",
+              height: "30px",
+              marginLeft: "auto",
+            }}
+            icon={<PlusOutlined style={{ color: "white" }} />}
             onClick={showModal}
           />
         </div>
@@ -404,61 +423,110 @@ const Venues = () => {
                     onClick={() => deleteVenue(venue._id)}
                   />,
                 ]}
-                style={{ width: 350, margin: "10px" }}
+                style={{
+                  minWidth: 370,
+                  maxWidth: 370,
+                  maxHeight: 1000,
+                  marginBottom: "4px",
+                  marginRight: "12px",
+                  border: "1px solid #e8e8e8",
+                  position: "relative",
+                  borderRadius: "12px", // Rounded corners
+                  padding: "16px", // Padding inside the card
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)", // Subtle shadow effect
+                }}
               >
-                <Card.Meta title={venue.name} />
+                <Card.Meta
+                  title={
+                    <Title
+                      level={4}
+                      style={{
+                        fontWeight: "600",
+                        marginBottom: "10px",
+                        fontSize: "18px",
+                        color: "#1b696a", // Customize this color as needed
+                      }}
+                    >
+                      {venue.name}
+                    </Title>
+                  }
+                />
                 <div style={{ marginTop: 10 }}>
-                  <p style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
-                    <strong>Description:</strong> {venue.desc}
+                  <p
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      marginBottom: "8px", // Spacing after each description
+                    }}
+                  >
+                    <Text strong>Description:</Text> {venue.desc}
                   </p>
-                  <p>
-                    <strong>Location:</strong> {venue.location}
+
+                  <p style={{ marginBottom: "8px" }}>
+                    <Text strong>Location:</Text> {venue.location}
                   </p>
-                  <p>
-                    <strong>Price (Foreigner):</strong> ${venue.price.foreigner}{" "}
+
+                  <p style={{ marginBottom: "8px" }}>
+                    <Text strong>Price (Foreigner):</Text> $
+                    {venue.price.foreigner}
                   </p>
-                  <p>
-                    <strong>Price (Native):</strong> ${venue.price.native}
+
+                  <p style={{ marginBottom: "8px" }}>
+                    <Text strong>Price (Native):</Text> ${venue.price.native}
                   </p>
-                  <p>
-                    <strong>Price (Student):</strong> ${venue.price.student}
+
+                  <p style={{ marginBottom: "8px" }}>
+                    <Text strong>Price (Student):</Text> ${venue.price.student}
                   </p>
-                  <p>
-                    <strong>Opening Hours:</strong>
+
+                  <p style={{ marginBottom: "8px" }}>
+                    <Text strong>Opening Hours:</Text>
                   </p>
-                  <ul>
+
+                  <ul style={{ marginBottom: "8px" }}>
                     <li>
-                      <strong>Sunday:</strong> {venue.openingHours.suno} -{" "}
+                      <Text strong>Sunday:</Text> {venue.openingHours.suno} -{" "}
                       {venue.openingHours.sunc}
                     </li>
                     <li>
-                      <strong>Monday:</strong> {venue.openingHours.mono} -{" "}
+                      <Text strong>Monday:</Text> {venue.openingHours.mono} -{" "}
                       {venue.openingHours.monc}
                     </li>
                     <li>
-                      <strong>Tuesday:</strong> {venue.openingHours.tueo} -{" "}
+                      <Text strong>Tuesday:</Text> {venue.openingHours.tueo} -{" "}
                       {venue.openingHours.tuec}
                     </li>
                     <li>
-                      <strong>Wednesday:</strong> {venue.openingHours.wedo} -{" "}
+                      <Text strong>Wednesday:</Text> {venue.openingHours.wedo} -{" "}
                       {venue.openingHours.wedc}
                     </li>
                     <li>
-                      <strong>Thursday:</strong> {venue.openingHours.thuo} -{" "}
+                      <Text strong>Thursday:</Text> {venue.openingHours.thuo} -{" "}
                       {venue.openingHours.thuc}
                     </li>
                     <li>
-                      <strong>Friday:</strong> {venue.openingHours.frio} -{" "}
+                      <Text strong>Friday:</Text> {venue.openingHours.frio} -{" "}
                       {venue.openingHours.fric}
                     </li>
                     <li>
-                      <strong>Saturday:</strong> {venue.openingHours.sato} -{" "}
+                      <Text strong>Saturday:</Text> {venue.openingHours.sato} -{" "}
                       {venue.openingHours.satc}
                     </li>
                   </ul>
-                  <p>
-                    <strong>Tags:</strong> {venue.tags.join(", ")}
+
+                  <p style={{ marginBottom: "12px" }}>
+                    <Text strong>Tags:</Text>
+                    {venue.tags.map((tag, index) => (
+                      <Tag
+                        key={index}
+                        color="#1b696a"
+                        style={{ margin: "3px", display: "inline-block" }}
+                      >
+                        {tag}
+                      </Tag>
+                    ))}
                   </p>
+
                   <Button
                     size={"s"}
                     value={"Create Tag"}
@@ -617,6 +685,23 @@ const Venues = () => {
               </Form.Item>
             </Input.Group>
           </Form.Item>
+
+          {editingVenueId && (
+            <Form.Item name="tags" label="Tags">
+              <Select
+                mode="multiple"
+                placeholder="Select tags"
+                style={{ width: "100%" }}
+              >
+                {allowedTagNames.map((tag) => (
+                  <Option key={tag} value={tag}>
+                    {tag}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          )}
+
           {!editingVenueId && (
             <Form.Item
               label="Pictures"

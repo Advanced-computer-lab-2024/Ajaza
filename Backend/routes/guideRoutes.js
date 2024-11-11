@@ -10,8 +10,12 @@ const uploadIdCertificatesImage = require("../middleware/uploadIdCertificatesIma
 
 router.post("/", guideController.createGuide);
 
+
 //req 12
 router.get("/pending", guideController.getPendingGuides);
+
+router.get("/accepted", guideController.getAcceptedGuides);
+
 router.get('/details/:id', guideController.getGuideDetails);
 
 
@@ -29,7 +33,7 @@ router.delete("/deleteGuides", guideController.deleteGuidesRequestingDeletion);
 
 // req52 & req53
 router.post(
-  "/:touristId/guide/:itineraryId/feedback",
+  "/:touristId/guide/:guideId/feedback",
   guideController.giveGuideFeedback
 );
 //req 7
@@ -85,5 +89,7 @@ router.delete("/reject/:id", guideController.rejectGuide);
 router.patch("/requestDeletion/:id", guideController.requestDeletion);
 
 router.post("/validateEmailUsername", guideController.validateEmailUsername); // New route for email and username validation
+
+router.get('/viewSalesReport/:id', guideController.viewSalesReport);
 
 module.exports = router;

@@ -10,6 +10,11 @@ router.get("/", productController.getAllProducts);
 
 //all
 router.get("/all", productController.getAllProductsEH);
+
+//not archived
+
+router.get("/notArchived", productController.getNotArchivedProducts);
+
 //req83
 router.get("/search", productController.searchProduct);
 
@@ -29,7 +34,7 @@ router.post(
 router.post("/:id/product/adminSellerAddProduct", uploadPhotoImage, productController.adminSellerAddProduct); //AdminSeller add product
 
 //req88     // Admin/Seller Edit product      --Tatos
-router.patch("/:id/product/:productId/adminSellerEditProduct",productController.adminSellerEditProduct); //AdminSeller Edit product
+router.patch("/:id/product/:productId/adminSellerEditProduct",uploadPhotoImage,productController.adminSellerEditProduct); //AdminSeller Edit product
 
 
 //req89     // Admin/Seller archive/unarchive products      --Tatos

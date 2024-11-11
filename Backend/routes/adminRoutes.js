@@ -26,4 +26,6 @@ router.delete(
   adminController.adminDeletesAdminFromSystem
 );
 
+router.delete("/deleteImgs", adminController.deleteImgs);
+
 module.exports = router;

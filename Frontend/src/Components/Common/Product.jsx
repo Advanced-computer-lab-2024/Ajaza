@@ -5,11 +5,23 @@ import { Form } from "antd";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { apiUrl } from "./Constants";
-
+import LoadingSpinner from "./LoadingSpinner";
+import SelectCurrency from "../Tourist/SelectCurrency";
+import { useCurrency } from "../Tourist/CurrencyContext";
 const Product = () => {
   let { id } = useParams();
 
   const [product, setProduct] = useState(null);
+  const { currency, setCurrency } = useCurrency();
+
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+  };
+  const [currencyRates] = useState({
+    EGP: 48.58,
+    USD: 1,
+    EUR: 0.91,
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -151,6 +163,10 @@ const Product = () => {
     "test",
   ];
 
+  const convertedPrice = product
+    ? (product.price * currencyRates[currency]).toFixed(2)
+    : 0;
+
   const price = 124; // TODO mariem's conversion
   const name = "Product1";
   const sales = 123;
@@ -168,21 +184,29 @@ const Product = () => {
 
   const sellerName = "Ajaza";
 
-  console.log(product);
+  if (!product) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <>
+      <SelectCurrency
+        currency={currency}
+        onCurrencyChange={handleCurrencyChange}
+        style={{ left: -7, top: 45 }}
+      />
       <Item
         // name={product?.name}
         name={product?.name}
         photos={product?.photo}
-        price={product?.price}
+        price={convertedPrice}
         desc={product?.desc}
         sellerName={product?.sellerName}
         quantity={product?.quantity}
         sales={product?.sales}
         feedbacks={product?.feedback}
         type={"product"}
+        currency={currency}
       />
     </>
   );

@@ -44,7 +44,6 @@ async function searchFlights(accessToken,origin,destination,departureDate,count)
 
     return response.data;
 
-    //console.log('Flight Offers:', response.data);
   } catch (error) {
     //return (error.response ? error.response.data : error.message)
     console.error('Error searching for flights:', error.response ? error.response.data : error.message);

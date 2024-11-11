@@ -2,13 +2,13 @@ const mongoose = require("mongoose");
 
 const hotelBookingSchema = new mongoose.Schema({
     touristId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Tourist' },
-    hotelName: { type: String, required: true },
-    city: { type: String, required: true },
-    price: { type: Number, required: true },
-    currency: { type: String, required: true },
-    checkin: { type: Date, required: true },
-    checkout: { type: Date, required: true },
-    score: { type: Number, required: true },
+    hotelName: { type: String, required: false },
+    city: { type: String, required: false },
+    price: { type: String, required: false },
+    currency: { type: String, required: false },
+    checkin: { type: String, required: false },
+    checkout: { type: String, required: false },
+    score: { type: String, required: false },
     images: [{ type: String }],
     createdAt: { type: Date, default: Date.now }
 });

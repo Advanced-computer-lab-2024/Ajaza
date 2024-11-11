@@ -10,12 +10,17 @@ import axios from "axios";
 import BasicCard from "../Common/BasicCard";
 import { jwtDecode } from "jwt-decode";
 import SelectCurrency from "./SelectCurrency";
+import { useNavigate } from "react-router-dom";
+import { useCurrency } from "./CurrencyContext";
 
 const token = localStorage.getItem("token");
 let decodedToken = null;
 if (token) {
   decodedToken = jwtDecode(token);
 }
+
+console.log(decodedToken);
+
 const userid = decodedToken ? decodedToken.userId : null;
 
 const convertCategoriesToValues = (categoriesArray) => {
@@ -43,6 +48,7 @@ const currencyRates = {
 };
 
 const Activities = () => {
+  const navigate = useNavigate();
   const [combinedElements, setCombinedElements] = useState([]);
   // propName:fieldName
   const propMapping = {
@@ -51,7 +57,15 @@ const Activities = () => {
     rating: "avgRating",
     dateTime: "availableDateTime",
   };
-  const [currency, setCurrency] = useState("USD");
+  const cardOnclick = (element) => {
+    navigate(element["_id"]);
+  };
+  const { currency, setCurrency } = useCurrency();
+
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+  };
+
   const fields = { Categories: "category", Tags: "tags", Date: "date" };
   const searchFields = ["name", "category", "tags"];
   const constProps = { rateDisplay: true, currency, currencyRates };
@@ -216,9 +230,7 @@ const Activities = () => {
     fetchData();
   }, []);
 
-  const handleCurrencyChange = (selectedCurrency) => {
-    setCurrency(selectedCurrency);
-  };
+
 
   return (
     <div>
@@ -234,6 +246,7 @@ const Activities = () => {
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
+          style={{left:1000 , top:55}}
         />
       </div>
       <SearchFilterSortContainer
@@ -245,6 +258,7 @@ const Activities = () => {
         fields={fields}
         sortFields={sortFields}
         filterFields={filterFields}
+        cardOnclick={cardOnclick}
       />
     </div>
   );

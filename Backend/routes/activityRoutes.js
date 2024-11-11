@@ -7,8 +7,12 @@ router.post("/", activityController.createActivity);
 //req 33
 router.patch("/hide/:id", activityController.hideActivity);
 
+router.patch("/unhide/:id", activityController.unhideActivity);
+
 router.get("/", activityController.getAllActivities);
 
+//admin activities
+router.get("/admin", activityController.getAdminActivities);
 //not hidden
 router.get("/notHidden", activityController.getAllActivitiesNH);
 

@@ -9,6 +9,8 @@ import {
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
 import SelectCurrency from "./SelectCurrency";
+import { useNavigate } from "react-router-dom";
+import { useCurrency } from "./CurrencyContext";
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -29,6 +31,7 @@ const convertTagsToValues = (tagsArray) => {
 };
 
 const Plans = () => {
+  const navigate = useNavigate();
   const [combinedElements, setCombinedElements] = useState([]);
   const propMapping = {
     title: "name",
@@ -43,10 +46,13 @@ const Plans = () => {
     EUR: 0.91,
   };
 
-  const [currency, setCurrency] = useState("USD");
-  const fields = { Categories: "category", Tags: "tags", Type: "type" };
+  const { currency, setCurrency } = useCurrency();
+
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+  };  const fields = { Categories: "category", Tags: "tags", Type: "type" };
   const searchFields = ["name", "category", "tags"];
-  const constProps = { rateDisplay: true , currency, currencyRates};
+  const constProps = { rateDisplay: true, currency, currencyRates };
   const sortFields = ["avgRating", "price"];
   const [filterFields, setfilterFields] = useState({
     tags: {
@@ -179,24 +185,43 @@ const Plans = () => {
     fetchData();
   }, []);
 
-  const handleCurrencyChange = (selectedCurrency) => {
-    setCurrency(selectedCurrency);
-  };
+
   return (
     <div>
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-    <SelectCurrency basePrice={null} currency={currency} onCurrencyChange={handleCurrencyChange} />
-  </div>
-    <SearchFilterSortContainer
-      cardComponent={BasicCard}
-      elements={combinedElements}
-      propMapping={propMapping}
-      searchFields={searchFields}
-      constProps={constProps}
-      fields={fields}
-      sortFields={sortFields}
-      filterFields={filterFields}
-    />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "16px",
+        }}
+      >
+        <SelectCurrency
+          basePrice={null}
+          currency={currency}
+          onCurrencyChange={handleCurrencyChange}
+          style={{left:1000 , top:55}}
+        />
+      </div>
+      <SearchFilterSortContainer
+        cardComponent={BasicCard}
+        elements={combinedElements}
+        propMapping={propMapping}
+        searchFields={searchFields}
+        constProps={constProps}
+        fields={fields}
+        sortFields={sortFields}
+        filterFields={filterFields}
+        cardOnclick={(element) => {
+          var type = "activities";
+          if (element?.type.toLowerCase() == "itinerary") {
+            type = "itineraries";
+          } else if (element?.type.toLowerCase() == "venue") {
+            type = "venues";
+          }
+          navigate(`${type}/${element?._id}`);
+        }}
+      />
     </div>
   );
 };
