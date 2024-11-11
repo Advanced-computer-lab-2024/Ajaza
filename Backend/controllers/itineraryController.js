@@ -85,7 +85,11 @@ exports.getAllHasBookings = async (req, res) => {
     }
     const currentDate = new Date();
     const itineraryIds = tourist.itineraryBookings.map(booking => booking.itineraryId);
-    const itinerariesT = await Itinerary.find({_id: { $in: itineraryIds }, availableDateTime: { $elemMatch: { date: { $gt: currentDate } } },}).populate("guideId");    
+    const itinerariesT = await Itinerary.find({_id: { $in: itineraryIds }, 
+      availableDateTime: { $elemMatch: { date: { $gt: currentDate } } },
+      hidden: { $ne: true }, 
+      active: { $ne: true }
+    }).populate("guideId");    
     const itineraries = await Itinerary.find({hidden: { $ne: true }, active: { $ne: false }, availableDateTime: { $elemMatch: { date: { $gt: currentDate } } },}).populate("guideId");
     const combineditineraries = [...itineraries, ...itinerariesT];
 
@@ -133,6 +137,43 @@ exports.getItineraryById = async (req, res) => {
     const itinerary = await Itinerary.findById(req.params.id).populate(
       "guideId"
     );
+
+    const itineraryObj = itinerary.toObject(); // Convert to plain object
+
+    // Modify the timeline for each itinerary
+    for (const item of itineraryObj.timeline) {
+
+      if (item.type === "Activity") {
+        const activity = await Activity.findById(item.id);
+        item.id = activity; // Replace ObjectId with full document
+      } else if (item.type === "Venue") {
+        const venue = await Venue.findById(item.id);
+        item.id = venue; // Replace ObjectId with full document
+      }
+    }
+
+    if (!itinerary) {
+      return res.status(404).json({ message: "Itinerary not found" });
+    }
+    res.status(200).json(itineraryObj);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getItineraryByIdF = async (req, res) => {
+  try {
+    const itinerary = await Itinerary.findById(req.params.id).populate(
+      "guideId"
+    );
+
+    const currentDate = new Date();
+    const futureDates = itinerary.availableDateTime.filter(item => {
+      const itemDate = new Date(item.date);
+      return itemDate > currentDate;
+    });
+
+    itinerary.availableDateTime = futureDates;
 
     const itineraryObj = itinerary.toObject(); // Convert to plain object
 
