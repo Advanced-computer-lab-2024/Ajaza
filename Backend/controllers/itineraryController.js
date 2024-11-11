@@ -85,16 +85,13 @@ exports.getAllHasBookings = async (req, res) => {
     }
     const currentDate = new Date();
     const itineraryIds = tourist.itineraryBookings.map(booking => booking.itineraryId);
-    const itinerariesT = await Itinerary.find({_id: { $in: itineraryIds }, 
+    const itineraries = await Itinerary.find({_id: { $in: itineraryIds }, 
       availableDateTime: { $elemMatch: { date: { $gt: currentDate } } },
-      hidden: { $ne: true }, 
-      active: { $ne: true }
+      hidden: { $ne: true }
     }).populate("guideId");    
-    const itineraries = await Itinerary.find({hidden: { $ne: true }, active: { $ne: false }, availableDateTime: { $elemMatch: { date: { $gt: currentDate } } },}).populate("guideId");
-    const combineditineraries = [...itineraries, ...itinerariesT];
 
     const updatedItineraries = await Promise.all(
-      combineditineraries.map(async (itinerary) => {
+      itineraries.map(async (itinerary) => {
         const itineraryObj = itinerary.toObject(); // Convert to plain object
 
         // Modify the timeline for each itinerary
