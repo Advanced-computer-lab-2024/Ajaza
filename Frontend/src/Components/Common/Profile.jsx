@@ -209,7 +209,7 @@ const Profile = () => {
       icon: <WarningFilled style={{ color: "#ff4d4f" }} />,
       onOk: async () => {
         try {
-          console.log(`${apiUrl}${role}/requestDeletion/${userDetails._id}`);
+          // console.log(`${apiUrl}${role}/requestDeletion/${userDetails._id}`);
 
           const response = await axios.patch(
             `${apiUrl}${role}/requestDeletion/${userDetails._id}`
@@ -220,7 +220,7 @@ const Profile = () => {
 
           message.success("Deletion Request Sent!");
         } catch (error) {
-          message.error(error);
+          message.error(error?.response?.data?.message);
         }
       },
     });
