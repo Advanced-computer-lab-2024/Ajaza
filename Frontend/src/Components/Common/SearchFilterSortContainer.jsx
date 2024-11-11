@@ -75,7 +75,7 @@ const sortElements = (elements, sortField, sortAsc) => {
   if (!sortField) {
     const token = localStorage.getItem("token");
     if (!token) {
-      return;
+      return elements;
     }
     const decodedToken = jwtDecode(token);
     const preferredCategories =

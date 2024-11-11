@@ -103,7 +103,6 @@ const Landing = () => {
           borderRadius: "10px",
           maxWidth: "600px",
           textAlign: "left",
-
         }}
       >
         <div>
@@ -122,8 +121,15 @@ const Landing = () => {
         </div>
         <div style={{ marginTop: "10px", marginLeft: "110px" }}>
           <a
-            style={{ textDecoration: "underline", cursor: "pointer", color: "white" }}
-            onClick={() => navigate("/guest")}
+            style={{
+              textDecoration: "underline",
+              cursor: "pointer",
+              color: "white",
+            }}
+            onClick={() => {
+              localStorage.removeItem("token");
+              navigate("/guest");
+            }}
           >
             Continue as Guest
           </a>
