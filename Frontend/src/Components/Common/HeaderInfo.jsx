@@ -94,20 +94,21 @@ const HeaderInfo = ({
   const [currencySymbol, setCurrencySymbol] = useState(
     currency == "EGP" ? "£" : currency == "EUR" ? "€" : "$"
   );
-  let token = null;
-  let decodedToken = null;
-  let userid = null;
+  const [token, setToken] = useState(null);
+  const [decodedToken, setDecodedToken] = useState(null);
+  const [userid, setUserid] = useState(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    token = localStorage.getItem("token");
-    decodedToken = null;
-    if (token) {
-      decodedToken = jwtDecode(token);
+    const tempToken = localStorage.getItem("token");
+    setToken(tempToken);
+    if (tempToken) {
+      const decTemp = jwtDecode(tempToken);
+      setDecodedToken(decTemp);
+      setUserid(decTemp?.userId);
     }
-    userid = decodedToken ? decodedToken.userId : null;
-  });
+  }, []);
 
   useEffect(() => {
     console.log(currency);
@@ -272,7 +273,9 @@ const HeaderInfo = ({
       if (newToken) {
         localStorage.setItem("token", newToken); // Store the new token
         // console.log("Updated token:", newToken);
-        decodedToken = jwtDecode(newToken);
+        const decTemp = jwtDecode(newToken);
+        setDecodedToken(decTemp);
+        setUserid(decTemp?.userId);
         // console.log(newToken);
         console.log("new token fetched successfully");
       }
