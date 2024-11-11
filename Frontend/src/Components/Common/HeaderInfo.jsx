@@ -34,13 +34,6 @@ import "./HeaderInfo.css";
 
 const { Option } = Select;
 
-const token = localStorage.getItem("token");
-let decodedToken = null;
-if (token) {
-  decodedToken = jwtDecode(token);
-}
-const userid = decodedToken ? decodedToken.userId : null;
-
 const contentStyle = {
   margin: 0,
   width: "100%",
@@ -101,7 +94,20 @@ const HeaderInfo = ({
   const [currencySymbol, setCurrencySymbol] = useState(
     currency == "EGP" ? "£" : currency == "EUR" ? "€" : "$"
   );
+  let token = null;
+  let decodedToken = null;
+  let userid = null;
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    token = localStorage.getItem("token");
+    decodedToken = null;
+    if (token) {
+      decodedToken = jwtDecode(token);
+    }
+    userid = decodedToken ? decodedToken.userId : null;
+  });
 
   useEffect(() => {
     console.log(currency);
