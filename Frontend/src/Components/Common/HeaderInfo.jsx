@@ -96,7 +96,7 @@ const HeaderInfo = ({
   );
   const [token, setToken] = useState(null);
   const [decodedToken, setDecodedToken] = useState(null);
-  var userid = null;
+  const [userid, setUserid] = useState(null);
 
   const navigate = useNavigate();
 
@@ -104,15 +104,11 @@ const HeaderInfo = ({
     const tempToken = localStorage.getItem("token");
     setToken(tempToken);
     if (tempToken) {
-      setDecodedToken(jwtDecode(tempToken));
+      const decTemp = jwtDecode(tempToken);
+      setDecodedToken(decTemp);
+      setUserid(decTemp?.userId);
     }
   }, []);
-
-  useEffect(() => {
-    userid = decodedToken ? decodedToken.userId : null;
-  }, [decodedToken]);
-
-  console.log("decoded external", decodedToken);
 
   useEffect(() => {
     console.log(currency);
@@ -277,7 +273,9 @@ const HeaderInfo = ({
       if (newToken) {
         localStorage.setItem("token", newToken); // Store the new token
         // console.log("Updated token:", newToken);
-        decodedToken = jwtDecode(newToken);
+        const decTemp = jwtDecode(newToken);
+        setDecodedToken(decTemp);
+        setUserid(decTemp?.userId);
         // console.log(newToken);
         console.log("new token fetched successfully");
       }
