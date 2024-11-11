@@ -81,10 +81,6 @@ const sortElements = (elements, sortField, sortAsc) => {
     const preferredCategories =
       decodedToken?.userDetails?.preferredCategories || [];
     const preferredTags = decodedToken?.userDetails?.preferredTags || [];
-
-    console.log(preferredTags);
-    console.log(preferredCategories);
-
     return elements.sort((a, b) => {
       // Check if 'a' and 'b' contain any preferred categories or tags
       const aHasPreferredCategory = a.categories?.some((category) =>
