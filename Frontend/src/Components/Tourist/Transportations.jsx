@@ -30,7 +30,7 @@ const { Title } = Typography;
 const cityOptions = [
     { label: "Paris", value: "CDG" },
     { label: "New York", value: "JFK" },
-    { label: "London", value: "LON" },
+    { label: "London", value: "LHR" },
     { label: "Dubai", value: "DXB" },
     { label: "Los Angeles", value: "LAX" },
 ];
