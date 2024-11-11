@@ -16,6 +16,9 @@ router.get("/admin", itineraryController.getAdminItineraries);
 
 //not hidden
 router.get("/notHidden", itineraryController.getAllItinerariesNH);
+
+router.get("/nothidden/orHasBookings/:id", itineraryController.getAllHasBookings);
+
 //req44
 router.get("/upcomingItineraries", itineraryController.getUpcomingItineraries);
 

@@ -77,7 +77,7 @@ const Itinerary = () => {
       <SelectCurrency
         currency={currency}
         onCurrencyChange={handleCurrencyChange}
-        style={{ left: 500, top: 45 }}
+        style={{ left: -7, top: 45 }}
       />
       {itinerary && (
         <Item
@@ -100,6 +100,7 @@ const Itinerary = () => {
           creatorName={itinerary?.guideId?.username}
           type={"itinerary"}
           availableDates={itinerary.availableDateTime}
+          currency={currency}
         />
       )}
     </>

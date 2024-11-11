@@ -16,10 +16,11 @@ exports.createProduct = async (req, res) => {
 
 // Get all products req81
 exports.getAllProducts = async (req, res) => {
+  console.log("reached");
   try {
     const products = await Product.find({hidden: { $ne: true }/*, archived: { $ne: true },*/});
     if(!products || products.length === 0){
-      //return res.status(404).json({ message: "No products found" });
+      return res.status(404).json({ message: "No products found" });
     }
     res.status(200).json(products);
   } catch (error) {
@@ -356,6 +357,15 @@ exports.adminSellerEditProduct = async (req, res) => {
         filteredBody[field] = req.body[field];
       }
     });
+
+    // Check for uploaded files and update photo accordingly
+     if (req.files && req.files["photo"]) {
+      filteredBody.photo = req.body.photo; // Use the new photo ID from middleware
+      console.log("New photo uploaded:", filteredBody.photo); // Debugging line
+    } else {
+      filteredBody.photo = product.photo; // Retain existing photo
+      console.log("Retaining existing photo:", filteredBody.photo); // Debugging line
+    }
 
     // Update the product
     try {

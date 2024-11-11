@@ -72,6 +72,49 @@ exports.getAllItinerariesNH = async (req, res) => {
   }
 };
 
+
+exports.getAllHasBookings = async (req, res) => {
+  try {
+
+    const touristId = req.params.id;
+
+    const tourist = await Tourist.findById(touristId);
+
+    if(!tourist) {
+      return res.status(404).json({message: "Tourist not found"});
+    }
+    const currentDate = new Date();
+    const itineraryIds = tourist.itineraryBookings.map(booking => booking.itineraryId);
+    const itinerariesT = await Itinerary.find({_id: { $in: itineraryIds }, availableDateTime: { $elemMatch: { date: { $gt: currentDate } } },}).populate("guideId");    
+    const itineraries = await Itinerary.find({hidden: { $ne: true }, active: { $ne: false }, availableDateTime: { $elemMatch: { date: { $gt: currentDate } } },}).populate("guideId");
+    const combineditineraries = [...itineraries, ...itinerariesT];
+
+    const updatedItineraries = await Promise.all(
+      combineditineraries.map(async (itinerary) => {
+        const itineraryObj = itinerary.toObject(); // Convert to plain object
+
+        // Modify the timeline for each itinerary
+        for (const item of itineraryObj.timeline) {
+
+          if (item.type === "Activity") {
+            const activity = await Activity.findById(item.id);
+            item.id = activity; // Replace ObjectId with full document
+          } else if (item.type === "Venue") {
+            const venue = await Venue.findById(item.id);
+            item.id = venue; // Replace ObjectId with full document
+          }
+        }
+
+        return itineraryObj; // Return the modified itinerary object
+      })
+    );
+
+    res.status(200).json(updatedItineraries);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 exports.getItinerariesByIds = async (req, res) => {
   try {
     const { itineraryIds } = req.body;

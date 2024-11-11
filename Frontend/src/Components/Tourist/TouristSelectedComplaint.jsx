@@ -29,7 +29,7 @@ const ComplaintRepliesTimeline = ({ complaint }) => {
         mode={mode}
         items={
           complaint.replies?.map((reply) => ({
-            label: (reply.name === "Admin" ? "Admin:" : "You:") + "  " +  new Date(reply.date).toLocaleDateString(),
+            label: (reply.name === "Admin" ? "Admin:" : "You:") + "  " + new Date(reply.date).toLocaleDateString(),
             children: reply.text,
           })) || []
         }
@@ -96,6 +96,7 @@ const TouristSelectedComplaint = () => {
         name: touristUsername,
         
       });
+     
       setReply(""); // Clear the input field after sending
       message.success("Reply sent successfully!");
       fetchComplaintDetails();

@@ -42,6 +42,7 @@ const Item = ({
   availableDates,
   isFlagged,
   handleFlagClick,
+  currency,
 }) => {
   const [user, setUser] = useState(null);
   const [avgRating, setAvgRating] = useState(null);
@@ -49,6 +50,7 @@ const Item = ({
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    if (!token) return;
     const decodedToken = jwtDecode(token);
     setUser(decodedToken.userDetails);
   }, []);
@@ -94,6 +96,7 @@ const Item = ({
         availableDates={availableDates}
         isFlagged={isFlagged}
         handleFlagClick={handleFlagClick}
+        currency={currency}
       />
 
       {type == "venue" ? (

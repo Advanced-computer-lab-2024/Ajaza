@@ -121,6 +121,7 @@ const ManagePreferenceTags = () => {
           marginBottom: "24px",
           display: "flex",
           alignItems: "center",
+          justifyContent: "center",
         }}
       >
         {addingtag && (
@@ -154,9 +155,9 @@ const ManagePreferenceTags = () => {
 
       <div
         style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "16px",
+          display: "grid",
+          gridTemplateColumns: "22% 22% 22% 22%",
+          gridGap: "4%",
         }}
       >
         {categories.map((tag) => (

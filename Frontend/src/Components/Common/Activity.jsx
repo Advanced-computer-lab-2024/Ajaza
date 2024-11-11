@@ -57,10 +57,6 @@ const Activity = () => {
   };
 
   if (!activity) {
-    return <div>Loading activity...</div>;
-  }
-
-  if (!activity) {
     return <LoadingSpinner />;
   }
 
@@ -75,7 +71,7 @@ const Activity = () => {
       <SelectCurrency
         currency={currency}
         onCurrencyChange={handleCurrencyChange}
-        style={{ left: 400, top: 45 }}
+        style={{ left: -7, top: 45 }}
       />
 
       <Item
@@ -98,6 +94,7 @@ const Activity = () => {
         discounts={activity?.discounts}
         creatorName={advertiser?.username}
         type={"activity"}
+        currency={currency}
       />
     </>
   );

@@ -929,7 +929,7 @@ exports.getHistory = async (req, res) => {
       .populate("orders.products.productId");
 
     if (!tourist) {
-      throw new Error("Tourist not found");
+      return res.status(404).json({ message: "Tourist not found" });
     }
 
     const currentDate = new Date();
@@ -950,7 +950,7 @@ exports.getHistory = async (req, res) => {
     let guides = [];
     let guideNames = [];
     for (let i = 0; i < tourist.itineraryBookings.length; i++) {
-      if (tourist.itineraryBookings[i].date < currentDate) {
+      if (tourist.itineraryBookings[i].date < currentDate && tourist.itineraryBookings[i].itineraryId) {
         itineraries.push({
           itineraryId: tourist.itineraryBookings[i].itineraryId._id,
           name: tourist.itineraryBookings[i].itineraryId.name,
@@ -981,7 +981,8 @@ exports.getHistory = async (req, res) => {
           guides.push({
             guideId: tourist.itineraryBookings[i].itineraryId.guideId,
             name: guideName.username,
-            gaveFeedback: numberOfBookingsWithGuide < guideNumberOfTimesRated,
+            gaveFeedback: tourist.gaveFeedback.includes(tourist.itineraryBookings[i].itineraryId.guideId),
+            //gaveFeedback: numberOfBookingsWithGuide < guideNumberOfTimesRated,
           });
           guideNames.push(guideName.username);
         }
