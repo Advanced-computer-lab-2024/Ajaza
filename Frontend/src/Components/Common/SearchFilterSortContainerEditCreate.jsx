@@ -382,10 +382,38 @@ const SearchFilterSortContainerEditCreate = ({
 
   const editProduct = async (formValues) => {
     try {
+      const formData = new FormData();
+      
+      // Append all fields to FormData
+      Object.entries(formValues).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+  
+      // Check if a new photo is being uploaded
+      if (formValues.photo && formValues.photo.length > 0) {
+        const file = formValues.photo[0].originFileObj;
+  
+        // Validate the file type
+        const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!validImageTypes.includes(file.type)) {
+          message.error("You can only upload image files (JPEG, PNG, GIF, WEBP).");
+          return; // Exit the function if the file type is invalid
+        }
+  
+        // Append the valid photo to FormData
+        formData.append("photo", file);
+      }
+  
       const response = await axios.patch(
         `${apiUrl}product/${userId}/product/${editingProductId}/adminSellerEditProduct`,
-        formValues
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
+  
       setRefreshElements((prev) => !prev);
       message.success("Product updated successfully!");
       setIsModalVisible(false);
@@ -395,7 +423,6 @@ const SearchFilterSortContainerEditCreate = ({
       message.error("Failed to edit Product." + error?.response?.data?.error);
     }
   };
-
   const showArchiveModal = (product) => {
     Modal.confirm({
       title: "Are you sure you want to archive this product?",

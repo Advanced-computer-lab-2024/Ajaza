@@ -29,17 +29,10 @@ import MapView from "./MapView";
 import { convertDateToString, camelCaseToNormalText } from "./Constants";
 import Timeline from "./Timeline";
 import { Dropdown } from "antd";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./HeaderInfo.css";
 
 const { Option } = Select;
-
-const token = localStorage.getItem("token");
-let decodedToken = null;
-if (token) {
-  decodedToken = jwtDecode(token);
-}
-const userid = decodedToken ? decodedToken.userId : null;
 
 const contentStyle = {
   margin: 0,
@@ -101,6 +94,20 @@ const HeaderInfo = ({
   const [currencySymbol, setCurrencySymbol] = useState(
     currency == "EGP" ? "£" : currency == "EUR" ? "€" : "$"
   );
+  let token = null;
+  let decodedToken = null;
+  let userid = null;
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    token = localStorage.getItem("token");
+    decodedToken = null;
+    if (token) {
+      decodedToken = jwtDecode(token);
+    }
+    userid = decodedToken ? decodedToken.userId : null;
+  });
 
   useEffect(() => {
     console.log(currency);
@@ -125,11 +132,10 @@ const HeaderInfo = ({
             (booking) => booking.itineraryId === id
           );
         }
-
-        // console.log("isItemBooked:", isItemBooked);
-        // console.log("iten booked", user.itineraryBookings);
-        // console.log("user.activityBookings:", user.activityBookings);
-        // console.log("user:", user);
+        console.log("isItemBooked:", isItemBooked);
+        console.log("iten booked", user.itineraryBookings);
+        console.log("user.activityBookings:", user.activityBookings);
+        console.log("user:", user);
 
         setIsBooked(isItemBooked);
       }
@@ -268,6 +274,7 @@ const HeaderInfo = ({
         // console.log("Updated token:", newToken);
         decodedToken = jwtDecode(newToken);
         // console.log(newToken);
+        console.log("new token fetched successfully");
       }
     } catch (error) {
       console.error("Error getting new token:", error);
@@ -291,7 +298,8 @@ const HeaderInfo = ({
     try {
       const touristId = userid;
       console.log("here1234", touristId);
-      const useWallet = user.wallet > 0;
+      // const useWallet = user.wallet > 0;
+      const useWallet = true;
       let total;
       let FinalDate;
       if (type === "activity") {
@@ -342,6 +350,24 @@ const HeaderInfo = ({
   };
 
   const showBookingModal = () => {
+    const temp = localStorage.getItem("token");
+    if (!temp) {
+      message.warning(
+        <div>
+          <a
+            style={{
+              textDecoration: "underline",
+              color: Colors.primary.default,
+            }}
+            onClick={() => navigate("/auth/signin")}
+          >
+            Sign In
+          </a>{" "}
+          in to book
+        </div>
+      );
+      return;
+    }
     let currentSelectedDate;
     let currentprice;
 
@@ -383,19 +409,28 @@ const HeaderInfo = ({
               }}
               style={{ width: "100%", marginBottom: 10 }}
             >
-              <Option value={discountedPriceLower}>
-                {currencySymbol}
+              <Option
+                value={discountedPriceLower}
+                style={{ color: "#cd7f32", fontWeight: "bold" }}
+              >
+                Bronze Tier: {currencySymbol}
                 {discountedPriceLower.toFixed(2)}
               </Option>
               {priceUpper !== priceLower && (
-                <Option value={discountedMiddlePrice}>
-                  {currencySymbol}
+                <Option
+                  value={discountedMiddlePrice}
+                  style={{ color: "#c0c0c0", fontWeight: "bold" }}
+                >
+                  Silver Tier: {currencySymbol}
                   {discountedMiddlePrice.toFixed(2)}
                 </Option>
               )}
               {priceUpper !== priceLower && (
-                <Option value={discountedPriceUpper}>
-                  {currencySymbol}
+                <Option
+                  value={discountedPriceUpper}
+                  style={{ color: "#ffd700", fontWeight: "bold" }}
+                >
+                  Gold Tier: {currencySymbol}
                   {discountedPriceUpper.toFixed(2)}
                 </Option>
               )}

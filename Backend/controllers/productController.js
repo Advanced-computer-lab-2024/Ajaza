@@ -358,6 +358,15 @@ exports.adminSellerEditProduct = async (req, res) => {
       }
     });
 
+    // Check for uploaded files and update photo accordingly
+     if (req.files && req.files["photo"]) {
+      filteredBody.photo = req.body.photo; // Use the new photo ID from middleware
+      console.log("New photo uploaded:", filteredBody.photo); // Debugging line
+    } else {
+      filteredBody.photo = product.photo; // Retain existing photo
+      console.log("Retaining existing photo:", filteredBody.photo); // Debugging line
+    }
+
     // Update the product
     try {
       const updatedProduct = await Product.findByIdAndUpdate(

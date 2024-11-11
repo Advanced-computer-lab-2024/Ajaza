@@ -17,6 +17,8 @@ import MyProducts from "./MyProducts";
 import ArchivedProds from "./ArchivedProds";
 //import Products from "../Tourist/Products";
 import Products from "./ProductsEvenArch";
+import Product from "../Common/Product";
+
 import ExamineAccounts from "./ExamineAccounts";
 import ChangePasswordForm from "../Common/changePassword";
 import SignIn from "../Sign/SignIn";
@@ -38,7 +40,7 @@ const Admin = () => {
     const token = localStorage.getItem("token");
 
     console.log("Token:", token);
-    // console.log("decodedToken:", jwtDecode(token));
+    console.log("decodedToken:", jwtDecode(token));
 
     if (token) {
       try {
@@ -90,6 +92,8 @@ const Admin = () => {
 
             <Route path="profile" element={<Profile />} />
             <Route path="products" element={<Products />} />
+            <Route path="products/:id" element={<Product />} />
+
             <Route path="archive" element={<ArchivedProds />} />
             <Route path="change-password" element={<ChangePasswordForm />} />
             <Route path="auth/signin" element={<SignIn />} />
