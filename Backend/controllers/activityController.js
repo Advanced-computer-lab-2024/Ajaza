@@ -59,7 +59,9 @@ exports.getAllHasBookings = async (req, res) => {
     const activityIds = tourist.activityBookings.map(booking => booking.activityId);
     const activitiesT = await Activity.find({
       _id: { $in: activityIds },
-      date: { $gt: currentDate }
+      isOpen: { $ne: true },
+      date: { $gt: currentDate },
+      hidden: { $ne: true }
     }).populate("advertiserId");    
     const activities = await Activity.find({hidden: { $ne: true }, isOpen: { $ne: false }, date: { $gt: currentDate }}).populate("advertiserId");
     const combinedActivities = [...activities, ...activitiesT];
