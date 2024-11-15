@@ -103,6 +103,14 @@ const CreateSeller = () => {
           formData.document2[0].originFileObj
         );
       }
+
+      // Display the success message
+      message.success("Seller created successfully!");
+
+
+      // Delay before navigate since the reload done by axios request is faster than the message display
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // 1-second delay
+
       navigate("/auth/signin");
 
       const response = await axios.post(
