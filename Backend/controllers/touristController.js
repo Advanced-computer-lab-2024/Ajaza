@@ -1605,6 +1605,9 @@ exports.addProductToCart = async (req,res) => {
       return res.status(404).json({message: "Tourist not Found"});
     }
 
+    tourist.cart = refreshCart(touristId);
+    await tourist.save();
+
     tourist.cart.push({productId, quantity:1});
     await tourist.save();
     return res.status(200).json({message: "Product added to cart successfully"});
@@ -1628,6 +1631,9 @@ exports.changeQuantityInCart = async(req,res) => {
       return res.status(404).json({message: "Tourist not Found"});
     }
 
+    tourist.cart = refreshCart(touristId);
+    await tourist.save();
+
     const result = await Tourist.findOneAndUpdate(
       { _id: touristId, "cart.productId": productId }, 
       { $set: { "cart.$[elem].quantity": quantity } }, 
@@ -1638,7 +1644,7 @@ exports.changeQuantityInCart = async(req,res) => {
     );
 
     if (!result) {
-      return res.status(404).json({message: "Error has occurred"});
+      return res.status(404).json({message: "Error has occurred, Cart refreshed"});
     }
 
     return res.status(200).json({message: "Quantity updated successfully"});
@@ -1646,13 +1652,89 @@ exports.changeQuantityInCart = async(req,res) => {
     return res.status(500).json({message: "Internal error"});
   }
 }
-//TODOAA function that refreshes cart to check if product still exists/unarchived
+
+//helper
+async function refreshCart(touristId) {
+  try {
+    const tourist = await Tourist.aggregate([
+      { $match: { _id: mongoose.Types.ObjectId(touristId) } },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'cart.productId', //join on the productId field in the cart
+          foreignField: '_id', //join
+          as: 'productDetails',
+        },
+      },
+      {
+        $project: {
+          cart: {
+            $map: {
+              input: '$cart',
+              as: 'item',
+              in: {
+                $mergeObjects: [
+                  '$$item',
+                  {
+                    $arrayElemAt: [
+                      {
+                        $filter: {
+                          input: '$productDetails',
+                          as: 'product',
+                          cond: {
+                            $and: [
+                              { $eq: ['$$product._id', '$$item.productId'] },
+                              { $gt: ['$$product.quantity', 0] },
+                              { $eq: ['$$product.hidden', false] },
+                              { $eq: ['$$product.archived', false] },
+                            ],
+                          },
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          cart: {
+            $filter: {
+              input: '$cart', 
+              as: 'item',
+              cond: { $ne: ['$$item.productId', null] }, 
+            },
+          },
+        },
+      },
+    ]);
+
+    if (!tourist || tourist.length === 0) {
+      return { message: 'Tourist not found.' };
+    }
+
+    return tourist[0].cart;
+  } catch (error) {
+    console.error(error);
+    return { error: 'An error occurred while filtering the cart.' };
+  }
+}
 
 exports.removeFromCart = async(req,res) => {
   try {
 
     const touristId = req.params.id;
     const productId = req.body.productId
+
+    const tourist = await Tourist.findById(touristId);
+
+    if(!tourist) {
+      return res.status(404).json({message: "Tourist not found"});
+    }
 
     const result = await Tourist.findByIdAndUpdate(
       touristId,
@@ -1663,6 +1745,10 @@ exports.removeFromCart = async(req,res) => {
     if (!result) {
       return res.status(404).json({message: "Tourist not found"});
     }
+
+    await tourist.save();
+    tourist.cart = refreshCart(touristId);
+    await tourist.save();
 
     return res.status(200).json({message: "Product removed from cart successfully"});
   } catch(error) {
@@ -1784,6 +1870,86 @@ async function reminders(touristId) {
     return res.status(200).json({message: "Reminders sent successfully"});
 
   } catch(error) {
+    return res.status(500).json({message: "Internal error"});
+  }
+}
+
+exports.checkout = async(req,res) => {
+  try {
+    const touristId = req.params.id;
+    const { useWallet, cod } = req.body;
+
+    const tourist = await Tourist.findOne({ _id: touristId }).populate('cart.productId');
+
+    tourist.cart = refreshCart(touristId);
+    await tourist.save();
+
+    if(!tourist || tourist.cart.length <= 0) {
+      return res.status(400).json({message: "Cart refreshed, cart is now empty: cannot place order"});
+    }
+
+    const validCartItems = [];
+    const invalidCartItems = [];
+    
+    for (const item of tourist.cart) {
+      const product = item.productId;
+
+      if (product.quantity >= item.quantity) {
+        validCartItems.push(item);
+      } else {
+        invalidCartItems.push({
+          productId: product._id,
+          availableQuantity: product.quantity,
+          requestedQuantity: item.quantity,
+        });
+      }
+    }
+
+    if (invalidCartItems.length > 0) {
+      return res.status(400).json({message: "Invalid quantities", invalidCartItems});
+    }
+
+    const total = validCartItems.reduce((acc, item) => {
+      const productPrice = item.productId.price;
+      return acc + productPrice * item.quantity;
+    }, 0);
+
+    if(useWallet === true) {
+      if(tourist.wallet > total) {
+        tourist.wallet -= total;
+      } else {
+        return res.status(400).json({message: "Insufficient funds"});
+      }
+    } else {
+      console.log("handling swipe payment"); //TODO
+    }
+
+    const order = {
+      products: validCartItems.map(item => ({
+        productId: item.productId._id,
+        quantity: item.quantity,
+      })),
+      date: new Date(),
+      cod: cod,
+      total,
+      status: "Processing",
+    };
+
+    tourist.orders.push(order);
+
+    for (const item of validCartItems) {
+      const product = item.productId;
+      product.quantity -= item.quantity;
+      await product.save();
+    }
+
+    tourist.cart = [];
+
+    await tourist.save();
+
+    return { message: "Order created successfully!", order };
+  } catch (error) {
+    console.error(error);
     return res.status(500).json({message: "Internal error"});
   }
 }

@@ -286,4 +286,7 @@ router.post("/cart/changeQuantity/:id", touristController.changeQuantityInCart);
 //req95
 router.post("/cart/remove/:id", touristController.removeFromCart);
 
+//req 97 big boss
+router.post("/cart/checkout/:id", touristController.checkout);
+
 module.exports = router;
