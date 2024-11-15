@@ -1453,3 +1453,337 @@ exports.getSavedEvents = async (req, res) => {
       .json({ message: "An error occurred while retrieving the saved events" });
   }
 }
+
+exports.saveEvent = async (req,res) => {
+  try {
+
+    const touristId = req.params.id;
+    const { activityId, itineraryId } = req.body;
+
+    const tourist = await Tourist.findById(touristId);
+
+    if(!tourist) {
+      return res.status(404).json({error: "Tourist not Found"});
+    }
+
+    if(activityId && !tourist.activityBookmarks.includes(activityId)) {
+      tourist.activityBookmarks.push(activityId);
+      await tourist.save();
+      return res.status(200).json({message: "Activity Bookmarked successfully"});
+    }
+
+    if(itineraryId && !tourist.itineraryBookmarks.includes(itineraryId)) {
+      tourist.itineraryBookmarks.push(itineraryId);
+      await tourist.save();
+      return res.status(200).json({message: "Itinerary Bookmarked successfully"});
+    }
+    
+    return res.status(500).json({error: "Missing params"});
+
+  } catch(error) {
+    return res.status(500).json({error: "Internal error"});
+  }
+}
+
+exports.getOrders = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+
+    const tourist = await Tourist.findById(touristId)
+      .populate({
+        path: 'orders.products.productId'
+      });
+
+    if(!tourist) {
+      return res.status(404).json({error: "Tourist not Found"});
+    }
+
+    return res.status(200).json(tourist.orders);
+  } catch (error) {
+    return res.status(500).json({error: "Internal error"});
+  }
+}
+
+exports.getOrder = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+
+    const tourist = await Tourist.findById(touristId)
+      .populate({
+        path: 'orders.products.productId'
+      });
+    
+    if(!tourist) {
+      return res.status(404).json({error: "Tourist not Found"});
+    }
+
+    const orderId = req.body.orderId;
+
+    const order = tourist.orders.id(orderId);
+
+    if (!order) {
+      res.status(404).json({message: "Order not Found"});
+    }
+
+    return res.status(200).json(order);
+  } catch (error) {
+    res.status(500).json({error: "Internal error"});
+  }
+}
+
+exports.cancelOrder = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const orderId = req.body.orderId;
+
+    const order = tourist.orders.id(orderId);
+
+    if (!order) {
+      return res.status(404).json({message: "Order not Found"});
+    }
+
+    const tourist = await Tourist.findById(touristId);
+
+    if(!tourist) {
+      return res.status(404).json({message: "Tourist not Found"});
+    }
+
+    for (const item of order.products) {
+      const product = await Product.findById(item.productId);
+
+      if (product) {
+        product.quantity += item.quantity;
+        await product.save();
+      }
+    }
+
+    order.status = "Cancelled";
+    tourist.wallet += order.total;
+    await tourist.save();
+    return res.status(200).json({message: "Order cancelled successfully"});
+  } catch (error) {
+    res.status(500).json({message: "Internal error"});
+  }
+}
+
+exports.addDeliveryAddress = async(req, res) => {
+  try {
+    const touristId = req.params.id;
+    const { country, city, area, street, house, app, desc } = req.body;
+
+    if(!country || !city || !area || !street || !house || !app || !desc) {
+      return res.status(400).json({message: "Missing params"});
+    }
+    const address = { country, city, area, street, house, app, desc };
+
+    const tourist = await Tourist.findById(touristId);
+
+    if(!tourist) {
+      return res.status(404).json({message: "Tourist not Found"});
+    }
+
+    tourist.deliveryAddresses.push(address);
+    await tourist.save();
+    return res.status(200).json({message: "Address added successfully"});
+  } catch (error) {
+    res.status(500).json({message: "Internal error"});
+  }
+}
+
+exports.addProductToCart = async (req,res) => {
+  try {
+    const touristId = req.params.id;
+    const productId = req.body.productId;
+
+    if(!productId) {
+      return res.status(404).json({message: "Product not Found"});
+    }
+
+    const tourist = await Tourist.findById(touristId);
+
+    if(!tourist) {
+      return res.status(404).json({message: "Tourist not Found"});
+    }
+
+    tourist.cart.push({productId, quantity:1});
+    await tourist.save();
+    return res.status(200).json({message: "Product added to cart successfully"});
+  } catch(error) {
+    return res.status(500).json({message: "Internal error"});
+  }
+}
+
+exports.changeQuantityInCart = async(req,res) => {
+  try {
+    const touristId = req.params.id;
+    const { productId, quantity } = req.body;
+
+    if(!productId || !quantity) {
+      return res.status(400).json({message: "Missing params"});
+    }
+
+    const tourist = await Tourist.findById(touristId);
+
+    if(!tourist) {
+      return res.status(404).json({message: "Tourist not Found"});
+    }
+
+    const result = await Tourist.findOneAndUpdate(
+      { _id: touristId, "cart.productId": productId }, 
+      { $set: { "cart.$[elem].quantity": quantity } }, 
+      {
+        arrayFilters: [{ "elem.productId": productId }],
+        new: true,
+      }
+    );
+
+    if (!result) {
+      return res.status(404).json({message: "Error has occurred"});
+    }
+
+    return res.status(200).json({message: "Quantity updated successfully"});
+  } catch (error) {
+    return res.status(500).json({message: "Internal error"});
+  }
+}
+//TODOAA function that refreshes cart to check if product still exists/unarchived
+
+exports.removeFromCart = async(req,res) => {
+  try {
+
+    const touristId = req.params.id;
+    const productId = req.body.productId
+
+    const result = await Tourist.findByIdAndUpdate(
+      touristId,
+      { $pull: { cart: { productId } } },
+      { new: true }
+    );
+
+    if (!result) {
+      return res.status(404).json({message: "Tourist not found"});
+    }
+
+    return res.status(200).json({message: "Product removed from cart successfully"});
+  } catch(error) {
+    return res.status(500).json({message: "Internal error"});
+  }
+}
+
+exports.allReminders = async () => {
+  try {
+
+    const tourists = await Tourist.find();
+
+    for(let i = 0; i < tourists.length;i++) {
+      reminders(tourists[i]._id);
+    }
+
+    return res.status(200).json({message: "Reminders for all tourists sent successfully"});
+
+  } catch(error) {
+    return res.status(500).json({message: "Internal error"});
+  }
+}
+
+async function reminders(touristId) {
+  try {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const startOfDay = new Date(tomorrow.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(tomorrow.setHours(23, 59, 59, 999));
+
+    const tourist = await Tourist.findById(touristId)
+      .populate({
+        path: "activityBookings.activityId",
+        select: "date name", 
+      })
+      .populate({
+        path: "itineraryBookings.itineraryId",
+        select: "name", 
+      });
+
+    if (!tourist) {
+      return res.status(404).json({message: "Tourist not found"});
+    }
+
+    const activityEvents = tourist.activityBookings.filter(booking => {
+      const activityDate = booking.activityId?.date;
+      return activityDate >= startOfDay && activityDate <= endOfDay;
+    });
+
+    const itineraryEvents = tourist.itineraryBookings.filter(booking => {
+      return booking.date >= startOfDay && booking.date <= endOfDay;
+    });
+
+    for(let i = 0; i< activityEvents.length; i++) {
+      tourist.notifications.push({text: (activityEvents[i].activityId?.name  + "reminder: You have a booking tomorrow!"), seen: false, activityId: activityEvents[i].activityId?._id})
+      const transporter = nodemailer.createTransport({
+        service: "Gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.NODE_MAILER_USER,
+          pass: process.env.NODE_MAILER_PASS,
+        },
+      });
+
+      const mailOptions = {
+        from: "reservy.me@gmail.com",
+        to: tourist.email,
+        subject: "Reminder",
+        html:
+          "<h2>" +
+          (activityEvents[i].activityId?.name  + "reminder: You have a booking tomorrow!") +
+          "</h2>",
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error("Error sending email: ", error);
+        } else {
+          console.log("Email sent: ", info.response);
+        }
+      });
+    }
+
+    for(let i = 0; i< itineraryEvents.length; i++) {
+      tourist.notifications.push({text: (itineraryEvents[i].itineraryId?.name  + "reminder: You have a booking tomorrow!"), seen: false, itineraryId: itineraryEvents[i].itineraryId?._id})
+      const transporter = nodemailer.createTransport({
+        service: "Gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.NODE_MAILER_USER,
+          pass: process.env.NODE_MAILER_PASS,
+        },
+      });
+
+      const mailOptions = {
+        from: "reservy.me@gmail.com",
+        to: tourist.email,
+        subject: "Reminder!",
+        html:
+          "<h2>" +
+          (itineraryEvents[i].itineraryId?.name  + "reminder: You have a booking tomorrow!") +
+          "</h2>",
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error("Error sending email: ", error);
+        } else {
+          console.log("Email sent: ", info.response);
+        }
+      });
+    }
+
+    await tourist.save();
+    return res.status(200).json({message: "Reminders sent successfully"});
+
+  } catch(error) {
+    return res.status(500).json({message: "Internal error"});
+  }
+}

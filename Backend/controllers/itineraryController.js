@@ -445,11 +445,30 @@ exports.updateItineraryFilteredFields = async (req, res) => {
 
     const updatedItinerary = await itinerary.save();
 
+    if (active === true) notifyInterestedTourists(itiniraryId, itinerary.name); //added by AA
+
     res.status(200).json(updatedItinerary);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+async function notifyInterestedTourists(itineraryId, name) {
+  try {
+
+    const tourists = await Tourist.find({
+      itineraryBookmarks: itineraryId,
+    })
+
+    for(let i = 0; i< tourists.length;i++) {
+      tourists[i].notifications.push({text: (name + " is now open for booking"), seen: false, itineraryId: itineraryId});
+      await tourists[i].save();
+    }
+
+  } catch(error) {
+    console.log(error);
+  }
+}
 
 exports.deleteSpecificItinerary = async (req, res) => {
   try {

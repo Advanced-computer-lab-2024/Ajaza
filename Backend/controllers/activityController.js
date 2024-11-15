@@ -452,11 +452,30 @@ exports.updateActivityFilteredFields = async (req, res) => {
 
     const updatedActivity = await activity.save();
 
+    if (isOpen === true)  notifyInterestedTourists(activityId, activity.name); //added by AA
+
     res.status(200).json(updatedActivity);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+async function notifyInterestedTourists(activityId, name) {
+  try {
+
+    const tourists = await Tourist.find({
+      activityBookmarks: activityId,
+    })
+
+    for(let i = 0; i< tourists.length;i++) {
+      tourists[i].notifications.push({text: (name + " is now open for booking"), seen: false, activityId: activityId});
+      await tourists[i].save();
+    }
+
+  } catch(error) {
+    console.log(error);
+  }
+}
 
 //req 44
 exports.getUpcomingActivities = async (req, res) => {

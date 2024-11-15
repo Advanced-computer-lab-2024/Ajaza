@@ -264,4 +264,26 @@ router.get("/3rdparty/:id", apiController.getAll3rdPartyData);
 // req66
 router.get("/getSavedEvents/:id", touristController.getSavedEvents);
 
+// req65
+router.post("/saveEvent/:id", touristController.saveEvent);
+
+// req104 OR 101 either both is first function or 101 is first and 104 second
+router.get("/orders/:id", touristController.getOrders);
+router.get("/orders/order/:id", touristController.getOrder);
+
+// req105
+router.post("/orders/cancel/:id", touristController.cancelOrder);
+
+// req98
+router.post("/address/:id", touristController.addDeliveryAddress);
+
+// req94
+router.post("/cart/:id", touristController.addProductToCart);
+
+// req96
+router.post("/cart/changeQuantity/:id", touristController.changeQuantityInCart);
+
+//req95
+router.post("/cart/remove/:id", touristController.removeFromCart);
+
 module.exports = router;
