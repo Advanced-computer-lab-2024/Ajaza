@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Row, Col } from "antd";
+import { Row, Col, Typography } from "antd";
 import { jwtDecode } from "jwt-decode";
-import CustomLayout from "./CustomLayout";
 import "./Notifications.css";
+
+const { Title } = Typography;
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -17,22 +18,32 @@ const Notifications = () => {
     }
   }, []);
 
-    return (
-      <CustomLayout>
+  return (
     <div className="notification-container">
+      <div className="notification-header">
+        <Title level={2}>Notifications</Title>
+        <p>Keep track of all your updates and messages here.</p>
+      </div>
       <Row className="notification-row">
-        {notifications.map((notification) => (
-          <Col key={notification._id} span={24} className="notification-item">
-            <div
-              className={`notification-message ${notification.seen ? 'seen' : 'unseen'}`}
-            >
-              {notification.text}
-            </div>
-          </Col>
-        ))}
+        {notifications.length > 0 ? (
+          notifications.map((notification) => (
+            <Col key={notification._id} span={24} className="notification-item">
+              <div
+                className={`notification-message ${
+                  notification.seen ? "seen" : "unseen"
+                }`}
+              >
+                {notification.text}
+              </div>
+            </Col>
+          ))
+        ) : (
+          <div className="no-notifications">
+            <p>No notifications available at the moment.</p>
+          </div>
+        )}
       </Row>
     </div>
-    </CustomLayout>
   );
 };
 

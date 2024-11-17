@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Icon, {
   BellFilled,
   MenuFoldOutlined,
@@ -45,6 +45,8 @@ const CustomLayout = ({
   );
   const [collapsed, setCollapsed] = useState(true);
   const [hover, setHover] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const notificationsRef = useRef([]);
   const navigate = useNavigate();
   const guestNavBarItems = (
     <div style={{ marginLeft: "auto" }}>
@@ -65,11 +67,14 @@ const CustomLayout = ({
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       const decodedToken = jwtDecode(token);
       setUser(decodedToken.userDetails);
+      setNotifications(decodedToken.userDetails.notifications || []);
+      notificationsRef.current = decodedToken.userDetails.notifications || [];
       setNavBarItems(
         <Flex justify="center" style={{ width: "100%", position: "relative" }}>
           <div id="logo" style={{ position: "relative", right: 40, bottom: 3 }}>
@@ -93,10 +98,10 @@ const CustomLayout = ({
           >
             <IconFloatButton
               icon={BellFilled}
-              badge={{ count: 5 }}
-              onClick={() => navigate("/notifications")} 
+              badge={{ count: notificationsRef.current.length }}
+              onClick={() => navigate(`/${decodedToken.role}/notifications`)}
             />
-            
+
             {decodedToken.role !== "governor" &&
               decodedToken.role !== "admin" && (
                 <UserOutlined

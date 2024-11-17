@@ -4,6 +4,7 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import Venues from "../Venues";
 import { CalendarOutlined, ContainerOutlined } from "@ant-design/icons";
 import Profile from "../Common/Profile";
+import Notifications from "../Common/Notifications";
 import ChangePasswordForm from "../Common/changePassword";
 import SignIn from "../Sign/SignIn";
 import { jwtDecode } from "jwt-decode";
@@ -61,6 +62,7 @@ const TourismGovernor = () => {
       <Routes>
         <Route path="/" element={<Venues />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="notifications" element={<Notifications />} />
         <Route path="change-password" element={<ChangePasswordForm />} />
         <Route path="auth/signin" element={<SignIn />} />
       </Routes>

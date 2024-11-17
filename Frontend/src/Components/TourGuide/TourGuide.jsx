@@ -5,6 +5,7 @@ import Itineraries from "../Itineraries";
 import { CalendarOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 import Profile from "../Common/Profile";
+import Notifications from "../Common/Notifications";
 import Image from "../Common/Image";
 import ChangePasswordForm from "../Common/changePassword";  
 import SignIn from "../Sign/SignIn";
@@ -56,6 +57,7 @@ const TourGuide = () => {
       <Routes>
         <Route path="/" element={<Itineraries />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="notifications" element={<Notifications />} />
         <Route path="change-password"  element={<ChangePasswordForm />}  />
         <Route path="image" element={<Image />} />
         <Route path="auth/signin" element={<SignIn />} />

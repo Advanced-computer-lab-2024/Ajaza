@@ -6,6 +6,7 @@ import { CalendarOutlined, ContainerOutlined, FileOutlined } from "@ant-design/i
 import { jwtDecode } from "jwt-decode";
 import SearchFilterSortContainerEditCreate from "../Common/SearchFilterSortContainerEditCreate";
 import Profile from "../Common/Profile";
+import Notifications from "../Common/Notifications";
 import Image from "../Common/Image";
 import Products from "../Tourist/Products";
 import MyProducts from "../Admin/MyProducts";
@@ -81,6 +82,7 @@ const Seller = () => {
         <Route path="archive" element={<ArchivedProds />} />
         <Route path="report" element={<Report />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="notifications" element={<Notifications />} />
         <Route path="change-password" element={<ChangePasswordForm />} />
         <Route path="image" element={<Image />} />
         <Route path="auth/signin" element={<SignIn />} />
