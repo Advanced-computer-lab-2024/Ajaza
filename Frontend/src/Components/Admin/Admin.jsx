@@ -13,6 +13,7 @@ import ManagePreferenceTags from "./managePreferenceTags";
 import AllAccounts from "./AllAccounts"; // Create a new AllAccounts component
 import AddAccounts from "./addAccounts";
 import Profile from "../Common/Profile";
+import Notifications from "../Common/Notifications";
 import MyProducts from "./MyProducts";
 import ArchivedProds from "./ArchivedProds";
 //import Products from "../Tourist/Products";
@@ -91,6 +92,7 @@ const Admin = () => {
             <Route path="myProducts" element={<MyProducts />} />
 
             <Route path="profile" element={<Profile />} />
+            <Route path="notifications" element={<Notifications />} />
             <Route path="products" element={<Products />} />
             <Route path="products/:id" element={<Product />} />
 

@@ -16,6 +16,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import SearchFilterSortContainer from "../Common/SearchFilterSortContainer";
 import Profile from "../Common/Profile";
+import Notifications from "../Common/Notifications";
 import Plans from "./Plans";
 import Venues from "./Venues";
 import Products from "./Products";
@@ -198,6 +199,7 @@ const Tourist = () => {
       <Routes>
         <Route path="/" element={<Plans />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="notifications" element={<Notifications />} />
         <Route path="change-password" element={<ChangePasswordForm />} />
         <Route path="itineraries" element={<Itineraries />} />
         <Route path="itineraries/:id" element={<Itinerary />} />
