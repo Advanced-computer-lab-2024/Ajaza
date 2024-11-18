@@ -90,7 +90,7 @@ departureDate,
 count
 */
 
-router.post('/flights/bookFlight/:id', apiController.bookFlight);
+router.post("/flights/bookFlight/:id", apiController.bookFlight);
 /*needs (all these fields are returned from search earlier)
 touristId, (params)
 departureAirport,
@@ -109,7 +109,7 @@ stops,
 */
 
 // req41
-router.post('/hotels/searchHotels', apiController.searchHotels);
+router.post("/hotels/searchHotels", apiController.searchHotels);
 /*
 needs
 dest_id, 
@@ -118,9 +118,9 @@ checkOutDate,
 count
 */
 
-router.get('/hotels/fetchImagesPlz/:hotelName', apiController.fetchImagesPlz);
+router.get("/hotels/fetchImagesPlz/:hotelName", apiController.fetchImagesPlz);
 
-router.post('/hotels/bookHotel/:id', apiController.bookHotel);
+router.post("/hotels/bookHotel/:id", apiController.bookHotel);
 /*needs
 touristId, (params)
 hotelName,
@@ -133,7 +133,7 @@ score,
 */
 
 //helper for req41 to get details
-router.get('/hotels/getDetails', apiController.getHotelDetails);
+router.get("/hotels/getDetails", apiController.getHotelDetails);
 /*needs (all these fields were returned from searchHotels)
 hotelName, 
 checkin, 
@@ -146,14 +146,20 @@ score
 */
 
 // req42
-router.post('/transportation/searchTransportation', apiController.searchTransfer7);
+router.post(
+  "/transportation/searchTransportation",
+  apiController.searchTransfer7
+);
 /*needs
 IATA,
 endAddressLine,
 startDateTime
 */
 
-router.post('/transportation/bookTransportation/:id', apiController.bookTransfer);
+router.post(
+  "/transportation/bookTransportation/:id",
+  apiController.bookTransfer
+);
 /*needs
 touristId (params),
 transferType, 
@@ -170,7 +176,7 @@ quotation_currencyCode,
 distance_value, 
 distance_unit
 */
-router.get('/transportation/getGeoLocation', apiController.testGeoLocation);
+router.get("/transportation/getGeoLocation", apiController.testGeoLocation);
 
 // req61
 router.delete(
@@ -222,6 +228,7 @@ router.get(
 
 //req52-57
 router.get("/history/getHistory/:id", touristController.getHistory);
+router.get("/history/getHistoryFull/:id", touristController.getHistoryFull);
 
 //req63
 router.get(
