@@ -97,6 +97,7 @@ const HeaderInfo = ({
   const [token, setToken] = useState(null);
   const [decodedToken, setDecodedToken] = useState(null);
   const [userid, setUserid] = useState(null);
+  const [past, setPast] = useState(false);
 
   const navigate = useNavigate();
 
@@ -109,6 +110,35 @@ const HeaderInfo = ({
       setUserid(decTemp?.userId);
     }
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    const dateNow = new Date().getTime();
+    user?.itineraryBookings.forEach((booking) => {
+      if (booking.itineraryId == id) {
+        // Booked
+        console.log(Date(booking.date));
+        const bookDate = new Date(booking.date);
+        if (bookDate.getTime() < dateNow) {
+          setPast(true);
+        }
+      }
+    });
+
+    user?.activityBookings.forEach((booking) => {
+      if (booking.activityId == id) {
+        // Booked
+        const bookDate = new Date(date);
+        if (bookDate.getTime() < dateNow) {
+          setPast(true);
+        }
+      }
+    });
+  }, [user, id, date]);
+
+  useEffect(() => {
+    console.log(past);
+  }, [past]);
 
   useEffect(() => {
     console.log(currency);
@@ -757,12 +787,12 @@ const HeaderInfo = ({
         ) : null}
 
         <Col span={24 - colSpan} style={{ padding: "0 20px" }}>
-          <Flex justify="space-between" align="center">
+          <Flex justify={past ? "end" : "space-between"} align="center">
             <div>
               <Rate value={avgRating} allowHalf disabled />
             </div>
             <Flex>
-              {isSaved ? (
+              {past ? null : isSaved ? (
                 <HeartFilled
                   style={{
                     fontSize: "20px",
@@ -792,17 +822,21 @@ const HeaderInfo = ({
                 }}
                 trigger={["click"]}
               >
-                <ShareAltOutlined
-                  style={{
-                    fontSize: "20px",
-                    marginLeft: "20px",
-                    marginRight: "20px",
-                    cursor: "pointer",
-                  }}
-                />
+                {past ? (
+                  <></>
+                ) : (
+                  <ShareAltOutlined
+                    style={{
+                      fontSize: "20px",
+                      marginLeft: "20px",
+                      marginRight: "20px",
+                      cursor: "pointer",
+                    }}
+                  />
+                )}
               </Dropdown>
-              {(type == "activity" || type == "itinerary") &&
-              decodedToken?.role == "admin" ? (
+              {past ? null : (type == "activity" || type == "itinerary") &&
+                decodedToken?.role == "admin" ? (
                 isFlagged ? (
                   <Button
                     style={{ height: "40px" }}
