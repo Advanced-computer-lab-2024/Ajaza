@@ -9,6 +9,7 @@ import { Colors } from "../Common/Constants";
 import CustomButton from "../Common/CustomButton";
 import { apiUrl } from "../Common/Constants";
 import { jwtDecode } from "jwt-decode";
+import LoadingSpinner from "../Common/LoadingSpinner";
 
 const SignIn = () => {
   const [response, setResponse] = useState(null);
@@ -16,20 +17,36 @@ const SignIn = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [clientReady, setClientReady] = useState(false);
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false);
 
   useEffect(() => {
     setClientReady(true);
   }, []);
 
-  const info = (e) => {
+  const info = async (e) => {
     e.preventDefault();
+    setForgotPasswordLoading(true);
     const username = form.getFieldValue("username");
 
     if (username && username.trim()) {
-      message.info("Check your email or OTP sent!");
+      try {
+        await axios.post(`${apiUrl}api/auth/forgot-password/`, { username });
+        message.info("Check your email or OTP sent!");
+        localStorage.setItem("forgetUsername", username);
+        navigate("forgot-password");
+      } catch (error) {
+        setForgotPasswordLoading(false);
+        if (error?.response?.data?.message) {
+          message.error(error?.response?.data?.message);
+        } else {
+          message.error("Error sending your OTP");
+        }
+        console.error(error?.response?.data?.message);
+      }
     } else {
       message.error("Please enter your username first!");
     }
+    setForgotPasswordLoading(false);
   };
 
   const onFinish = (values) => {
@@ -159,7 +176,7 @@ const SignIn = () => {
           style={{
             width: 450,
             padding: "20px", // Padding inside the box
-            backgroundColor: "rgba(255, 255, 255, 0.55)", // Slight transparency
+            backgroundColor: "rgba(255, 255, 255, 0.75)", // Slight transparency
             textAlign: "left",
             marginLeft: "550px",
             marginTop: "100px",
@@ -193,16 +210,30 @@ const SignIn = () => {
               <Input.Password placeholder="Password" />
             </Form.Item>
 
-            <Form.Item>
-              <Typography.Link
-                href="/forgot-password"
-                onClick={info}
-                style={{ color: Colors.primary.default }}
-              >
-                Forgot password?
-              </Typography.Link>
-            </Form.Item>
-
+            {!forgotPasswordLoading ? (
+              <Form.Item style={{ marginBottom: "0px" }}>
+                <Typography.Link
+                  href="/forgot-password"
+                  onClick={info}
+                  style={{
+                    color: Colors.primary.default,
+                    margin: "0 0 20px 5px",
+                    textDecoration: "underline",
+                  }}
+                >
+                  Forgot password?
+                </Typography.Link>
+              </Form.Item>
+            ) : (
+              <LoadingSpinner
+                containerStyle={{
+                  marginTop: "0px",
+                  justifyContent: "center",
+                  marginBottom: "16px",
+                }}
+                spinStyle={{ fontSize: "25px" }}
+              />
+            )}
             <Form.Item shouldUpdate>
               {() => (
                 <CustomButton

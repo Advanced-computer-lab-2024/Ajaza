@@ -42,6 +42,7 @@ import ThirdParty from "./ThirdParty";
 import Transportations from "./Transportations";
 import TouristSelectedComplaint from "./TouristSelectedComplaint";
 import FutureBooking from "./FutureBooking";
+import BookingHistory from "./BookingHistory";
 const Tourist = () => {
   const [response, setResponse] = useState([]);
   const navigate = useNavigate();
@@ -140,7 +141,7 @@ const Tourist = () => {
       key: "11",
       icon: <CheckOutlined />,
       label: "Booking History",
-      onClick: () => navigate("history"),
+      onClick: () => navigate("bookingHistory"),
     },
     {
       key: "12",
@@ -216,6 +217,8 @@ const Tourist = () => {
         <Route path="complaints" element={<Complaints />} />
         <Route path="complaints/:id" element={<TouristSelectedComplaint />} />
         <Route path="touristHistory" element={<TouristHistory />} />
+        <Route path="bookingHistory" element={<BookingHistory />} />
+
         <Route path="auth/signin" element={<SignIn />} />
 
         <Route path="hotels" element={<Hotels />} />
