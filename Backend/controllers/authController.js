@@ -141,28 +141,15 @@ exports.login = async (req, res) => {
 
 exports.forgotPassword = async (req, res) => {
   try {
-    const { email, role } = req.body;
+    const { username } = req.body;
+    console.log(username);
 
+    // Check the user type and find the user by username in the corresponding model
+    const result = await findUserAcrossModels(username);
     let user;
-    // Check the user type and find the user by email in the corresponding model
-    if (role === "tourist") {
-      user = await Tourist.findOne({ email });
-    } else if (role === "guide") {
-      user = await TourGuide.findOne({ email });
-    } else if (role === "advertiser") {
-      user = await Advertiser.findOne({ email });
-    } else if (role === "seller") {
-      user = await Seller.findOne({ email });
-    } else if (role === "governor") {
-      user = await TourismGovernor.findOne({
-        email,
-      });
-    } else if (role === "admin") {
-      user = await Admin.findOne({
-        email,
-      });
-    } else {
-      return res.status(400).json({ message: "Invalid user role" });
+
+    if (result) {
+      user = result.user;
     }
 
     if (!user) {
@@ -171,10 +158,10 @@ exports.forgotPassword = async (req, res) => {
 
     // Generate OTP and store it temporarily
     const otp = generateOTP();
-    otpStore[email] = { otp, expiresAt: Date.now() + OTP_EXPIRY_TIME };
+    otpStore[username] = { otp, expiresAt: Date.now() + OTP_EXPIRY_TIME };
 
     // Send OTP via email
-    await sendOTP(email, otp);
+    await sendOTP(user.email, otp);
 
     res.status(200).json({ message: "OTP sent to your email" });
   } catch (error) {
@@ -185,38 +172,29 @@ exports.forgotPassword = async (req, res) => {
 // Verify OTP and reset password
 exports.verifyOTP = async (req, res) => {
   try {
-    const { email, otp, newPassword, role } = req.body;
-
+    const { username, otp, newPassword } = req.body;
+    console.log(username);
+    console.log(otp);
+    console.log(newPassword);
     // Check if OTP exists and is valid
-    const storedOTP = otpStore[email];
+    const storedOTP = otpStore[username];
+    console.log(otpStore);
+
     if (
       !storedOTP ||
       storedOTP.otp !== otp ||
       Date.now() > storedOTP.expiresAt
     ) {
+      console.log(storedOTP);
+
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
-    // Find the user by email based on the role
+    // Find the user by username
     let user;
-    if (role === "tourist") {
-      user = await Tourist.findOne({ email });
-    } else if (role === "guide") {
-      user = await Guide.findOne({ email });
-    } else if (role === "advertiser") {
-      user = await Advertiser.findOne({ email });
-    } else if (role === "seller") {
-      user = await Seller.findOne({ email });
-    } else if (role === "governor") {
-      user = await TourismGovernor.findOne({
-        email,
-      });
-    } else if (role === "admin") {
-      user = await Admin.findOne({
-        email,
-      });
-    } else {
-      return res.status(400).json({ message: "Invalid user role" });
+    const response = await findUserAcrossModels(username);
+    if (response) {
+      user = response.user;
     }
 
     if (!user) {
@@ -230,7 +208,7 @@ exports.verifyOTP = async (req, res) => {
     await user.save();
 
     // Clear OTP after successful reset
-    delete otpStore[email];
+    delete otpStore[username];
 
     res.status(200).json({ message: "Password reset successful" });
   } catch (error) {

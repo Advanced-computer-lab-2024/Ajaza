@@ -25,9 +25,8 @@ import SellerForm from "./Components/Seller/SellerForm";
 import Product from "./Components/Seller/SellerProduct";
 import DisplayForm from "./Components/Seller/DisplayProduct";
 import TermsAndConditions from "./Components/Seller/TermsAndConditions";
-import { jwtDecode } from 'jwt-decode';
-
-
+import ForgotPassword from "./Components/Sign/ForgotPassword";
+import { jwtDecode } from "jwt-decode";
 
 //import ManageAccounts from "./manageAccounts";
 //import AddAccounts from "./addAccounts";
@@ -63,7 +62,7 @@ function App() {
   };
 
   const params = new URLSearchParams(location.search);
-  const role = params.get('role');
+  const role = params.get("role");
 
   return (
     <div className="App">
@@ -85,7 +84,14 @@ function App() {
                   <Routes>
                     <Route path="signin" element={<SignIn />} />
                     <Route path="signup/*" element={<SignUp />} />
-                    <Route path="terms-and-conditions" element={<TermsAndConditions />} />
+                    <Route
+                      path="terms-and-conditions"
+                      element={<TermsAndConditions />}
+                    />
+                    <Route
+                      path="signin/forgot-password"
+                      element={<ForgotPassword />}
+                    />
                   </Routes>
                 </AuthLayout>
               }
@@ -115,7 +121,7 @@ export default function AppWrapper() {
   return (
     <Router>
       <CurrencyProvider>
-      <App />
+        <App />
       </CurrencyProvider>
     </Router>
   );

@@ -12,6 +12,7 @@ const CustomButton = ({
   loading = false,
   htmlType = "button",
   icon = null,
+  loadingOnly,
 }) => {
   const [hover, setHover] = useState(false);
 
@@ -50,7 +51,7 @@ const CustomButton = ({
     <AntdButton
       type="primary"
       disabled={disabled}
-      loading={loading}
+      loading={loading || loadingOnly}
       htmlType={htmlType}
       icon={icon}
       style={{
@@ -67,7 +68,7 @@ const CustomButton = ({
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      {value}
+      {loadingOnly ? "" : value}
     </AntdButton>
   );
 };
