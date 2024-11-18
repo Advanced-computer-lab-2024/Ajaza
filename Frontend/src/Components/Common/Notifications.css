@@ -1,7 +1,7 @@
 .notification-container {
   padding: 20px;
   background-color: #f5f5f5;
-  max-width: 1000px; /* Adjust to your layout */
+  max-width: 1200px; /* Adjust to your layout */
   margin: 0 auto; /* Center the notifications container */
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -21,12 +21,27 @@
 }
 
 .notification-message {
+  position: relative;
   background-color: #fff;
   padding: 15px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s ease, transform 0.2s ease;
   border-left: 4px solid transparent; /* Border that will change color */
+  display: flex;
+  justify-content: space-between; /* Distributes space between elements */
+  align-items: center;
+}
+
+.notification-message .notification-text {
+  flex: 1; /* Takes up remaining space */
+  margin-right: 18px; /* Spacing between text and button */
+  color: #333;
+  font-size: 16px;
+}
+
+.notification-message .notification-button {
+  flex-shrink: 0; /* Prevents the button from shrinking */
 }
 
 .notification-message.unseen {
@@ -36,8 +51,9 @@
 }
 
 .notification-message.seen {
-  background-color: #e0e0e0; /* Background for seen notifications */
-  border-left: 4px solid #4caf50; /* Border for seen notifications */
+  background-color: #4caf50; /* Background for seen notifications */
+  border-left: 4px solid #1b696a; /* Border for unseen notifications */
+  border-right: 4px solid #1b696a;
 }
 
 .notification-message:hover {
