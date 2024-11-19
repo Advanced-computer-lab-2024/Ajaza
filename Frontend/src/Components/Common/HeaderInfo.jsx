@@ -177,6 +177,27 @@ const HeaderInfo = ({
   }, [id, type, user]);
 
   useEffect(() => {
+    // Check if bookmarked
+    if (!user) return;
+    if (type == "activity") {
+      user?.activityBookmarks.forEach((booking) => {
+        if (booking.activityId == id) {
+          setIsSaved(true);
+        }
+      });
+    } else if (type == "itinerary") {
+      user?.itineraryBookmarks.forEach((booking) => {
+        if (booking.itineraryId == id) {
+          setIsSaved(true);
+        }
+      });
+    } else {
+      // WISHLIST LOGIC of check if already in wishlist
+      // using setIsSaved also
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (Array.isArray(photos) && photos.length > 0) {
       setMultiplePhotos(true);
     }
@@ -537,16 +558,33 @@ const HeaderInfo = ({
     }
   };
 
-  const save = () => {
-    // add to saved items
-    console.log("saved");
+  function capitalizeFirstLetter(val) {
+    return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+  }
+
+  const save = async () => {
+    if (type == "product") {
+      // add to wishlist logic
+    } else {
+      try {
+        console.log(
+          `${apiUrl}bookmark/add${capitalizeFirstLetter(
+            type
+          )}Bookmark/${userid}/${id}`
+        );
+
+        // const response = await axios.post(`${apiUrl}bookmark/add${capitalizeFirstLetter(type)}Bookmark/${userid}/${id}`)
+      } catch (error) {}
+    }
     // NOTE any action that changes user get user again and set token to new one
     // if successful get user again and set token (if not already returned using the func)
   };
 
-  const unSave = () => {
-    // add to unSaved items
-    console.log("unsaved");
+  const unSave = async () => {
+    if (type == "product") {
+      // remove from wishlist logic
+    } else {
+    }
     // if successful get user again and set token (if not already returned using the func)
   };
 

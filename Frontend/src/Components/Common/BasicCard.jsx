@@ -115,6 +115,7 @@ import React, { useEffect, useState } from "react";
 import { Card, Divider, Flex, Rate } from "antd";
 import styles from "./BasicCard.module.css";
 import "./BasicCard.css";
+import { Colors } from "./Constants";
 
 function formatDateTime(availableDateTime) {
   return availableDateTime.map((item) => {
@@ -150,9 +151,56 @@ const BasicCard = ({
   currency,
   currencyRates,
   renderActions, // This prop will receive a custom button for specific components
+  discounts,
 }) => {
   const [avgRating, setAvgRating] = useState(rating);
   const [dateTimeFormatted, setDateTimeFormatted] = useState(null);
+  const [priceBeforeCurrency, setPriceBeforeCurrency] = useState(null);
+  const [convertedPrice, setConvertedPrice] = useState(null);
+  const [currencySymbol, setCurrencySymbol] = useState(
+    currency == "EGP" ? "£" : currency == "EUR" ? "€" : "$"
+  );
+  const [extraConv, setExtraConv] = useState(extra);
+
+  useEffect(() => {
+    if (discounts) {
+      if (typeof extra === "string" && extra.includes("-")) {
+        const [priceLower, priceUpper] = extra.split("-").map(Number);
+        if (priceLower == priceUpper) {
+          const priceLowerTemp = (
+            priceLower -
+            (discounts / 100) * priceLower
+          ).toFixed(2);
+          setPriceBeforeCurrency(`${priceLowerTemp}`);
+        } else if (priceLower && priceUpper && priceLower !== priceUpper) {
+          const priceLowerTemp = (
+            priceLower -
+            (discounts / 100) * priceLower
+          ).toFixed(2);
+          console.log(priceLowerTemp);
+          const priceUpperTemp = (
+            priceUpper -
+            (discounts / 100) * priceUpper
+          ).toFixed(2);
+          setPriceBeforeCurrency(`${priceLowerTemp} - ${priceUpperTemp}`);
+        }
+      }
+    } else {
+      setPriceBeforeCurrency(extra);
+    }
+  }, [extra, discounts]);
+
+  useEffect(() => {
+    const conv =
+      typeof extra === "string" && extra.includes("-")
+        ? convertPriceRange(extra)
+        : ((Number(extra) || 0) * (currencyRates?.[currency] || 1)).toFixed(2);
+    setExtraConv(conv);
+  }, [extra]);
+
+  useEffect(() => {
+    setCurrencySymbol(currency == "EGP" ? "£" : currency == "EUR" ? "€" : "$");
+  }, [currency]);
 
   const convertPriceRange = (priceRange) => {
     const [lower, upper] = priceRange.split("-").map(Number);
@@ -162,14 +210,21 @@ const BasicCard = ({
     const convertedUpper = (upper * (currencyRates?.[currency] || 1)).toFixed(
       2
     );
-    return `${convertedLower} - ${convertedUpper}`;
+    return `${convertedLower}-${convertedUpper}`;
   };
 
   // Handle `extra` safely to avoid errors with `.split()`
-  const convertedPrice =
-    typeof extra === "string" && extra.includes("-")
-      ? convertPriceRange(extra)
-      : ((Number(extra) || 0) * (currencyRates?.[currency] || 1)).toFixed(2);
+  useEffect(() => {
+    const conv =
+      typeof priceBeforeCurrency === "string" &&
+      priceBeforeCurrency.includes("-")
+        ? convertPriceRange(priceBeforeCurrency)
+        : (
+            (Number(priceBeforeCurrency) || 0) *
+            (currencyRates?.[currency] || 1)
+          ).toFixed(2);
+    setConvertedPrice(conv);
+  }, [priceBeforeCurrency, currencyRates]);
 
   useEffect(() => {
     if (dateTime) setDateTimeFormatted(formatDateTime(dateTime));
@@ -178,7 +233,44 @@ const BasicCard = ({
   return (
     <Card
       title={<div onClick={onClick}>{title}</div>}
-      extra={<div>{`${convertedPrice} ${currency}`}</div>}
+      extra={
+        <div style={{ position: "relative" }}>
+          {`${currencySymbol}${convertedPrice}`}
+          {discounts ? (
+            <Flex
+              style={{
+                position: "absolute",
+                bottom: "90%",
+                right: "-25px",
+              }}
+            >
+              <div
+                style={{
+                  color: Colors.warningDark,
+                  fontSize: "12px",
+                  textDecoration: "line-through underline",
+                  marginRight: "5px",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {currencySymbol}
+                {extraConv}
+              </div>
+              <div
+                style={{
+                  backgroundColor: Colors.warningDark,
+                  color: "white",
+                  padding: "2px 4px",
+                  borderRadius: "4px",
+                  fontSize: "11px",
+                }}
+              >
+                -{discounts}%
+              </div>
+            </Flex>
+          ) : null}
+        </div>
+      }
       actions={renderActions ? [renderActions()] : actions} // Display the custom action button if provided
       cover={
         photo ? (
