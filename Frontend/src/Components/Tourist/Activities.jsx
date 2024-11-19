@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SearchFilterSortContainer from "../Common/SearchFilterSortContainer";
-import {
-  apiUrl,
-  calculateYourPrice,
-  getAvgRating,
-  comparePriceRange,
-} from "../Common/Constants";
+import { apiUrl, getAvgRating, comparePriceRange } from "../Common/Constants";
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
 import { jwtDecode } from "jwt-decode";
@@ -230,8 +225,6 @@ const Activities = () => {
     fetchData();
   }, []);
 
-
-
   return (
     <div>
       <div
@@ -246,7 +239,7 @@ const Activities = () => {
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
-          style={{left:1000 , top:55}}
+          style={{ left: 1000, top: 55 }}
         />
       </div>
       <SearchFilterSortContainer

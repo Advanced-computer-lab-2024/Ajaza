@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SearchFilterSortContainer from "../Common/SearchFilterSortContainer";
-import {
-  apiUrl,
-  calculateYourPrice,
-  comparePriceRange,
-  getAvgRating,
-} from "../Common/Constants";
+import { apiUrl, comparePriceRange, getAvgRating } from "../Common/Constants";
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
 import SelectCurrency from "../Tourist/SelectCurrency";

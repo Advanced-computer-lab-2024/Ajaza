@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { message , Tooltip } from "antd";
+import { message, Tooltip } from "antd";
 import CustomButton from "../Common/CustomButton";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 export const RedeemPoints = () => {
   const [points, setPoints] = useState(0);
@@ -11,7 +11,7 @@ export const RedeemPoints = () => {
   const [id, setId] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token"); 
+    const token = localStorage.getItem("token");
     if (token) {
       const decodedToken = jwtDecode(token);
       setId(decodedToken.userId);
@@ -25,7 +25,9 @@ export const RedeemPoints = () => {
     if (id) {
       const fetchTouristData = async () => {
         try {
-          const response = await axios.get(`http://localhost:5000/tourist/touristReadProfile/${id}`);
+          const response = await axios.get(
+            `http://localhost:5000/tourist/touristReadProfile/${id}`
+          );
           const { points, wallet } = response.data;
           setPoints(points);
           setWallet(wallet);
@@ -36,7 +38,6 @@ export const RedeemPoints = () => {
 
       fetchTouristData();
     }
-
   }, [id]);
 
   const redeemPoints = async () => {
@@ -50,9 +51,7 @@ export const RedeemPoints = () => {
       setPoints(points);
       message.success(response.data.message);
     } catch (error) {
-      message.error(
-        error.response?.data?.message || "Error redeeming points."
-      );
+      message.error(error.response?.data?.message || "Error redeeming points.");
     }
     setLoading(false);
   };
@@ -61,10 +60,10 @@ export const RedeemPoints = () => {
     <div>
       <h2>Redeem Points</h2>
       <p>Your current points: {points}</p>
-      <p>Your wallet balance: USD {wallet}</p>
+      <p>Your wallet balance: USD {wallet.toFixed(2)}</p>
       {points < 10000 ? (
         <Tooltip title="You must have at least 10000 points to redeem">
-          <span> 
+          <span>
             <CustomButton
               size="m"
               value="Redeem Points"
@@ -83,7 +82,6 @@ export const RedeemPoints = () => {
           loading={loading}
         />
       )}
-
     </div>
   );
 };

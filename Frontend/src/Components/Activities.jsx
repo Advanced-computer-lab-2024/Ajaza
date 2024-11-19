@@ -20,14 +20,16 @@ import {
   Tag,
   Divider,
   Typography,
+  Rate,
 } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
 import { jwtDecode } from "jwt-decode";
-import { apiUrl } from "./Common/Constants";
+import { apiUrl, getAvgRating } from "./Common/Constants";
 import MapComponent from "./Common/Map";
 import dayjs from "dayjs";
 import { Colors } from "./Common/Constants";
+import LoadingSpinner from "./Common/LoadingSpinner";
 
 // Create an axios instance with default headers
 const apiClient = axios.create({
@@ -274,135 +276,140 @@ const Activities = () => {
       </div>
 
       {loading ? (
-        <p>Loading activities...</p>
+        <LoadingSpinner />
       ) : (
         <Space
           direction="horizontal"
           size="middle"
           style={{ display: "flex", flexWrap: "wrap" }}
         >
-          {activitiesData.map((activity) => (
-            <Card
-              key={activity._id}
-              actions={[
-                <EditOutlined
-                  key="edit"
-                  onClick={() => showEditModal(activity)}
-                />,
-                <DeleteOutlined
-                  key="delete"
-                  onClick={() => deleteActivity(activity._id)}
-                />,
-              ]}
-              style={{
-                minWidth: 370,
-                maxWidth: 370,
-                maxHeight: 900,
-                marginBottom: "8px",
-                marginRight: "12px",
-                border:
-                  activity.isFlagged && activity.hidden
-                    ? "3px solid red"
-                    : "1px solid #e8e8e8",
-                position: "relative", // Set position to relative for positioning flag
-                borderRadius: "12px", // Rounded corners
-                padding: "16px", // Padding inside the card
-                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)", // Subtle shadow effect
-              }}
-            >
-              {activity.isFlagged && activity.hidden && (
-                <FlagOutlined
-                  style={{
-                    position: "absolute",
-                    top: "8px",
-                    right: "8px",
-                    color: "red",
-                    fontSize: "25px",
-                  }}
-                />
-              )}
-              <Card.Meta
-                title={
-                  <Title
-                    level={4}
+          {activitiesData.map((activity) => {
+            const avgRating = getAvgRating(activity?.feedback);
+            return (
+              <Card
+                key={activity._id}
+                actions={[
+                  <EditOutlined
+                    key="edit"
+                    onClick={() => showEditModal(activity)}
+                  />,
+                  <DeleteOutlined
+                    key="delete"
+                    onClick={() => deleteActivity(activity._id)}
+                  />,
+                ]}
+                style={{
+                  minWidth: 370,
+                  maxWidth: 370,
+                  maxHeight: 900,
+                  marginBottom: "8px",
+                  marginRight: "12px",
+                  border:
+                    activity.isFlagged && activity.hidden
+                      ? "3px solid red"
+                      : "1px solid #e8e8e8",
+                  position: "relative", // Set position to relative for positioning flag
+                  borderRadius: "12px", // Rounded corners
+                  padding: "16px", // Padding inside the card
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)", // Subtle shadow effect
+                }}
+              >
+                {activity.isFlagged && activity.hidden && (
+                  <FlagOutlined
                     style={{
-                      fontWeight: "600",
-                      marginBottom: "10px",
-                      fontSize: "18px",
-                      color: "#1b696a", // You can customize this color as needed
+                      position: "absolute",
+                      top: "8px",
+                      right: "8px",
+                      color: "red",
+                      fontSize: "25px",
                     }}
-                  >
-                    {activity.name}
-                  </Title>
-                }
-                description={
-                  <div>
-                    <p>{activity.description}</p>
+                  />
+                )}
+                <Card.Meta
+                  title={
+                    <Title
+                      level={4}
+                      style={{
+                        fontWeight: "600",
+                        marginBottom: "10px",
+                        fontSize: "18px",
+                        color: "#1b696a", // You can customize this color as needed
+                      }}
+                    >
+                      {activity.name}
+                    </Title>
+                  }
+                  description={
+                    <div>
+                      <p>{activity.description}</p>
 
-                    <p>
-                      <Text strong>Location:</Text>{" "}
-                      <a
-                        href={activity.location}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ color: "#1890ff" }}
-                      >
-                        {activity.location}
-                      </a>
-                    </p>
-                    <p>
-                      <Text strong>Datetime:</Text>{" "}
-                      {new Date(activity.date).toLocaleString()}
-                    </p>
-                    <p>
-                      <Text strong>Upper Limit:</Text> {activity.upper}
-                    </p>
-                    <p>
-                      <Text strong>Lower Limit:</Text> {activity.lower}
-                    </p>
-
-                    <p>
-                      <Text strong>Categories:</Text> {activity.category}
-                    </p>
-
-                    <p>
-                      <Text strong>Tags:</Text>
-                      {activity.tags.map((tagId) => (
-                        <Tag
-                          key={tagId}
-                          color="#1b696a"
-                          style={{ margin: "3px" }}
+                      <p>
+                        <Text strong>Location:</Text>{" "}
+                        <a
+                          href={activity.location}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: "#1890ff" }}
                         >
-                          {tags.find((tag) => tag._id === tagId)?.tag || tagId}
-                        </Tag>
-                      )) || "None"}
-                    </p>
+                          {activity.location}
+                        </a>
+                      </p>
+                      <p>
+                        <Text strong>Datetime:</Text>{" "}
+                        {new Date(activity.date).toLocaleString()}
+                      </p>
+                      <p>
+                        <Text strong>Upper Limit:</Text> {activity.upper}
+                      </p>
+                      <p>
+                        <Text strong>Lower Limit:</Text> {activity.lower}
+                      </p>
 
-                    <p>
-                      <Text strong>Available Spots:</Text> {activity.spots}
-                    </p>
-                    <p>
-                      <Text strong>Is Open:</Text>{" "}
-                      {activity.isOpen ? "Yes" : "No"}
-                    </p>
-                    <p>
-                      <Text strong>Discounts:</Text> {activity.discounts}%
-                    </p>
-                    <p>
-                      <Text strong>Flagged:</Text>{" "}
-                      <span
-                        style={{ color: activity.isFlagged ? "red" : "#555" }}
-                      >
-                        {activity.isFlagged ? "Yes" : "No"}
-                      </span>{" "}
-                    </p>
+                      <p>
+                        <Text strong>Categories:</Text> {activity.category}
+                      </p>
 
-                    <Divider style={{ margin: "12px 0" }} />
-                  </div>
-                }
-              />
-            </Card>
-          ))}
+                      <p>
+                        <Text strong>Tags:</Text>
+                        {activity.tags.map((tagId) => (
+                          <Tag
+                            key={tagId}
+                            color="#1b696a"
+                            style={{ margin: "3px" }}
+                          >
+                            {tags.find((tag) => tag._id === tagId)?.tag ||
+                              tagId}
+                          </Tag>
+                        )) || "None"}
+                      </p>
+
+                      <p>
+                        <Text strong>Available Spots:</Text> {activity.spots}
+                      </p>
+                      <p>
+                        <Text strong>Is Open:</Text>{" "}
+                        {activity.isOpen ? "Yes" : "No"}
+                      </p>
+                      <p>
+                        <Text strong>Discounts:</Text> {activity.discounts}%
+                      </p>
+                      <p>
+                        <Text strong>Flagged:</Text>{" "}
+                        <span
+                          style={{ color: activity.isFlagged ? "red" : "#555" }}
+                        >
+                          {activity.isFlagged ? "Yes" : "No"}
+                        </span>{" "}
+                      </p>
+
+                      <Divider style={{ margin: "12px 0" }} />
+                      <Rate value={avgRating} />
+                    </div>
+                  }
+                />
+              </Card>
+            );
+          })}
         </Space>
       )}
 
