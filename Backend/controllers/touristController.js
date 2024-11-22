@@ -1099,6 +1099,164 @@ exports.getFutureBookings = async (req, res) => {
   }
 };
 
+//req67
+exports.addActivityBells = async (req, res) => {
+  const { touristId, activityId } = req.params;
+  //cleanActivityBells(touristId);
+
+  try {
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+    const activity = await Activity.findById(activityId);
+    if (!activity) {
+      return res.status(404).json({ message: "Activity not found" });
+    }
+
+    if (!tourist.activityBells.includes(activityId)) {
+      tourist.activityBells.push(activityId);
+    } else {
+      return res.status(400).json({ message: "Activity already marked" });
+    }
+
+    await tourist.save();
+
+    res.status(200).json({ message: "Activity marked successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+async function cleanActivityBells(touristId) {
+  const tourist = await Tourist.findById(touristId);
+  const activityBells = tourist.activityBells;
+
+  const currentDate = new Date();
+  for (let i = 0; i < activityBells.length; i++) {
+    const activity = await Activity.findById(activityBells[i]);
+    if (!activity) {
+      activityBells.splice(i, 1);
+      i--;
+    } else {
+      if (activity.date < currentDate) {
+        activityBells.splice(i, 1);
+        i--;
+      } else {
+        if (activity.hidden) {
+          activityBells.splice(i, 1);
+          i--;
+        }
+      }
+    }
+  }
+
+  tourist.activityBells = activityBells;
+  await tourist.save();
+}
+
+exports.removeActivityBells = async (req, res) => {
+  const { touristId, activityId } = req.params;
+
+  try {
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    const activityIndex = tourist.activityBells.findIndex(
+      (bell) => bell.toString() === activityId
+    );
+
+    if (activityIndex === -1) {
+      return res.status(404).json({ message: "Activity not marked" });
+    }
+
+    tourist.activityBells.splice(activityIndex, 1);
+    await tourist.save();
+    
+    res.status(200).json({ message: "Activity unmarked successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.addItineraryBells = async (req, res) => {
+  const { touristId, itineraryId } = req.params;
+  //cleanItineraryBells(touristId);
+
+  try {
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+    const itinerary = await Itinerary.findById(itineraryId);
+    if (!itinerary) {
+      return res.status(404).json({ message: "Itinerary not found" });
+    }
+
+    if (!tourist.itineraryBells.includes(itineraryId)) {
+      tourist.itineraryBells.push(itineraryId);
+    } else {
+      return res
+        .status(400)
+        .json({ message: "Itinerary already marked" });
+    }
+
+    await tourist.save();
+
+    res.status(200).json({ message: "Itinerary marked successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+async function cleanItineraryBells(touristId) {
+  const tourist = await Tourist.findById(touristId);
+  const itineraryBells = tourist.itineraryBells;
+
+  for (let i = 0; i < itineraryBells.length; i++) {
+    const itinerary = await Itinerary.findById(itineraryBells[i]);
+    if (!itinerary) {
+      itineraryBells.splice(i, 1);
+      i--;
+    } else {
+      if (itinerary.hidden) {
+        itineraryBells.splice(i, 1);
+        i--;
+      }
+    }
+  }
+  tourist.itineraryBells = itineraryBells;
+  await tourist.save();
+}
+
+exports.removeItineraryBells = async (req, res) => {
+  const { touristId, itineraryId } = req.params;
+
+  try {
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    const itineraryIndex = tourist.itineraryBells.findIndex(
+      (bell) => bell.toString() === itineraryId
+    );
+
+    if (itineraryIndex === -1) {
+      return res.status(404).json({ message: "Itinerary not marked" });
+    }
+
+    tourist.itineraryBells.splice(itineraryIndex, 1);
+    await tourist.save();
+
+    res.status(200).json({ message: "Itinerary unmarked successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 //req65
 exports.addActivityBookmark = async (req, res) => {
   const { touristId, activityId } = req.params;
@@ -1109,9 +1267,15 @@ exports.addActivityBookmark = async (req, res) => {
     if (!tourist) {
       return res.status(404).json({ message: "Tourist not found" });
     }
+    const activity = await Activity.findById(activityId);
+    if (!activity) {
+      return res.status(404).json({ message: "Activity not found" });
+    }
 
     if (!tourist.activityBookmarks.includes(activityId)) {
       tourist.activityBookmarks.push(activityId);
+    } else {
+      return res.status(400).json({ message: "Activity already bookmarked" });
     }
 
     await tourist.save();
@@ -1159,9 +1323,17 @@ exports.addItineraryBookmark = async (req, res) => {
     if (!tourist) {
       return res.status(404).json({ message: "Tourist not found" });
     }
+    const itinerary = await Itinerary.findById(itineraryId);
+    if (!itinerary) {
+      return res.status(404).json({ message: "Itinerary not found" });
+    }
 
     if (!tourist.itineraryBookmarks.includes(itineraryId)) {
       tourist.itineraryBookmarks.push(itineraryId);
+    } else {
+      return res
+        .status(400)
+        .json({ message: "Itinerary already bookmarked" });
     }
 
     await tourist.save();

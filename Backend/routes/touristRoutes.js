@@ -229,6 +229,9 @@ router.get(
   touristController.getFutureBookings
 );
 
+//req64
+//history from the other requirement
+
 //req65
 router.post(
   "/bookmark/addActivityBookmark/:touristId/:activityId",
@@ -260,6 +263,12 @@ router.post(
 router.post("/add-delivery-address", touristController.addDeliveryAddress);
 
 router.get("/3rdparty/:id", apiController.getAll3rdPartyData);
+
+// req67
+router.post("/bellActivity/:touristId/:activityId", touristController.addActivityBells);
+router.post("/bellItinerary/:touristId/:itineraryId", touristController.addItineraryBells);
+router.delete("/bellActivity/:touristId/:activityId", touristController.removeActivityBells);
+router.delete("/bellItinerary/:touristId/:itineraryId", touristController.removeItineraryBells);
 
 // req66
 router.get("/getSavedEvents/:id", touristController.getSavedEvents);

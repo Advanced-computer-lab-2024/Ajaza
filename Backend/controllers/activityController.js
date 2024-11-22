@@ -436,6 +436,8 @@ exports.updateActivityFilteredFields = async (req, res) => {
         });
     }
 
+    const isOpenBefore = activity.isOpen;
+
     // updating only the allowed fields
     if (name) activity.name = name;
     if (date) activity.date = date;
@@ -452,7 +454,7 @@ exports.updateActivityFilteredFields = async (req, res) => {
 
     const updatedActivity = await activity.save();
 
-    if (isOpen === true)  notifyInterestedTourists(activityId, activity.name); //added by AA
+    if (isOpenBefore === false && isOpen === true)  notifyInterestedTourists(activityId, activity.name); //added by AA
 
     res.status(200).json(updatedActivity);
   } catch (error) {
@@ -464,7 +466,7 @@ async function notifyInterestedTourists(activityId, name) {
   try {
 
     const tourists = await Tourist.find({
-      activityBookmarks: activityId,
+      activityBells: activityId,
     })
 
     for(let i = 0; i< tourists.length;i++) {

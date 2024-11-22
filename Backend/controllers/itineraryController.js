@@ -430,6 +430,8 @@ exports.updateItineraryFilteredFields = async (req, res) => {
       });
     }
 
+    const activeBefore = itinerary.active;
+
     // e3ml update to only the allowed fields
     if (name) itinerary.name = name;
     if (timeline) itinerary.timeline = timeline;
@@ -445,7 +447,7 @@ exports.updateItineraryFilteredFields = async (req, res) => {
 
     const updatedItinerary = await itinerary.save();
 
-    if (active === true) notifyInterestedTourists(itiniraryId, itinerary.name); //added by AA
+    if (activeBefore === false && active === true) notifyInterestedTourists(itineraryId, itinerary.name); //added by AA
 
     res.status(200).json(updatedItinerary);
   } catch (error) {
@@ -454,10 +456,11 @@ exports.updateItineraryFilteredFields = async (req, res) => {
 };
 
 async function notifyInterestedTourists(itineraryId, name) {
+  console.log("Notifying interested tourists");
   try {
 
     const tourists = await Tourist.find({
-      itineraryBookmarks: itineraryId,
+      itineraryBells: itineraryId,
     })
 
     for(let i = 0; i< tourists.length;i++) {
