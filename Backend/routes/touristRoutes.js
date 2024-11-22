@@ -289,4 +289,7 @@ router.post("/cart/remove/:id", touristController.removeFromCart);
 //req 97 big boss
 router.post("/cart/checkout/:id", touristController.checkout);
 
+router.post("/seeNotifications", touristController.seeNotifications);
+
+
 module.exports = router;

@@ -92,4 +92,7 @@ router.post("/validateEmailUsername", guideController.validateEmailUsername); //
 
 router.get('/viewSalesReport/:id', guideController.viewSalesReport);
 
+router.post("/seeNotifications", guideController.seeNotifications);
+
+
 module.exports = router;

@@ -79,9 +79,10 @@ router.patch("/requestDeletion/:id", sellerController.requestDeletion);
 
 router.post("/validateEmailUsername", sellerController.validateEmailUsername); // New route for email and username validation
 
-
-
 router.get('/viewSalesReport/:id', sellerController.viewSalesReport);
+
+router.post("/seeNotifications", sellerController.seeNotifications);
+
 
 
 module.exports = router;
