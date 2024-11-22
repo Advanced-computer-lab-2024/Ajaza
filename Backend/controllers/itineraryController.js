@@ -597,7 +597,7 @@ exports.hideItinerary = async (req, res) => {
     }
 
     // Create a notification for the guide
-    const notificationText = `Your itinerary with ID ${itineraryId} has been flagged as inappropriate.`;
+    const notificationText = `Your itinerary ${updatedItinerary.name} has been flagged as inappropriate.`;
     guide.notifications.push({
       text: notificationText,
       seen: false, // Set to false initially
@@ -607,7 +607,7 @@ exports.hideItinerary = async (req, res) => {
     await guide.save();
 
     res.status(200).json({
-      message: `Itinerary ${itineraryId} has been hidden successfully and the guide has been notified.`,
+      message: `Itinerary ${updatedItinerary.name} has been hidden successfully and the guide has been notified.`,
       updatedItinerary,
     });
   } catch (error) {
@@ -632,30 +632,8 @@ exports.unhideItinerary = async (req, res) => {
       return res.status(404).json({ message: 'Itinerary not found' });
     }
 
-    // Get the guideId associated with this itinerary
-    const selectedGuideId = updatedItinerary.guideId;
-
-    // Find the guide by ID
-    const guide = await Guide.findById(selectedGuideId);
-
-    if (!guide) {
-      return res.status(404).json({ message: 'Guide not found' });
-    }
-
-    // Remove the notification related to the hidden/flagged itinerary
-    const notificationText = `Your itinerary with ID ${itineraryId} has been flagged as inappropriate.`;
-    const notificationIndex = guide.notifications.findIndex(
-      (notification) => notification.text === notificationText
-    );
-
-    if (notificationIndex !== -1) {
-      // Remove the notification from the array
-      guide.notifications.splice(notificationIndex, 1);
-      await guide.save(); // Save the updated guide
-    }
-
     res.status(200).json({
-      message: `Itinerary ${itineraryId} has been unhidden successfully and the notification has been removed.`,
+      message: `Itinerary ${updatedItinerary.name} has been unhidden successfully.`,
       updatedItinerary,
     });
   } catch (error) {

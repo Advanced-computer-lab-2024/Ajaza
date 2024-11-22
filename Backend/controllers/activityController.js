@@ -531,7 +531,7 @@ exports.hideActivity = async (req, res) => {
     }
 
     // Create a notification for the advertiser
-    const notificationText = `Your activity with ID ${activityId} has been flagged as inappropriate.`;
+    const notificationText = `Your activity ${updatedActivity.name} has been flagged as inappropriate.`;
     advertiser.notifications.push({
       text: notificationText,
       seen: false, // Set to false initially, you can update it when the advertiser views it
@@ -541,7 +541,7 @@ exports.hideActivity = async (req, res) => {
     await advertiser.save();
 
     res.status(200).json({
-      message: `Activity ${activityId} has been hidden successfully and the advertiser has been notified.`,
+      message: `Activity ${updatedActivity.name} has been hidden successfully and the advertiser has been notified.`,
       updatedActivity,
     });
   } catch (error) {
@@ -567,31 +567,8 @@ exports.unhideActivity = async (req, res) => {
       return res.status(404).json({ message: "Activity not found" });
     }
 
-    // Get the advertiserId associated with this activity
-    const selectedAdvertiserId = updatedActivity.advertiserId;
-
-    // Find the advertiser by ID
-    const advertiser = await Advertiser.findById(selectedAdvertiserId);
-
-    if (!advertiser) {
-      return res.status(404).json({ message: "Advertiser not found" });
-    }
-
-    // Remove the notification related to the hidden/flagged activity
-    // Assuming that the notification text includes the activity ID
-    const notificationText = `Your activity with ID ${activityId} has been flagged as inappropriate.`;
-    const notificationIndex = advertiser.notifications.findIndex(
-      (notification) => notification.text === notificationText
-    );
-
-    if (notificationIndex !== -1) {
-      // Remove the notification from the array
-      advertiser.notifications.splice(notificationIndex, 1);
-      await advertiser.save(); // Save the updated advertiser
-    }
-
     res.status(200).json({
-      message: `Activity ${activityId} has been unhidden successfully and the notification has been removed.`,
+      message: `Activity ${updatedActivity.name} has been unhidden successfully.`,
       updatedActivity,
     });
   } catch (error) {
