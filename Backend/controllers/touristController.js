@@ -1378,6 +1378,52 @@ async function cleanActivityBookmarks(touristId) {
   await tourist.save();
 }
 
+exports.removeActivityBookmark = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const activityIdToRemove = req.body.activityId;
+
+    const tourist = await Tourist.findById(touristId);
+
+    if(!tourist) {
+      return res.status(404).json({ message: "Tourist not found"});
+    }
+
+    tourist.activityBookmarks = tourist.activityBookmarks.filter(
+      (activityId) => activityId.toString() !== activityIdToRemove.toString()
+    );
+
+    tourist.save();
+
+    return res.status(200).json({message: "Bookmark removed successfully"});
+  } catch (error) {
+    return res.status(500).json({ message: "Network error" });
+  }
+}
+
+exports.removeItineraryBookmark = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const itineraryIdToRemove = req.body.itineraryId;
+
+    const tourist = await Tourist.findById(touristId);
+
+    if(!tourist) {
+      return res.status(404).json({ message: "Tourist not found"});
+    }
+
+    tourist.itineraryBookmarks = tourist.itineraryBookmarks.filter(
+      (itineraryId) => itineraryId.toString() !== itineraryIdToRemove.toString()
+    );
+
+    tourist.save();
+
+    return res.status(200).json({message: "Bookmark removed successfully"});
+  } catch (error) {
+    return res.status(500).json({ message: "Network error" });
+  }
+}
+
 //req65
 exports.addItineraryBookmark = async (req, res) => {
   const { touristId, itineraryId } = req.params;
@@ -1428,6 +1474,8 @@ async function cleanItineraryBookmarks(touristId) {
   tourist.itineraryBookmarks = itineraryBookmarks;
   await tourist.save();
 }
+
+
 
 exports.requestAccountDeletion = async (req, res) => {
   const touristId = req.params.id; // Get tourist ID from the request parameters

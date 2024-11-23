@@ -283,6 +283,10 @@ router.get("/getSavedEvents/:id", touristController.getSavedEvents);
 // req65
 router.post("/saveEvent/:id", touristController.saveEvent);
 
+router.post("/savedEvent/remove/activity/:id", touristController.removeActivityBookmark);
+router.post("/savedEvent/remove/itinerary/:id", touristController.removeItineraryBookmark);
+
+
 // req104 OR 101 either both is first function or 101 is first and 104 second
 router.get("/orders/:id", touristController.getOrders);
 router.get("/orders/order/:id", touristController.getOrder);
