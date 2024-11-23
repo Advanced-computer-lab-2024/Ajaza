@@ -157,7 +157,6 @@ exports.giveActivityFeedback = async (req, res) => {
       return res.status(400).json({ message: "Bad request" });
     }
 
-
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
       return res.status(404).json({ message: "Tourist not found" });
@@ -188,7 +187,6 @@ exports.giveActivityFeedback = async (req, res) => {
         .json({ message: "No valid past activity booking found" });
     }
     const touristName = tourist.username;
-
 
     // append the feedback to the activity
     activity.feedback.push({ touristName, rating, comments });
@@ -282,22 +280,39 @@ exports.createTransportation = async (req, res) => {
 // -- req 19 ---
 exports.createSpecifiedActivity = async (req, res) => {
   try {
-      const {advertiserId} =req.params;
-      const { name, date,upper,lower, location, price, category, tags, discounts, isOpen,spots } = req.body;
-     /* const advertiser = await Advertiser.findById(advertiserId);
-      if (!advertiser) {
-        return res.status(404).json({ message: 'Advertiser not found' });
-      }
-      if (advertiser.requestingDeletion) {
-        return res.status(400).json({ message: 'There is a deletion request. Cant Create Activity' });
-      }
-      if (advertiser.acceptedTerms== false) {
-        return res.status(400).json({ message: 'Terms and conditions must be accepted' });
-      }
-      if ( advertiser.pending==true) {
-        return res.status(400).json({ message: 'The profile is still pending approval.' });
-      }
-        */
+    const { advertiserId } = req.params;
+    const {
+      name,
+      date,
+      upper,
+      lower,
+      location,
+      price,
+      category,
+      tags,
+      discounts,
+      isOpen,
+      spots,
+    } = req.body;
+    const advertiser = await Advertiser.findById(advertiserId);
+    if (!advertiser) {
+      return res.status(404).json({ message: "Advertiser not found" });
+    }
+    if (advertiser.requestingDeletion) {
+      return res
+        .status(400)
+        .json({ message: "There is a deletion request. Cant Create Activity" });
+    }
+    if (advertiser.acceptedTerms == false) {
+      return res
+        .status(400)
+        .json({ message: "Terms and conditions must be accepted" });
+    }
+    if (advertiser.pending == true) {
+      return res
+        .status(400)
+        .json({ message: "The profile is still pending approval." });
+    }
 
     const newActivity = new Activity({
       advertiserId,
@@ -312,7 +327,7 @@ exports.createSpecifiedActivity = async (req, res) => {
       discounts,
       isOpen,
       spots,
-      isFlagged : false,
+      isFlagged: false,
       hidden: false,
     });
 
@@ -325,23 +340,27 @@ exports.createSpecifiedActivity = async (req, res) => {
 exports.readActivitiesOfAdvertiser = async (req, res) => {
   try {
     const { advertiserId } = req.params;
-    /*const advertiser = await Advertiser.findById(advertiserId);
-      if (!advertiser) {
-        return res.status(404).json({ message: 'Advertiser not found' });
-      }
-      if (!advertiser.acceptedTerms) {
-        return res.status(400).json({ message: 'Terms and conditions must be accepted' });
-      }
-      if ( advertiser.pending) {
-        return res.status(400).json({ message: 'The profile is still pending approval.' });
-      }*/
+    const advertiser = await Advertiser.findById(advertiserId);
+    if (!advertiser) {
+      return res.status(404).json({ message: "Advertiser not found" });
+    }
+    if (!advertiser.acceptedTerms) {
+      return res
+        .status(400)
+        .json({ message: "Terms and conditions must be accepted" });
+    }
+    if (advertiser.pending) {
+      return res
+        .status(400)
+        .json({ message: "The profile is still pending approval." });
+    }
     const activities = await Activity.find({
       advertiserId,
       $or: [{ hidden: false }, { hidden: true, isFlagged: true }],
     });
 
     if (!activities || activities.length === 0) {
-      //return res.status(404).json({ message: 'No activities found for this advertiser.' });
+      return res.status(404).json({ message: 'No activities found for this advertiser.' });
     }
     res.status(200).json(activities);
   } catch (error) {
@@ -351,26 +370,28 @@ exports.readActivitiesOfAdvertiser = async (req, res) => {
 exports.deleteSpecificActivity = async (req, res) => {
   try {
     const { advertiserId, activityId } = req.params;
-    /*const advertiser = await Advertiser.findById(advertiserId);
+    const advertiser = await Advertiser.findById(advertiserId);
     if (!advertiser) {
-      return res.status(404).json({ message: 'Advertiser not found' });
+      return res.status(404).json({ message: "Advertiser not found" });
     }
     if (!advertiser.acceptedTerms) {
-      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+      return res
+        .status(400)
+        .json({ message: "Terms and conditions must be accepted" });
     }
-    if ( advertiser.pending) {
-      return res.status(400).json({ message: 'The profile is still pending approval.' });
-    }*/
+    if (advertiser.pending) {
+      return res
+        .status(400)
+        .json({ message: "The profile is still pending approval." });
+    }
     const activity = await Activity.findOne({
       _id: activityId,
       advertiserId: advertiserId,
     });
     if (!activity) {
-      return res
-        .status(404)
-        .json({
-          message: "Activity not found or you are not authorized to delete it.",
-        });
+      return res.status(404).json({
+        message: "Activity not found or you are not authorized to delete it.",
+      });
     }
     const tourists = await Tourist.find();
     for (const tourist of tourists) {
@@ -379,11 +400,9 @@ exports.deleteSpecificActivity = async (req, res) => {
       );
 
       if (hasBooking) {
-        return res
-          .status(400)
-          .json({
-            message: "Cannot delete activity; there are existing bookings.",
-          });
+        return res.status(400).json({
+          message: "There are existing bookings.",
+        });
       }
     }
 
@@ -412,16 +431,20 @@ exports.updateActivityFilteredFields = async (req, res) => {
       discounts,
       isOpen,
     } = req.body;
-    /*const advertiser = await Advertiser.findById(advertiserId);
+    const advertiser = await Advertiser.findById(advertiserId);
     if (!advertiser) {
-      return res.status(404).json({ message: 'Advertiser not found' });
+      return res.status(404).json({ message: "Advertiser not found" });
     }
     if (!advertiser.acceptedTerms) {
-      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+      return res
+        .status(400)
+        .json({ message: "Terms and conditions must be accepted" });
     }
     if (advertiser.pending) {
-      return res.status(400).json({ message: 'The profile is still pending approval.' });
-    }*/
+      return res
+        .status(400)
+        .json({ message: "The profile is still pending approval." });
+    }
     // Log IDs for debugging
 
     const activity = await Activity.findOne({
@@ -429,11 +452,9 @@ exports.updateActivityFilteredFields = async (req, res) => {
       advertiserId: advertiserId,
     });
     if (!activity) {
-      return res
-        .status(404)
-        .json({
-          message: "Activity not found or you are not authorized to update it.",
-        });
+      return res.status(404).json({
+        message: "Activity not found or you are not authorized to update it.",
+      });
     }
 
     // updating only the allowed fields
@@ -447,7 +468,6 @@ exports.updateActivityFilteredFields = async (req, res) => {
     if (category) activity.category = category;
     if (tags) activity.tags = tags;
     if (discounts) activity.discounts = discounts;
-    //if (isOpen) activity.isOpen = isOpen;
     if (isOpen !== undefined) activity.isOpen = isOpen;
 
     const updatedActivity = await activity.save();

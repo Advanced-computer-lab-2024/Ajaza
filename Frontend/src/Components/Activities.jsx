@@ -62,7 +62,8 @@ const Activities = () => {
       const response = await apiClient.get(`activity/readActivities/${userid}`);
       setActivitiesData(response.data);
     } catch (error) {
-      message.error("Failed to fetch activities.");
+      const errorMessage = error.response?.data?.message || "Please try again.";
+      message.error(`Failed to fetch activities: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -74,6 +75,8 @@ const Activities = () => {
       setCategories(response.data);
       console.log(response.data);
     } catch (error) {
+      const errorMessage = error.response?.data?.message || "Please try again.";
+      message.error(`Error fetching categories: ${errorMessage}`);
       console.error("Error fetching categories:", error);
       setCategories([]);
     }
@@ -85,6 +88,8 @@ const Activities = () => {
       setTags(response.data);
       console.log(response.data);
     } catch (error) {
+      const errorMessage = error.response?.data?.message || "Please try again.";
+      message.error(`Error fetching tags: ${errorMessage}`);
       console.error("Error fetching tags:", error);
       setTags([]);
     }
@@ -125,7 +130,8 @@ const Activities = () => {
       form.resetFields();
       setSelectedLocation("");
     } catch (error) {
-      message.error("Failed to create activity.");
+      const errorMessage = error.response?.data?.message || "Please try again.";
+      message.error(`Failed to create activity: ${errorMessage}`);
     }
   };
 
@@ -188,7 +194,8 @@ const Activities = () => {
       setEditingActivityId(null);
       setSelectedLocation(updatedFields.location);
     } catch (error) {
-      message.error("Failed to update activity.");
+      const errorMessage = error.response?.data?.message || "Please try again.";
+      message.error(`Failed to edit activity: ${errorMessage}`);
     }
   };
 
@@ -206,8 +213,8 @@ const Activities = () => {
           );
           message.success("Activity deleted successfully!");
         } catch (error) {
-          message.error("Failed to delete activity.");
-        }
+          const errorMessage = error.response?.data?.message || "Please try again.";
+          message.error(`Failed to delete activity: ${errorMessage}`);        }
       },
     });
   };

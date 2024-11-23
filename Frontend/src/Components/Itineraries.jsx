@@ -88,8 +88,8 @@ const Itineraries = () => {
       );
       setItinerariesData(response.data);
     } catch (error) {
-      console.error("Error fetching itineraries:", error);
-      message.error("Failed to fetch itineraries.");
+      const errorMessage = error.response?.data?.message || "Please try again.";
+      message.error(`Failed to fetch itinerary,${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -159,8 +159,8 @@ const Itineraries = () => {
       setIsModalVisible(false);
       form.resetFields();
     } catch (error) {
-      console.error("Error creating itinerary:", error);
-      message.error("Failed to create itinerary.");
+      const errorMessage = error.response?.data?.message || "Please try again.";
+      message.error(`Failed to create itinerary,${errorMessage}`);
     }
   };
 
@@ -215,8 +215,8 @@ const Itineraries = () => {
       form.resetFields();
       setEditingItineraryId(null);
     } catch (error) {
-      console.error("Failed to update itinerary:", error);
-      message.error("Failed to update itinerary.");
+      const errorMessage = error.response?.data?.message || "Please try again.";
+      message.error(`Failed to update itinerary,${errorMessage}`);
     }
   };
 
@@ -234,8 +234,8 @@ const Itineraries = () => {
           );
           message.success("Itinerary deleted successfully!");
         } catch (error) {
-          console.error("Error deleting itinerary:", error);
-          message.error("Failed to delete itinerary.");
+          const errorMessage = error.response?.data?.message || "Please try again.";
+          message.error(`Failed to delete itinerary,${errorMessage}`);
         }
       },
     });
@@ -553,7 +553,7 @@ const Itineraries = () => {
                 },
               ]}
             >
-              <InputNumber  
+              <InputNumber
                 min={1}
                 placeholder="Enter max tourists"
                 style={{ width: "100%" }}

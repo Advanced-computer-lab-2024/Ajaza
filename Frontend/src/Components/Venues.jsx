@@ -90,8 +90,8 @@ const Venues = () => {
       const response = await apiClient.get(`governor/getMyVenues/${userid}`);
       setVenuesData(response.data);
     } catch (error) {
-      console.error("Error fetching venues:", error);
-      message.error("Failed to fetch venues.");
+      const errorMessage = error.response?.data?.message || "Please try again.";
+      message.error(`Failed to fetch venues: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -161,11 +161,8 @@ const Venues = () => {
       setFileList([]);
       setSelectedLocation("");
     } catch (error) {
-      console.error(
-        "Error creating venue:",
-        error.response ? error.response.data : error
-      );
-      message.error("Failed to create venue.");
+      const errorMessage = error.response?.data?.message || "Please try again.";
+      message.error(`Failed to create venue: ${errorMessage}`);
     }
   };
   const editVenue = async (id) => {
@@ -251,11 +248,8 @@ const Venues = () => {
       setEditingVenueId(null); // Reset editing ID
       setSelectedLocation("");
     } catch (error) {
-      console.error(
-        "Error updating venue:",
-        error.response ? error.response.data : error
-      );
-      message.error("Failed to update venue.");
+      const errorMessage = error.response?.data?.message || "Please try again.";
+      message.error(`Failed to update venue: ${errorMessage}`);
     }
   };
 
@@ -279,10 +273,9 @@ const Venues = () => {
           setVenuesData(venuesData.filter((venue) => venue._id !== id));
           message.success("Venue deleted successfully!");
         } catch (error) {
-          console.error("Error deleting venue:", error);
-          message.error(
-            error.response?.data?.message || "Failed to delete venue."
-          );
+          const errorMessage =
+            error.response?.data?.message || "Please try again.";
+          message.error(`Failed to delete venue: ${errorMessage}`);
         }
       },
     });
@@ -359,11 +352,8 @@ const Venues = () => {
       );
       handleTagCancel(); // Close the modal and reset fields after success
     } catch (error) {
-      console.error(
-        "Error creating tag:",
-        error.response ? error.response.data : error
-      );
-      message.error("Failed to create tag.");
+      const errorMessage = error.response?.data?.message || "Please try again.";
+      message.error(`Failed to create tag, ${errorMessage}`);
     }
   };
 
