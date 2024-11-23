@@ -3,6 +3,8 @@ const Activity = require("../models/Activity");
 const Itinerary = require("../models/Itinerary");
 const Guide = require("../models/Guide");
 const Product = require("../models/Product");
+const Admin = require("../models/Admin");
+const Seller = require("../models/Seller");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -1725,6 +1727,7 @@ exports.cancelOrder = async (req, res) => {
 
       if (product) {
         product.quantity += item.quantity;
+        product.sales -= item.quantity*product.price;
         await product.save();
       }
     }
@@ -2031,7 +2034,7 @@ exports.checkout = async(req,res) => {
       }
     }
 
-    if (invalidCartItems.length > 0) {
+    if (invalidCartItems.length > 0 || validCartItems.length <= 0) {
       return res.status(400).json({message: "Invalid quantities", invalidCartItems});
     }
 
@@ -2066,6 +2069,9 @@ exports.checkout = async(req,res) => {
     for (const item of validCartItems) {
       const product = item.productId;
       product.quantity -= item.quantity;
+      if(product.quantity == 0) {
+        outOfStock(product.name, product.sellerId, product.adminId);
+      }
       await product.save();
     }
 
@@ -2077,6 +2083,31 @@ exports.checkout = async(req,res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({message: "Internal error"});
+  }
+}
+
+async function outOfStock(name, sellerId, adminId) {
+  try {
+    if(sellerId) {
+      const seller = await Seller.findById(sellerId);
+
+      seller.notifications.push({text: `Your product ${name} is out of stock`, seen: false});
+
+      seller.save();
+    } else if(adminId) {
+      const admin = await Admin.findById(adminId);
+
+      admin.notifications.push({text: `Your product ${name} is out of stock`, seen: false});
+
+      admin.save();
+    } else {
+      return;
+    }
+
+    return { message: "Notification sent successfully." };
+  } catch (error) {
+    console.error(error);
+    return { error: "An error occurred while sending notification." };
   }
 }
 
