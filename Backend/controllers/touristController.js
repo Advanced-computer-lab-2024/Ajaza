@@ -257,7 +257,7 @@ exports.cancelActivityBooking = async (req, res) => {
 
     console.log("booking cancelled");
     res.status(200).json({
-      message: "Activity booking canceled successfully",
+      message: `Activity booking canceled successfully, refund: ${totalPaid}USD. Current wallet balance: ${tourist.wallet}`,
       refund: totalPaid,
     });
   } catch (error) {
@@ -336,7 +336,7 @@ exports.cancelItineraryBooking = async (req, res) => {
     await itinerary.save();
     console.log("booking cancelled");
     res.status(200).json({
-      message: "Itinerary booking canceled successfully",
+      message: `Itinerary booking canceled successfully, refund: ${totalPaid}USD. Current wallet balance: ${tourist.wallet}`,
       refund: totalPaid,
     });
   } catch (error) {

@@ -81,7 +81,7 @@ router.post("/validateEmailUsername", sellerController.validateEmailUsername); /
 
 router.get('/viewSalesReport/:id', sellerController.viewSalesReport);
 
-router.post("/seeNotifications", sellerController.seeNotifications);
+router.post("/seeNotifications/:id", sellerController.seeNotifications);
 
 router.get("/myItems/feedback/:id", sellerController.myItemsFeedback);
 

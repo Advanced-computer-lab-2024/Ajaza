@@ -92,7 +92,7 @@ router.post("/validateEmailUsername", guideController.validateEmailUsername); //
 
 router.get('/viewSalesReport/:id', guideController.viewSalesReport);
 
-router.post("/seeNotifications", guideController.seeNotifications);
+router.post("/seeNotifications/:id", guideController.seeNotifications);
 
 router.get("/myItems/feedback/:id", guideController.myItemsFeedback);
 
