@@ -107,5 +107,7 @@ router.get('/viewSalesReport/:id', advertiserController.viewSalesReport);
 
 router.get("/myItems/feedback/:id", advertiserController.myItemsFeedback);
 
+router.post("/seeNotifications/:id", advertiserController.seeNotifications);
+
 
 module.exports = router;

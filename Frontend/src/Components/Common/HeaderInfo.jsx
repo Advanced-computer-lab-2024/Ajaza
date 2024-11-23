@@ -514,10 +514,14 @@ const HeaderInfo = ({
 
                 <div style={{ marginTop: 20 }}>
                   <Radio.Group onChange={handlePaymentChange} value={paymentMethod}>
-                    <Radio value="wallet">Pay by Wallet</Radio>
-                    <Radio value="card">Pay by Card</Radio>
+                    <Radio value="wallet" onClick={() => setPaymentMethod("wallet")}>Pay by Wallet</Radio>
+                    <Radio value="card" onClick={() => setPaymentMethod("card")}>Pay by Card</Radio>
                   </Radio.Group>
                 </div>
+
+                {paymentMethod === "wallet" && decodedToken.userDetails.wallet && (
+                  <p>Current balance: {decodedToken.userDetails.wallet}</p>
+                )}
 
                 {/* Card Payment Form */}
                 {paymentMethod === "card" && (
