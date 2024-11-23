@@ -1670,7 +1670,7 @@ exports.addToCartFromWishlist = async (req, res) => {
   }
 };
 
-exports.addDeliveryAddress = async (req, res) => {
+exports.addDeliveryAddressO = async (req, res) => {
   try {
     const { touristId, address } = req.body;
 
@@ -1855,7 +1855,8 @@ exports.addDeliveryAddress = async(req, res) => {
     const touristId = req.params.id;
     const { country, city, area, street, house, app, desc } = req.body;
 
-    if(!country || !city || !area || !street || !house || !app || !desc) {
+    if(!country || !city || !area || !street || !house || !app) {
+      console.log("missing");
       return res.status(400).json({message: "Missing params"});
     }
     const address = { country, city, area, street, house, app, desc };
@@ -1863,13 +1864,26 @@ exports.addDeliveryAddress = async(req, res) => {
     const tourist = await Tourist.findById(touristId);
 
     if(!tourist) {
+      console.log("not found");
       return res.status(404).json({message: "Tourist not Found"});
     }
 
     tourist.deliveryAddresses.push(address);
     await tourist.save();
-    return res.status(200).json({message: "Address added successfully"});
+
+    const token = jwt.sign(
+      {
+        userId: tourist._id,
+        role: "tourist",
+        userDetails: tourist,
+      }, // Include user data in the token
+      process.env.JWT_SECRET, // Use the environment variable
+      { expiresIn: "1h" }
+    );
+
+    return res.status(200).json({message: "Address added successfully", token});
   } catch (error) {
+    console.log("error");
     res.status(500).json({message: "Internal error"});
   }
 }
