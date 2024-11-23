@@ -97,6 +97,7 @@ const HeaderInfo = ({
   const [token, setToken] = useState(null);
   const [decodedToken, setDecodedToken] = useState(null);
   const [userid, setUserid] = useState(null);
+  const [past, setPast] = useState(false);
 
   const navigate = useNavigate();
 
@@ -109,6 +110,35 @@ const HeaderInfo = ({
       setUserid(decTemp?.userId);
     }
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    const dateNow = new Date().getTime();
+    user?.itineraryBookings.forEach((booking) => {
+      if (booking.itineraryId == id) {
+        // Booked
+        console.log(Date(booking.date));
+        const bookDate = new Date(booking.date);
+        if (bookDate.getTime() < dateNow) {
+          setPast(true);
+        }
+      }
+    });
+
+    user?.activityBookings.forEach((booking) => {
+      if (booking.activityId == id) {
+        // Booked
+        const bookDate = new Date(date);
+        if (bookDate.getTime() < dateNow) {
+          setPast(true);
+        }
+      }
+    });
+  }, [user, id, date]);
+
+  useEffect(() => {
+    console.log(past);
+  }, [past]);
 
   useEffect(() => {
     console.log(currency);
@@ -145,6 +175,27 @@ const HeaderInfo = ({
     checkIfBooked();
     // get if this item is saved: wishlist (if product), bookmarked (if not) setIsSaved
   }, [id, type, user]);
+
+  useEffect(() => {
+    // Check if bookmarked
+    if (!user) return;
+    if (type == "activity") {
+      user?.activityBookmarks.forEach((booking) => {
+        if (booking.activityId == id) {
+          setIsSaved(true);
+        }
+      });
+    } else if (type == "itinerary") {
+      user?.itineraryBookmarks.forEach((booking) => {
+        if (booking.itineraryId == id) {
+          setIsSaved(true);
+        }
+      });
+    } else {
+      // WISHLIST LOGIC of check if already in wishlist
+      // using setIsSaved also
+    }
+  }, [user]);
 
   useEffect(() => {
     if (Array.isArray(photos) && photos.length > 0) {
@@ -507,16 +558,33 @@ const HeaderInfo = ({
     }
   };
 
-  const save = () => {
-    // add to saved items
-    console.log("saved");
+  function capitalizeFirstLetter(val) {
+    return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+  }
+
+  const save = async () => {
+    if (type == "product") {
+      // add to wishlist logic
+    } else {
+      try {
+        console.log(
+          `${apiUrl}bookmark/add${capitalizeFirstLetter(
+            type
+          )}Bookmark/${userid}/${id}`
+        );
+
+        // const response = await axios.post(`${apiUrl}bookmark/add${capitalizeFirstLetter(type)}Bookmark/${userid}/${id}`)
+      } catch (error) {}
+    }
     // NOTE any action that changes user get user again and set token to new one
     // if successful get user again and set token (if not already returned using the func)
   };
 
-  const unSave = () => {
-    // add to unSaved items
-    console.log("unsaved");
+  const unSave = async () => {
+    if (type == "product") {
+      // remove from wishlist logic
+    } else {
+    }
     // if successful get user again and set token (if not already returned using the func)
   };
 
@@ -757,12 +825,12 @@ const HeaderInfo = ({
         ) : null}
 
         <Col span={24 - colSpan} style={{ padding: "0 20px" }}>
-          <Flex justify="space-between" align="center">
+          <Flex justify={past ? "end" : "space-between"} align="center">
             <div>
               <Rate value={avgRating} allowHalf disabled />
             </div>
             <Flex>
-              {isSaved ? (
+              {past ? null : isSaved ? (
                 <HeartFilled
                   style={{
                     fontSize: "20px",
@@ -792,17 +860,21 @@ const HeaderInfo = ({
                 }}
                 trigger={["click"]}
               >
-                <ShareAltOutlined
-                  style={{
-                    fontSize: "20px",
-                    marginLeft: "20px",
-                    marginRight: "20px",
-                    cursor: "pointer",
-                  }}
-                />
+                {past ? (
+                  <></>
+                ) : (
+                  <ShareAltOutlined
+                    style={{
+                      fontSize: "20px",
+                      marginLeft: "20px",
+                      marginRight: "20px",
+                      cursor: "pointer",
+                    }}
+                  />
+                )}
               </Dropdown>
-              {(type == "activity" || type == "itinerary") &&
-              decodedToken?.role == "admin" ? (
+              {past ? null : (type == "activity" || type == "itinerary") &&
+                decodedToken?.role == "admin" ? (
                 isFlagged ? (
                   <Button
                     style={{ height: "40px" }}

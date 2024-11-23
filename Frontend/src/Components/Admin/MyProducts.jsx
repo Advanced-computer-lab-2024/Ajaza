@@ -3,7 +3,6 @@ import SearchFilterSortContainer from "../Common/SearchFilterSortContainer";
 import SearchFilterSortContainerEditCreate from "../Common/SearchFilterSortContainerEditCreate";
 import {
   apiUrl,
-  calculateYourPrice,
   Colors,
   comparePriceRange,
   getAvgRating,
@@ -233,7 +232,6 @@ const MyProducts = () => {
         setArchiveProductId={setArchivingProductId}
         setIsArchiveModalVisible={setIsArchiveModalVisible} // Pass this as a prop
         onArchive={archiveProduct}
-        removeSearchFilterSort={true}
       />
       <Modal
         title="Confirm Archive"
@@ -249,7 +247,6 @@ const MyProducts = () => {
       >
         <p>Are you sure you want to archive this product?</p>
       </Modal>
-      
     </>
   );
 };

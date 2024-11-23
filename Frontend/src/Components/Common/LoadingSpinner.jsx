@@ -3,13 +3,13 @@ import { Spin, Flex } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { Colors } from "./Constants";
 
-const LoadingSpinner = () => {
+const LoadingSpinner = ({ containerStyle, spinStyle }) => {
   return (
     <Flex
       align="center"
       justify="center"
       gap="middle"
-      style={{ marginTop: "100px" }}
+      style={{ marginTop: "100px", ...containerStyle }}
     >
       <Spin
         indicator={
@@ -17,6 +17,7 @@ const LoadingSpinner = () => {
             style={{
               color: Colors.primary.default,
               fontSize: 48,
+              ...spinStyle,
             }}
             spin
           />

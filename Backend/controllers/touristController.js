@@ -190,9 +190,10 @@ exports.emailShare = async (req, res) => {
         '"><button>Go to link</button></a>',
     };
 
-    transporter.sendMail(mailOptions)
-      .then(info => console.log("Email sent: ", info.response))
-      .catch(error => console.error("Error sending email: ", error));
+    transporter
+      .sendMail(mailOptions)
+      .then((info) => console.log("Email sent: ", info.response))
+      .catch((error) => console.error("Error sending email: ", error));
 
     res.status(200).json({ message: "Email is being sent" });
   } catch (error) {
@@ -210,7 +211,7 @@ exports.cancelActivityBooking = async (req, res) => {
 
     const activity = await Activity.findById(activityId);
     if (!activity) {
-      console.log("activityId",activityId);
+      console.log("activityId", activityId);
       return res.status(404).json({ message: "Activity not found" });
     }
 
@@ -227,7 +228,7 @@ exports.cancelActivityBooking = async (req, res) => {
 
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
-      console.log("touristId",touristId);
+      console.log("touristId", touristId);
       return res.status(404).json({ message: "Tourist not found" });
     }
 
@@ -276,16 +277,15 @@ exports.cancelItineraryBooking = async (req, res) => {
 
     const itinerary = await Itinerary.findById(itineraryId);
     if (!itinerary) {
-      console.log("iten id",itineraryId);
+      console.log("iten id", itineraryId);
       return res.status(404).json({ message: "Itinerary not found" });
     }
 
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
-      console.log("touristId",touristId);
+      console.log("touristId", touristId);
       return res.status(404).json({ message: "Tourist not found" });
     }
-
 
     const bookingIndex = tourist.itineraryBookings.findIndex(
       (booking) => booking.itineraryId.toString() === itineraryId
@@ -373,7 +373,10 @@ exports.redeemPoints = async (req, res) => {
 
     // Respond with the updated tourist data
     res.status(200).json({
-      message: "Points redeemed successfully!" + maxRedeemablePoints + " added to wallet",
+      message:
+        "Points redeemed successfully!" +
+        maxRedeemablePoints +
+        " added to wallet",
       wallet: tourist.wallet,
       points: tourist.points,
     });
@@ -390,7 +393,7 @@ exports.bookActivity = async (req, res) => {
 
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
-      console.log("touristId",touristId);
+      console.log("touristId", touristId);
       return res.status(404).json({ message: "Tourist not found" });
     }
 
@@ -409,7 +412,7 @@ exports.bookActivity = async (req, res) => {
 
     const activity = await Activity.findById(activityId);
     if (!activity) {
-      console.log("activityId",activityId);
+      console.log("activityId", activityId);
       return res.status(404).json({ message: "Activity not found" });
     }
 
@@ -506,7 +509,7 @@ exports.bookActivity = async (req, res) => {
     console.log("activity booked");
     res.status(200).json({ message: "Activity booked successfully", tourist });
   } catch (error) {
-    console.log("error",error);
+    console.log("error", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -528,7 +531,7 @@ exports.bookItinerary = async (req, res) => {
 
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
-      console.log("touristId",touristId);
+      console.log("touristId", touristId);
       return res.status(404).json({ message: "Tourist not found" });
     }
 
@@ -547,7 +550,7 @@ exports.bookItinerary = async (req, res) => {
 
     const itinerary = await Itinerary.findById(itineraryId);
     if (!itinerary) {
-      console.log("itineraryId",itineraryId);
+      console.log("itineraryId", itineraryId);
       return res.status(404).json({ message: "Itinerary not found" });
     }
 
@@ -897,7 +900,6 @@ exports.birthdayEventTriggered = async (usersWithBirthdayToday) => {
 
       await tourist.save();
     }
-
   } catch (error) {
     console.error("Error creating promo code:", error);
   }
@@ -952,7 +954,10 @@ exports.getHistory = async (req, res) => {
     let guides = [];
     let guideNames = [];
     for (let i = 0; i < tourist.itineraryBookings.length; i++) {
-      if (tourist.itineraryBookings[i].date < currentDate && tourist.itineraryBookings[i].itineraryId) {
+      if (
+        tourist.itineraryBookings[i].date < currentDate &&
+        tourist.itineraryBookings[i].itineraryId
+      ) {
         itineraries.push({
           itineraryId: tourist.itineraryBookings[i].itineraryId._id,
           name: tourist.itineraryBookings[i].itineraryId.name,
@@ -975,7 +980,7 @@ exports.getHistory = async (req, res) => {
             );
           }
         ).length;
-        
+
         const guideName = await Guide.findById(
           tourist.itineraryBookings[i].itineraryId.guideId
         ).select("username");
@@ -983,7 +988,9 @@ exports.getHistory = async (req, res) => {
           guides.push({
             guideId: tourist.itineraryBookings[i].itineraryId.guideId,
             name: guideName.username,
-            gaveFeedback: tourist.gaveFeedback.includes(tourist.itineraryBookings[i].itineraryId.guideId),
+            gaveFeedback: tourist.gaveFeedback.includes(
+              tourist.itineraryBookings[i].itineraryId.guideId
+            ),
             //gaveFeedback: numberOfBookingsWithGuide < guideNumberOfTimesRated,
           });
           guideNames.push(guideName.username);
@@ -993,7 +1000,10 @@ exports.getHistory = async (req, res) => {
 
     let products = [];
     for (let i = 0; i < tourist.orders.length; i++) {
-      if(tourist.orders[i].date < currentDate && tourist.orders[i].status != "Cancelled") {
+      if (
+        tourist.orders[i].date < currentDate &&
+        tourist.orders[i].status != "Cancelled"
+      ) {
         for (let j = 0; j < tourist.orders[i].products.length; j++) {
           products.push({
             productId: tourist.orders[i].products[j].productId._id,
@@ -1007,12 +1017,64 @@ exports.getHistory = async (req, res) => {
         }
       }
     }
-//66f6ae2a0f0094718a1f7d82 some product id to test
+    //66f6ae2a0f0094718a1f7d82 some product id to test
     res.status(200).json({
       activities: activities,
       itineraries: itineraries,
       guides: guides,
       products: products,
+    });
+  } catch (error) {
+    console.error("Error retrieving past activity bookings:", error);
+  }
+};
+
+exports.getHistoryFull = async (req, res) => {
+  try {
+    const tourist = await Tourist.findById(req.params.id)
+      .populate("activityBookings.activityId")
+      .populate("itineraryBookings.itineraryId")
+      .populate("orders.products.productId");
+
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    const currentDate = new Date();
+    let activities = [];
+    for (let i = 0; i < tourist.activityBookings.length; i++) {
+      if (tourist.activityBookings[i].activityId.date < currentDate) {
+        activities.push(tourist.activityBookings[i].activityId);
+      }
+    }
+    let itineraries = [];
+    let guides = [];
+    for (let i = 0; i < tourist.itineraryBookings.length; i++) {
+      if (
+        tourist.itineraryBookings[i].date < currentDate &&
+        tourist.itineraryBookings[i].itineraryId
+      ) {
+        itineraries.push(tourist.itineraryBookings[i].itineraryId);
+      }
+    }
+
+    // let products = [];
+    // for (let i = 0; i < tourist.orders.length; i++) {
+    //   if (
+    //     tourist.orders[i].date < currentDate &&
+    //     tourist.orders[i].status != "Cancelled"
+    //   ) {
+    //     for (let j = 0; j < tourist.orders[i].products.length; j++) {
+    //       products.push(tourist.orders[i].products[j].productId);
+    //     }
+    //   }
+    // }
+    //66f6ae2a0f0094718a1f7d82 some product id to test
+    res.status(200).json({
+      activities: activities,
+      itineraries: itineraries,
+      // guides: guides,
+      // products: products,
     });
   } catch (error) {
     console.error("Error retrieving past activity bookings:", error);
@@ -1068,14 +1130,15 @@ exports.getFutureBookings = async (req, res) => {
           (new Date(tourist.activityBookings[i].activityId.date) -
             currentDate) /
           (1000 * 60 * 60);
-        if(tourist.activityBookings[i].activityId) {
+        if (tourist.activityBookings[i].activityId) {
           activities.push({
             activityId: tourist.activityBookings[i].activityId._id,
             name: tourist.activityBookings[i].activityId.name,
             date: tourist.activityBookings[i].activityId.date,
             canBeCancelled: hoursDifference > 48,
           });
-      ``}
+          ``;
+        }
       }
     }
     let itineraries = [];
@@ -1084,7 +1147,7 @@ exports.getFutureBookings = async (req, res) => {
         const hoursDifference =
           (new Date(tourist.itineraryBookings[i].date) - currentDate) /
           (1000 * 60 * 60);
-        if(tourist.itineraryBookings[i].itineraryId) {
+        if (tourist.itineraryBookings[i].itineraryId) {
           itineraries.push({
             itineraryId: tourist.itineraryBookings[i].itineraryId._id,
             name: tourist.itineraryBookings[i].itineraryId.name,
@@ -1605,11 +1668,9 @@ exports.getSavedEvents = async (req, res) => {
   try {
     const touristId = req.params.id;
 
-
     const tourist = await Tourist.findById(touristId)
       .populate("activityBookmarks")
-      .populate("itineraryBookmarks")
-    ;
+      .populate("itineraryBookmarks");
     if (!tourist) {
       console.log("Tourist not found");
       return res.status(404).json({ message: "Tourist not found" });
@@ -1617,7 +1678,7 @@ exports.getSavedEvents = async (req, res) => {
 
     let activities = tourist.activityBookmarks;
     let itineraries = tourist.itineraryBookmarks;
-    console.log("yemken",activities, itineraries);
+    console.log("yemken", activities, itineraries);
 
     res.status(200).json({ activities: activities, itineraries: itineraries });
   } catch (error) {
@@ -2133,3 +2194,4 @@ exports.seeNotifications = async(req,res) => {
     return res.status(500).json({message: "Internal error"});
   }
 }
+;

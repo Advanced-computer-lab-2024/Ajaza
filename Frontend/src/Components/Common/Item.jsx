@@ -43,6 +43,7 @@ const Item = ({
   isFlagged,
   handleFlagClick,
   currency,
+  creatorFeedback,
 }) => {
   const [user, setUser] = useState(null);
   const [avgRating, setAvgRating] = useState(null);
@@ -112,6 +113,7 @@ const Item = ({
         feedbacks={feedbacks}
         setFeedbacks={setFeedbacks}
       />
+      <Feedbacks feedbacks={creatorFeedback} />
     </>
   );
 };
