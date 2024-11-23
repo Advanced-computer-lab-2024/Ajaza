@@ -842,3 +842,19 @@ exports.seeNotifications = async(req,res) => {
     return res.status(500).json({message: "Internal error"});
   }
 }
+
+exports.myItemsFeedback = async(req,res) => {
+  try {
+    const sellerId = req.params.id;
+
+    const products = await Product.find({ sellerId });
+
+    const allFeedback = products.reduce((acc, product) => {
+      return acc.concat(product.feedback);
+    }, []);
+
+    return { message: "Feedback returned successfully.", feedback: allFeedback };
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}

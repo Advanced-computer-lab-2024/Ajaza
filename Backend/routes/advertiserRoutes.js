@@ -105,5 +105,7 @@ router.post("/validateEmailUsername", advertiserController.validateEmailUsername
 
 router.get('/viewSalesReport/:id', advertiserController.viewSalesReport);
 
+router.get("/myItems/feedback/:id", advertiserController.myItemsFeedback);
+
 
 module.exports = router;

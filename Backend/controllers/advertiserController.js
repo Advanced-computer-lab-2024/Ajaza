@@ -750,3 +750,19 @@ exports.viewSalesReport = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.myItemsFeedback = async(req,res) => {
+  try {
+    const advertiserId = req.params.id;
+
+    const activities = await Activity.find({ advertiserId });
+
+    const allFeedback = activities.reduce((acc, activity) => {
+      return acc.concat(activity.feedback);
+    }, []);
+
+    return { message: "Feedback returned successfully.", feedback: allFeedback };
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}

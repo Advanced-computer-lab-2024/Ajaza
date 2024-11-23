@@ -801,3 +801,19 @@ exports.seeNotifications = async(req,res) => {
     return res.status(500).json({message: "Internal error"});
   }
 }
+
+exports.myItemsFeedback = async(req,res) => {
+  try {
+    const guideId = req.params.id;
+
+    const itineraries = await Itinerary.find({ guideId });
+
+    const allFeedback = itineraries.reduce((acc, itinerary) => {
+      return acc.concat(itinerary.feedback);
+    }, []);
+
+    return { message: "Feedback returned successfully.", feedback: allFeedback };
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}

@@ -83,6 +83,7 @@ router.get('/viewSalesReport/:id', sellerController.viewSalesReport);
 
 router.post("/seeNotifications", sellerController.seeNotifications);
 
+router.get("/myItems/feedback/:id", sellerController.myItemsFeedback);
 
 
 module.exports = router;

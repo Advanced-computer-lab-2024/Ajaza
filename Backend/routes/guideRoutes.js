@@ -94,5 +94,8 @@ router.get('/viewSalesReport/:id', guideController.viewSalesReport);
 
 router.post("/seeNotifications", guideController.seeNotifications);
 
+router.get("/myItems/feedback/:id", guideController.myItemsFeedback);
+
+
 
 module.exports = router;
