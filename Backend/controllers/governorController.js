@@ -105,7 +105,7 @@ exports.readAllGovernorVenues = async (req, res) => {
     const venues = await Venue.find({ governorId, isVisible: true });
 
     if (!venues || venues.length === 0) {
-      //return res.status(404).json({ message: 'No venues found for this governor.' });
+      return res.status(404).json({ message: 'No venues found for this governor.' });
     }
 
     res.status(200).json(venues);
@@ -188,12 +188,12 @@ exports.getGovernorVenues = async (req, res) => {
     const venues = await Venue.find({ governorId, isVisible: true });
 
     if (!venues || venues.length === 0) {
-      //return res.status(404).json({ message: 'No venues found for this governor' });
+      return res.status(404).json({ message: 'No venues found for this governor' });
     }
 
     res.status(200).json(venues);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -245,7 +245,7 @@ exports.createTagForVenue = async (req, res) => {
     } else {
       return res
         .status(400)
-        .json({ message: "All tags already exist for this venue." });
+        .json({ message: "Tag already exist for this venue." });
     }
     // Save the updated venue
     await venue.save();
@@ -255,7 +255,7 @@ exports.createTagForVenue = async (req, res) => {
       .json({ message: "Tag assigned to venue successfully", tags, venue });
   } catch (error) {
     // Handle any error that occurs and return it in the response
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
