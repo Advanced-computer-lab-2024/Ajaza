@@ -30,6 +30,7 @@ import { jwtDecode } from "jwt-decode";
 import MapView from "./MapView";
 import { convertDateToString, camelCaseToNormalText } from "./Constants";
 import Timeline from "./Timeline";
+import StripeContainer from "./StripeContainer";
 import { Dropdown } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./HeaderInfo.css";
@@ -513,7 +514,7 @@ const HeaderInfo = ({
           />
 
                 <div style={{ marginTop: 20 }}>
-                  <Radio.Group onChange={handlePaymentChange} value={paymentMethod}>
+                  <Radio.Group value={paymentMethod}>
                     <Radio value="wallet" onClick={() => setPaymentMethod("wallet")}>Pay by Wallet</Radio>
                     <Radio value="card" onClick={() => setPaymentMethod("card")}>Pay by Card</Radio>
                   </Radio.Group>
@@ -525,33 +526,7 @@ const HeaderInfo = ({
 
                 {/* Card Payment Form */}
                 {paymentMethod === "card" && (
-                  <Form style={{ marginTop: 20 }}>
-                    <Form.Item label="Card Number">
-                      <Input
-                        placeholder="Enter card number"
-                        onChange={(e) => handleCardInputChange("number", e.target.value)}
-                      />
-                    </Form.Item>
-                    <Form.Item label="Card Holder Name">
-                      <Input
-                        placeholder="Enter name on card"
-                        onChange={(e) => handleCardInputChange("name", e.target.value)}
-                      />
-                    </Form.Item>
-                    <Form.Item label="Expiry Date">
-                      <Input
-                        placeholder="MM/YY"
-                        onChange={(e) => handleCardInputChange("expiry", e.target.value)}
-                      />
-                    </Form.Item>
-                    <Form.Item label="CVV">
-                      <Input
-                        placeholder="Enter CVV"
-                        type="password"
-                        onChange={(e) => handleCardInputChange("cvv", e.target.value)}
-                      />
-                    </Form.Item>
-                  </Form>
+                  <StripeContainer />
                 )}
         </div>
       ),
