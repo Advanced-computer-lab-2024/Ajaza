@@ -11,6 +11,8 @@ import {
   Menu,
   message,
   Button,
+  Radio,
+  Form,
 } from "antd";
 import { Colors, apiUrl } from "./Constants";
 import CustomButton from "./CustomButton";
@@ -33,6 +35,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "./HeaderInfo.css";
 
 const { Option } = Select;
+
+const { PaymentOption } = Select;
+
 
 const contentStyle = {
   margin: 0,
@@ -98,6 +103,8 @@ const HeaderInfo = ({
   const [decodedToken, setDecodedToken] = useState(null);
   const [userid, setUserid] = useState(null);
   const [past, setPast] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("wallet");
+  const [cardDetails, setCardDetails] = useState({ number: "", name: "", expiry: "", cvv: "" });
 
   const navigate = useNavigate();
 
@@ -230,6 +237,14 @@ const HeaderInfo = ({
       setPriceString(price);
     }
   }, [price, priceLower, priceUpper, discounts]);
+
+  const handlePaymentChange = (e) => {
+    setPaymentMethod(e.target.value);
+  };
+
+  const handleCardInputChange = (field, value) => {
+    setCardDetails((prev) => ({ ...prev, [field]: value }));
+  };
 
   //req50
   const locationUrl = useLocation();
@@ -496,6 +511,44 @@ const HeaderInfo = ({
             onChange={(e) => setPromoCode(e.target.value)}
             style={{ marginTop: 10 }}
           />
+
+                <div style={{ marginTop: 20 }}>
+                  <Radio.Group onChange={handlePaymentChange} value={paymentMethod}>
+                    <Radio value="wallet">Pay by Wallet</Radio>
+                    <Radio value="card">Pay by Card</Radio>
+                  </Radio.Group>
+                </div>
+
+                {/* Card Payment Form */}
+                {paymentMethod === "card" && (
+                  <Form style={{ marginTop: 20 }}>
+                    <Form.Item label="Card Number">
+                      <Input
+                        placeholder="Enter card number"
+                        onChange={(e) => handleCardInputChange("number", e.target.value)}
+                      />
+                    </Form.Item>
+                    <Form.Item label="Card Holder Name">
+                      <Input
+                        placeholder="Enter name on card"
+                        onChange={(e) => handleCardInputChange("name", e.target.value)}
+                      />
+                    </Form.Item>
+                    <Form.Item label="Expiry Date">
+                      <Input
+                        placeholder="MM/YY"
+                        onChange={(e) => handleCardInputChange("expiry", e.target.value)}
+                      />
+                    </Form.Item>
+                    <Form.Item label="CVV">
+                      <Input
+                        placeholder="Enter CVV"
+                        type="password"
+                        onChange={(e) => handleCardInputChange("cvv", e.target.value)}
+                      />
+                    </Form.Item>
+                  </Form>
+                )}
         </div>
       ),
       //onOk: bookItem,
@@ -545,7 +598,7 @@ const HeaderInfo = ({
           capital = "Itinerary";
         }
 
-        message.success(`${capital} booking canceled successfully!`);
+        message.success(response.data.message);
         setIsBooked(false);
         await getNewToken();
       } else {
