@@ -399,12 +399,14 @@ exports.bookActivity = async (req, res) => {
 
     if (!isAdult(tourist.dob)) {
       console.log("not adult");
-      return res.status(418).json({ message: "Tourist is not an adult" });
+      if(useWallet === false) wallet+=total;
+      return res.status(418).json({ message: "Tourist is not an adult." });
     }
 
     //this condition may be commented since handling it in the frontend
     if (promoCode && tourist.usedPromoCodes.includes(promoCode)) {
       console.log("promo code already used");
+      if(useWallet === false) wallet+=total;
       return res
         .status(404)
         .json({ message: "You already used this promo code" });
@@ -413,12 +415,14 @@ exports.bookActivity = async (req, res) => {
     const activity = await Activity.findById(activityId);
     if (!activity) {
       console.log("activityId", activityId);
+      if(useWallet === false) wallet+=total;
       return res.status(404).json({ message: "Activity not found" });
     }
 
     // check if the activity is open for booking
     if (!activity.isOpen || activity.spots <= 0) {
       console.log("activity not open");
+      if(useWallet === false) wallet+=total;
       return res
         .status(400)
         .json({ message: "This activity is not open for booking" });
@@ -428,26 +432,11 @@ exports.bookActivity = async (req, res) => {
     if (useWallet) {
       if (tourist.wallet < total) {
         console.log("insufficient wallet balance");
+        if(useWallet === false) wallet+=total;
         return res.status(400).json({ message: "Insufficient wallet balance" });
       }
 
       tourist.wallet -= total;
-    } else {
-      // Process payment using the extracted function
-      const amount = total * 100; // Convert to cents for Stripe
-      try {
-        const paymentIntent = await processPayment(amount, paymentMethodId);
-
-        // Check if the payment was successful
-        if (paymentIntent.status !== "succeeded") {
-          return res.status(400).json({ message: "Payment failed" });
-        }
-      } catch (error) {
-        console.log("payment failed");
-        return res
-          .status(400)
-          .json({ message: `Payment failed: ${error.message}` });
-      }
     }
 
     // deduct 1 spot from the activity
@@ -526,6 +515,7 @@ exports.bookItinerary = async (req, res) => {
 
     if (date < new Date()) {
       console.log("date must be in the future");
+      if(useWallet === false) wallet+=total;
       return res.status(400).json({ message: "Date must be in the future" });
     }
 
@@ -537,12 +527,14 @@ exports.bookItinerary = async (req, res) => {
 
     if (!isAdult(tourist.dob)) {
       console.log("not adult");
+      if(useWallet === false) wallet+=total;
       return res.status(400).json({ message: "Tourist is not an adult" });
     }
 
     //unnecessary condition
     if (promoCode && tourist.usedPromoCodes.includes(promoCode)) {
       console.log("promo code already used");
+      if(useWallet === false) wallet+=total;
       return res
         .status(404)
         .json({ message: "You already used this promo code" });
@@ -551,12 +543,14 @@ exports.bookItinerary = async (req, res) => {
     const itinerary = await Itinerary.findById(itineraryId);
     if (!itinerary) {
       console.log("itineraryId", itineraryId);
+      if(useWallet === false) wallet+=total;
       return res.status(404).json({ message: "Itinerary not found" });
     }
 
     // check if the itinerary is open for booking
     if (!itinerary.active) {
       console.log("itinerary not open");
+      if(useWallet === false) wallet+=total;
       return res
         .status(400)
         .json({ message: "This itinerary is not open for booking" });
@@ -569,6 +563,7 @@ exports.bookItinerary = async (req, res) => {
 
     if (!availableDate || availableDate.spots <= 0) {
       console.log("no spots available");
+      if(useWallet === false) wallet+=total;
       return res.status(400).json({
         message: "No spots available for this itinerary on the selected date",
       });
@@ -585,20 +580,21 @@ exports.bookItinerary = async (req, res) => {
 
       tourist.wallet -= total;
     } else {
-      // Process payment using the extracted function
-      const amount = total * 100; // Convert to cents for Stripe
-      try {
-        const paymentIntent = await processPayment(amount, paymentMethodId);
-
-        // Check if the payment was successful
-        if (paymentIntent.status !== "succeeded") {
-          return res.status(400).json({ message: "Payment failed" });
+        const amount = total * 100; // Convert to cents for Stripe
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: amount, // Amount in cents (change as necessary)
+          currency: 'usd',
+          payment_method: paymentMethodId, // Attach the payment method
+          confirm: true, // Automatically confirm the payment intent
+          return_url: 'http://localhost:3000/payment-confirmation', // Optional: if redirect is needed
+          automatic_payment_methods: {
+          enabled: true,
+          allow_redirects: "never", // Avoid redirect-based methods
+          },
+        });
+        if(paymentIntent.status !== 'succeeded') {
+          return res.status(400).json({error: { message: 'Payment failed' }});
         }
-      } catch (error) {
-        return res
-          .status(400)
-          .json({ message: `Payment failed: ${error.message}` });
-      }
     }
 
     // deduct 1 spot from the itinerary
@@ -1956,9 +1952,9 @@ exports.changeQuantityInCart = async(req,res) => {
 exports.incQuantityInCart = async(req,res) => {
   try {
     const touristId = req.params.id;
-    const { productId, quantity } = req.body;
+    const { productId } = req.body;
 
-    if(!productId || !quantity) {
+    if(!productId) {
       return res.status(400).json({message: "Missing params"});
     }
 
@@ -1987,9 +1983,9 @@ exports.incQuantityInCart = async(req,res) => {
 exports.decQuantityInCart = async(req,res) => {
   try {
     const touristId = req.params.id;
-    const { productId, quantity } = req.body;
+    const { productId } = req.body;
 
-    if(!productId || !quantity) {
+    if(!productId) {
       return res.status(400).json({message: "Missing params"});
     }
 

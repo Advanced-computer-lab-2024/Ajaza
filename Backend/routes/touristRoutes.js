@@ -192,7 +192,7 @@ router.delete(
 
 // req58 req71 req70
 router.post(
-  "/:touristId/activity/:activityId/book", stripePay,
+  "/:touristId/activity/:activityId/book",
   touristController.bookActivity
 );
 router.post(
@@ -325,10 +325,12 @@ MasterCard (success): 5555 5555 5555 4444
 router.post('/stripe', async (req, res) => {
   const { paymentMethodId, amount } = req.body;
 
+  const amountIn = amount*100;
+
   try {
     // Create a payment intent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount, // Amount in cents (change as necessary)
+      amount: amountIn, // Amount in cents (change as necessary)
       currency: 'usd',
       payment_method: paymentMethodId, // Attach the payment method
       confirm: true, // Automatically confirm the payment intent
