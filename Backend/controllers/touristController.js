@@ -2279,13 +2279,25 @@ async function outOfStock(name, sellerId, adminId) {
     if(sellerId) {
       const seller = await Seller.findById(sellerId);
 
-      seller.notifications.push({text: `Your product ${name} is out of stock`, seen: false});
+      seller.notifications.push({ text: `Your product ${name} is out of stock`, seen: false });
+      
+      sendEmail(
+        seller.email,
+        `Product Out of Stock: ${name}`,
+        `Dear ${seller.name},\n\nWe noticed that your product "${name}" is currently out of stock. Please restock it as soon as possible to continue serving your customers. If this was intentional, no further action is needed.\n\nBest regards,\nYour Platform Team`
+      );
 
       seller.save();
     } else if(adminId) {
       const admin = await Admin.findById(adminId);
 
-      admin.notifications.push({text: `Your product ${name} is out of stock`, seen: false});
+      admin.notifications.push({ text: `Your product ${name} is out of stock`, seen: false });
+      
+      sendEmail(
+        admin.email,
+        `Product Out of Stock: ${name}`,
+        `Dear ${admin.name},\n\nThe product "${name}" is currently out of stock. Please contact the seller or take the necessary steps to address this issue.\n\nBest regards,\nYour Platform Team`
+      );
 
       admin.save();
     } else {
