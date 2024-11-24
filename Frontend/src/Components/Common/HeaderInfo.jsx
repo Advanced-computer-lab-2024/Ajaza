@@ -35,11 +35,15 @@ import StripeContainer from "./StripeContainer";
 import { Dropdown } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./HeaderInfo.css";
-//import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+/*import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';*/
 
 const { Option } = Select;
 
 const { PaymentOption } = Select;
+
+//const stripePromise = loadStripe("pk_test_51QONfoIeveJOIzFrIAQIVM7VjUxI8FVUR0VPvCZQtESNQQAu4NqnjZriQEZS0nXD0nT63RQFY8HeixlGp53my1t700Vbu2tFyY");
 
 
 const contentStyle = {
@@ -89,16 +93,17 @@ const HeaderInfo = ({
 }) => {
   const [multiplePhotos, setMultiplePhotos] = useState(false);
 
+  const [leave, setLeave] = useState(false);
   const [isBooked, setIsBooked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [promoCode, setPromoCode] = useState("");
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(availableDates?availableDates[0].date:null);
   const selectedDateRef = useRef(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [priceString, setPriceString] = useState("");
   const emailRef = useRef(null);
-  const [selectedPrice, setSelectedPrice] = useState(price);
-  const selectedPriceRef = useRef(null);
+  const [selectedPrice, setSelectedPrice] = useState( type==="activity" ? priceUpper : price);
+    const selectedPriceRef = useRef(null);
   const [currencySymbol, setCurrencySymbol] = useState(
     currency == "EGP" ? "£" : currency == "EUR" ? "€" : "$"
   );
@@ -111,8 +116,7 @@ const HeaderInfo = ({
 
   const navigate = useNavigate();
 
-
-  // //stripe
+  // // //stripe
   // const stripe = useStripe();
   // const elements = useElements();
   // const [loading, setLoading] = useState(false);
@@ -361,6 +365,14 @@ const HeaderInfo = ({
     }
   };
 
+  if(leave) {
+    getNewToken();
+    Modal.destroyAll();
+    setTimeout(() => {
+      navigate('/tourist/');
+    }, 500);
+  }
+
   useEffect(() => {
     if (selectedDate) {
       selectedDateRef.current = selectedDate; // Update the ref with the new value
@@ -430,6 +442,9 @@ const HeaderInfo = ({
 
   const showBookingModal = () => {
     const temp = localStorage.getItem("token");
+
+    
+
     if (!temp) {
       message.warning(
         <div>
@@ -448,7 +463,7 @@ const HeaderInfo = ({
       return;
     }
     let currentSelectedDate;
-    let currentprice;
+    let currentprice = priceLower;
 
     const discountedPriceLower = priceLower - (discounts / 100) * priceLower;
     const discountedPriceUpper = priceUpper - (discounts / 100) * priceUpper;
@@ -457,6 +472,10 @@ const HeaderInfo = ({
 
     //const middlePrice = (priceLower + priceUpper) / 2;
     Modal.confirm({
+      okButtonProps: {
+        style: (paymentMethod === "wallet") ? { text: "Pay"} : { display: 'none' }, // Show if selectedPayment is truthy
+      },
+      okText: "Pay & Book",
       title: `Confirm Booking for ${name}`,
       content: (
         <div>
@@ -469,6 +488,7 @@ const HeaderInfo = ({
                 console.log("Selected Date:", value); // Log the selected value directly
               }}
               style={{ width: "100%", marginBottom: 10 }}
+              defaultValue={availableDates[0].date}
             >
               {availableDates.map((slot, index) => (
                 <Option key={index} value={slot.date}>
@@ -487,6 +507,7 @@ const HeaderInfo = ({
                 console.log("Selected Price:", currentprice); // Log the selected price
               }}
               style={{ width: "100%", marginBottom: 10 }}
+              defaultValue={discountedPriceUpper}
             >
               <Option
                 value={discountedPriceLower}
@@ -535,7 +556,7 @@ const HeaderInfo = ({
 
                 {/* Card Payment Form */}
                 {paymentMethod === "card" && (
-                  <StripeContainer />
+                  <StripeContainer amount={selectedPrice} type={type} selectedDate={selectedDateRef.current} userid={userid} id={id} useWallet={paymentMethod === "wallet"} setLeave={setLeave}/>
                 )}
         </div>
       ),
