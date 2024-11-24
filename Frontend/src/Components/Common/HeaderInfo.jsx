@@ -995,7 +995,7 @@ const HeaderInfo = ({
                     <div
                       style={{ fontWeight: "bold", color: Colors.warningDark }}
                     >
-                      UnFlag
+                      Cancel Flagging
                     </div>
                   </Button>
                 ) : (

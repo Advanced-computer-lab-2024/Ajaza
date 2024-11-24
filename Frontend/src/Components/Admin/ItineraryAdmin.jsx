@@ -205,7 +205,7 @@ const ItineraryAdmin = () => {
 
       {/* Confirmation Modal */}
       <Modal
-        title="Confirm UnFlag"
+        title="Cancel Flagging"
         visible={unflagisModalVisible}
         onOk={confirmUnFlag}
         onCancel={cancelUnFlag}
