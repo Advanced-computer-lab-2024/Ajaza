@@ -778,3 +778,42 @@ exports.viewSalesReport = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.seeNotifications = async(req,res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await Guide.findById(userId);
+
+    if(!user) {
+      return res.status(404).json({message: "User not found"});
+    }
+
+    for(let i = 0; i < user.notifications.length; i++) {
+      user.notifications[i].seen = true;
+    }
+
+    await user.save();
+
+    return res.status(200).json({message: "Notifications seen successfully"});
+  }
+  catch(error) {
+    return res.status(500).json({message: "Internal error"});
+  }
+}
+
+exports.myItemsFeedback = async(req,res) => {
+  try {
+    const guideId = req.params.id;
+
+    const itineraries = await Itinerary.find({ guideId });
+
+    const allFeedback = itineraries.reduce((acc, itinerary) => {
+      return acc.concat(itinerary.feedback);
+    }, []);
+
+    return { message: "Feedback returned successfully.", feedback: allFeedback };
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}

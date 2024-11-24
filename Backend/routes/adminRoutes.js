@@ -28,4 +28,6 @@ router.delete(
 
 router.delete("/deleteImgs", adminController.deleteImgs);
 
+router.post("/seeNotifications/:id", adminController.seeNotifications);
+
 module.exports = router;

@@ -106,7 +106,7 @@ const Feedbacks = ({
                             {feedbackItem?.touristId?.username ? (
                               feedbackItem?.touristId?.username
                             ) : (
-                              <span>Anonymous</span>
+                              <span>{feedbackItem?.touristName}</span>
                             )}
                           </div>
                           <Rate

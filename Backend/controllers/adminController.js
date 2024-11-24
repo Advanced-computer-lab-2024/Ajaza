@@ -172,3 +172,26 @@ exports.deleteImgs = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+exports.seeNotifications = async(req,res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await Admin.findById(userId);
+
+    if(!user) {
+      return res.status(404).json({message: "User not found"});
+    }
+
+    for(let i = 0; i < user.notifications.length; i++) {
+      user.notifications[i].seen = true;
+    }
+
+    await user.save();
+
+    return res.status(200).json({message: "Notifications seen successfully"});
+  }
+  catch(error) {
+    return res.status(500).json({message: "Internal error"});
+  }
+}

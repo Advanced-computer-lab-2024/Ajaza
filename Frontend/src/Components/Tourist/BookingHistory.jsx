@@ -3,20 +3,10 @@ import SearchFilterSortContainer from "../Common/SearchFilterSortContainer";
 import { apiUrl, getAvgRating, comparePriceRange } from "../Common/Constants";
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
-import { jwtDecode } from "jwt-decode";
 import SelectCurrency from "./SelectCurrency";
 import { useNavigate } from "react-router-dom";
 import { useCurrency } from "./CurrencyContext";
-
-const token = localStorage.getItem("token");
-let decodedToken = null;
-if (token) {
-  decodedToken = jwtDecode(token);
-}
-
-console.log(decodedToken);
-
-const userid = decodedToken ? decodedToken.userId : null;
+import { jwtDecode } from "jwt-decode";
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -36,36 +26,51 @@ const convertTagsToValues = (tagsArray) => {
   });
 };
 
-const currencyRates = {
-  EGP: 48.58,
-  USD: 1,
-  EUR: 0.91,
-};
-
-const Activities = () => {
+const Plans = () => {
   const navigate = useNavigate();
   const [combinedElements, setCombinedElements] = useState([]);
-  // propName:fieldName
   const propMapping = {
     title: "name",
     extra: "price",
     rating: "avgRating",
-    dateTime: "availableDateTime",
+    photo: "photo",
   };
-  const cardOnclick = (element) => {
-    navigate(element["_id"]);
+
+  const currencyRates = {
+    EGP: 48.58,
+    USD: 1,
+    EUR: 0.91,
   };
+
   const { currency, setCurrency } = useCurrency();
 
   const handleCurrencyChange = (newCurrency) => {
     setCurrency(newCurrency);
   };
-
-  const fields = { Categories: "category", Tags: "tags", Date: "date" };
+  const fields = { Categories: "category", Tags: "tags", Type: "type" };
   const searchFields = ["name", "category", "tags"];
   const constProps = { rateDisplay: true, currency, currencyRates };
   const sortFields = ["avgRating", "price"];
   const [filterFields, setfilterFields] = useState({
+    tags: {
+      displayName: "Tags",
+      values: [
+        { displayName: "Kayaking", filterCriteria: "kayaking" },
+        { displayName: "History", filterCriteria: "history" },
+        { displayName: "Mountain", filterCriteria: "mountain" },
+      ],
+      compareFn: (filterCriteria, element) => {
+        if (!element.tags) {
+          return false;
+        }
+        // Convert filterCriteria to lowercase
+        const lowerFilterCriteria = filterCriteria.toLowerCase();
+        // Check if any of the tags (converted to lowercase) match the filterCriteria
+        return element.tags.some(
+          (tag) => tag.toLowerCase() === lowerFilterCriteria
+        );
+      },
+    },
     price: {
       displayName: "Price",
       values: [
@@ -77,103 +82,26 @@ const Activities = () => {
       compareFn: (filterCriteria, element) =>
         comparePriceRange(filterCriteria, element),
     },
-    avgRating: {
-      displayName: "Rating",
-      values: [
-        { displayName: "1+", filterCriteria: 1 },
-        { displayName: "2+", filterCriteria: 2 },
-        { displayName: "3+", filterCriteria: 3 },
-        { displayName: "4+", filterCriteria: 4 },
-        { displayName: "5+", filterCriteria: 5 },
-      ],
-      compareFn: (filterCriteria, element) => {
-        if (!element.avgRating) {
-          return false;
-        }
-        if (element.avgRating >= filterCriteria) {
-          return true;
-        }
-        return false;
-      },
-    },
-    date: {
-      displayName: "Dates/Times",
-      values: [
-        {
-          displayName: "January",
-          filterCriteria: ["2024-01-01", "2024-01-31"],
-        },
-        {
-          displayName: "February",
-          filterCriteria: ["2024-02-01", "2024-02-29"],
-        },
-        {
-          displayName: "March",
-          filterCriteria: ["2024-03-01", "2024-03-31"],
-        },
-        {
-          displayName: "April",
-          filterCriteria: ["2024-04-01", "2024-04-30"],
-        },
-        {
-          displayName: "May",
-          filterCriteria: ["2024-05-01", "2024-05-31"],
-        },
-        {
-          displayName: "June",
-          filterCriteria: ["2024-06-01", "2024-06-30"],
-        },
-        {
-          displayName: "July",
-          filterCriteria: ["2024-07-01", "2024-07-31"],
-        },
-        {
-          displayName: "August",
-          filterCriteria: ["2024-08-01", "2024-08-31"],
-        },
-        {
-          displayName: "September",
-          filterCriteria: ["2024-09-01", "2024-09-30"],
-        },
-        {
-          displayName: "October",
-          filterCriteria: ["2024-10-01", "2024-10-31"],
-        },
-        {
-          displayName: "November",
-          filterCriteria: ["2024-11-01", "2024-11-30"],
-        },
-        {
-          displayName: "December",
-          filterCriteria: ["2024-12-01", "2024-12-31"],
-        },
-      ],
-      compareFn: (filterCriteria, element) => {
-        // Extract the month from filterCriteria
-        const startMonth = new Date(filterCriteria[0]).getMonth(); // Get the start month (0-11)
-        const endMonth = new Date(filterCriteria[1]).getMonth(); // Get the end month (0-11)
-
-        if (!element.date) {
-          return false;
-        }
-
-        const availableDate = new Date(element.date);
-        const availableMonth = availableDate.getMonth(); // Get the month (0-11)
-        return availableMonth >= startMonth && availableMonth <= endMonth;
-      },
-    },
   });
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    const decodedToken = jwtDecode(token);
+    console.log(decodedToken);
+
     const fetchData = async () => {
       try {
-        const [activityResponse, categoryResponse, tagResponse] =
+        const [eventResponse, categoryResponse, tagResponse] =
           await Promise.all([
-            axios.get(`${apiUrl}activity/notHidden`),
+            axios.get(
+              `${apiUrl}tourist/history/getHistoryFull/${decodedToken?.userId}`
+            ),
             axios.get(`${apiUrl}category`),
             axios.get(`${apiUrl}tag`),
           ]);
-        let activities = activityResponse.data;
+        let activities = eventResponse.data.activities;
+        let itineraries = eventResponse.data.itineraries;
+
         let categories = categoryResponse.data;
         let tags = tagResponse.data;
 
@@ -194,7 +122,23 @@ const Activities = () => {
 
         filterFields.tags = {
           displayName: "Tags",
-          values: [...convertTagsToValues(tags)],
+          values: [
+            ...convertTagsToValues(tags),
+            { displayName: "Monuments", filterCriteria: "Monuments" },
+            { displayName: "Museums", filterCriteria: "Museums" },
+            {
+              displayName: "Religious Sites",
+              filterCriteria: "Religious Sites",
+            },
+            {
+              displayName: "Palaces/Castles",
+              filterCriteria: "Palaces/Castles",
+            },
+            { displayName: "1800s-1850s", filterCriteria: "1800s-1850s" },
+            { displayName: "1850s-1900s", filterCriteria: "1850s-1900s" },
+            { displayName: "1900s-1950s", filterCriteria: "1900s-1950s" },
+            { displayName: "1950s-2000s", filterCriteria: "1950s-2000s" },
+          ],
           compareFn: (filterCriteria, element) => {
             if (!element.tags) {
               return false;
@@ -212,7 +156,13 @@ const Activities = () => {
           return { ...activity, price: `${activity.lower}-${activity.upper}` };
         });
 
-        let combinedArray = activities;
+        let combinedArray = [
+          ...activities.map((activity) => ({ ...activity, type: "Activity" })),
+          ...itineraries.map((itinerary) => ({
+            ...itinerary,
+            type: "Itinerary",
+          })),
+        ];
 
         combinedArray = combinedArray.map((element) => {
           return { ...element, avgRating: getAvgRating(element.feedback) };
@@ -222,6 +172,7 @@ const Activities = () => {
         console.error("Error fetching data:", error);
       }
     };
+
     fetchData();
   }, []);
 
@@ -251,10 +202,18 @@ const Activities = () => {
         fields={fields}
         sortFields={sortFields}
         filterFields={filterFields}
-        cardOnclick={cardOnclick}
+        cardOnclick={(element) => {
+          var type = "activities";
+          if (element?.type.toLowerCase() == "itinerary") {
+            type = "itineraries";
+          } else if (element?.type.toLowerCase() == "venue") {
+            type = "venues";
+          }
+          navigate(`/tourist/${type}/${element?._id}`);
+        }}
       />
     </div>
   );
 };
 
-export default Activities;
+export default Plans;

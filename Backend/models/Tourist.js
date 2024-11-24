@@ -90,6 +90,8 @@ const touristSchema = new mongoose.Schema({
   requestingDeletion: { type: Boolean, default: false },//ng added for deletion
   preferredTags: [{ type: String }],
   preferredCategories: [{ type: String }],
+  activityBells: [{ type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Activity'}],
+  itineraryBells: [{ type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Itinerary'}],
 });
 
 // Create the model

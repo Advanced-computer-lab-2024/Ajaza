@@ -11,6 +11,7 @@ import BasicCard from "../Common/BasicCard";
 import SelectCurrency from "./SelectCurrency";
 import { useNavigate } from "react-router-dom";
 import { useCurrency } from "./CurrencyContext";
+import { jwtDecode } from "jwt-decode";
 
 const convertCategoriesToValues = (categoriesArray) => {
   return categoriesArray.map((categoryObj) => {
@@ -38,6 +39,7 @@ const Plans = () => {
     extra: "price",
     rating: "avgRating",
     photo: "photo",
+    discounts: "discounts",
   };
 
   const currencyRates = {
@@ -50,7 +52,8 @@ const Plans = () => {
 
   const handleCurrencyChange = (newCurrency) => {
     setCurrency(newCurrency);
-  };  const fields = { Categories: "category", Tags: "tags", Type: "type" };
+  };
+  const fields = { Categories: "category", Tags: "tags", Type: "type" };
   const searchFields = ["name", "category", "tags"];
   const constProps = { rateDisplay: true, currency, currencyRates };
   const sortFields = ["avgRating", "price"];
@@ -90,6 +93,10 @@ const Plans = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const token = localStorage.getItem("token");
+        const decodedToken = jwtDecode(token);
+        const user = decodedToken?.userDetails;
+
         const [
           activityResponse,
           itineraryResponse,
@@ -157,7 +164,7 @@ const Plans = () => {
         };
 
         venues = venues.map((venue) => {
-          return calculateYourPrice(venue, "egypt", "student");
+          return calculateYourPrice(venue, user?.nationality, user?.occupation);
         });
 
         activities = activities.map((activity) => {
@@ -176,6 +183,8 @@ const Plans = () => {
         combinedArray = combinedArray.map((element) => {
           return { ...element, avgRating: getAvgRating(element.feedback) };
         });
+        console.log(combinedArray);
+
         setCombinedElements(combinedArray);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -184,7 +193,6 @@ const Plans = () => {
 
     fetchData();
   }, []);
-
 
   return (
     <div>
@@ -200,7 +208,7 @@ const Plans = () => {
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
-          style={{left:1000 , top:55}}
+          style={{ left: 1000, top: 55 }}
         />
       </div>
       <SearchFilterSortContainer

@@ -11,6 +11,9 @@ import {
   Menu,
   message,
   Button,
+  Radio,
+  Form,
+  notification,
 } from "antd";
 import { Colors, apiUrl } from "./Constants";
 import CustomButton from "./CustomButton";
@@ -28,11 +31,20 @@ import { jwtDecode } from "jwt-decode";
 import MapView from "./MapView";
 import { convertDateToString, camelCaseToNormalText } from "./Constants";
 import Timeline from "./Timeline";
+import StripeContainer from "./StripeContainer";
 import { Dropdown } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./HeaderInfo.css";
+/*import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';*/
 
 const { Option } = Select;
+
+const { PaymentOption } = Select;
+
+//const stripePromise = loadStripe("pk_test_51QONfoIeveJOIzFrIAQIVM7VjUxI8FVUR0VPvCZQtESNQQAu4NqnjZriQEZS0nXD0nT63RQFY8HeixlGp53my1t700Vbu2tFyY");
+
 
 const contentStyle = {
   margin: 0,
@@ -81,24 +93,34 @@ const HeaderInfo = ({
 }) => {
   const [multiplePhotos, setMultiplePhotos] = useState(false);
 
+  const [leave, setLeave] = useState(false);
   const [isBooked, setIsBooked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [promoCode, setPromoCode] = useState("");
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(availableDates?availableDates[0].date:null);
   const selectedDateRef = useRef(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [priceString, setPriceString] = useState("");
   const emailRef = useRef(null);
-  const [selectedPrice, setSelectedPrice] = useState(price);
-  const selectedPriceRef = useRef(null);
+  const [selectedPrice, setSelectedPrice] = useState( type==="activity" ? priceUpper : price);
+    const selectedPriceRef = useRef(null);
   const [currencySymbol, setCurrencySymbol] = useState(
     currency == "EGP" ? "£" : currency == "EUR" ? "€" : "$"
   );
   const [token, setToken] = useState(null);
   const [decodedToken, setDecodedToken] = useState(null);
   const [userid, setUserid] = useState(null);
+  const [past, setPast] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("wallet");
+  const [cardDetails, setCardDetails] = useState({ number: "", name: "", expiry: "", cvv: "" });
 
   const navigate = useNavigate();
+
+  // // //stripe
+  // const stripe = useStripe();
+  // const elements = useElements();
+  // const [loading, setLoading] = useState(false);
+  // //
 
   useEffect(() => {
     const tempToken = localStorage.getItem("token");
@@ -109,6 +131,35 @@ const HeaderInfo = ({
       setUserid(decTemp?.userId);
     }
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    const dateNow = new Date().getTime();
+    user?.itineraryBookings.forEach((booking) => {
+      if (booking.itineraryId == id) {
+        // Booked
+        console.log(Date(booking.date));
+        const bookDate = new Date(booking.date);
+        if (bookDate.getTime() < dateNow) {
+          setPast(true);
+        }
+      }
+    });
+
+    user?.activityBookings.forEach((booking) => {
+      if (booking.activityId == id) {
+        // Booked
+        const bookDate = new Date(date);
+        if (bookDate.getTime() < dateNow) {
+          setPast(true);
+        }
+      }
+    });
+  }, [user, id, date]);
+
+  useEffect(() => {
+    console.log(past);
+  }, [past]);
 
   useEffect(() => {
     console.log(currency);
@@ -147,6 +198,27 @@ const HeaderInfo = ({
   }, [id, type, user]);
 
   useEffect(() => {
+    // Check if bookmarked
+    if (!user) return;
+    if (type == "activity") {
+      user?.activityBookmarks.forEach((booking) => {
+        if (booking.activityId == id) {
+          setIsSaved(true);
+        }
+      });
+    } else if (type == "itinerary") {
+      user?.itineraryBookmarks.forEach((booking) => {
+        if (booking.itineraryId == id) {
+          setIsSaved(true);
+        }
+      });
+    } else {
+      // WISHLIST LOGIC of check if already in wishlist
+      // using setIsSaved also
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (Array.isArray(photos) && photos.length > 0) {
       setMultiplePhotos(true);
     }
@@ -179,6 +251,14 @@ const HeaderInfo = ({
       setPriceString(price);
     }
   }, [price, priceLower, priceUpper, discounts]);
+
+  const handlePaymentChange = (e) => {
+    setPaymentMethod(e.target.value);
+  };
+
+  const handleCardInputChange = (field, value) => {
+    setCardDetails((prev) => ({ ...prev, [field]: value }));
+  };
 
   //req50
   const locationUrl = useLocation();
@@ -285,6 +365,14 @@ const HeaderInfo = ({
     }
   };
 
+  if(leave) {
+    getNewToken();
+    Modal.destroyAll();
+    setTimeout(() => {
+      navigate('/tourist/');
+    }, 500);
+  }
+
   useEffect(() => {
     if (selectedDate) {
       selectedDateRef.current = selectedDate; // Update the ref with the new value
@@ -354,6 +442,9 @@ const HeaderInfo = ({
 
   const showBookingModal = () => {
     const temp = localStorage.getItem("token");
+
+    
+
     if (!temp) {
       message.warning(
         <div>
@@ -372,7 +463,7 @@ const HeaderInfo = ({
       return;
     }
     let currentSelectedDate;
-    let currentprice;
+    let currentprice = priceLower;
 
     const discountedPriceLower = priceLower - (discounts / 100) * priceLower;
     const discountedPriceUpper = priceUpper - (discounts / 100) * priceUpper;
@@ -381,6 +472,10 @@ const HeaderInfo = ({
 
     //const middlePrice = (priceLower + priceUpper) / 2;
     Modal.confirm({
+      okButtonProps: {
+        style: (paymentMethod === "wallet") ? { text: "Pay"} : { display: 'none' }, // Show if selectedPayment is truthy
+      },
+      okText: "Pay & Book",
       title: `Confirm Booking for ${name}`,
       content: (
         <div>
@@ -393,6 +488,7 @@ const HeaderInfo = ({
                 console.log("Selected Date:", value); // Log the selected value directly
               }}
               style={{ width: "100%", marginBottom: 10 }}
+              defaultValue={availableDates[0].date}
             >
               {availableDates.map((slot, index) => (
                 <Option key={index} value={slot.date}>
@@ -411,6 +507,7 @@ const HeaderInfo = ({
                 console.log("Selected Price:", currentprice); // Log the selected price
               }}
               style={{ width: "100%", marginBottom: 10 }}
+              defaultValue={discountedPriceUpper}
             >
               <Option
                 value={discountedPriceLower}
@@ -445,6 +542,22 @@ const HeaderInfo = ({
             onChange={(e) => setPromoCode(e.target.value)}
             style={{ marginTop: 10 }}
           />
+
+                <div style={{ marginTop: 20 }}>
+                  <Radio.Group value={paymentMethod}>
+                    <Radio value="wallet" onClick={() => setPaymentMethod("wallet")}>Pay by Wallet</Radio>
+                    <Radio value="card" onClick={() => setPaymentMethod("card")}>Pay by Card</Radio>
+                  </Radio.Group>
+                </div>
+
+                {paymentMethod === "wallet" && decodedToken.userDetails.wallet && (
+                  <p>Current balance: {decodedToken.userDetails.wallet}</p>
+                )}
+
+                {/* Card Payment Form */}
+                {paymentMethod === "card" && (
+                  <StripeContainer amount={selectedPrice} type={type} selectedDate={selectedDateRef.current} userid={userid} id={id} useWallet={paymentMethod === "wallet"} setLeave={setLeave}/>
+                )}
         </div>
       ),
       //onOk: bookItem,
@@ -494,7 +607,7 @@ const HeaderInfo = ({
           capital = "Itinerary";
         }
 
-        message.success(`${capital} booking canceled successfully!`);
+        message.success(response.data.message);
         setIsBooked(false);
         await getNewToken();
       } else {
@@ -507,18 +620,90 @@ const HeaderInfo = ({
     }
   };
 
-  const save = () => {
-    // add to saved items
-    console.log("saved");
+  function capitalizeFirstLetter(val) {
+    return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+  }
+
+  const [isInWishlist, setIsInWishlist] = useState(false);
+  const save = async () => {
+    const pathParts = locationUrl.pathname.split("/");
+    const type = pathParts[2];
+    const productId = pathParts[3];
+    if (type == "products") {
+      // add to wishlist logic
+      try {
+        const response = await axios.post(`${apiUrl}tourist/add-to-wishlist`, {
+          touristId: userid,
+          productId: productId,
+        });
+  
+        if (response.status === 200) {
+          console.log(response.data.message);
+          setIsInWishlist(true);
+          await getNewToken();
+        }
+      } catch (error) {
+        console.error("Error adding product to wishlist:", error.response?.data.message || error.message);
+      }
+    } else {
+      try {
+        console.log(
+          `${apiUrl}bookmark/add${capitalizeFirstLetter(
+            type
+          )}Bookmark/${userid}/${id}`
+        );
+
+        // const response = await axios.post(`${apiUrl}bookmark/add${capitalizeFirstLetter(type)}Bookmark/${userid}/${id}`)
+      } catch (error) {}
+    }
     // NOTE any action that changes user get user again and set token to new one
     // if successful get user again and set token (if not already returned using the func)
   };
 
-  const unSave = () => {
-    // add to unSaved items
-    console.log("unsaved");
+
+  const unSave = async () => {
+    //const touristId = userid;
+    const pathParts = locationUrl.pathname.split("/");
+    const type = pathParts[2];
+    const productId = pathParts[3];
+    if (type == "products") {
+      // remove from wishlist logic
+
+      try {
+        const response = await axios.post(`${apiUrl}tourist/remove-from-wishlist`, {
+          touristId: userid,
+          productId: productId,
+        });
+  
+        if (response.status === 200) {
+          console.log(response.data.message);
+          setIsInWishlist(false);
+          await getNewToken();
+        }
+      } catch (error) {
+        console.error("Error removing product from wishlist:", error.response?.data.message || error.message);
+      }
+    } else {
+    }
     // if successful get user again and set token (if not already returned using the func)
   };
+ const toggleWishlist = async () => {
+
+  try {
+    if (isSaved) {
+      console.log("Removing from wishlist...");
+      await unSave();
+      setIsSaved(false);
+    } else {
+      console.log("Adding to wishlist...");
+      await save();
+      setIsSaved(true);
+    }
+  } catch (error) {
+    console.error("Error toggling wishlist:", error);
+  }
+};
+
 
   return (
     <>
@@ -757,23 +942,32 @@ const HeaderInfo = ({
         ) : null}
 
         <Col span={24 - colSpan} style={{ padding: "0 20px" }}>
-          <Flex justify="space-between" align="center">
+          <Flex justify={past ? "end" : "space-between"} align="center">
             <div>
               <Rate value={avgRating} allowHalf disabled />
             </div>
             <Flex>
-              {isSaved ? (
+              {!past && (
+              isSaved ? (
                 <HeartFilled
                   style={{
                     fontSize: "20px",
                     color: Colors.warning,
                     marginLeft: "20px",
                   }}
-                  onClick={unSave}
+                  onClick={toggleWishlist}
                 />
               ) : (
-                <HeartOutlined style={{ fontSize: "20px" }} onClick={save} />
-              )}
+                <HeartOutlined
+                  style={{
+                    fontSize: "20px",
+                    color: "gray",
+                    marginLeft: "20px",
+                  }}
+                  onClick={toggleWishlist}
+                  />
+              )
+            )}
               {/* Dropdown for sharing options */}
               <Dropdown
                 menu={{
@@ -792,17 +986,21 @@ const HeaderInfo = ({
                 }}
                 trigger={["click"]}
               >
-                <ShareAltOutlined
-                  style={{
-                    fontSize: "20px",
-                    marginLeft: "20px",
-                    marginRight: "20px",
-                    cursor: "pointer",
-                  }}
-                />
+                {past ? (
+                  <></>
+                ) : (
+                  <ShareAltOutlined
+                    style={{
+                      fontSize: "20px",
+                      marginLeft: "20px",
+                      marginRight: "20px",
+                      cursor: "pointer",
+                    }}
+                  />
+                )}
               </Dropdown>
-              {(type == "activity" || type == "itinerary") &&
-              decodedToken?.role == "admin" ? (
+              {past ? null : (type == "activity" || type == "itinerary") &&
+                decodedToken?.role == "admin" ? (
                 isFlagged ? (
                   <Button
                     style={{ height: "40px" }}
@@ -818,7 +1016,7 @@ const HeaderInfo = ({
                     <div
                       style={{ fontWeight: "bold", color: Colors.warningDark }}
                     >
-                      UnFlag
+                      Cancel Flagging
                     </div>
                   </Button>
                 ) : (

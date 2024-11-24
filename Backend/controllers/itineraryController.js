@@ -3,6 +3,8 @@ const Tourist = require("../models/Tourist");
 const Guide = require("../models/Guide");
 const Activity = require("../models/Activity");
 const Venue = require("../models/venue");
+const nodemailer = require("nodemailer");
+
 
 // Create a new itinerary
 exports.createItinerary = async (req, res) => {
@@ -384,7 +386,7 @@ exports.readItinerariesOfGuide = async (req, res) => {
         .json({ message: "The profile is still pending approval." });
     }
     if (!itineraries || itineraries.length === 0) {
-      //return res.status(404).json({ message: 'No itineraries found for this guide.' });
+      return res.status(404).json({ message: 'No itineraries found for this guide.' });
     }
 
     res.status(200).json(itineraries);
@@ -430,6 +432,8 @@ exports.updateItineraryFilteredFields = async (req, res) => {
       });
     }
 
+    const activeBefore = itinerary.active;
+
     // e3ml update to only the allowed fields
     if (name) itinerary.name = name;
     if (timeline) itinerary.timeline = timeline;
@@ -445,11 +449,31 @@ exports.updateItineraryFilteredFields = async (req, res) => {
 
     const updatedItinerary = await itinerary.save();
 
+    if (activeBefore === false && active === true) notifyInterestedTourists(itineraryId, itinerary.name); //added by AA
+
     res.status(200).json(updatedItinerary);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+async function notifyInterestedTourists(itineraryId, name) {
+  console.log("Notifying interested tourists");
+  try {
+
+    const tourists = await Tourist.find({
+      itineraryBells: itineraryId,
+    })
+
+    for(let i = 0; i< tourists.length;i++) {
+      tourists[i].notifications.push({text: (name + " is now open for booking"), seen: false, itineraryId: itineraryId});
+      await tourists[i].save();
+    }
+
+  } catch(error) {
+    console.log(error);
+  }
+}
 
 exports.deleteSpecificItinerary = async (req, res) => {
   try {
@@ -484,7 +508,7 @@ exports.deleteSpecificItinerary = async (req, res) => {
 
       if (hasBooking) {
         return res.status(400).json({
-          message: "Cannot delete itinerary; there are existing bookings.",
+          message: "There are existing bookings.",
         });
       }
     }
@@ -548,6 +572,34 @@ exports.getItinerariesByPreferrences = async (req, res) => {
   res.status(200).json({ null: "null" });
 }
 
+async function sendEmail(email, subject, html) {
+  const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.NODE_MAILER_USER,
+      pass: process.env.NODE_MAILER_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: "reservy.me@gmail.com",
+    to: email,
+    subject: subject,
+    html: html,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error("Error sending email: ", error);
+    } else {
+      console.log("Email sent: ", info.response);
+    }
+  });
+}
+
 
 //flag and delete itenerary han call delete 3ady baa a3taked.
 // flag and hide itinerary
@@ -578,17 +630,22 @@ exports.hideItinerary = async (req, res) => {
     }
 
     // Create a notification for the guide
-    const notificationText = `Your itinerary with ID ${itineraryId} has been flagged as inappropriate.`;
+    const notificationText = `Your itinerary ${updatedItinerary.name} has been flagged as inappropriate.`;
     guide.notifications.push({
       text: notificationText,
       seen: false, // Set to false initially
     });
+    sendEmail(
+      guide.email,
+      `Activity Flagged: ${updatedItinerary.name}`,
+      `Dear ${guide.name},\n\nYour itinerary "${updatedItinerary.name}" has been flagged as inappropriate and hidden from public view. Please review it and ensure it meets our guidelines. Contact support if you believe this was an error.\n\nBest regards,\nYour Platform Team`
+    );
 
     // Save the updated guide
     await guide.save();
 
     res.status(200).json({
-      message: `Itinerary ${itineraryId} has been hidden successfully and the guide has been notified.`,
+      message: `Itinerary ${updatedItinerary.name} has been hidden successfully and the guide has been notified.`,
       updatedItinerary,
     });
   } catch (error) {
@@ -613,30 +670,8 @@ exports.unhideItinerary = async (req, res) => {
       return res.status(404).json({ message: 'Itinerary not found' });
     }
 
-    // Get the guideId associated with this itinerary
-    const selectedGuideId = updatedItinerary.guideId;
-
-    // Find the guide by ID
-    const guide = await Guide.findById(selectedGuideId);
-
-    if (!guide) {
-      return res.status(404).json({ message: 'Guide not found' });
-    }
-
-    // Remove the notification related to the hidden/flagged itinerary
-    const notificationText = `Your itinerary with ID ${itineraryId} has been flagged as inappropriate.`;
-    const notificationIndex = guide.notifications.findIndex(
-      (notification) => notification.text === notificationText
-    );
-
-    if (notificationIndex !== -1) {
-      // Remove the notification from the array
-      guide.notifications.splice(notificationIndex, 1);
-      await guide.save(); // Save the updated guide
-    }
-
     res.status(200).json({
-      message: `Itinerary ${itineraryId} has been unhidden successfully and the notification has been removed.`,
+      message: `Itinerary ${updatedItinerary.name} has been unhidden successfully.`,
       updatedItinerary,
     });
   } catch (error) {

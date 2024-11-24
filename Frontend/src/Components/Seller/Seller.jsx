@@ -2,10 +2,14 @@ import React, { useState, useEffect } from "react";
 import { CustomLayout } from "../Common";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Itineraries from "../Itineraries";
-import { CalendarOutlined, ContainerOutlined, FileOutlined } from "@ant-design/icons";
+import {
+  CalendarOutlined,
+  ContainerOutlined,
+  FileOutlined,
+} from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
-import SearchFilterSortContainerEditCreate from "../Common/SearchFilterSortContainerEditCreate";
 import Profile from "../Common/Profile";
+import Notifications from "../Common/Notifications";
 import Image from "../Common/Image";
 import Products from "../Tourist/Products";
 import MyProducts from "../Admin/MyProducts";
@@ -13,7 +17,6 @@ import ArchivedProds from "../Seller/ArchivedProds";
 import ChangePasswordForm from "../Common/changePassword";
 import SignIn from "../Sign/SignIn";
 import Report from "../Seller/Report";
-
 
 const Seller = () => {
   const navigate = useNavigate();
@@ -81,6 +84,7 @@ const Seller = () => {
         <Route path="archive" element={<ArchivedProds />} />
         <Route path="report" element={<Report />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="notifications" element={<Notifications />} />
         <Route path="change-password" element={<ChangePasswordForm />} />
         <Route path="image" element={<Image />} />
         <Route path="auth/signin" element={<SignIn />} />

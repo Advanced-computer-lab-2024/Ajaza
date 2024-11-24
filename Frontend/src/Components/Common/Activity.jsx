@@ -41,7 +41,8 @@ const Activity = () => {
         const response = await axios.get(
           `${apiUrl}advertiser/${activity.advertiserId}`
         );
-        setAdvertiser(response.data);
+        console.log(response.data);
+        console.log(activity.feedback);
       } catch (error) {
         console.error("Error fetching activity:", error);
       }
@@ -93,6 +94,7 @@ const Activity = () => {
         spots={activity?.spots}
         discounts={activity?.discounts}
         creatorName={advertiser?.username}
+        creatorFeedback={advertiser?.feedback}
         type={"activity"}
         currency={currency}
       />

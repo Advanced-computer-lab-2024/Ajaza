@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SearchFilterSortContainer from "../Common/SearchFilterSortContainer";
-import {
-  apiUrl,
-  calculateYourPrice,
-  comparePriceRange,
-  getAvgRating,
-} from "../Common/Constants";
+import { apiUrl, comparePriceRange, getAvgRating } from "../Common/Constants";
 import axios from "axios";
 import BasicCard from "../Common/BasicCard";
 import SelectCurrency from "./SelectCurrency";
@@ -47,7 +42,7 @@ const Products = () => {
   const handleCurrencyChange = (newCurrency) => {
     setCurrency(newCurrency);
   };
-    const propMapping = {
+  const propMapping = {
     title: "name",
     extra: "price",
     rating: "avgRating",
@@ -100,7 +95,6 @@ const Products = () => {
     fetchData();
   }, []);
 
- 
   return (
     <div>
       <div
@@ -115,7 +109,7 @@ const Products = () => {
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
-          style={{left:1000 , top:55}}
+          style={{ left: 1000, top: 55 }}
         />
       </div>
       <SearchFilterSortContainer
