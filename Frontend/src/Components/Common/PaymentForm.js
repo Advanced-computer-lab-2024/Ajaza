@@ -9,10 +9,10 @@ const PaymentForm = () => {
   const [loading, setLoading] = useState(false);
 
   /*
-Visa (success): 4242 4242 4242 4242
-Visa (insufficient funds): 4000 0000 0000 9995
-MasterCard (success): 5555 5555 5555 4444
-*/
+    Visa (success): 4242 4242 4242 4242
+    Visa (insufficient funds): 4000 0000 0000 9995
+    MasterCard (success): 5555 5555 5555 4444
+  */
 
   const handleSubmit = async (event) => {
     event.preventDefault();

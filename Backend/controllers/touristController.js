@@ -1953,6 +1953,71 @@ exports.changeQuantityInCart = async(req,res) => {
   }
 }
 
+exports.incQuantityInCart = async(req,res) => {
+  try {
+    const touristId = req.params.id;
+    const { productId, quantity } = req.body;
+
+    if(!productId || !quantity) {
+      return res.status(400).json({message: "Missing params"});
+    }
+
+    const tourist = await Tourist.findById(touristId);
+
+    if(!tourist) {
+      return res.status(404).json({message: "Tourist not Found"});
+    }
+
+    refreshCart(touristId);
+
+    for(let i = 0; i< tourist.cart.length;i++) {
+      if(tourist.cart[i].productId.toString() === productId.toString()) {
+        tourist.cart[i].quantity += 1;
+        await tourist.save();
+        return res.status(200).json({message: "Quantity updated successfully"});
+      }
+    }
+
+    return res.status(404).json({message: "Product not in cart"});
+  } catch (error) {
+    return res.status(500).json({message: "Internal error"});
+  }
+}
+
+exports.decQuantityInCart = async(req,res) => {
+  try {
+    const touristId = req.params.id;
+    const { productId, quantity } = req.body;
+
+    if(!productId || !quantity) {
+      return res.status(400).json({message: "Missing params"});
+    }
+
+    const tourist = await Tourist.findById(touristId);
+
+    if(!tourist) {
+      return res.status(404).json({message: "Tourist not Found"});
+    }
+
+    refreshCart(touristId);
+
+    for(let i = 0; i< tourist.cart.length;i++) {
+      if(tourist.cart[i].productId.toString() === productId.toString()) {
+        tourist.cart[i].quantity -= 1;
+        if(tourist.cart[i].quantity === 0) {
+          tourist.cart.splice(i,1);
+        }
+        await tourist.save();
+        return res.status(200).json({message: "Cart updated successfully"});
+      }
+    }
+
+    return res.status(404).json({message: "Product not in cart"});
+  } catch (error) {
+    return res.status(500).json({message: "Internal error"});
+  }
+}
+
 //helper
 async function refreshCart(touristId) {
   try {

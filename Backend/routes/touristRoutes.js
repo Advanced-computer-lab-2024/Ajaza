@@ -6,6 +6,7 @@ const validateEmail = require("../middleware/validateEmail");
 const uniqueEmail = require("../middleware/uniqueEmail");
 const validateMobile = require("../middleware/validateMobile");
 const uniqueUsername = require("../middleware/uniqueUsername");
+const stripePay = require("../middleware/stripe");
 
 const axios = require("axios");
 const qs = require("qs");
@@ -191,7 +192,7 @@ router.delete(
 
 // req58 req71 req70
 router.post(
-  "/:touristId/activity/:activityId/book",
+  "/:touristId/activity/:activityId/book", stripePay,
   touristController.bookActivity
 );
 router.post(
@@ -303,6 +304,9 @@ router.post("/cart/:id", touristController.addProductToCart);
 
 // req96
 router.post("/cart/changeQuantity/:id", touristController.changeQuantityInCart);
+router.post("/cart/+/:id", touristController.incQuantityInCart);
+router.post("/cart/-/:id", touristController.decQuantityInCart);
+
 
 //req95
 router.post("/cart/remove/:id", touristController.removeFromCart);
@@ -319,12 +323,12 @@ MasterCard (success): 5555 5555 5555 4444
 */
 
 router.post('/stripe', async (req, res) => {
-  const { paymentMethodId } = req.body;
+  const { paymentMethodId, amount } = req.body;
 
   try {
     // Create a payment intent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: 2000, // Amount in cents (change as necessary)
+      amount: amount, // Amount in cents (change as necessary)
       currency: 'usd',
       payment_method: paymentMethodId, // Attach the payment method
       confirm: true, // Automatically confirm the payment intent
@@ -346,6 +350,5 @@ router.post('/stripe', async (req, res) => {
     });
   }
 });
-
 
 module.exports = router;

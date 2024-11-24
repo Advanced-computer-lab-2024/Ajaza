@@ -13,6 +13,7 @@ import {
   Button,
   Radio,
   Form,
+  notification,
 } from "antd";
 import { Colors, apiUrl } from "./Constants";
 import CustomButton from "./CustomButton";
@@ -34,6 +35,7 @@ import StripeContainer from "./StripeContainer";
 import { Dropdown } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./HeaderInfo.css";
+//import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 const { Option } = Select;
 
@@ -108,6 +110,13 @@ const HeaderInfo = ({
   const [cardDetails, setCardDetails] = useState({ number: "", name: "", expiry: "", cvv: "" });
 
   const navigate = useNavigate();
+
+
+  // //stripe
+  // const stripe = useStripe();
+  // const elements = useElements();
+  // const [loading, setLoading] = useState(false);
+  // //
 
   useEffect(() => {
     const tempToken = localStorage.getItem("token");
