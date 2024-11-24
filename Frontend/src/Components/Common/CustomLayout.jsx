@@ -67,14 +67,16 @@ const CustomLayout = ({
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       const decodedToken = jwtDecode(token);
       setUser(decodedToken.userDetails);
-      setNotifications(decodedToken.userDetails.notifications || []);
-      notificationsRef.current = decodedToken.userDetails.notifications || [];
+      const unseenNotifications = decodedToken.userDetails.notifications.filter(
+        (notification) => !notification.seen
+      );
+      setNotifications(unseenNotifications); // Store only unseen notifications
+      notificationsRef.current = unseenNotifications;
       setNavBarItems(
         <Flex justify="center" style={{ width: "100%", position: "relative" }}>
           <div id="logo" style={{ position: "relative", right: 40, bottom: 3 }}>
@@ -98,7 +100,7 @@ const CustomLayout = ({
           >
             <IconFloatButton
               icon={BellFilled}
-              badge={{ count: notificationsRef.current.length }}
+              badge={{count: notificationsRef.current.length }}
               onClick={() => navigate(`/${decodedToken.role}/notifications`)}
             />
 
@@ -132,7 +134,7 @@ const CustomLayout = ({
         </Flex>
       );
     }
-  }, []);
+  }, [notifications]);
 
   const confirmLogOut = async (id) => {
     Modal.confirm({
