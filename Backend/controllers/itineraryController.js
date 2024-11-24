@@ -3,6 +3,8 @@ const Tourist = require("../models/Tourist");
 const Guide = require("../models/Guide");
 const Activity = require("../models/Activity");
 const Venue = require("../models/venue");
+const nodemailer = require("nodemailer");
+
 
 // Create a new itinerary
 exports.createItinerary = async (req, res) => {
@@ -570,6 +572,34 @@ exports.getItinerariesByPreferrences = async (req, res) => {
   res.status(200).json({ null: "null" });
 }
 
+async function sendEmail(email, subject, html) {
+  const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.NODE_MAILER_USER,
+      pass: process.env.NODE_MAILER_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: "reservy.me@gmail.com",
+    to: email,
+    subject: subject,
+    html: html,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error("Error sending email: ", error);
+    } else {
+      console.log("Email sent: ", info.response);
+    }
+  });
+}
+
 
 //flag and delete itenerary han call delete 3ady baa a3taked.
 // flag and hide itinerary
@@ -605,6 +635,11 @@ exports.hideItinerary = async (req, res) => {
       text: notificationText,
       seen: false, // Set to false initially
     });
+    sendEmail(
+      guide.email,
+      `Activity Flagged: ${updatedItinerary.name}`,
+      `Dear ${guide.name},\n\nYour itinerary "${updatedItinerary.name}" has been flagged as inappropriate and hidden from public view. Please review it and ensure it meets our guidelines. Contact support if you believe this was an error.\n\nBest regards,\nYour Platform Team`
+    );
 
     // Save the updated guide
     await guide.save();

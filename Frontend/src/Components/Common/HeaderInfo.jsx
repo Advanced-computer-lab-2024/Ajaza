@@ -624,9 +624,27 @@ const HeaderInfo = ({
     return String(val).charAt(0).toUpperCase() + String(val).slice(1);
   }
 
+  const [isInWishlist, setIsInWishlist] = useState(false);
   const save = async () => {
-    if (type == "product") {
+    const pathParts = locationUrl.pathname.split("/");
+    const type = pathParts[2];
+    const productId = pathParts[3];
+    if (type == "products") {
       // add to wishlist logic
+      try {
+        const response = await axios.post(`${apiUrl}tourist/add-to-wishlist`, {
+          touristId: userid,
+          productId: productId,
+        });
+  
+        if (response.status === 200) {
+          console.log(response.data.message);
+          setIsInWishlist(true);
+          await getNewToken();
+        }
+      } catch (error) {
+        console.error("Error adding product to wishlist:", error.response?.data.message || error.message);
+      }
     } else {
       try {
         console.log(
@@ -642,13 +660,50 @@ const HeaderInfo = ({
     // if successful get user again and set token (if not already returned using the func)
   };
 
+
   const unSave = async () => {
-    if (type == "product") {
+    //const touristId = userid;
+    const pathParts = locationUrl.pathname.split("/");
+    const type = pathParts[2];
+    const productId = pathParts[3];
+    if (type == "products") {
       // remove from wishlist logic
+
+      try {
+        const response = await axios.post(`${apiUrl}tourist/remove-from-wishlist`, {
+          touristId: userid,
+          productId: productId,
+        });
+  
+        if (response.status === 200) {
+          console.log(response.data.message);
+          setIsInWishlist(false);
+          await getNewToken();
+        }
+      } catch (error) {
+        console.error("Error removing product from wishlist:", error.response?.data.message || error.message);
+      }
     } else {
     }
     // if successful get user again and set token (if not already returned using the func)
   };
+ const toggleWishlist = async () => {
+
+  try {
+    if (isSaved) {
+      console.log("Removing from wishlist...");
+      await unSave();
+      setIsSaved(false);
+    } else {
+      console.log("Adding to wishlist...");
+      await save();
+      setIsSaved(true);
+    }
+  } catch (error) {
+    console.error("Error toggling wishlist:", error);
+  }
+};
+
 
   return (
     <>
@@ -892,18 +947,27 @@ const HeaderInfo = ({
               <Rate value={avgRating} allowHalf disabled />
             </div>
             <Flex>
-              {past ? null : isSaved ? (
+              {!past && (
+              isSaved ? (
                 <HeartFilled
                   style={{
                     fontSize: "20px",
                     color: Colors.warning,
                     marginLeft: "20px",
                   }}
-                  onClick={unSave}
+                  onClick={toggleWishlist}
                 />
               ) : (
-                <HeartOutlined style={{ fontSize: "20px" }} onClick={save} />
-              )}
+                <HeartOutlined
+                  style={{
+                    fontSize: "20px",
+                    color: "gray",
+                    marginLeft: "20px",
+                  }}
+                  onClick={toggleWishlist}
+                  />
+              )
+            )}
               {/* Dropdown for sharing options */}
               <Dropdown
                 menu={{
@@ -952,7 +1016,7 @@ const HeaderInfo = ({
                     <div
                       style={{ fontWeight: "bold", color: Colors.warningDark }}
                     >
-                      UnFlag
+                      Cancel Flagging
                     </div>
                   </Button>
                 ) : (
