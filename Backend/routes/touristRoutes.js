@@ -304,8 +304,8 @@ router.post("/cart/:id", touristController.addProductToCart);
 
 // req96
 router.post("/cart/changeQuantity/:id", touristController.changeQuantityInCart);
-router.post("/cart/+/:id", touristController.incQuantityInCart);
-router.post("/cart/-/:id", touristController.decQuantityInCart);
+router.post("/cart/plus/:id", touristController.incQuantityInCart);
+router.post("/cart/minus/:id", touristController.decQuantityInCart);
 
 
 //req95

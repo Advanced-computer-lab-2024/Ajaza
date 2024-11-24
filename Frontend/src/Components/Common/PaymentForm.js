@@ -162,7 +162,7 @@ const PaymentForm = ({amount, type, selectedDate, userid, id, useWallet, setLeav
 
       <div style={{ marginBottom: '20px' }}>
       <br />
-        <label>Card Details</label><br />
+        <label>Card Details</label><br /><br />
         <CardElement />
       </div>
 
