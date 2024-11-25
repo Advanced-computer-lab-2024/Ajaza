@@ -10,6 +10,7 @@ import SelectCurrency from "../Tourist/SelectCurrency";
 import { useCurrency } from "../Tourist/CurrencyContext";
 const Product = () => {
   let { id } = useParams();
+  console.log("id", id);
 
   const [product, setProduct] = useState(null);
   const { currency, setCurrency } = useCurrency();
@@ -197,6 +198,7 @@ const Product = () => {
       />
       <Item
         // name={product?.name}
+        id={id}
         name={product?.name}
         photos={product?.photo}
         price={convertedPrice}

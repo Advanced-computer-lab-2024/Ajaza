@@ -287,8 +287,18 @@ const BasicCard = ({
       hoverable={hoverable}
     >
       <div onClick={onClick} style={{ padding: "24px" }}>
-        {Object.entries(fields).map(
-          ([key, value]) =>
+        {Object.entries(fields).map(([key, value]) => {
+          let style = {};
+          if (key.toLowerCase() == "description") {
+            style = {
+              display: "-webkit-box",
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              WebkitLineClamp: 2, // Change this number to set max lines
+              textOverflow: "ellipsis",
+            };
+          }
+          return (
             value !== undefined && (
               <div
                 key={key}
@@ -297,13 +307,15 @@ const BasicCard = ({
                   textOverflow: "ellipsis",
                   overflowX: "hidden",
                   marginTop: "10px",
+                  ...style,
                 }}
               >
                 <span style={{ fontWeight: "bold" }}>{key}</span>:{" "}
                 {String(value)}
               </div>
             )
-        )}
+          );
+        })}
         {dateTime && dateTimeFormatted && (
           <>
             <div style={{ fontWeight: "bold" }}>Dates/Times Available</div>

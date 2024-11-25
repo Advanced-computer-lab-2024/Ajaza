@@ -3,6 +3,9 @@ const Advertiser = require("../models/Advertiser");
 const Tourist = require("../models/Tourist");
 const Tag = require("../models/Tag");
 const Category = require("../models/Category");
+const nodemailer = require("nodemailer");
+
+
 // Create a new activity
 exports.createActivity = async (req, res) => {
   try {
@@ -525,6 +528,34 @@ exports.getActivitiesByPreferrences = async (req, res) => {
   res.status(200).json({ null: "null" });
 };
 
+async function sendEmail(email, subject, html) {
+  const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.NODE_MAILER_USER,
+      pass: process.env.NODE_MAILER_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: "reservy.me@gmail.com",
+    to: email,
+    subject: subject,
+    html: html,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error("Error sending email: ", error);
+    } else {
+      console.log("Email sent: ", info.response);
+    }
+  });
+}
+
 // flag activity inappropriate then hide it
 exports.hideActivity = async (req, res) => {
   const { id: activityId } = req.params;
@@ -558,6 +589,11 @@ exports.hideActivity = async (req, res) => {
       text: notificationText,
       seen: false, // Set to false initially, you can update it when the advertiser views it
     });
+    sendEmail(
+      advertiser.email,
+      `Activity Flagged: ${updatedActivity.name}`,
+      `Dear ${advertiser.name},\n\nYour activity "${updatedActivity.name}" has been flagged as inappropriate and hidden from public view. Please review it and ensure it meets our guidelines. Contact support if you believe this was an error.\n\nBest regards,\nYour Platform Team`
+    );
 
     // Save the updated advertiser
     await advertiser.save();

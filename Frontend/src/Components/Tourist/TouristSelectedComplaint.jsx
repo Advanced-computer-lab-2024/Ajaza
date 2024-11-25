@@ -50,6 +50,7 @@ const TouristSelectedComplaint = () => {
   const fetchComplaintDetails = async () => {
     try {
       const response = await axios.get(`${apiUrl}complaint/${id}`);
+      
       const complaint = {
         ...response.data,
         status: response.data.pending ? "pending" : "resolved", // Add the 'status' based on 'pending'
@@ -147,5 +148,5 @@ const TouristSelectedComplaint = () => {
     </div>
   );
 };
-
+// unnecessary coment 
 export default TouristSelectedComplaint;

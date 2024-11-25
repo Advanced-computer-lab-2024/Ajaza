@@ -8,6 +8,7 @@ import {
   CheckOutlined,
   BookOutlined,
   HomeOutlined,
+  HeartOutlined,
   CarOutlined,
 } from "@ant-design/icons";
 import { apiUrl } from "../Common/Constants";
@@ -43,17 +44,21 @@ import Transportations from "./Transportations";
 import TouristSelectedComplaint from "./TouristSelectedComplaint";
 import FutureBooking from "./FutureBooking";
 import BookingHistory from "./BookingHistory";
+import BookmarkedPlans from "./BookmarkedPlans";
+import Wishlist from "./Wishlist";
+import { useParams } from "react-router-dom";
+
 const Tourist = () => {
   const [response, setResponse] = useState([]);
   const navigate = useNavigate();
-
+  const [touristId, setTouristId] = useState();
   useEffect(() => {
     const token = localStorage.getItem("token");
-    // console.log("Token:", token);
-    // console.log("decodedToken:", jwtDecode(token));
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
+        setTouristId(decodedToken?.userId);
+
         // Check if the token is valid and if the user role is 'advertiser'
         if (!decodedToken || decodedToken.role !== "tourist") {
           navigate("/auth/signin");
@@ -146,14 +151,14 @@ const Tourist = () => {
     {
       key: "12",
       icon: <CheckOutlined />,
-      label: "Saved Plans",
-      onClick: () => navigate("saved"),
+      label: "Bookmarked Plans",
+      onClick: () => navigate("bookmarked"),
     },
     {
       key: "13",
-      icon: <BookOutlined />,
+      icon: <HeartOutlined />,
       label: "Wishlist",
-      onClick: () => navigate("wishlist"),
+      onClick: () => navigate(`wishlist/${touristId}`),
     },
     {
       key: "14",
@@ -192,6 +197,7 @@ const Tourist = () => {
         },
       ],
     },
+
     // TODO put them in nested like current and past bookings ---- products,wishlist,orders
   ];
 
@@ -218,6 +224,7 @@ const Tourist = () => {
         <Route path="complaints/:id" element={<TouristSelectedComplaint />} />
         <Route path="touristHistory" element={<TouristHistory />} />
         <Route path="bookingHistory" element={<BookingHistory />} />
+        <Route path="bookmarked" element={<BookmarkedPlans />} />
 
         <Route path="auth/signin" element={<SignIn />} />
 
@@ -228,6 +235,7 @@ const Tourist = () => {
         <Route path="bookFlight" element={<BookFlight />} />
 
         <Route path="futureBookings" element={<FutureBooking />} />
+        <Route path="wishlist/:id" element={<Wishlist />} />
       </Routes>
     </CustomLayout>
   );

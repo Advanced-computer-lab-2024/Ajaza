@@ -113,7 +113,20 @@ const Item = ({
         feedbacks={feedbacks}
         setFeedbacks={setFeedbacks}
       />
-      <Feedbacks feedbacks={creatorFeedback} />
+      {creatorFeedback ? (
+        <div>
+          <h4
+            style={{
+              textAlign: "left",
+              marginBottom: "-15px",
+              marginTop: "30px",
+            }}
+          >
+            {creatorName} Feedback
+          </h4>
+          <Feedbacks feedbacks={creatorFeedback} />
+        </div>
+      ) : null}
     </>
   );
 };
