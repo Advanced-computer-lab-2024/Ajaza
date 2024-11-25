@@ -8,6 +8,7 @@ import {
   CheckOutlined,
   BookOutlined,
   HomeOutlined,
+  HeartOutlined,
   CarOutlined,
 } from "@ant-design/icons";
 import { apiUrl } from "../Common/Constants";
@@ -43,10 +44,13 @@ import Transportations from "./Transportations";
 import TouristSelectedComplaint from "./TouristSelectedComplaint";
 import FutureBooking from "./FutureBooking";
 import BookingHistory from "./BookingHistory";
+import Wishlist from "./Wishlist";
+import { useParams } from "react-router-dom";
+
 const Tourist = () => {
   const [response, setResponse] = useState([]);
-  const navigate = useNavigate();
-
+  const navigate = useNavigate();    
+  const [touristId, setTouristId]=useState();
   useEffect(() => {
     const token = localStorage.getItem("token");
     // console.log("Token:", token);
@@ -54,6 +58,8 @@ const Tourist = () => {
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
+        setTouristId(decodedToken?.userId);
+
         // Check if the token is valid and if the user role is 'advertiser'
         if (!decodedToken || decodedToken.role !== "tourist") {
           navigate("/auth/signin");
@@ -66,6 +72,7 @@ const Tourist = () => {
       navigate("/auth/signin");
     }
   }, [navigate]);
+
 
   const sideBarItems = [
     {
@@ -151,9 +158,9 @@ const Tourist = () => {
     },
     {
       key: "13",
-      icon: <BookOutlined />,
+      icon: <HeartOutlined />,
       label: "Wishlist",
-      onClick: () => navigate("wishlist"),
+      onClick: () => navigate(`wishlist/${touristId}`),
     },
     {
       key: "14",
@@ -192,6 +199,7 @@ const Tourist = () => {
         },
       ],
     },
+   
     // TODO put them in nested like current and past bookings ---- products,wishlist,orders
   ];
 
@@ -228,6 +236,7 @@ const Tourist = () => {
         <Route path="bookFlight" element={<BookFlight />} />
 
         <Route path="futureBookings" element={<FutureBooking />} />
+        <Route path="wishlist/:id" element={<Wishlist/>}/>
       </Routes>
     </CustomLayout>
   );

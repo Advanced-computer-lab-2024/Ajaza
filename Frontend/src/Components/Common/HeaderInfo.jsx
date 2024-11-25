@@ -130,7 +130,7 @@ const HeaderInfo = ({
   // const elements = useElements();
   // const [loading, setLoading] = useState(false);
   // //
-
+  
   useEffect(() => {
     const tempToken = localStorage.getItem("token");
     setToken(tempToken);
@@ -539,6 +539,25 @@ const HeaderInfo = ({
   }
 
   const [isInWishlist, setIsInWishlist] = useState(false);
+  useEffect(() => {
+    const fetchWishlistStatus = async () => {
+      const pathParts = locationUrl.pathname.split("/");
+      const type = pathParts[2];
+      const productId = pathParts[3];
+      try {
+        const response = await axios.get(`${apiUrl}tourist/wishlist/${userid}`);
+        const wishlist = response.data.wishlist;
+  
+        const productInWishlist = wishlist.some((item) => item._id === productId);
+        setIsInWishlist(productInWishlist);
+      } catch (error) {
+        console.error("Error fetching wishlist:", error);
+      }
+    };
+  
+    fetchWishlistStatus();
+  }, [locationUrl,userid]);
+  
   const save = async () => {
     const pathParts = locationUrl.pathname.split("/");
     const type = pathParts[2];
@@ -554,6 +573,7 @@ const HeaderInfo = ({
         if (response.status === 200) {
           console.log(response.data.message);
           setIsInWishlist(true);
+          setIsSaved(true);
           await getNewToken();
         }
       } catch (error) {
@@ -597,6 +617,7 @@ const HeaderInfo = ({
         if (response.status === 200) {
           console.log(response.data.message);
           setIsInWishlist(false);
+          setIsSaved(false);
           await getNewToken();
         }
       } catch (error) {
@@ -609,21 +630,22 @@ const HeaderInfo = ({
     }
     // if successful get user again and set token (if not already returned using the func)
   };
-  const toggleWishlist = async () => {
-    try {
-      if (isSaved) {
-        console.log("Removing from wishlist...");
-        await unSave();
-        setIsSaved(false);
-      } else {
-        console.log("Adding to wishlist...");
-        await save();
-        setIsSaved(true);
-      }
-    } catch (error) {
-      console.error("Error toggling wishlist:", error);
+ const toggleWishlist = async () => {
+
+  try {
+    if (isSaved || isInWishlist) {
+      console.log("Removing from wishlist...");
+      await unSave();
+      setIsInWishlist(false);
+    } else {
+      console.log("Adding to wishlist...");
+      await save();
+      setIsInWishlist(true);
     }
-  };
+  } catch (error) {
+    console.error("Error toggling wishlist:", error);
+  }
+};
 
   const discountedPriceLower = priceLower - (discounts / 100) * priceLower;
   const discountedPriceUpper = priceUpper - (discounts / 100) * priceUpper;
@@ -872,24 +894,24 @@ const HeaderInfo = ({
               <Rate value={avgRating} allowHalf disabled />
             </div>
             <Flex>
-              {!past &&
-                (isSaved ? (
-                  <HeartFilled
-                    style={{
-                      fontSize: "20px",
-                      color: Colors.warning,
-                      marginLeft: "20px",
-                    }}
-                    onClick={toggleWishlist}
-                  />
-                ) : (
-                  <HeartOutlined
-                    style={{
-                      fontSize: "20px",
-                      color: "gray",
-                      marginLeft: "20px",
-                    }}
-                    onClick={toggleWishlist}
+              {!past && (
+              isSaved || isInWishlist ? (
+                <HeartFilled
+                  style={{
+                    fontSize: "20px",
+                    color: Colors.warning,
+                    marginLeft: "20px",
+                  }}
+                  onClick={toggleWishlist}
+                />
+              ) : (
+                <HeartOutlined
+                  style={{
+                    fontSize: "20px",
+                    color: "gray",
+                    marginLeft: "20px",
+                  }}
+                  onClick={toggleWishlist}
                   />
                 ))}
               {/* Dropdown for sharing options */}
