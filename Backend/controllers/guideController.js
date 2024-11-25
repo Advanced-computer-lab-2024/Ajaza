@@ -30,7 +30,6 @@ exports.getAllGuides = async (req, res) => {
   }
 };
 
-
 exports.getAcceptedGuides = async (req, res) => {
   try {
     const guides = await Guide.find({ pending: false });
@@ -713,7 +712,6 @@ exports.getGuideDetails = async (req, res) => {
   }
 };
 
-
 //req 28 - tatos (Not Done Yet)
 exports.viewSalesReport = async (req, res) => {
   const guideId = req.params.id;
@@ -779,7 +777,6 @@ exports.viewSalesReport = async (req, res) => {
   }
 };
 
-
 // req 30 - tatos (not done yet)
 exports.viewTouristReport = async (req, res) => {
   const guideId = req.params.id;
@@ -802,43 +799,37 @@ exports.viewTouristReport = async (req, res) => {
         .json({ message: "Tour Guide is requesting deletion" });
     }
 
-    if (guide.pending){
-      return res.status(401).json({message: "Guide is pending approval"});
+    if (guide.pending) {
+      return res.status(401).json({ message: "Guide is pending approval" });
     }
-
-
-
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
-
-
-exports.seeNotifications = async(req,res) => {
+exports.seeNotifications = async (req, res) => {
   try {
     const userId = req.params.id;
 
     const user = await Guide.findById(userId);
 
-    if(!user) {
-      return res.status(404).json({message: "User not found"});
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    for(let i = 0; i < user.notifications.length; i++) {
+    for (let i = 0; i < user.notifications.length; i++) {
       user.notifications[i].seen = true;
     }
 
     await user.save();
 
-    return res.status(200).json({message: "Notifications seen successfully"});
+    return res.status(200).json({ message: "Notifications seen successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal error" });
   }
-  catch(error) {
-    return res.status(500).json({message: "Internal error"});
-  }
-}
+};
 
-exports.myItemsFeedback = async(req,res) => {
+exports.myItemsFeedback = async (req, res) => {
   try {
     const guideId = req.params.id;
 
@@ -848,9 +839,26 @@ exports.myItemsFeedback = async(req,res) => {
       return acc.concat(itinerary.feedback);
     }, []);
 
-    return { message: "Feedback returned successfully.", feedback: allFeedback };
+    return {
+      message: "Feedback returned successfully.",
+      feedback: allFeedback,
+    };
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
+exports.feedback = async (req, res) => {
+  try {
+    const guideId = req.params.id;
+
+    const guide = await Guide.findById(guideId);
+
+    if (!guide) return res.status(404).json({ message: "Guide not found" });
+
+    const feedback = guide.feedback;
+    return res.status(200).json(feedback);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
