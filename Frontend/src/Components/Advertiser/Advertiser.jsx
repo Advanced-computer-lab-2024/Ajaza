@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Activities from "../Activities";
-import { CalendarOutlined } from "@ant-design/icons";
+import { CalendarOutlined, FileOutlined } from "@ant-design/icons";
 import CustomLayout from "../Common/CustomLayout";
 import Profile from "../Common/Profile";
 import Notifications from "../Common/Notifications";
@@ -9,6 +9,7 @@ import Image from "../Common/Image";
 import ChangePasswordForm from "../Common/changePassword";
 import SignIn from "../Sign/SignIn";
 import { jwtDecode } from "jwt-decode";
+import AdvertiserReport from "./AdvertiserReport";
 
 const Advertiser = () => {
   const navigate = useNavigate();
@@ -39,12 +40,19 @@ const Advertiser = () => {
       onClick: () => {
         navigate("/advertiser/");
       },
+      key: "2",
+      icon: <FileOutlined />,
+      label: "Sales Report",
+      onClick: () => {
+        navigate("report");
+      },
     },
   ];
   return (
     <CustomLayout sideBarItems={sideBarItems}>
       <Routes>
         <Route path="/" element={<Activities />} />
+        <Route path="report" element={<AdvertiserReport />} />
         <Route path="profile" element={<Profile />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="change-password" element={<ChangePasswordForm />} />
