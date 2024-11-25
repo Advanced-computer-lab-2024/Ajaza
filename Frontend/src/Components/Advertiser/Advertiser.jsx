@@ -10,6 +10,7 @@ import ChangePasswordForm from "../Common/changePassword";
 import SignIn from "../Sign/SignIn";
 import { jwtDecode } from "jwt-decode";
 import AdvertiserReport from "./AdvertiserReport";
+import AdvTourReport from "./AdvTourReport";
 
 const Advertiser = () => {
   const navigate = useNavigate();
@@ -40,19 +41,30 @@ const Advertiser = () => {
       onClick: () => {
         navigate("/advertiser/");
       },
+    },
+    {
       key: "2",
       icon: <FileOutlined />,
       label: "Sales Report",
       onClick: () => {
-        navigate("report");
+        navigate("salesReport");
       },
+    },
+    {
+      key: "3",
+      icon: <FileOutlined />,
+      label: "Tourist Report",
+      onClick: () => {
+        navigate("touristReport");
+      }
     },
   ];
   return (
     <CustomLayout sideBarItems={sideBarItems}>
       <Routes>
         <Route path="/" element={<Activities />} />
-        <Route path="report" element={<AdvertiserReport />} />
+        <Route path="salesReport" element={<AdvertiserReport />} />
+        <Route path="touristReport" element={<AdvTourReport />} />
         <Route path="profile" element={<Profile />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="change-password" element={<ChangePasswordForm />} />

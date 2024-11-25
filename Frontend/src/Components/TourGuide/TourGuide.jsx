@@ -10,6 +10,7 @@ import Image from "../Common/Image";
 import ChangePasswordForm from "../Common/changePassword";  
 import SignIn from "../Sign/SignIn";
 import GuideReport from "./GuideReport";
+import GuidTourReport from "./GuidTourReport";
 
 
 const TourGuide = () => {
@@ -50,20 +51,31 @@ const TourGuide = () => {
       onClick: () => {
         navigate("/guide/");
       },
+    },
+    {
       key: "2",
       icon: <FileOutlined />,
       label: "Sales Report",
       onClick: () => {
-        navigate("report");
+        navigate("salesReport");
       },
     },
+    {
+      key: "3",
+      icon: <FileOutlined />,
+      label: "Tourist Report",
+      onClick: () => {
+        navigate("touristReport");
+      },
+    }
   ];
 
   return (
     <CustomLayout sideBarItems={sideBarItems}>
       <Routes>
         <Route path="/" element={<Itineraries />} />
-        <Route path="report" element={<GuideReport />} />
+        <Route path="salesReport" element={<GuideReport />} />
+        <Route path="touristReport" element={<GuidTourReport />} />
         <Route path="profile" element={<Profile />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="change-password"  element={<ChangePasswordForm />}  />
