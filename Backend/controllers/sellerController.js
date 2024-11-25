@@ -721,7 +721,7 @@ exports.getSellerDetails = async (req, res) => {
 
 // req 28 - tatos (Done)
 exports.viewSalesReport = async (req, res) => {
-  sellerId = req.params.id;
+  const sellerId = req.params.id;
   try {
     const seller = await Seller.findById(sellerId);
     if (!seller) {

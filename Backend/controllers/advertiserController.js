@@ -734,6 +734,7 @@ exports.viewSalesReport = async (req, res) => {
           report.push({
             name: activity.name,
             // date: booking.date,    // Date is not available in the booking object of activityBookings
+            activityDate: activity.date, // Use the date field from activity
             price: booking.total, // Use the total field from activityBookings
             category: activity.category,
           });
