@@ -102,8 +102,12 @@ router.patch("/requestDeletion/:id", advertiserController.requestDeletion);
 
 router.post("/validateEmailUsername", advertiserController.validateEmailUsername); // New route for email and username validation
 
-
+// view sales report
 router.get('/viewSalesReport/:id', advertiserController.viewSalesReport);
+
+// view tourist report
+router.get('/viewTouristReport/:id', advertiserController.viewTouristReport);
+
 
 router.get("/myItems/feedback/:id", advertiserController.myItemsFeedback);
 
