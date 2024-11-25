@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Table, message } from 'antd';
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import axios from 'axios';
 
 const SellerReport = () => {
     const [salesData, setSalesData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [SellerId, setSellerId] = useState(null);
+    const [totalSales, setTotalSales] = useState(0); // State for total sales
 
     useEffect(() => {
-        const token = localStorage.getItem("token"); // Replace with your token source
+        const token = localStorage.getItem("token");
         if (token) {
             try {
-                const decoded = jwtDecode(token); // Decode the JWT token
-                const sellerIdFromToken = decoded?.userId || decoded?.sellerId || null; // Adjust key based on your token structure
+                const decoded = jwtDecode(token);
+                const sellerIdFromToken = decoded?.userId || decoded?.sellerId || null;
                 console.log("Decoded SellerId:", sellerIdFromToken);
                 setSellerId(sellerIdFromToken);
             } catch (error) {
@@ -27,28 +28,31 @@ const SellerReport = () => {
     }, []);
 
     useEffect(() => {
-        if (!SellerId) return;  // Do nothing if SellerId is not set
+        if (!SellerId) return;
 
         const fetchSalesData = async () => {
             setLoading(true);
             try {
                 const response = await axios.get(`http://localhost:5000/seller/viewSalesReport/${SellerId}`);
-                const { salesDetails } = response.data;
+                const { totalSales, report } = response.data;
 
-                if (Array.isArray(salesDetails)) {
-                    // Transform the data to match the format expected for the table
-                    const transformedData = salesDetails.map(product => ({
-                        productName: product.productName,
-                        quantitySold: product.sales,
-                        salePrice: product.price,
-                        sellerName: product.sellerName,
-                        totalRevenue: product.sales * product.price,
+                if (Array.isArray(report)) {
+                    const transformedData = report.map((product, index) => ({
+                        key: index, // Unique key for table rows
+                        productName: product.name || "Unnamed Product",
+                        orderDate: product.orderDate 
+                            ? new Date(product.orderDate).toLocaleDateString() 
+                            : "No Date", // Format date
+                        quantity: product.quantity || 0,
+                        price: product.price || 0,
+                        totalRevenue: product.total || 0,
                     }));
-                    // Set the transformed data to the salesData state
                     setSalesData(transformedData);
+                    setTotalSales(totalSales || 0); // Set total sales
                 } else {
-                    console.error("Invalid data format:", salesDetails);
-                    setSalesData([]);  // Clear sales data if invalid format
+                    console.error("Invalid data format:", report);
+                    setSalesData([]);
+                    setTotalSales(0);
                 }
             } catch (error) {
                 console.error("Error fetching sales data:", error);
@@ -59,8 +63,7 @@ const SellerReport = () => {
         };
 
         fetchSalesData();
-    }, [SellerId]); 
-    
+    }, [SellerId]);
 
     const columns = [
         {
@@ -69,35 +72,38 @@ const SellerReport = () => {
             key: 'productName',
         },
         {
-            title: 'Quantity Sold',
-            dataIndex: 'quantitySold',
-            key: 'quantitySold',
+            title: 'Order Date',
+            dataIndex: 'orderDate',
+            key: 'orderDate',
         },
         {
-            title: 'Date Sold',
-            dataIndex: 'dateSold',
-            key: 'dateSold',
+            title: 'Quantity',
+            dataIndex: 'quantity',
+            key: 'quantity',
         },
         {
-            title: 'Sale Price',
-            dataIndex: 'salePrice',
-            key: 'salePrice',
+            title: 'Price',
+            dataIndex: 'price',
+            key: 'price',
+            render: (text) => `$${text.toFixed(2)}`, // Format as currency
         },
         {
             title: 'Total Revenue',
             dataIndex: 'totalRevenue',
             key: 'totalRevenue',
+            render: (text) => `$${text.toFixed(2)}`, // Format as currency
         },
     ];
 
     return (
         <div>
-            <h2>Sales Report</h2>
+            <h2>Seller Sales Report</h2>
+            <p>Total Sales: <strong>${totalSales.toFixed(2)}</strong></p> {/* Display total sales */}
             <Table
-                 columns={columns}
-                 dataSource={salesData}  // Pass the sales data to the table
-                 loading={loading}
-                 rowKey={(record) => record.productName}  
+                columns={columns}
+                dataSource={salesData} // Pass the sales data to the table
+                loading={loading}
+                rowKey={(record) => record.key || record.productName}
             />
         </div>
     );
