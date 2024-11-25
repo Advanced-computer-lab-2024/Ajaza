@@ -116,7 +116,7 @@ const HeaderInfo = ({
   const [token, setToken] = useState(null);
   const [decodedToken, setDecodedToken] = useState(null);
   const [userid, setUserid] = useState(null);
-  const [past, setPast] = useState(false);
+  const [inPast, setInPast] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("wallet");
   const [cardDetails, setCardDetails] = useState({
     number: "",
@@ -124,7 +124,6 @@ const HeaderInfo = ({
     expiry: "",
     cvv: "",
   });
-
   const navigate = useNavigate();
 
   // // //stripe
@@ -149,10 +148,9 @@ const HeaderInfo = ({
     user?.itineraryBookings.forEach((booking) => {
       if (booking.itineraryId == id) {
         // Booked
-        console.log(Date(booking.date));
         const bookDate = new Date(booking.date);
         if (bookDate.getTime() < dateNow) {
-          setPast(true);
+          setInPast(true);
         }
       }
     });
@@ -162,24 +160,15 @@ const HeaderInfo = ({
         // Booked
         const bookDate = new Date(date);
         if (bookDate.getTime() < dateNow) {
-          setPast(true);
+          setInPast(true);
         }
       }
     });
   }, [user, id, date]);
 
   useEffect(() => {
-    console.log(past);
-  }, [past]);
-
-  useEffect(() => {
-    console.log(currency);
     setCurrencySymbol(currency == "EGP" ? "£" : currency == "EUR" ? "€" : "$");
   }, [currency]);
-
-  useEffect(() => {
-    console.log(currencySymbol);
-  }, [currencySymbol]);
 
   useEffect(() => {
     // get if this item is booked setIsBooked accordingly:
@@ -222,8 +211,9 @@ const HeaderInfo = ({
         }
       });
     } else {
-      // WISHLIST LOGIC of check if already in wishlist
-      // using setIsSaved also
+      if (userTemp?.wishlist.includes(id)) {
+        bookmarkFound = true;
+      }
     }
     setIsSaved(bookmarkFound);
 
@@ -241,9 +231,6 @@ const HeaderInfo = ({
           notifFound = true;
         }
       });
-    } else {
-      // WISHLIST LOGIC of check if already in wishlist
-      // using setIsSaved also
     }
     setIsNotif(notifFound);
   }, [decodedToken]);
@@ -382,13 +369,10 @@ const HeaderInfo = ({
 
       if (newToken) {
         localStorage.setItem("token", newToken); // Store the new token
-        // console.log("Updated token:", newToken);
         const decTemp = jwtDecode(newToken);
         setDecodedToken(decTemp);
         setUserid(decTemp?.userId);
         user = decTemp.userDetails;
-        // console.log(newToken);
-        console.log("new token fetched successfully");
       }
     } catch (error) {
       console.error("Error getting new token:", error);
@@ -419,7 +403,6 @@ const HeaderInfo = ({
   const bookItem = async () => {
     try {
       const touristId = userid;
-      console.log("here1234", touristId);
       const useWallet = true;
       let total;
       let FinalDate;
@@ -560,60 +543,24 @@ const HeaderInfo = ({
     return String(val).charAt(0).toUpperCase() + String(val).slice(1);
   }
 
-  const [isInWishlist, setIsInWishlist] = useState(false);
-  useEffect(() => {
-    const fetchWishlistStatus = async () => {
-      const pathParts = locationUrl.pathname.split("/");
-      const type = pathParts[2];
-      const productId = pathParts[3];
-      try {
-        const response = await axios.get(`${apiUrl}tourist/wishlist/${userid}`);
-        const wishlist = response.data.wishlist;
-
-        const productInWishlist = wishlist.some(
-          (item) => item._id === productId
-        );
-        setIsInWishlist(productInWishlist);
-      } catch (error) {
-        console.error("Error fetching wishlist:", error);
-      }
-    };
-
-    fetchWishlistStatus();
-  }, [locationUrl, userid]);
-
   const save = async () => {
-    const pathParts = locationUrl.pathname.split("/");
-    const type = pathParts[2];
-    const productId = pathParts[3];
-    if (type == "products") {
+    if (type == "product") {
       // add to wishlist logic
       try {
         const response = await axios.post(`${apiUrl}tourist/add-to-wishlist`, {
           touristId: userid,
-          productId: productId,
+          productId: id,
         });
 
         if (response.status === 200) {
-          console.log(response.data.message);
-          setIsInWishlist(true);
-          setIsSaved(true);
           await getNewToken();
+          message.success("Product added to wishlist");
         }
       } catch (error) {
-        console.error(
-          "Error adding product to wishlist:",
-          error.response?.data.message || error.message
-        );
+        console.error(error);
       }
     } else {
       try {
-        console.log(
-          `${apiUrl}tourist/bookmark/add${capitalizeFirstLetter(
-            type
-          )}Bookmark/${userid}/${id}`
-        );
-
         const response = await axios.post(
           `${apiUrl}tourist/bookmark/add${capitalizeFirstLetter(
             type
@@ -633,28 +580,27 @@ const HeaderInfo = ({
 
   const unSave = async () => {
     //const touristId = userid;
-    const pathParts = locationUrl.pathname.split("/");
-    const type = pathParts[2];
-    const productId = pathParts[3];
-    if (type == "products") {
+    if (type == "product") {
       // remove from wishlist logic
+      console.log(`${apiUrl}tourist/remove-from-wishlist`);
 
       try {
         const response = await axios.post(
           `${apiUrl}tourist/remove-from-wishlist`,
           {
             touristId: userid,
-            productId: productId,
+            productId: id,
           }
         );
 
         if (response.status === 200) {
-          console.log(response.data.message);
-          setIsInWishlist(false);
-          setIsSaved(false);
           await getNewToken();
+          message.success("Product successfully removed from wishlist");
         }
       } catch (error) {
+        if (error?.response?.data?.message) {
+          message.error(error?.response?.data?.message);
+        }
         console.error(
           "Error removing product from wishlist:",
           error.response?.data.message || error.message
@@ -672,24 +618,10 @@ const HeaderInfo = ({
         if (error?.response?.data?.message) {
           message.warning(error?.response?.data?.message);
         }
+        console.error(error);
       }
     }
     // if successful get user again and set token (if not already returned using the func)
-  };
-  const toggleWishlist = async () => {
-    try {
-      if (isSaved || isInWishlist) {
-        console.log("Removing from wishlist...");
-        await unSave();
-        setIsInWishlist(false);
-      } else {
-        console.log("Adding to wishlist...");
-        await save();
-        setIsInWishlist(true);
-      }
-    } catch (error) {
-      console.error("Error toggling wishlist:", error);
-    }
   };
 
   const discountedPriceLower = priceLower - (discounts / 100) * priceLower;
@@ -961,12 +893,12 @@ const HeaderInfo = ({
         ) : null}
 
         <Col span={24 - colSpan} style={{ padding: "0 20px" }}>
-          <Flex justify={past ? "end" : "space-between"} align="center">
+          <Flex justify={inPast ? "end" : "space-between"} align="center">
             <div>
               <Rate value={avgRating} allowHalf disabled />
             </div>
             <Flex>
-              {past ? null : isNotif ? (
+              {inPast || type == "product" ? null : isNotif ? (
                 <BellFilled
                   style={{
                     fontSize: "20px",
@@ -977,11 +909,11 @@ const HeaderInfo = ({
                 />
               ) : (
                 <BellOutlined
-                  style={{ fontSize: "20px" }}
+                  style={{ fontSize: "20px", marginLeft: "20px" }}
                   onClick={addNotification}
                 />
               )}
-              {past ? null : isSaved ? (
+              {inPast ? null : isSaved ? (
                 <HeartFilled
                   style={{
                     fontSize: "20px",
@@ -1014,7 +946,7 @@ const HeaderInfo = ({
                 }}
                 trigger={["click"]}
               >
-                {past ? (
+                {inPast ? (
                   <></>
                 ) : (
                   <ShareAltOutlined
@@ -1027,7 +959,7 @@ const HeaderInfo = ({
                   />
                 )}
               </Dropdown>
-              {past ? null : (type == "activity" || type == "itinerary") &&
+              {inPast ? null : (type == "activity" || type == "itinerary") &&
                 decodedToken?.role == "admin" ? (
                 isFlagged ? (
                   <Button
