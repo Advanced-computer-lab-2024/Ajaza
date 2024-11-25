@@ -134,7 +134,7 @@ const CustomLayout = ({
         </Flex>
       );
     }
-  }, [notifications]);
+  }, []);
 
   const confirmLogOut = async (id) => {
     Modal.confirm({

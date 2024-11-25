@@ -6,10 +6,12 @@ const validateEmail = require("../middleware/validateEmail");
 const uniqueEmail = require("../middleware/uniqueEmail");
 const validateMobile = require("../middleware/validateMobile");
 const uniqueUsername = require("../middleware/uniqueUsername");
+const stripePay = require("../middleware/stripe");
 
 const axios = require("axios");
 const qs = require("qs");
 require("dotenv").config();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 router.post("/", touristController.createTourist);
 
@@ -302,6 +304,11 @@ router.post("/cart/:id", touristController.addProductToCart);
 
 // req96
 router.post("/cart/changeQuantity/:id", touristController.changeQuantityInCart);
+router.post("/cart/plus/:id", touristController.incQuantityInCart);
+router.post("/cart/minus/:id", touristController.decQuantityInCart);
+
+
+router.get("/cart/:id", touristController.getCart);
 
 //req95
 router.post("/cart/remove/:id", touristController.removeFromCart);
@@ -311,5 +318,41 @@ router.post("/cart/checkout/:id", touristController.checkout);
 
 router.post("/seeNotifications/:id", touristController.seeNotifications);
 
+/*
+Visa (success): 4242 4242 4242 4242
+Visa (insufficient funds): 4000 0000 0000 9995
+MasterCard (success): 5555 5555 5555 4444
+*/
+
+router.post('/stripe', async (req, res) => {
+  const { paymentMethodId, amount } = req.body;
+
+  const amountIn = amount*100;
+
+  try {
+    // Create a payment intent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amountIn, // Amount in cents (change as necessary)
+      currency: 'usd',
+      payment_method: paymentMethodId, // Attach the payment method
+      confirm: true, // Automatically confirm the payment intent
+      return_url: 'http://localhost:3000/payment-confirmation', // Optional: if redirect is needed
+      automatic_payment_methods: {
+        enabled: true,
+        allow_redirects: "never", // Avoid redirect-based methods
+      },
+    });
+
+    console.log(paymentIntent.status);
+
+    res.json({
+      clientSecret: paymentIntent.client_secret,
+    });
+  } catch (error) {
+    res.status(400).json({
+      error: { message: error.message },
+    });
+  }
+});
 
 module.exports = router;
