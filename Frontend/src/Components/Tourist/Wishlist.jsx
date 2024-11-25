@@ -180,13 +180,16 @@ const Wishlist = () => {
           console.error("Tourist ID or Product ID is missing!");
           return;
         }
-
+        if(quantity<=0){
+            message.error("Please choose quantity");
+            return;
+        }
         const response = await axios.post(
           `${apiUrl}tourist/add-to-cart-from-wishlist`,
           {
             touristId: userid,
             productId,
-            quantity, // Pass the quantity to the backend
+            quantity, 
           }
         );
 
@@ -205,13 +208,13 @@ const Wishlist = () => {
         );
       }
     };
-    const [quantity, setQuantity] = useState(0); // Initialize quantity with 1
+    const [quantity, setQuantity] = useState(0); 
     const increaseQuantity = () => {
       setQuantity((prevQuantity) => prevQuantity + 1);
     };
 
     const decreaseQuantity = () => {
-      setQuantity((prevQuantity) => (prevQuantity > 0 ? prevQuantity - 1 : 0)); // Ensure it doesn't go below 1
+      setQuantity((prevQuantity) => (prevQuantity > 0 ? prevQuantity - 1 : 0)); 
     };
     console.log("quantity is:", quantity); // Debugging
 
@@ -224,7 +227,7 @@ const Wishlist = () => {
         <div
           style={{
             position: "absolute",
-            top: "20px",
+            top: "10px",
             left: "10px",
             cursor: "pointer",
           }}
@@ -244,8 +247,8 @@ const Wishlist = () => {
         <div
           style={{
             position: "absolute",
-            top: "35px",
-            left: "10px",
+            top: "30px",
+            left: "5px",
             display: "flex",
             alignItems: "center",
           }}
@@ -253,16 +256,28 @@ const Wishlist = () => {
           <button
             onClick={decreaseQuantity}
             style={{
-              width: "10px",
-              height: "10px",
-              // borderRadius: "5px",
-              border: "none",
-              //backgroundColor: "#ddd",
-              cursor: "pointer",
+                width: "10px",
+                height: "15px",
+                borderRadius: "2px",
+                border: "none",
+                backgroundColor: "#ddd",
+                cursor: "pointer",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                padding: "0", // Reset padding
             }}
-          >
-            -
-          </button>
+            >
+            <span
+                style={{
+                position: "relative",
+                top: "-2px", 
+                }}
+            >
+                -
+            </span>
+            </button>
+
           <span
             style={{
               margin: "0 10px",
@@ -275,16 +290,28 @@ const Wishlist = () => {
           <button
             onClick={increaseQuantity}
             style={{
-              width: "10px",
-              height: "10px",
-              //borderRadius: "5px",
-              border: "none",
-              // backgroundColor: "#ddd",
-              cursor: "pointer",
+                width: "10px",
+                height: "15px",
+                borderRadius: "2px",
+                border: "none",
+                backgroundColor: "#ddd",
+                cursor: "pointer",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                padding: "0", // Reset padding
             }}
-          >
-            +
-          </button>
+            >
+            <span
+                style={{
+                position: "relative",
+                top: "-2px", 
+                }}
+            >
+                +
+            </span>
+            </button>
+
         </div>
       </div>
     );
