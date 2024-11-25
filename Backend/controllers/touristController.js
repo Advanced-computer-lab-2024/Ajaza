@@ -1980,6 +1980,24 @@ exports.incQuantityInCart = async(req,res) => {
   }
 }
 
+exports.getCart = async(req,res) => {
+  try {
+    const touristId = req.params.id;
+
+    const tourist = await Tourist.findById(touristId)
+      .populate("cart.productId");
+
+    if(!tourist) {
+      return res.status(404).json({message: "Tourist not found"});
+    }
+
+    return res.status(200).json(tourist.cart);
+  } catch(error) {
+    console.log(error);
+    return res.status(500).json({message: "Internal error"});
+  }
+}
+
 exports.decQuantityInCart = async(req,res) => {
   try {
     const touristId = req.params.id;

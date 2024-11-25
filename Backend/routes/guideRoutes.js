@@ -90,7 +90,12 @@ router.patch("/requestDeletion/:id", guideController.requestDeletion);
 
 router.post("/validateEmailUsername", guideController.validateEmailUsername); // New route for email and username validation
 
+// view sales report
 router.get('/viewSalesReport/:id', guideController.viewSalesReport);
+
+// view tourist report
+router.get('/viewTouristReport/:id', guideController.viewTouristReport);
+
 
 router.post("/seeNotifications/:id", guideController.seeNotifications);
 

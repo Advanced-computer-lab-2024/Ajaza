@@ -878,7 +878,7 @@ const Profile = () => {
                     {userDetails.nationality && (
                       <div>
                         <strong>Nationality: </strong>
-                        <span>{userDetails.nationality}</span>
+                        <span>{userDetails.nationality.charAt(0).toUpperCase()+ userDetails.nationality.slice(1)}</span>
                       </div>
                     )}
                     {userDetails.dob && (
@@ -902,7 +902,7 @@ const Profile = () => {
                     {userDetails.wallet !== undefined && (
                       <div>
                         <strong>Wallet: </strong>
-                        <span>{userDetails.wallet || 0} USD</span>
+                        <span>{userDetails.wallet.toFixed(2) || 0} USD</span>
                       </div>
                     )}
                     {userDetails.totalPoints !== undefined && (

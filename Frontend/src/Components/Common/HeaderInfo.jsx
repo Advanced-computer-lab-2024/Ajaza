@@ -45,7 +45,6 @@ const { PaymentOption } = Select;
 
 //const stripePromise = loadStripe("pk_test_51QONfoIeveJOIzFrIAQIVM7VjUxI8FVUR0VPvCZQtESNQQAu4NqnjZriQEZS0nXD0nT63RQFY8HeixlGp53my1t700Vbu2tFyY");
 
-
 const contentStyle = {
   margin: 0,
   width: "100%",
@@ -96,14 +95,19 @@ const HeaderInfo = ({
   const [leave, setLeave] = useState(false);
   const [isBooked, setIsBooked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [currentSelectedDate, setCurrentSelectedDate] = useState(null);
+  const [currentPrice, setCurrentPrice] = useState(null);
   const [promoCode, setPromoCode] = useState("");
-  const [selectedDate, setSelectedDate] = useState(availableDates?availableDates[0].date:null);
+  const [selectedDate, setSelectedDate] = useState(
+    availableDates ? availableDates[0].date : null
+  );
   const selectedDateRef = useRef(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [priceString, setPriceString] = useState("");
   const emailRef = useRef(null);
-  const [selectedPrice, setSelectedPrice] = useState( type==="activity" ? priceUpper : price);
-    const selectedPriceRef = useRef(null);
+  const [selectedPrice, setSelectedPrice] = useState();
+  const selectedPriceRef = useRef(null);
   const [currencySymbol, setCurrencySymbol] = useState(
     currency == "EGP" ? "£" : currency == "EUR" ? "€" : "$"
   );
@@ -112,7 +116,12 @@ const HeaderInfo = ({
   const [userid, setUserid] = useState(null);
   const [past, setPast] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("wallet");
-  const [cardDetails, setCardDetails] = useState({ number: "", name: "", expiry: "", cvv: "" });
+  const [cardDetails, setCardDetails] = useState({
+    number: "",
+    name: "",
+    expiry: "",
+    cvv: "",
+  });
 
   const navigate = useNavigate();
 
@@ -121,7 +130,7 @@ const HeaderInfo = ({
   // const elements = useElements();
   // const [loading, setLoading] = useState(false);
   // //
-
+  
   useEffect(() => {
     const tempToken = localStorage.getItem("token");
     setToken(tempToken);
@@ -365,11 +374,11 @@ const HeaderInfo = ({
     }
   };
 
-  if(leave) {
+  if (leave) {
     getNewToken();
     Modal.destroyAll();
     setTimeout(() => {
-      navigate('/tourist/');
+      navigate("/tourist/");
     }, 500);
   }
 
@@ -389,7 +398,6 @@ const HeaderInfo = ({
     try {
       const touristId = userid;
       console.log("here1234", touristId);
-      // const useWallet = user.wallet > 0;
       const useWallet = true;
       let total;
       let FinalDate;
@@ -400,9 +408,6 @@ const HeaderInfo = ({
         total = price;
         FinalDate = selectedDateRef.current;
       }
-      // const total =
-      //   type === "activity" ? selectedPriceRef.current : price;
-      // const FinalDate = type === "activity" ? date : selectedDateRef.current;
       if (spots <= 0) {
         message.error(`Error booking ${type}: No spots available.`);
         return;
@@ -432,8 +437,6 @@ const HeaderInfo = ({
       setIsBooked(true);
       await getNewToken();
     } catch (error) {
-      // console.error(`Error booking ${type}:`, error);
-      // message.error(`Error booking ${type}: ${error.message}`);
       const errorMessage = error.response?.data?.message || "Please try again.";
       console.error(`Error ${type} booking:`, error);
       message.error(`Error booking: ${errorMessage}`);
@@ -442,8 +445,6 @@ const HeaderInfo = ({
 
   const showBookingModal = () => {
     const temp = localStorage.getItem("token");
-
-    
 
     if (!temp) {
       message.warning(
@@ -462,130 +463,43 @@ const HeaderInfo = ({
       );
       return;
     }
-    let currentSelectedDate;
-    let currentprice = priceLower;
 
-    const discountedPriceLower = priceLower - (discounts / 100) * priceLower;
-    const discountedPriceUpper = priceUpper - (discounts / 100) * priceUpper;
-    const discountedMiddlePrice =
-      (discountedPriceLower + discountedPriceUpper) / 2;
+    setIsModalVisible(true); // Open the modal
+  };
 
-    //const middlePrice = (priceLower + priceUpper) / 2;
-    Modal.confirm({
-      okButtonProps: {
-        style: (paymentMethod === "wallet") ? { text: "Pay"} : { display: 'none' }, // Show if selectedPayment is truthy
-      },
-      okText: "Pay & Book",
-      title: `Confirm Booking for ${name}`,
-      content: (
-        <div>
-          {type === "itinerary" && availableDates?.length > 0 && (
-            <Select
-              placeholder="Select booking date"
-              onChange={(value) => {
-                setSelectedDate(value);
-                currentSelectedDate = value;
-                console.log("Selected Date:", value); // Log the selected value directly
-              }}
-              style={{ width: "100%", marginBottom: 10 }}
-              defaultValue={availableDates[0].date}
-            >
-              {availableDates.map((slot, index) => (
-                <Option key={index} value={slot.date}>
-                  {new Date(slot.date).toLocaleString()} - {slot.spots} spots
-                  left
-                </Option>
-              ))}
-            </Select>
-          )}
-          {type === "activity" && (
-            <Select
-              placeholder="Select price"
-              onChange={(value) => {
-                setSelectedPrice(value);
-                currentprice = value;
-                console.log("Selected Price:", currentprice); // Log the selected price
-              }}
-              style={{ width: "100%", marginBottom: 10 }}
-              defaultValue={discountedPriceUpper}
-            >
-              <Option
-                value={discountedPriceLower}
-                style={{ color: "#cd7f32", fontWeight: "bold" }}
-              >
-                Bronze Tier: {currencySymbol}
-                {discountedPriceLower.toFixed(2)}
-              </Option>
-              {priceUpper !== priceLower && (
-                <Option
-                  value={discountedMiddlePrice}
-                  style={{ color: "#c0c0c0", fontWeight: "bold" }}
-                >
-                  Silver Tier: {currencySymbol}
-                  {discountedMiddlePrice.toFixed(2)}
-                </Option>
-              )}
-              {priceUpper !== priceLower && (
-                <Option
-                  value={discountedPriceUpper}
-                  style={{ color: "#ffd700", fontWeight: "bold" }}
-                >
-                  Gold Tier: {currencySymbol}
-                  {discountedPriceUpper.toFixed(2)}
-                </Option>
-              )}
-            </Select>
-          )}
+  // Handle modal submission
+  const handleOk = async () => {
+    if (!currentSelectedDate && type === "itinerary") {
+      Modal.error({
+        title: "Booking Date Required",
+        content: "Please select a booking date to proceed.",
+      });
+      return;
+    }
 
-          <Input
-            placeholder="Enter promo code"
-            onChange={(e) => setPromoCode(e.target.value)}
-            style={{ marginTop: 10 }}
-          />
+    if (!selectedPrice && type === "activity") {
+      Modal.error({
+        title: "Price Selection Required",
+        content: "Please select a price to proceed with the booking.",
+      });
+      return;
+    }
 
-                <div style={{ marginTop: 20 }}>
-                  <Radio.Group value={paymentMethod}>
-                    <Radio value="wallet" onClick={() => setPaymentMethod("wallet")}>Pay by Wallet</Radio>
-                    <Radio value="card" onClick={() => setPaymentMethod("card")}>Pay by Card</Radio>
-                  </Radio.Group>
-                </div>
+    if (paymentMethod === "wallet") {
+      await bookItem({
+        date: currentSelectedDate,
+        total: currentPrice,
+      });
+    }
 
-                {paymentMethod === "wallet" && decodedToken.userDetails.wallet && (
-                  <p>Current balance: {decodedToken.userDetails.wallet}</p>
-                )}
+    setIsModalVisible(false); // Close the modal
+  };
 
-                {/* Card Payment Form */}
-                {paymentMethod === "card" && (
-                  <StripeContainer amount={selectedPrice} type={type} selectedDate={selectedDateRef.current} userid={userid} id={id} useWallet={paymentMethod === "wallet"} setLeave={setLeave}/>
-                )}
-        </div>
-      ),
-      //onOk: bookItem,
-      onOk: () => {
-        console.log("here:", currentSelectedDate);
-        if (!selectedDateRef.current && type === "itinerary") {
-          Modal.error({
-            title: "Booking Date Required",
-            content: "Please select a booking date to proceed.",
-          }); // Prevents modal from closing
-          return false;
-        }
-
-        if (!currentprice && type === "activity") {
-          Modal.error({
-            title: "Price Selection Required",
-            content: "Please select a price to proceed with the booking.",
-          });
-          return false;
-        }
-
-        return bookItem({ date: currentSelectedDate, total: currentprice }); // Calls the booking function if date is selected
-      },
-      onCancel: () => {
-        setSelectedDate(null);
-        setPromoCode("");
-      },
-    });
+  // Handle modal cancellation
+  const handleCancel = () => {
+    setIsModalVisible(false); // Close the modal
+    setCurrentSelectedDate(null);
+    setPromoCode("");
   };
 
   const cancelBookingItem = async () => {
@@ -625,6 +539,25 @@ const HeaderInfo = ({
   }
 
   const [isInWishlist, setIsInWishlist] = useState(false);
+  useEffect(() => {
+    const fetchWishlistStatus = async () => {
+      const pathParts = locationUrl.pathname.split("/");
+      const type = pathParts[2];
+      const productId = pathParts[3];
+      try {
+        const response = await axios.get(`${apiUrl}tourist/wishlist/${userid}`);
+        const wishlist = response.data.wishlist;
+  
+        const productInWishlist = wishlist.some((item) => item._id === productId);
+        setIsInWishlist(productInWishlist);
+      } catch (error) {
+        console.error("Error fetching wishlist:", error);
+      }
+    };
+  
+    fetchWishlistStatus();
+  }, [locationUrl,userid]);
+  
   const save = async () => {
     const pathParts = locationUrl.pathname.split("/");
     const type = pathParts[2];
@@ -636,14 +569,18 @@ const HeaderInfo = ({
           touristId: userid,
           productId: productId,
         });
-  
+
         if (response.status === 200) {
           console.log(response.data.message);
           setIsInWishlist(true);
+          setIsSaved(true);
           await getNewToken();
         }
       } catch (error) {
-        console.error("Error adding product to wishlist:", error.response?.data.message || error.message);
+        console.error(
+          "Error adding product to wishlist:",
+          error.response?.data.message || error.message
+        );
       }
     } else {
       try {
@@ -660,7 +597,6 @@ const HeaderInfo = ({
     // if successful get user again and set token (if not already returned using the func)
   };
 
-
   const unSave = async () => {
     //const touristId = userid;
     const pathParts = locationUrl.pathname.split("/");
@@ -670,18 +606,25 @@ const HeaderInfo = ({
       // remove from wishlist logic
 
       try {
-        const response = await axios.post(`${apiUrl}tourist/remove-from-wishlist`, {
-          touristId: userid,
-          productId: productId,
-        });
-  
+        const response = await axios.post(
+          `${apiUrl}tourist/remove-from-wishlist`,
+          {
+            touristId: userid,
+            productId: productId,
+          }
+        );
+
         if (response.status === 200) {
           console.log(response.data.message);
           setIsInWishlist(false);
+          setIsSaved(false);
           await getNewToken();
         }
       } catch (error) {
-        console.error("Error removing product from wishlist:", error.response?.data.message || error.message);
+        console.error(
+          "Error removing product from wishlist:",
+          error.response?.data.message || error.message
+        );
       }
     } else {
     }
@@ -690,20 +633,24 @@ const HeaderInfo = ({
  const toggleWishlist = async () => {
 
   try {
-    if (isSaved) {
+    if (isSaved || isInWishlist) {
       console.log("Removing from wishlist...");
       await unSave();
-      setIsSaved(false);
+      setIsInWishlist(false);
     } else {
       console.log("Adding to wishlist...");
       await save();
-      setIsSaved(true);
+      setIsInWishlist(true);
     }
   } catch (error) {
     console.error("Error toggling wishlist:", error);
   }
 };
 
+  const discountedPriceLower = priceLower - (discounts / 100) * priceLower;
+  const discountedPriceUpper = priceUpper - (discounts / 100) * priceUpper;
+  const discountedMiddlePrice =
+    (discountedPriceLower + discountedPriceUpper) / 2;
 
   return (
     <>
@@ -948,7 +895,7 @@ const HeaderInfo = ({
             </div>
             <Flex>
               {!past && (
-              isSaved ? (
+              isSaved || isInWishlist ? (
                 <HeartFilled
                   style={{
                     fontSize: "20px",
@@ -966,8 +913,7 @@ const HeaderInfo = ({
                   }}
                   onClick={toggleWishlist}
                   />
-              )
-            )}
+                ))}
               {/* Dropdown for sharing options */}
               <Dropdown
                 menu={{
@@ -1057,6 +1003,114 @@ const HeaderInfo = ({
                   />
                 ))
               )}
+              <Modal
+                title={`Confirm Booking for ${name}`}
+                visible={isModalVisible}
+                onOk={handleOk}
+                onCancel={handleCancel}
+                okText="Pay & Book by wallet"
+                okButtonProps={{
+                  style: {
+                    display: paymentMethod === "card" ? "none" : "inline-block",
+                  },
+                }}
+              >
+                <div>
+                  {/* Select Date (For Itinerary) */}
+                  {type === "itinerary" && availableDates?.length > 0 && (
+                    <Select
+                      placeholder="Select booking date"
+                      onChange={(value) => setCurrentSelectedDate(value)}
+                      style={{ width: "100%", marginBottom: 10 }}
+                    >
+                      {availableDates.map((slot, index) => (
+                        <Option key={index} value={slot.date}>
+                          {new Date(slot.date).toLocaleString()} - {slot.spots}{" "}
+                          spots left
+                        </Option>
+                      ))}
+                    </Select>
+                  )}
+
+                  {type === "activity" && (
+                    <Select
+                      placeholder="Select price"
+                      onChange={(value) => {
+                        setSelectedPrice(value);
+                      }}
+                      style={{ width: "100%", marginBottom: 10 }}
+                    >
+                      <Option
+                        value={discountedPriceLower}
+                        style={{ color: "#cd7f32", fontWeight: "bold" }}
+                      >
+                        Bronze Tier: {currencySymbol}
+                        {discountedPriceLower.toFixed(2)}
+                      </Option>
+                      {priceUpper !== priceLower && (
+                        <Option
+                          value={discountedMiddlePrice}
+                          style={{ color: "#c0c0c0", fontWeight: "bold" }}
+                        >
+                          Silver Tier: {currencySymbol}
+                          {discountedMiddlePrice.toFixed(2)}
+                        </Option>
+                      )}
+                      {priceUpper !== priceLower && (
+                        <Option
+                          value={discountedPriceUpper}
+                          style={{ color: "#ffd700", fontWeight: "bold" }}
+                        >
+                          Gold Tier: {currencySymbol}
+                          {discountedPriceUpper.toFixed(2)}
+                        </Option>
+                      )}
+                    </Select>
+                  )}
+
+                  {/* Promo Code Input */}
+                  <Input
+                    placeholder="Enter promo code"
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    style={{ marginTop: 10 }}
+                  />
+
+                  {/* Payment Method */}
+                  <div style={{ marginTop: 20 }}>
+                    <Radio.Group
+                      value={paymentMethod}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                    >
+                      <Radio value="wallet">Pay by Wallet</Radio>
+                      <Radio value="card">Pay by Card</Radio>
+                    </Radio.Group>
+                  </div>
+
+                  {/* Wallet Balance */}
+                  {paymentMethod === "wallet" &&
+                    decodedToken?.userDetails?.wallet && (
+                      <p>
+                        <strong>Current balance: </strong>
+                        {decodedToken.userDetails.wallet.toFixed(2)}
+                      </p>
+                    )}
+
+                  {/* Stripe Payment Form */}
+                  {paymentMethod === "card" && (
+                    <StripeContainer
+                      amount={type === "activity" ? selectedPrice : price}
+                      type={type}
+                      selectedDate={
+                        type === "itinerary" ? currentSelectedDate : date
+                      }
+                      userid={userid}
+                      id={id}
+                      useWallet={paymentMethod === "wallet"}
+                      setLeave={setLeave}
+                    />
+                  )}
+                </div>
+              </Modal>
             </Flex>
           </Flex>
           <Flex
