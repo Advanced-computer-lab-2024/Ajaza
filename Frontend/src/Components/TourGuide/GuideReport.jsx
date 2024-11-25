@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Table, message } from "antd";
-import {jwtDecode }from "jwt-decode"; // Corrected import
+import {jwtDecode} from "jwt-decode"; // Corrected import
 import axios from "axios";
 
 const GuideReport = () => {
   const [salesData, setSalesData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [GuideId, setGuideId] = useState(null);
+  const [totalSales, setTotalSales] = useState(0); // State for total sales
 
   useEffect(() => {
-    const token = localStorage.getItem("token"); // Replace with your token source
+    const token = localStorage.getItem("token");
     if (token) {
       try {
-        const decoded = jwtDecode(token); // Decode the JWT token
-        const GuideIdFromToken = decoded?.userId || decoded?.GuideId || null; // Adjust key based on your token structure
+        const decoded = jwtDecode(token);
+        const GuideIdFromToken = decoded?.userId || decoded?.GuideId || null;
         console.log("Decoded GuideId:", GuideIdFromToken);
         setGuideId(GuideIdFromToken);
       } catch (error) {
@@ -27,29 +28,29 @@ const GuideReport = () => {
   }, []);
 
   useEffect(() => {
-    if (!GuideId) return; // Do nothing if GuideId is not set
+    if (!GuideId) return;
 
     const fetchSalesData = async () => {
       setLoading(true);
       try {
         const response = await axios.get(`http://localhost:5000/guide/viewSalesReport/${GuideId}`);
-        const { itineraryDetails } = response.data;
+        const { totalSales, report } = response.data;
 
-        if (Array.isArray(itineraryDetails)) {
-          const transformedData = itineraryDetails.map((itinerary, index) => ({
+        if (Array.isArray(report)) {
+          const transformedData = report.map((record, index) => ({
             key: index, // Unique key for table rows
-            itineraryName: itinerary.name || "Unnamed Itinerary", // Itinerary name
-            bookings: itinerary.bookings || 0, // Number of bookings
-            pricePerPerson: itinerary.pricePerPerson || 0, // Price per person
-            guideName: itinerary.guideId?.name || "Unknown", // Fetch guide name
-            dateCreated: itinerary.dateCreated || "No date available", // Creation date
-            totalRevenue: (itinerary.bookings || 0) * (itinerary.pricePerPerson || 0), // Calculate revenue
-            category: itinerary.category.join(", ") || "Uncategorized", // Convert category array to string
+            itineraryName: record.name || "Unnamed Itinerary", // Itinerary name
+            bookingDate: record.Bookingdate ? new Date(record.Bookingdate).toLocaleDateString() : "No Booking Date", // Format booking date
+            price: record.price || 0, // Price
+            language: record.language || "No Language Specified", // Language used
+            accessibility: record.accessibility || "Not specified", // Accessibility
           }));
-          setSalesData(transformedData); // Set transformed data
+          setSalesData(transformedData);
+          setTotalSales(totalSales || 0); // Set total sales
         } else {
-          console.error("Invalid data format:", itineraryDetails);
-          setSalesData([]); // Clear sales data if invalid format
+          console.error("Invalid data format:", report);
+          setSalesData([]);
+          setTotalSales(0);
         }
       } catch (error) {
         console.error("Error fetching sales data:", error);
@@ -69,40 +70,35 @@ const GuideReport = () => {
       key: "itineraryName",
     },
     {
-      title: "Bookings",
-      dataIndex: "bookings",
-      key: "bookings",
+      title: "Booking Date",
+      dataIndex: "bookingDate",
+      key: "bookingDate",
     },
     {
-      title: "Category",
-      dataIndex: "category",
-      key: "category",
-    },
-    {
-      title: "Date Created",
-      dataIndex: "dateCreated",
-      key: "dateCreated",
-    },
-    {
-      title: "Price per Person",
-      dataIndex: "pricePerPerson",
-      key: "pricePerPerson",
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
       render: (text) => `$${text.toFixed(2)}`, // Format as currency
     },
     {
-      title: "Total Revenue",
-      dataIndex: "totalRevenue",
-      key: "totalRevenue",
-      render: (text) => `$${text.toFixed(2)}`, // Format as currency
+      title: "Language",
+      dataIndex: "language",
+      key: "language",
+    },
+    {
+      title: "Accessibility",
+      dataIndex: "accessibility",
+      key: "accessibility",
     },
   ];
 
   return (
     <div>
       <h2>Guide Sales Report</h2>
+      <p>Total Sales: <strong>${totalSales.toFixed(2)}</strong></p> {/* Display total sales */}
       <Table
         columns={columns}
-        dataSource={salesData} // Pass the sales data to the table
+        dataSource={salesData}
         loading={loading}
         rowKey={(record) => record.key || record.itineraryName}
       />

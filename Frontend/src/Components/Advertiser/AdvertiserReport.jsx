@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Table, message } from 'antd';
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode"; // Correct import
 import axios from 'axios';
 
 const AdvertiserReport = () => {
     const [salesData, setSalesData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [AdvertiserId, setAdvertiserId] = useState(null);
+    const [totalSales, setTotalSales] = useState(0); // State for total sales
 
     useEffect(() => {
-        const token = localStorage.getItem("token"); // Replace with your token source
+        const token = localStorage.getItem("token");
         if (token) {
             try {
                 const decoded = jwtDecode(token); // Decode the JWT token
-                const AdvertiserIdFromToken = decoded?.userId || decoded?.AdvertiserId || null; // Adjust key based on your token structure
+                const AdvertiserIdFromToken = decoded?.userId || decoded?.AdvertiserId || null;
                 console.log("Decoded AdvertiserId:", AdvertiserIdFromToken);
                 setAdvertiserId(AdvertiserIdFromToken);
             } catch (error) {
@@ -27,29 +28,30 @@ const AdvertiserReport = () => {
     }, []);
 
     useEffect(() => {
-        if (!AdvertiserId) return;  // Do nothing if AdvertiserId is not set
+        if (!AdvertiserId) return;
 
         const fetchSalesData = async () => {
             setLoading(true);
             try {
                 const response = await axios.get(`http://localhost:5000/advertiser/viewSalesReport/${AdvertiserId}`);
-                const { salesDetails } = response.data;
+                const { totalSales, report } = response.data;
 
-                if (Array.isArray(salesDetails)) {
-                    const transformedData = salesDetails.map((activity, index) => ({
+                if (Array.isArray(report)) {
+                    const transformedData = report.map((activity, index) => ({
                         key: index, // Unique key for table rows
                         activityName: activity.name || "Unnamed Activity", // Activity name
-                        quantitySold: activity.spots || 0, // Number of spots booked
-                        salePrice: activity.lower || 0, // Price per booking
-                        advertiserName: activity.advertiserId?.name || "Unknown", // Fetch advertiser name
-                        dateSold: activity.date || "No date available", // Date of activity
-                        totalRevenue: (activity.spots || 0) * (activity.lower || 0) * (1 - (activity.discounts || 0) / 100), // Revenue with discounts
-                        category: activity.category.join(", ") || "Uncategorized", // Convert category array to string
+                        activityDate: activity.activityDate 
+                            ? new Date(activity.activityDate).toLocaleDateString() 
+                            : "No Date", // Format date
+                        price: activity.price || 0, // Price
+                        category: activity.category?.join(", ") || "Uncategorized", // Convert category array to string
                     }));
-                    setSalesData(transformedData); // Set transformed data
+                    setSalesData(transformedData);
+                    setTotalSales(totalSales || 0); // Set total sales
                 } else {
-                    console.error("Invalid data format:", salesDetails);
-                    setSalesData([]);  // Clear sales data if invalid format
+                    console.error("Invalid data format:", report);
+                    setSalesData([]);
+                    setTotalSales(0);
                 }
             } catch (error) {
                 console.error("Error fetching sales data:", error);
@@ -60,8 +62,7 @@ const AdvertiserReport = () => {
         };
 
         fetchSalesData();
-    }, [AdvertiserId]); 
-    
+    }, [AdvertiserId]);
 
     const columns = [
         {
@@ -70,43 +71,32 @@ const AdvertiserReport = () => {
             key: 'activityName',
         },
         {
-            title: 'Quantity Sold',
-            dataIndex: 'quantitySold',
-            key: 'quantitySold',
+            title: 'Activity Date',
+            dataIndex: 'activityDate',
+            key: 'activityDate',
+        },
+        {
+            title: 'Price',
+            dataIndex: 'price',
+            key: 'price',
+            render: (text) => `$${text.toFixed(2)}`, // Format as currency
         },
         {
             title: 'Category',
             dataIndex: 'category',
             key: 'category',
         },
-        {
-            title: 'Date of Activity',
-            dataIndex: 'dateSold',
-            key: 'dateSold',
-        },
-        {
-            title: 'Price per Booking',
-            dataIndex: 'salePrice',
-            key: 'salePrice',
-            render: (text) => `$${text.toFixed(2)}`, // Format as currency
-        },
-        {
-            title: 'Total Revenue',
-            dataIndex: 'totalRevenue',
-            key: 'totalRevenue',
-            render: (text) => `$${text.toFixed(2)}`, // Format as currency
-        },
     ];
-    
+
     return (
         <div>
-            <h2>Sales Report</h2>
+            <h2>Advertiser Sales Report</h2>
+            <p>Total Sales: <strong>${totalSales.toFixed(2)}</strong></p> {/* Display total sales */}
             <Table
-                 columns={columns}
-                 dataSource={salesData}  // Pass the sales data to the table
-                 loading={loading}
-                 rowKey={(record) => record.key || record.productName}
-                
+                columns={columns}
+                dataSource={salesData} // Pass the sales data to the table
+                loading={loading}
+                rowKey={(record) => record.key || record.activityName}
             />
         </div>
     );
