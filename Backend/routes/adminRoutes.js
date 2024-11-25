@@ -30,4 +30,9 @@ router.delete("/deleteImgs", adminController.deleteImgs);
 
 router.post("/seeNotifications/:id", adminController.seeNotifications);
 
+// req 27 - tatos
+router.get('/viewSalesReport/:id', adminController.viewSalesReport);
+
+
+
 module.exports = router;

@@ -713,7 +713,7 @@ exports.getGuideDetails = async (req, res) => {
   }
 };
 
-//req 28 - tatos (Not Done Yet)
+
 //req 28 - tatos (Not Done Yet)
 exports.viewSalesReport = async (req, res) => {
   const guideId = req.params.id;
@@ -779,6 +779,42 @@ exports.viewSalesReport = async (req, res) => {
   }
 };
 
+
+// req 30 - tatos (not done yet)
+exports.viewTouristReport = async (req, res) => {
+  const guideId = req.params.id;
+  try {
+    const guide = await Guide.findById(guideId);
+    if (!guide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+    if (guide.pending) {
+      return res.status(401).json({ message: "Waiting for admin approval" });
+    }
+    if (!guide.acceptedTerms) {
+      return res
+        .status(401)
+        .json({ message: "Terms and Conditions must be accepted" });
+    }
+    if (guide.requestingDeletion) {
+      return res
+        .status(401)
+        .json({ message: "Tour Guide is requesting deletion" });
+    }
+
+    if (guide.pending){
+      return res.status(401).json({message: "Guide is pending approval"});
+    }
+
+
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
+
 exports.seeNotifications = async(req,res) => {
   try {
     const userId = req.params.id;
@@ -817,3 +853,4 @@ exports.myItemsFeedback = async(req,res) => {
     res.status(500).json({ error: error.message });
   }
 }
+

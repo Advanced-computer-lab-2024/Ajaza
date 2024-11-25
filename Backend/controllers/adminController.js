@@ -195,3 +195,26 @@ exports.seeNotifications = async(req,res) => {
     return res.status(500).json({message: "Internal error"});
   }
 }
+
+//req 27 - Tatos (not done)
+exports.viewSalesReport = async (req, res) => {
+  const adminId = req.params.id;
+  try {
+
+    const admin = await Admin.findById(adminId);
+
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+
+
+    let totalSales = 0;
+
+
+
+    return res.status(200).json({ totalSales });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal error" });
+  }
+}

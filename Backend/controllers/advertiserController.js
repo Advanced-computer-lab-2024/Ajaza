@@ -751,6 +751,40 @@ exports.viewSalesReport = async (req, res) => {
   }
 };
 
+// req 30 - tatos (Not Done Yet)
+exports.viewTouristReport = async (req, res) => {
+  const advertiserId = req.params.id;
+  try {
+    const advertiser = await Advertiser.findById(advertiserId);
+    if (!advertiser) {
+      return res.status(404).json({ message: "Advertiser not found" });
+    }
+    if (advertiser.pending) {
+      return res.status(401).json({ message: "Waiting for admin approval" });
+    }
+    if (!advertiser.acceptedTerms) {
+      return res
+        .status(401)
+        .json({ message: "Terms and Conditions must be accepted" });
+    }
+    if (advertiser.requestingDeletion) {
+      return res
+        .status(401)
+        .json({ message: "Advertiser is requesting deletion" });
+    }
+
+   
+
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
+
+
+
 exports.myItemsFeedback = async(req,res) => {
   try {
     const advertiserId = req.params.id;
