@@ -196,24 +196,97 @@ exports.seeNotifications = async(req,res) => {
   }
 }
 
-//req 27 - Tatos (not done)
+//req 27 - Tatos (Done)
 exports.viewSalesReport = async (req, res) => {
   const adminId = req.params.id;
   try {
-
     const admin = await Admin.findById(adminId);
 
     if (!admin) {
       return res.status(404).json({ message: "Admin not found" });
     }
 
+    const tourists = await Tourist.find({
+      $or: [
+        { "orders.products.productId": { $exists: true } },
+        { "activityBookings.activityId": { $exists: true } },
+        { "itineraryBookings.itineraryId": { $exists: true } }
+      ]
+    })
+    .populate('orders.products.productId')
+    .populate('activityBookings.activityId')
+    .populate('itineraryBookings.itineraryId');
 
+    if (!tourists || tourists.length === 0) {
+      return res.status(404).json({ message: "No sales or bookings found" });
+    }
 
     let totalSales = 0;
+    const report = [];
 
 
+    // Loop through all tourists
+    for (const tourist of tourists) {
 
-    return res.status(200).json({ totalSales });
+      // Calculate total sales from product orders
+      for (const order of tourist.orders) {
+        for (const product of order.products) {
+          const productDetails = product.productId;
+          if (productDetails && productDetails.adminId.toString() === adminId && (order.status !== "cancelled")) {
+            const productTotal = product.quantity * productDetails.price;
+            totalSales += productTotal;
+            report.push({
+              type: 'Product',
+              productName: productDetails.name,
+              orderDate: order.date,
+              quantity: product.quantity,
+              price: productDetails.price,
+              total: productTotal,
+              category: productDetails.category,
+            });
+          }
+        }
+      }
+
+      // Calculate 10% commission from activity bookings
+      for (const booking of tourist.activityBookings) {
+        const activity = booking.activityId;
+        if (activity) {
+          const commission = booking.total * 0.1;
+          totalSales += commission;
+          report.push({
+            type: 'Activity',
+            activityName: activity.name,
+            activityDate: activity.date,
+            price: booking.total,
+            commission: commission,
+          });
+        }
+      }
+
+      // Calculate 10% commission from itinerary bookings
+      for (const booking of tourist.itineraryBookings) {
+        const itinerary = booking.itineraryId;
+        if (itinerary) {
+          const commission = booking.total * 0.1;
+          totalSales += commission;
+          report.push({
+            type: 'Itinerary',
+            itineraryName: itinerary.name,
+            bookingDate: booking.date,
+            price: booking.total,
+            commission: commission,
+          });
+        }
+      }
+    }
+
+    res.status(200).json({
+      totalSales,
+      report,
+    });
+
+
   } catch (error) {
     return res.status(500).json({ message: "Internal error" });
   }
