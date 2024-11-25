@@ -714,7 +714,7 @@ exports.getGuideDetails = async (req, res) => {
 };
 
 
-//req 28 - tatos (Not Done Yet)
+//req 28 - tatos (Done)
 exports.viewSalesReport = async (req, res) => {
   const guideId = req.params.id;
   try {
@@ -736,40 +736,34 @@ exports.viewSalesReport = async (req, res) => {
         .json({ message: "Tour Guide is requesting deletion" });
     }
 
+
+
     const tourists = await Tourist.find({
       "itineraryBookings.itineraryId": { $exists: true },
-    });
+    }).populate('itineraryBookings.itineraryId');
+
     if (!tourists || tourists.length === 0) {
       return res.status(404).json({ message: "No itinerary bookings found" });
     }
 
-    let itineraryIds = [];
-    tourists.forEach((tourist) => {
-      itineraryIds = itineraryIds.concat(
-        tourist.itineraryBookings.map((booking) => booking.itineraryId)
-      );
-    });
-
     let totalSales = 0;
     const report = [];
-
-    // Fetch each itinerary and compare guideId
-    for (const itineraryId of itineraryIds) {
-      const itinerary = await Itinerary.findById(itineraryId).exec();
-
-      if (itinerary && itinerary.guideId.toString() === guideId) {
-        totalSales += itinerary.price;
-        report.push({
-          name: itinerary.name,
-          price: itinerary.price,
-          language: itinerary.language,
-          accesibility: itinerary.accessibility,
-        });
+    
+    for (const tourist of tourists) {
+      for (const booking of tourist.itineraryBookings) {
+        const itinerary = booking.itineraryId;
+        if (itinerary && itinerary.guideId.toString() === guideId) {
+          totalSales += booking.total; // Add the total field from itineraryBookings to totalSales
+          report.push({
+            name: itinerary.name,
+            Bookingdate: booking.date,
+            price: booking.total, // Use the total field from itineraryBookings
+            language: itinerary.language,
+            accessibility: itinerary.accessibility,
+          });
+        }
       }
     }
-
-    console.log(`Total Sales: ${totalSales}`);
-
     res.status(200).json({
       totalSales,
       report,
@@ -780,7 +774,13 @@ exports.viewSalesReport = async (req, res) => {
 };
 
 
-// req 30 - tatos (not done yet)
+
+
+
+
+
+
+// req 30 - tatos (Done)
 exports.viewTouristReport = async (req, res) => {
   const guideId = req.params.id;
   try {
@@ -806,6 +806,37 @@ exports.viewTouristReport = async (req, res) => {
       return res.status(401).json({message: "Guide is pending approval"});
     }
 
+    const tourists = await Tourist.find({
+      "itineraryBookings.itineraryId": { $exists: true },
+    }).populate('itineraryBookings.itineraryId');
+
+    if (!tourists || tourists.length === 0) {
+      return res.status(404).json({ message: "No itinerary bookings found" });
+    }
+
+    const report = [];
+    let totalTourists = 0;
+
+    for (const tourist of tourists) {
+      for (const booking of tourist.itineraryBookings) {
+        const itinerary = booking.itineraryId;
+        if (itinerary && itinerary.guideId.toString() === guideId) {
+          totalTourists += 1;
+          report.push({
+            touristUserName: tourist.username,
+            touristDOB: tourist.dob,
+            touristNationality: tourist.nationality,
+            bookingDate: booking.date,  // Use the date field from itineraryBookings for the filter in the future
+            itineraryName: itinerary.name,
+          });
+        }
+      }
+    }
+
+    res.status(200).json({
+      totalTourists,
+      report,
+    });
 
 
   } catch (error) {

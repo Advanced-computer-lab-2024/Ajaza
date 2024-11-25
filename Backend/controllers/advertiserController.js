@@ -692,7 +692,7 @@ exports.getAdvertiserDetails = async (req, res) => {
   }
 };
 
-// req28 - tatos (Not Done Yet)
+// req28 - tatos (Done)
 exports.viewSalesReport = async (req, res) => {
   const advertiserId = req.params.id;
   try {
@@ -714,9 +714,11 @@ exports.viewSalesReport = async (req, res) => {
         .json({ message: "Advertiser is requesting deletion" });
     }
 
+
     const tourists = await Tourist.find({
       "activityBookings.activityId": { $exists: true },
-    });
+    }).populate('activityBookings.activityId');
+
     if (!tourists || tourists.length === 0) {
       return res.status(404).json({ message: "No activity bookings found" });
     }
@@ -724,23 +726,21 @@ exports.viewSalesReport = async (req, res) => {
     let totalSales = 0;
     const report = [];
 
-    // Iterate through each tourist's activityBookings
     for (const tourist of tourists) {
       for (const booking of tourist.activityBookings) {
-        const activity = await Activity.findById(booking.activityId).exec();
+        const activity = booking.activityId;
         if (activity && activity.advertiserId.toString() === advertiserId) {
           totalSales += booking.total; // Add the total field from activityBookings to totalSales
           report.push({
             name: activity.name,
-            date: activity.date,
-            category: activity.category,
+            // date: booking.date,    // Date is not available in the booking object of activityBookings
+            activityDate: activity.date, // Use the date field from activity
             price: booking.total, // Use the total field from activityBookings
+            category: activity.category,
           });
         }
       }
     }
-
-    console.log(`Total Sales: ${totalSales}`);
 
     res.status(200).json({
       totalSales,
@@ -751,7 +751,10 @@ exports.viewSalesReport = async (req, res) => {
   }
 };
 
-// req 30 - tatos (Not Done Yet)
+
+
+
+// req 30 - tatos (Done)
 exports.viewTouristReport = async (req, res) => {
   const advertiserId = req.params.id;
   try {
@@ -773,8 +776,38 @@ exports.viewTouristReport = async (req, res) => {
         .json({ message: "Advertiser is requesting deletion" });
     }
 
-   
 
+    const tourists = await Tourist.find({
+      "activityBookings.activityId": { $exists: true },
+    }).populate('activityBookings.activityId');
+
+    if (!tourists || tourists.length === 0) {
+      return res.status(404).json({ message: "No activity bookings found" });
+    }
+
+    const report = [];
+    let totalTourists = 0;
+
+    for (const tourist of tourists) {
+      for (const booking of tourist.activityBookings) {
+        const activity = booking.activityId;
+        if (activity && activity.advertiserId.toString() === advertiserId) {
+          totalTourists += 1;
+          report.push({
+            touristUserName: tourist.username,
+            touristDOB: tourist.dob,
+            touristNationality: tourist.nationality,
+            activityDate: activity.date, // Use the date field from activity for the filter in the future
+            activityName: activity.name,
+          });
+        }
+      }
+    }
+
+    res.status(200).json({
+      totalTourists,
+      report,
+    });
 
   } catch (error) {
     res.status(500).json({ error: error.message });
