@@ -173,7 +173,7 @@ const PaymentForm = ({amount, type, selectedDate, userid, id, useWallet, setLeav
         loading={loading}
         style={{ marginLeft: '69%' }}
       >
-        {loading ? 'Processing...' : 'Pay & Book'}
+        {loading ? 'Processing...' : 'Pay & Book by card'}
       </Button>
     </form>
   );
