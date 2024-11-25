@@ -24,6 +24,8 @@ import {
   FlagFilled,
   FlagOutlined,
   FlagTwoTone,
+  BellFilled,
+  BellOutlined,
 } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 
@@ -37,7 +39,6 @@ import "./HeaderInfo.css";
 const { Option } = Select;
 
 const { PaymentOption } = Select;
-
 
 const contentStyle = {
   margin: 0,
@@ -88,6 +89,7 @@ const HeaderInfo = ({
 
   const [isBooked, setIsBooked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [isNotif, setIsNotif] = useState(false);
   const [promoCode, setPromoCode] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
   const selectedDateRef = useRef(null);
@@ -104,7 +106,12 @@ const HeaderInfo = ({
   const [userid, setUserid] = useState(null);
   const [past, setPast] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("wallet");
-  const [cardDetails, setCardDetails] = useState({ number: "", name: "", expiry: "", cvv: "" });
+  const [cardDetails, setCardDetails] = useState({
+    number: "",
+    name: "",
+    expiry: "",
+    cvv: "",
+  });
 
   const navigate = useNavigate();
 
@@ -170,11 +177,6 @@ const HeaderInfo = ({
             (booking) => booking.itineraryId === id
           );
         }
-        console.log("isItemBooked:", isItemBooked);
-        console.log("iten booked", user.itineraryBookings);
-        console.log("user.activityBookings:", user.activityBookings);
-        console.log("user:", user);
-
         setIsBooked(isItemBooked);
       }
     };
@@ -184,25 +186,49 @@ const HeaderInfo = ({
   }, [id, type, user]);
 
   useEffect(() => {
-    // Check if bookmarked
-    if (!user) return;
+    const userTemp = decodedToken?.userDetails;
+    let bookmarkFound = false;
+
+    // Check if bookmarked/wishlist
+    if (!userTemp) return;
     if (type == "activity") {
-      user?.activityBookmarks.forEach((booking) => {
-        if (booking.activityId == id) {
-          setIsSaved(true);
+      userTemp?.activityBookmarks.forEach((bookmark) => {
+        if (bookmark == id) {
+          bookmarkFound = true;
         }
       });
     } else if (type == "itinerary") {
-      user?.itineraryBookmarks.forEach((booking) => {
-        if (booking.itineraryId == id) {
-          setIsSaved(true);
+      userTemp?.itineraryBookmarks.forEach((bookmark) => {
+        if (bookmark == id) {
+          bookmarkFound = true;
         }
       });
     } else {
       // WISHLIST LOGIC of check if already in wishlist
       // using setIsSaved also
     }
-  }, [user]);
+    setIsSaved(bookmarkFound);
+
+    let notifFound = false;
+    // Check if in notifications
+    if (type == "activity") {
+      userTemp?.activityBells.forEach((bookmark) => {
+        if (bookmark == id) {
+          notifFound = true;
+        }
+      });
+    } else if (type == "itinerary") {
+      userTemp?.itineraryBells.forEach((bookmark) => {
+        if (bookmark == id) {
+          notifFound = true;
+        }
+      });
+    } else {
+      // WISHLIST LOGIC of check if already in wishlist
+      // using setIsSaved also
+    }
+    setIsNotif(notifFound);
+  }, [decodedToken]);
 
   useEffect(() => {
     if (Array.isArray(photos) && photos.length > 0) {
@@ -342,6 +368,7 @@ const HeaderInfo = ({
         const decTemp = jwtDecode(newToken);
         setDecodedToken(decTemp);
         setUserid(decTemp?.userId);
+        user = decTemp.userDetails;
         // console.log(newToken);
         console.log("new token fetched successfully");
       }
@@ -512,47 +539,57 @@ const HeaderInfo = ({
             style={{ marginTop: 10 }}
           />
 
-                <div style={{ marginTop: 20 }}>
-                  <Radio.Group onChange={handlePaymentChange} value={paymentMethod}>
-                    <Radio value="wallet" onClick={() => setPaymentMethod("wallet")}>Pay by Wallet</Radio>
-                    <Radio value="card" onClick={() => setPaymentMethod("card")}>Pay by Card</Radio>
-                  </Radio.Group>
-                </div>
+          <div style={{ marginTop: 20 }}>
+            <Radio.Group onChange={handlePaymentChange} value={paymentMethod}>
+              <Radio value="wallet" onClick={() => setPaymentMethod("wallet")}>
+                Pay by Wallet
+              </Radio>
+              <Radio value="card" onClick={() => setPaymentMethod("card")}>
+                Pay by Card
+              </Radio>
+            </Radio.Group>
+          </div>
 
-                {paymentMethod === "wallet" && decodedToken.userDetails.wallet && (
-                  <p>Current balance: {decodedToken.userDetails.wallet}</p>
-                )}
+          {paymentMethod === "wallet" && decodedToken.userDetails.wallet && (
+            <p>Current balance: {decodedToken.userDetails.wallet}</p>
+          )}
 
-                {/* Card Payment Form */}
-                {paymentMethod === "card" && (
-                  <Form style={{ marginTop: 20 }}>
-                    <Form.Item label="Card Number">
-                      <Input
-                        placeholder="Enter card number"
-                        onChange={(e) => handleCardInputChange("number", e.target.value)}
-                      />
-                    </Form.Item>
-                    <Form.Item label="Card Holder Name">
-                      <Input
-                        placeholder="Enter name on card"
-                        onChange={(e) => handleCardInputChange("name", e.target.value)}
-                      />
-                    </Form.Item>
-                    <Form.Item label="Expiry Date">
-                      <Input
-                        placeholder="MM/YY"
-                        onChange={(e) => handleCardInputChange("expiry", e.target.value)}
-                      />
-                    </Form.Item>
-                    <Form.Item label="CVV">
-                      <Input
-                        placeholder="Enter CVV"
-                        type="password"
-                        onChange={(e) => handleCardInputChange("cvv", e.target.value)}
-                      />
-                    </Form.Item>
-                  </Form>
-                )}
+          {/* Card Payment Form */}
+          {paymentMethod === "card" && (
+            <Form style={{ marginTop: 20 }}>
+              <Form.Item label="Card Number">
+                <Input
+                  placeholder="Enter card number"
+                  onChange={(e) =>
+                    handleCardInputChange("number", e.target.value)
+                  }
+                />
+              </Form.Item>
+              <Form.Item label="Card Holder Name">
+                <Input
+                  placeholder="Enter name on card"
+                  onChange={(e) =>
+                    handleCardInputChange("name", e.target.value)
+                  }
+                />
+              </Form.Item>
+              <Form.Item label="Expiry Date">
+                <Input
+                  placeholder="MM/YY"
+                  onChange={(e) =>
+                    handleCardInputChange("expiry", e.target.value)
+                  }
+                />
+              </Form.Item>
+              <Form.Item label="CVV">
+                <Input
+                  placeholder="Enter CVV"
+                  type="password"
+                  onChange={(e) => handleCardInputChange("cvv", e.target.value)}
+                />
+              </Form.Item>
+            </Form>
+          )}
         </div>
       ),
       //onOk: bookItem,
@@ -625,13 +662,23 @@ const HeaderInfo = ({
     } else {
       try {
         console.log(
-          `${apiUrl}bookmark/add${capitalizeFirstLetter(
+          `${apiUrl}tourist/bookmark/add${capitalizeFirstLetter(
             type
           )}Bookmark/${userid}/${id}`
         );
 
-        // const response = await axios.post(`${apiUrl}bookmark/add${capitalizeFirstLetter(type)}Bookmark/${userid}/${id}`)
-      } catch (error) {}
+        const response = await axios.post(
+          `${apiUrl}tourist/bookmark/add${capitalizeFirstLetter(
+            type
+          )}Bookmark/${userid}/${id}`
+        );
+        await getNewToken();
+        message.success(`Successfully bookmarked`);
+      } catch (error) {
+        if (error?.response?.data?.message) {
+          message.warning(error?.response?.data?.message);
+        }
+      }
     }
     // NOTE any action that changes user get user again and set token to new one
     // if successful get user again and set token (if not already returned using the func)
@@ -641,10 +688,49 @@ const HeaderInfo = ({
     if (type == "product") {
       // remove from wishlist logic
     } else {
+      try {
+        const response = await axios.post(
+          `${apiUrl}tourist/savedEvent/remove/${type}/${userid}`,
+          { [`${type}Id`]: id }
+        );
+        await getNewToken();
+        message.success(`Successfully removed bookmark`);
+      } catch (error) {
+        if (error?.response?.data?.message) {
+          message.warning(error?.response?.data?.message);
+        }
+      }
     }
     // if successful get user again and set token (if not already returned using the func)
   };
 
+  const addNotification = async () => {
+    try {
+      const response = await axios.post(
+        `${apiUrl}tourist/bell${capitalizeFirstLetter(type)}/${userid}/${id}`
+      );
+      await getNewToken();
+      message.success(`You will get notified when available to book`);
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        message.warning(error?.response?.data?.message);
+      }
+    }
+  };
+
+  const removeNotification = async () => {
+    try {
+      const response = await axios.delete(
+        `${apiUrl}tourist/bell${capitalizeFirstLetter(type)}/${userid}/${id}`
+      );
+      await getNewToken();
+      message.success(`Removed notifications successfully`);
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        message.warning(error?.response?.data?.message);
+      }
+    }
+  };
   return (
     <>
       <Flex
@@ -887,6 +973,21 @@ const HeaderInfo = ({
               <Rate value={avgRating} allowHalf disabled />
             </div>
             <Flex>
+              {past ? null : isNotif ? (
+                <BellFilled
+                  style={{
+                    fontSize: "20px",
+                    color: Colors.grey[800],
+                    marginLeft: "20px",
+                  }}
+                  onClick={removeNotification}
+                />
+              ) : (
+                <BellOutlined
+                  style={{ fontSize: "20px" }}
+                  onClick={addNotification}
+                />
+              )}
               {past ? null : isSaved ? (
                 <HeartFilled
                   style={{
@@ -897,7 +998,10 @@ const HeaderInfo = ({
                   onClick={unSave}
                 />
               ) : (
-                <HeartOutlined style={{ fontSize: "20px" }} onClick={save} />
+                <HeartOutlined
+                  style={{ fontSize: "20px", marginLeft: "20px" }}
+                  onClick={save}
+                />
               )}
               {/* Dropdown for sharing options */}
               <Dropdown

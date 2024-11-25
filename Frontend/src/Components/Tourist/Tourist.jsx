@@ -43,6 +43,7 @@ import Transportations from "./Transportations";
 import TouristSelectedComplaint from "./TouristSelectedComplaint";
 import FutureBooking from "./FutureBooking";
 import BookingHistory from "./BookingHistory";
+import BookmarkedPlans from "./BookmarkedPlans";
 const Tourist = () => {
   const [response, setResponse] = useState([]);
   const navigate = useNavigate();
@@ -146,8 +147,8 @@ const Tourist = () => {
     {
       key: "12",
       icon: <CheckOutlined />,
-      label: "Saved Plans",
-      onClick: () => navigate("saved"),
+      label: "Bookmarked Plans",
+      onClick: () => navigate("bookmarked"),
     },
     {
       key: "13",
@@ -218,6 +219,7 @@ const Tourist = () => {
         <Route path="complaints/:id" element={<TouristSelectedComplaint />} />
         <Route path="touristHistory" element={<TouristHistory />} />
         <Route path="bookingHistory" element={<BookingHistory />} />
+        <Route path="bookmarked" element={<BookmarkedPlans />} />
 
         <Route path="auth/signin" element={<SignIn />} />
 
