@@ -308,6 +308,8 @@ router.post("/cart/plus/:id", touristController.incQuantityInCart);
 router.post("/cart/minus/:id", touristController.decQuantityInCart);
 
 
+router.get("/cart/:id", touristController.getCart);
+
 //req95
 router.post("/cart/remove/:id", touristController.removeFromCart);
 
