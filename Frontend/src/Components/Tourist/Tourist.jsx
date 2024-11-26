@@ -21,6 +21,7 @@ import Notifications from "../Common/Notifications";
 import Plans from "./Plans";
 import Venues from "./Venues";
 import Products from "./Products";
+import Orders from "./Orders";
 import Product from "../Common/Product";
 import Venue from "../Common/Venue";
 import RedeemPoints from "./RedeemPoints";
@@ -47,6 +48,7 @@ import BookingHistory from "./BookingHistory";
 import BookmarkedPlans from "./BookmarkedPlans";
 import Wishlist from "./Wishlist";
 import { useParams } from "react-router-dom";
+import OrderDetails from "./OrderDetails";
 
 const Tourist = () => {
   const [response, setResponse] = useState([]);
@@ -164,7 +166,7 @@ const Tourist = () => {
       key: "14",
       icon: <BookOutlined />,
       label: "Orders",
-      onClick: () => navigate("orders"),
+      onClick: () => navigate(`orders/${touristId}`),
     },
     {
       key: "16",
@@ -225,7 +227,8 @@ const Tourist = () => {
         <Route path="touristHistory" element={<TouristHistory />} />
         <Route path="bookingHistory" element={<BookingHistory />} />
         <Route path="bookmarked" element={<BookmarkedPlans />} />
-
+        <Route path="orders/:id" element={<Orders />} />
+        <Route path="orders/:touristId/:orderId" element={<OrderDetails />} />
         <Route path="auth/signin" element={<SignIn />} />
 
         <Route path="hotels" element={<Hotels />} />
