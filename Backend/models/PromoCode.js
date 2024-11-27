@@ -8,13 +8,6 @@ const promoCodeSchema = new mongoose.Schema({
   },
 });
 
-promoCodeSchema.statics.createWithoutBirthday = function (data) {
-  return this.create({
-    code: data.code,
-    value: data.value,
-  });
-};
-
 // Create the model
 const PromoCode = mongoose.model('PromoCode', promoCodeSchema);
 

@@ -2414,7 +2414,7 @@ exports.seeNotifications = async (req, res) => {
 // Count tourist by month and year
 exports.countTouristsByMonth = async (req, res) => {
   try {
-    const { date } = req.query; // Get the date from query parameters
+    const { date } = req.query; 
 
     if (!date) {
       return res.status(400).json({ message: "Date is required" });
@@ -2425,11 +2425,9 @@ exports.countTouristsByMonth = async (req, res) => {
       return res.status(400).json({ message: "Invalid date format" });
     }
 
-    // Calculate the start and end of the month
     const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
     const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0);
 
-    // Query Tourists added within the month
     const count = await Tourist.countDocuments({
       date: { $gte: startOfMonth, $lt: endOfMonth },
     });
