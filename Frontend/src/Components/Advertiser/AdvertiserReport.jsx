@@ -208,6 +208,26 @@ const AdvertiserReport = () => {
                 dataSource={salesData}
                 loading={loading}
                 rowKey={(record) => record.key || record.activityName}
+                onChange={(pagination, filters, sorter) => {
+                    // Update the filters in state when activity names filter changes
+                    const activityNames = filters.activityName || []; // Extract activity names filter values
+                    const newFilters = {
+                        ...filters,
+                        activityNames: activityNames.length > 0 ? activityNames : [], // Set activityNames filter
+                    };
+                    setFilters((prev) => ({
+                        ...prev,
+                        activityNames: newFilters.activityNames, // Update the state with new activity names
+                    }));
+            
+                    // Apply filters to get the filtered data
+                    const filteredData = applyFilters(originalSalesData, newFilters);
+            
+                    // Update sales data and recalculate total sales
+                    setSalesData(filteredData);
+                    const newTotalSales = filteredData.reduce((sum, item) => sum + item.price, 0);
+                    setTotalSales(newTotalSales); // Update the total sales
+                }}
             />
         </div>
     );
