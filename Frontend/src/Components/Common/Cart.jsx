@@ -13,7 +13,7 @@ export const Cart = () => {
   const navigate = useNavigate();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("wallet");
+  const [paymentMethod, setPaymentMethod] = useState("");
   const [cartItems, setCartItems] = useState([]);
   const { currency } = useCurrency();
   const [loading, setLoading] = useState(true);
@@ -22,6 +22,10 @@ export const Cart = () => {
   const [leave, setLeave] = useState(false);
   const [decodedToken, setDecodedToken] = useState(null);
   const [token, setToken] = useState(null);
+  const [deliveryAddresses, setDeliveryAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(-1);
+  const [promo, setPromo] = useState(1);
+  const [promocode, setPromocode] = useState("");
 
   const [currencyRates] = useState({
     AED: 3.6725,
@@ -85,6 +89,7 @@ export const Cart = () => {
       const decTemp = jwtDecode(token);
       setDecodedToken(decTemp);
       setTouristId(decTemp?.userId);
+      setDeliveryAddresses(decTemp.userDetails.deliveryAddresses);
     }
   }, [navigate]);
 
@@ -94,8 +99,8 @@ export const Cart = () => {
       try {
         setLoading(true);
         const response = await axios.get(`${apiUrl}tourist/cart/${touristId}`);
-        console.log("tourist Id:", touristId);
-        console.log("Cart Items:", response.data);
+        //console.log("tourist Id:", touristId);
+        //console.log("Cart Items:", response.data);
         const items = response.data.map((item) => ({
           name: item.productId.name,
           price: item.productId.price,
@@ -153,6 +158,18 @@ export const Cart = () => {
     }
   };
 
+  const handleSelection = (index) => {
+    setSelectedAddress(index);
+  };
+
+  const handleCheckout = async () => {
+    if(!paymentMethod || !deliveryAddress || !price ) {
+      message.error("Please fill in all fields");
+    } else {
+      message.success("success");
+    }
+  }
+
   const handleDecrement = async (productId) => {
     try {
       const response = await axios.post(
@@ -177,7 +194,7 @@ export const Cart = () => {
 
   const handleRemoveItem = async (productId) => {
     try {
-      console.log("mimiiii", productId);
+      //console.log("mimiiii", productId);
       await axios.post(`${apiUrl}tourist/cart/remove/${touristId}`, {
         productId,
       });
@@ -200,25 +217,66 @@ export const Cart = () => {
       <Empty description="Your cart is empty" style={{ marginTop: "20px" }} />
     );
   }
-  console.log("Cartttt", cartItems);
+  //console.log("Cartttt", cartItems);
 
   const showModal = () => {
     setIsModalVisible(true);
   };
 
-  const handleOk = () => {
-    if (!deliveryAddress || !paymentMethod) {
+  const handleOk = async () => {
+    if (selectedAddress === -1 || paymentMethod === "") {
       message.error("Please fill out all fields!");
     } else {
       // Proceed with checkout logic here (e.g., API call) ya Ahmed
-      console.log("Delivery Address:", deliveryAddress);
-      console.log("Payment Method:", paymentMethod);
+      // console.log("Delivery Address:", selectedAddress);
+      // console.log("Payment Method:", paymentMethod);
+
+      const response = await axios.post(
+        `${apiUrl}tourist/cart/checkout/${touristId}`,
+        { useWallet: (paymentMethod==="wallet") ,cod: (paymentMethod === "cod") ,deiveryAddress: selectedAddress }
+      );
       setIsModalVisible(false); // Close modal after checkout
+
+      if(response.status === 200) {
+        message.success("Order placed successfully!");
+      } else {
+        message.error("An error has occurred. Please try again.");
+      }
     }
   };
 
   const handleCancel = () => {
     setIsModalVisible(false);
+  };
+
+  const handleApplyPromo = async () => {
+    //setPromo(promo);
+    if(promo === 1) {
+      console.log(promocode);
+      const response = await axios.post(`http://localhost:5000/promocode/checkValid/${promocode}`, { touristId });
+
+      if (response.status === 200) {
+        console.log('Promo value:', response.data.value);
+        setPromo(response.data.value);
+      } else {
+        message.error("Invalid promo code");
+      }
+    } else {
+      setPromo(1);
+    }
+  };
+
+  const handleRemovePromo = async () => {
+      setPromo(1);
+  };
+
+
+  const handleInputChange = (e) => {
+    setPromocode(e.target.value); // Update the promoCode state when the input changes
+  };
+
+  const navigateToSection = () => {
+    window.location.href = "http://localhost:3000/tourist/profile#addresses";
   };
 
   // const getNewToken = async () => {
@@ -324,7 +382,7 @@ export const Cart = () => {
         visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
-        okText="Pay & Book by wallet"
+        okText="Place Order"
         okButtonProps={{
           style: {
             display: paymentMethod === "card" ? "none" : "inline-block",
@@ -334,13 +392,52 @@ export const Cart = () => {
       >
         <div style={{ marginTop: "15px" }}>
           <h6>Delivery Address:</h6>
-          <Input
-            placeholder="Enter your delivery address"
-            value={deliveryAddress}
-            onChange={(e) => setDeliveryAddress(e.target.value)}
-          />
+          {deliveryAddresses.length > 0 && deliveryAddresses.map((address, index) => (
+            <label key={index} style={{ display: "block", marginBottom: "10px"}}>
+              <input
+                type="radio"
+                name="deliveryAddress"
+                value={index}
+                checked={selectedAddress === index}
+                onChange={() => handleSelection(index)}
+                required
+              />
+              {`${address.house}, ${address.street}, ${address.area}, ${address.city}, ${address.country}`}
+            </label>
+          ))}
+          <a onClick={navigateToSection} style={{
+            color: "blue",
+            textDecoration: "underline",
+            cursor: "pointer",
+          }}>
+            Add address
+          </a>
         </div>
-
+        <div style={{ marginTop: "15px" }}>
+          <h6>Promo code</h6>
+          <Input
+            type="text"
+            placeholder="Enter text"
+            value={promocode}
+            onChange={handleInputChange}
+          />
+          {promo===1 &&(<Button onClick={handleApplyPromo} style={{marginTop: "5px"}}>
+            Apply
+          </Button>)}
+          {promo!==1 &&(<Button onClick={handleRemovePromo} style={{marginTop: "5px"}}>
+            Cancel
+          </Button>)}
+        </div>
+        <h1>
+        {promo !== 1 && (
+          <span style={{ textDecoration: 'line-through', marginRight: '10px' }}>
+            {price} USD
+          </span>
+        )}
+        <span style={{ color: promo !== 1 ? 'green' : 'black' }}>
+          {price*promo} USD
+        </span>
+      </h1>
         <div style={{ marginTop: "20px" }}>
           <h6>Payment Method</h6>
           <Radio.Group
@@ -349,13 +446,14 @@ export const Cart = () => {
           >
             <Radio value="wallet">Wallet</Radio>
             <Radio value="card">Credit/Debit Card</Radio>
+            <Radio value="cod">Cash on Delivery</Radio>
           </Radio.Group>
         </div>
         {/* Wallet Balance */}
         {paymentMethod === "wallet" && decodedToken?.userDetails?.wallet && (
           <p>
             <strong>Current balance: </strong>
-            {decodedToken.userDetails.wallet.toFixed(2)}
+            {decodedToken.userDetails.wallet.toFixed(2)} USD
           </p>
         )}
 

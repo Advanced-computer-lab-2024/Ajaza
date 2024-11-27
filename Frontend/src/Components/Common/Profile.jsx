@@ -1018,7 +1018,7 @@ const Profile = () => {
           <Space direction="vertical" align="center" style={{ width: "100%" }}></Space>
             <h3 style={{ textAlign: "center", flex: 1, margin: 0 }}>Delivery Addresses</h3>
             <Button type="primary" icon="+" onClick={showModal} style={{ marginBottom: 0 }}>
-              Add Address
+            Add Address
             </Button>
           </div>
           <hr />
@@ -1040,6 +1040,7 @@ const Profile = () => {
                           </Col>
                         ))}
                       </Row>
+                      
                       )}
               {isModalVisible && (
 
@@ -1112,6 +1113,7 @@ const Profile = () => {
             </Modal>)}
         </Card>
         )}
+        <section id="addresses"><hr /></section>
     </>
   );
 };
