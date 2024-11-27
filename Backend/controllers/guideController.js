@@ -891,7 +891,7 @@ exports.feedback = async (req, res) => {
 //count guides by month
 exports.countGuidesByMonth = async (req, res) => {
   try {
-    const { date } = req.query; // Get the date from query parameters
+    const { date } = req.query;
 
     if (!date) {
       return res.status(400).json({ message: "Date is required" });
@@ -902,11 +902,9 @@ exports.countGuidesByMonth = async (req, res) => {
       return res.status(400).json({ message: "Invalid date format" });
     }
 
-    // Calculate the start and end of the month
     const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
     const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0);
 
-    // Query guides added within the month
     const count = await Guide.countDocuments({
       date: { $gte: startOfMonth, $lt: endOfMonth },
     });
