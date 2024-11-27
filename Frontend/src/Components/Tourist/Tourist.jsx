@@ -230,7 +230,7 @@ const Tourist = () => {
         <Route path="bookingHistory" element={<BookingHistory />} />
         <Route path="bookmarked" element={<BookmarkedPlans />} />
         <Route path="orders/:id" element={<Orders />} />
-        <Route path="orders/:touristId/:orderId" element={<OrderDetails />} />
+        <Route path="orders/:touristId/:date" element={<OrderDetails />} />
         <Route path="auth/signin" element={<SignIn />} />
 
         <Route path="hotels" element={<Hotels />} />

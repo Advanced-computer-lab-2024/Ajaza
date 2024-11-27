@@ -7,7 +7,8 @@ import { apiUrl } from "../Common/Constants";
 const { Title, Text } = Typography;
 
 const OrderDetails = () => {
-  const { touristId, orderId } = useParams();
+  const navigate = useNavigate();
+  const { touristId, date } = useParams();
   const [orderr, setOrder] = useState();
   const [loading, setLoading] = useState(true);
 
@@ -102,12 +103,19 @@ const order = {
 
   const fetch = async () => {
     try {
+      console.log("hi");
+      console.log(date);
+
+     
+
+
+
       let ordersData = await axios.get(`${apiUrl}tourist/orders/${touristId}`);
       let orderss = ordersData.data;
       console.log("3lewa");
       console.log(orderss);
-      let matchedOrder = orderss.find((order) => order._id === orderId);
-      console.log(matchedOrder.data);
+     let matchedOrder = orderss.find((order) => order.date === date);
+      console.log(matchedOrder);
       setOrder(matchedOrder);
      
       setLoading(false);
@@ -126,8 +134,11 @@ const order = {
 
   const cancelOrder = async () => {
     try {
-      await axios.patch(`${apiUrl}orders/${orderId}/cancel`); // Assuming this is the API endpoint for canceling the order
+      await axios.post(`${apiUrl}tourist/orders/cancel/${touristId}`, {
+        date: date,
+      }); // Assuming this is the API endpoint for canceling the order
       message.success("Order has been canceled successfully.");
+      navigate(`/tourist/orders/${touristId}`);
       setOrder({ ...order, status: "Cancelled" });
     } catch (error) {
       console.error("Error canceling order", error);
@@ -175,21 +186,21 @@ const order = {
       </Title>
       <Divider />
       <div style={{ marginBottom: "20px" }}>
-        <Text strong>Order ID:</Text> {order._id}
+        <Text strong>Order ID:</Text> {orderr._id}
         <br />
-        <Text strong>Order Date:</Text> {new Date(order.date).toLocaleDateString()}
+        <Text strong>Order Date:</Text> {new Date(orderr.date).toLocaleDateString()}
         <br />
         <Text strong>Order Status:</Text>{" "}
-        <Tag color={order.status === "Delivered" ? "green" : order.status === "Cancelled" ? "red" : "orange"}>
-          {order.status}
+        <Tag color={orderr.status === "Delivered" ? "green" : orderr.status === "Cancelled" ? "red" : "orange"}>
+          {orderr.status}
         </Tag>
         <br />
-        <Text strong>Total Amount:</Text> <Text type="success">${order.total}</Text>
+        <Text strong>Total Amount:</Text> <Text type="success">${orderr.total}</Text>
       </div>
 
 
 
-      {order.status === "Processing" && (
+      {orderr.status === "Processing" && (
         <Button type="primary" danger onClick={cancelOrder}>
           Cancel Order
         </Button>
@@ -198,7 +209,7 @@ const order = {
       <Title level={4}>Products</Title>
       <Table
         columns={columns}
-        dataSource={order.products}
+        dataSource={orderr.products}
         rowKey="_id"
         pagination={false}
       />

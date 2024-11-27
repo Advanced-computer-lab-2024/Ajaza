@@ -60,7 +60,7 @@ const Orders = () => {
   // Handle the view details button click
   const handleDetailsView = async (order) => {
   //  `/tourist/orders/${order._id}/${id}`
-    navigate(`/tourist/orders/${id}/${order._id}`);
+    navigate(`/tourist/orders/${id}/${order.date}`);
    // setSelectedOrder(order); // Set the selected complaint
   };
 

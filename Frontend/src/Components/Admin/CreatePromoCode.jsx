@@ -45,8 +45,8 @@ const CreatePromoCode = () => {
   const handleFirstFormSubmit = async (values) => {
     console.log("Form submitted:", values);
     try {
-      const response = await axios.post(apiUrl + "Promocode", {
-        birthday: { "date": values.birthdate.format("YYYY-MM-DD")},
+      const response = await axios.post(apiUrl + "Promocode/createPromoCode", {
+    
         code: values.code,
         value: values.value/100,
       });
@@ -117,13 +117,7 @@ const CreatePromoCode = () => {
     />
   </Form.Item>
 
-  <Form.Item
-    name="birthdate"
-    label="Birthdate"
-    rules={[{ required: true, message: "Please select a birthdate!" }]}
-  >
-    <DatePicker style={{ width: "100%" }} placeholder="Select a birthdate" />
-  </Form.Item>
+  
 
   <Form.Item>
     <Button type="primary" htmlType="submit">

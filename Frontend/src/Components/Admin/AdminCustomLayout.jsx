@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  TagsOutlined,
   MenuFoldOutlined,
+  TeamOutlined,
   CalendarOutlined,
   NumberOutlined,
   StarOutlined,
@@ -173,12 +175,12 @@ const AdminCustomLayout = ({ children }) => {
             },
             {
               key: "74",
-              icon: <NumberOutlined />,
+              icon: <TagsOutlined />,
               label: "PromoCode",
             },
             {
               key: "44",
-              icon: <NumberOutlined />,
+              icon: <TeamOutlined />,
               label: "User Stats",
             },
             {

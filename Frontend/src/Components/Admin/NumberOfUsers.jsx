@@ -9,7 +9,7 @@ const { Title } = Typography;
 
 const NumberOfUsers = () => {
     const [selectedMonth, setSelectedMonth] = useState(moment().format('YYYY-MM'));
-    const [users, setNumberOfUsers] = useState();
+    const [users, setNumberOfUsers] = useState('...');
     const [newuser, setNumberOfNewUsers] = useState();
   // Dummy data for new users per month
   const dummyData = {
@@ -27,7 +27,17 @@ const NumberOfUsers = () => {
   };
   const fetchMonth = async () => {
     if (selectedMonth){
-        setNumberOfNewUsers(selectedMonth);  
+      console.log(selectedMonth);
+      let date = selectedMonth + '-25';
+      try{
+        const response = await axios.get('http://localhost:5000/admin/countByMonth', {
+          params: { date }, // Send the date as a query parameter
+        });
+        setNumberOfNewUsers(response.data.count); 
+      }
+      catch (exception) {
+      }
+       // setNumberOfNewUsers(selectedMonth);  
     }
     else{
         setNumberOfNewUsers(10);
