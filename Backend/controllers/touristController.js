@@ -1810,22 +1810,46 @@ exports.getOrder = async (req, res) => {
   }
 }
 
+exports.getOrderByDate = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const date = req.body.date;
+
+    const tourist = await Tourist.findById(touristId)
+      .populate({
+        path: 'orders.products.productId'
+      });
+    
+    if(!tourist) {
+      return res.status(404).json({error: "Tourist not Found"});
+    }
+    let order;
+    for(let i = 0; i< tourist.orders.length;i++) {
+      if(tourist.orders[i].date.toISOString() === date) {
+        order = tourist.orders[i];
+      }
+    }
+
+    return res.status(200).json(order);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({error: "Internal error"});
+  }
+}
+
 exports.cancelOrder = async (req, res) => {
   try {
     const touristId = req.params.id;
-    const orderId = req.body.orderId;
 
-    const order = tourist.orders.id(orderId);
-
-    if (!order) {
-      return res.status(404).json({message: "Order not Found"});
-    }
+    const date = req.body.date;
 
     const tourist = await Tourist.findById(touristId);
 
     if(!tourist) {
       return res.status(404).json({message: "Tourist not Found"});
     }
+
+    const order = tourist.orders.find(item => item.date.toISOString() === date);
 
     for (const item of order.products) {
       const product = await Product.findById(item.productId);
@@ -1842,6 +1866,7 @@ exports.cancelOrder = async (req, res) => {
     await tourist.save();
     return res.status(200).json({message: "Order cancelled successfully"});
   } catch (error) {
+    console.log(error);
     res.status(500).json({message: "Internal error"});
   }
 }
