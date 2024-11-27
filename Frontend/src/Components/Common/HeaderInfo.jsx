@@ -104,9 +104,57 @@ const HeaderInfo = ({
   const emailRef = useRef(null);
   const [selectedPrice, setSelectedPrice] = useState( type==="activity" ? priceUpper : price);
     const selectedPriceRef = useRef(null);
-  const [currencySymbol, setCurrencySymbol] = useState(
-    currency == "EGP" ? "£" : currency == "EUR" ? "€" : "$"
-  );
+    const [currencySymbol, setCurrencySymbol] = useState(
+      currency === "AED" ? "د.إ" :
+      currency === "ARS" ? "$" :
+      currency === "AUD" ? "A$" :
+      currency === "BDT" ? "৳" :
+      currency === "BHD" ? ".د.ب" :
+      currency === "BND" ? "B$" :
+      currency === "BRL" ? "R$" :
+      currency === "CAD" ? "C$" :
+      currency === "CHF" ? "CHF" :
+      currency === "CLP" ? "$" :
+      currency === "CNY" ? "¥" :
+      currency === "COP" ? "$" :
+      currency === "CZK" ? "Kč" :
+      currency === "DKK" ? "kr" :
+      currency === "EGP" ? "EGP" :
+      currency === "EUR" ? "€" :
+      currency === "GBP" ? "£" :
+      currency === "HKD" ? "HK$" :
+      currency === "HUF" ? "Ft" :
+      currency === "IDR" ? "Rp" :
+      currency === "ILS" ? "₪" :
+      currency === "INR" ? "₹" :
+      currency === "JPY" ? "¥" :
+      currency === "KRW" ? "₩" :
+      currency === "KWD" ? "د.ك" :
+      currency === "LKR" ? "Rs" :
+      currency === "MAD" ? "MAD" :
+      currency === "MXN" ? "$" :
+      currency === "MYR" ? "RM" :
+      currency === "NOK" ? "kr" :
+      currency === "NZD" ? "NZ$" :
+      currency === "OMR" ? "ر.ع." :
+      currency === "PHP" ? "₱" :
+      currency === "PKR" ? "₨" :
+      currency === "PLN" ? "zł" :
+      currency === "QAR" ? "ر.ق" :
+      currency === "RUB" ? "₽" :
+      currency === "SAR" ? "ر.س" :
+      currency === "SEK" ? "kr" :
+      currency === "SGD" ? "S$" :
+      currency === "THB" ? "฿" :
+      currency === "TRY" ? "₺" :
+      currency === "TWD" ? "NT$" :
+      currency === "UAH" ? "₴" :
+      currency === "USD" ? "$" :
+      currency === "VND" ? "₫" :
+      currency === "ZAR" ? "R" :
+      currency
+    );
+    
   const [token, setToken] = useState(null);
   const [decodedToken, setDecodedToken] = useState(null);
   const [userid, setUserid] = useState(null);
@@ -163,7 +211,53 @@ const HeaderInfo = ({
 
   useEffect(() => {
     console.log(currency);
-    setCurrencySymbol(currency == "EGP" ? "£" : currency == "EUR" ? "€" : "$");
+    setCurrencySymbol( currency === "AED" ? "د.إ" :
+      currency === "ARS" ? "$" :
+      currency === "AUD" ? "A$" :
+      currency === "BDT" ? "৳" :
+      currency === "BHD" ? ".د.ب" :
+      currency === "BND" ? "B$" :
+      currency === "BRL" ? "R$" :
+      currency === "CAD" ? "C$" :
+      currency === "CHF" ? "CHF" :
+      currency === "CLP" ? "$" :
+      currency === "CNY" ? "¥" :
+      currency === "COP" ? "$" :
+      currency === "CZK" ? "Kč" :
+      currency === "DKK" ? "kr" :
+      currency === "EGP" ? "EGP" :
+      currency === "EUR" ? "€" :
+      currency === "GBP" ? "£" :
+      currency === "HKD" ? "HK$" :
+      currency === "HUF" ? "Ft" :
+      currency === "IDR" ? "Rp" :
+      currency === "ILS" ? "₪" :
+      currency === "INR" ? "₹" :
+      currency === "JPY" ? "¥" :
+      currency === "KRW" ? "₩" :
+      currency === "KWD" ? "د.ك" :
+      currency === "LKR" ? "Rs" :
+      currency === "MAD" ? "MAD" :
+      currency === "MXN" ? "$" :
+      currency === "MYR" ? "RM" :
+      currency === "NOK" ? "kr" :
+      currency === "NZD" ? "NZ$" :
+      currency === "OMR" ? "ر.ع." :
+      currency === "PHP" ? "₱" :
+      currency === "PKR" ? "₨" :
+      currency === "PLN" ? "zł" :
+      currency === "QAR" ? "ر.ق" :
+      currency === "RUB" ? "₽" :
+      currency === "SAR" ? "ر.س" :
+      currency === "SEK" ? "kr" :
+      currency === "SGD" ? "S$" :
+      currency === "THB" ? "฿" :
+      currency === "TRY" ? "₺" :
+      currency === "TWD" ? "NT$" :
+      currency === "UAH" ? "₴" :
+      currency === "USD" ? "$" :
+      currency === "VND" ? "₫" :
+      currency === "ZAR" ? "R" : "$");
   }, [currency]);
 
   useEffect(() => {
