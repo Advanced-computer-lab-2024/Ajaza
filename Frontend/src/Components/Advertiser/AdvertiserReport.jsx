@@ -81,74 +81,76 @@ const AdvertiserReport = () => {
 
     const applyFilters = (currentData, currentFilters) => {
         let filteredData = [...currentData];
-
-    if (currentFilters.activityNames && currentFilters.activityNames.length > 0) {
-        filteredData = filteredData.filter(item =>
-            currentFilters.activityNames.some(name =>
-                item.activityName.toLowerCase().includes(name.toLowerCase())
-            )
-        );
-    }
-
-    if (currentFilters.dateRange && currentFilters.dateRange.length === 2) {
-        const [start, end] = currentFilters.dateRange;
-
-        filteredData = filteredData.filter(item => {
-            const itemDate = moment(item.originalDate);
-            const startDate = moment(start, "MM-DD-YYYY");
-            const endDate = moment(end, "MM-DD-YYYY");
-
-            return itemDate.isBetween(startDate, endDate, undefined, "[]");
-        });
-    }
-
-    return filteredData;
+    
+        // Apply activity name filters
+        if (currentFilters.activityNames && currentFilters.activityNames.length > 0) {
+            filteredData = filteredData.filter(item =>
+                currentFilters.activityNames.some(name =>
+                    item.activityName.toLowerCase().includes(name.toLowerCase()) // Check if activity name includes any selected name
+                )
+            );
+        }
+    
+        // Apply date range filters
+        if (currentFilters.dateRange && currentFilters.dateRange.length === 2) {
+            const [start, end] = currentFilters.dateRange;
+    
+            filteredData = filteredData.filter(item => {
+                const itemDate = moment(item.originalDate); // Parse the activity date as a moment object
+                const startDate = moment(start, "MM-DD-YYYY"); // Convert start date to the desired format
+                const endDate = moment(end, "MM-DD-YYYY"); // Convert end date to the desired format
+    
+                return itemDate.isBetween(startDate, endDate, undefined, "[]"); // Check if the activity date falls within the range
+            });
+        }
+    
+        return filteredData; // Return the filtered data
     };
-
+    
     const handleDateRangeChange = (dates, filterMode = 'date') => {
         const newFilters = {
             ...filters,
-            dateRange: dates, // Keep original Moment objects
-            filterMode: filterMode,
+            dateRange: dates, // Update the dateRange filter with the selected dates
+            filterMode: filterMode, // Update the filter mode (e.g., 'date' or 'month')
         };
-    
-        setFilters(newFilters);
         
+        setFilters(newFilters); // Update the state with the new filters
+        
+        // Apply filters with the selected date range formatted to avoid empty results
         // When applying filters, format the dates to MM-DD-YYYY to avoid the issue of empty results
         const filteredData = applyFilters(originalSalesData, {
             ...newFilters,
             dateRange: dates 
-                ? dates.map(date => date.format("MM-DD-YYYY")) 
+                ? dates.map(date => date.format("MM-DD-YYYY")) // Format dates to MM-DD-YYYY before filtering
                 : null
         });
         
-        setSalesData(filteredData);
+        setSalesData(filteredData); // Update the sales data to show only filtered results
     
-        const newTotalSales = filteredData.reduce((sum, item) => sum + item.price, 0);
-        setTotalSales(newTotalSales);
+        const newTotalSales = filteredData.reduce((sum, item) => sum + item.price, 0); // Recalculate total sales from filtered data
+        setTotalSales(newTotalSales); // Update total sales state
     };
-
+    
     const resetFilters = () => {
         setFilters({
-            activityNames: [],
-            dateRange: null,
-            filterMode: 'date',
+            activityNames: [], // Reset activity names filter
+            dateRange: null, // Reset date range filter
+            filterMode: 'date', // Reset filter mode to 'date'
         });
-        setSalesData(originalSalesData);
-        setTotalSales(originalSalesData.reduce((sum, item) => sum + item.price, 0));
+        setSalesData(originalSalesData); // Reset sales data to the original data
+        setTotalSales(originalSalesData.reduce((sum, item) => sum + item.price, 0)); // Recalculate and reset total sales
     };
 
-    const uniqueActivityNames = [...new Set(originalSalesData.map(item => item.activityName))];
-
+    const uniqueActivityNames = [...new Set(originalSalesData.map(item => item.activityName))]; // Extract unique activity names for filters
     const columns = [
         {
             title: 'Activity Name',
             dataIndex: 'activityName',
             key: 'activityName',
-            filters: uniqueActivityNames.map(name => ({ text: name, value: name })),
-            filterSearch: true,
-            filterMultiple: true,
-            onFilter: (value, record) => record.activityName.includes(value),
+            filters: uniqueActivityNames.map(name => ({ text: name, value: name })), // Add activity name filter options
+            filterSearch: true, // Enable search functionality in the filter
+            filterMultiple: true, // Allow multiple selections in the filter
+            onFilter: (value, record) => record.activityName.includes(value), // Define filter logic for activity names
         },
         {
             title: 'Activity Date',
@@ -158,27 +160,27 @@ const AdvertiserReport = () => {
                 <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <RangePicker
                         onChange={(dates) => {
-                            setSelectedKeys(dates ? dates : []);
-                            confirm();
-                            handleDateRangeChange(dates, 'date');
+                            setSelectedKeys(dates ? dates : []); // Update selected keys with chosen dates
+                            confirm(); // Apply the filter
+                            handleDateRangeChange(dates, 'date'); // Handle the date range filter change
                         }}
-                        value={filters.filterMode === 'date' ? filters.dateRange : null}
+                        value={filters.filterMode === 'date' ? filters.dateRange : null} // Show selected date range in the picker
                         style={{ marginBottom: 8, display: 'block' }}
                     />
                     <RangePicker
                         picker="month"
                         onChange={(dates) => {
-                            setSelectedKeys(dates ? dates : []);
-                            confirm();
-                            handleDateRangeChange(dates, 'month');
+                            setSelectedKeys(dates ? dates : []); // Update selected keys with chosen months
+                            confirm(); // Apply the filter
+                            handleDateRangeChange(dates, 'month'); // Handle the month range filter change
                         }}
-                        value={filters.filterMode === 'month' ? filters.dateRange : null}
+                        value={filters.filterMode === 'month' ? filters.dateRange : null} // Show selected month range in the picker
                         style={{ display: 'block' }}
                     />
                 </div>
             ),
             filterIcon: (filtered) => (
-                <FilterOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
+                <FilterOutlined style={{ color: filtered ? '#1890ff' : undefined }} /> // Change filter icon color if filter is applied
             ),
         },
         {
@@ -186,7 +188,7 @@ const AdvertiserReport = () => {
             dataIndex: 'price',
             key: 'price',
             render: (text) => `$${text.toFixed(2)}`,
-            sorter: (a, b) => a.price - b.price,
+            sorter: (a, b) => a.price - b.price, // Enable sorting by price
         },
         {
             title: 'Category',
