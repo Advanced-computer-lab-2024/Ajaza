@@ -18,26 +18,30 @@ const ItineraryAdmin = () => {
     const savedFlagState = localStorage.getItem(`flagClicked-${id}`);
     setIsFlagRed(savedFlagState === "true"); // Set to true if previously clicked
   }, [id]);*/
+  const fetchItinerary = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}itinerary/${id}`);
+      setItinerary(response.data);
+    //  const savedFlagState = localStorage.getItem(`flagClicked-${id}`);
+  //    setIsFlagRed(savedFlagState === "true"); // Set to true if previously clicked
+       // Set to true if previously clicked
+      if(itinerary.hidden === true  ){
 
-  useEffect(() => {
-    const fetchItinerary = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}itinerary/${id}`);
-        setItinerary(response.data);
-        //  const savedFlagState = localStorage.getItem(`flagClicked-${id}`);
-        //    setIsFlagRed(savedFlagState === "true"); // Set to true if previously clicked
-        // Set to true if previously clicked
-        if (itinerary.hidden === true) {
           setIsFlagRed(true);
 
-          // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
-        } else {
-          setIsFlagRed(false);
-        }
-      } catch (error) {
-        console.error("Error fetching itinerary:", error);
+         // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
       }
-    };
+      else{
+          setIsFlagRed(false);
+      }
+     
+    } catch (error) {
+      console.error("Error fetching itinerary:", error);
+    }
+  };
+
+  useEffect(() => {
+    
 
     fetchItinerary();
   }, [id]);
@@ -83,14 +87,18 @@ const ItineraryAdmin = () => {
     //  setIsFlagRed(true);
     // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
     try {
-      const response = await axios.patch(`${apiUrl}itinerary/hide/${id}`);
-      console.log(response.data);
-      setItinerary(response.data.updatedItinerary);
+      const response =   await axios.patch(`${apiUrl}itinerary/hide/${id}`);
+      //fetchItinerary();
+       console.log(response.data);
+     //  setItinerary(response.data.updatedItinerary);
       //  setActivity(response.data);
-    } catch (error) {
-      console.error("Error hiding event:", error);
-    }
+      } catch (error) {
+        console.error("Error hiding event:", error);
+       
+      }
+      fetchItinerary();
     setIsModalVisible(false); // Close the modal
+    
   };
 
   const confirmUnFlag = async () => {

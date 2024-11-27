@@ -47,11 +47,11 @@
 .notification-message.unseen {
   border-left: 4px solid #1b696a; /* Border for unseen notifications */
   border-right: 4px solid #1b696a;
-  background-color: #a9f1d3; /* Background for unseen notifications */
+  background-color: #ffffff; /* Background for unseen notifications */
 }
 
 .notification-message.seen {
-  background-color: #4caf50; /* Background for seen notifications */
+  background-color: #a9f1d3; /* Background for seen notifications */
   border-left: 4px solid #1b696a; /* Border for unseen notifications */
   border-right: 4px solid #1b696a;
 }

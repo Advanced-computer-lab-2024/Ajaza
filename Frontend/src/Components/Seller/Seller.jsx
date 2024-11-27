@@ -16,7 +16,7 @@ import MyProducts from "../Admin/MyProducts";
 import ArchivedProds from "../Seller/ArchivedProds";
 import ChangePasswordForm from "../Common/changePassword";
 import SignIn from "../Sign/SignIn";
-import Report from "../Seller/Report";
+import SellerReport from "../Seller/SellerReport";
 
 const Seller = () => {
   const navigate = useNavigate();
@@ -69,7 +69,7 @@ const Seller = () => {
     {
       key: "4",
       icon: <FileOutlined />,
-      label: "Report",
+      label: "Sales Report",
       onClick: () => {
         navigate("report");
       },
@@ -82,7 +82,7 @@ const Seller = () => {
         <Route path="/" element={<Products />} />
         <Route path="myProducts" element={<MyProducts />} />
         <Route path="archive" element={<ArchivedProds />} />
-        <Route path="report" element={<Report />} />
+        <Route path="report" element={<SellerReport />} />
         <Route path="profile" element={<Profile />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="change-password" element={<ChangePasswordForm />} />

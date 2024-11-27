@@ -938,7 +938,7 @@ const Profile = () => {
                     {userDetails.nationality && (
                       <div>
                         <strong>Nationality: </strong>
-                        <span>{userDetails.nationality}</span>
+                        <span>{userDetails.nationality.charAt(0).toUpperCase()+ userDetails.nationality.slice(1)}</span>
                       </div>
                     )}
                     {userDetails.dob && (

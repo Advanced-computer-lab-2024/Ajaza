@@ -13,6 +13,7 @@ const Itinerary = () => {
   const { id } = useParams();
   const [itinerary, setItinerary] = useState(null);
   const [timelineItems, setTimelineItems] = useState(null);
+  const [creatorFeedback, setCreatorFeedback] = useState([]);
   const [writeReviewForm] = Form.useForm();
   const { currency, setCurrency } = useCurrency();
 
@@ -84,6 +85,8 @@ const Itinerary = () => {
 
   useEffect(() => {
     if (itinerary) {
+      setCreatorFeedback(itinerary?.guideId?.feedback);
+
       setTimelineItems({
         timeline: itinerary?.timeline,
         availableDateTime: itinerary?.availableDateTime,
@@ -145,6 +148,7 @@ const Itinerary = () => {
           type={"itinerary"}
           availableDates={itinerary.availableDateTime}
           currency={currency}
+          creatorFeedback={creatorFeedback}
         />
       )}
     </>
