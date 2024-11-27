@@ -203,12 +203,39 @@ const AdvertiserReport = () => {
 
             <p>Total Sales: <strong>${totalSales.toFixed(2)}</strong></p>
 
-            <Table
-                columns={columns}
-                dataSource={salesData}
-                loading={loading}
-                rowKey={(record) => record.key || record.activityName}
-            />
+        <Table
+        columns={columns}
+        dataSource={salesData}
+        loading={loading}
+        rowKey={(record) => record.key || record.activityName}
+        onChange={(pagination, filters, sorter) => {
+        // Extract the filters for activity names and date range
+        const activityNames = filters.activityName || []; // Activity name filter values
+        const dateRange = filters.dateRange || null; // Date range filter values
+
+        // Construct the new filters state
+        const newFilters = {
+            activityNames: activityNames.length > 0 ? activityNames : filters.activityNames || [],
+            dateRange: dateRange ? dateRange : filters.dateRange || null,
+            filterMode: filters.filterMode || 'date', // Ensure filter mode persists
+        };
+
+        // Update the filter state
+        setFilters((prev) => ({
+            ...prev,
+            activityNames: newFilters.activityNames, // Update activity names filter
+            dateRange: newFilters.dateRange, // Update date range filter
+        }));
+
+        // Apply both filters at once (activity names and date range)
+        const filteredData = applyFilters(originalSalesData, newFilters);
+
+        // Update the sales data and total sales after applying filters
+        setSalesData(filteredData);
+        const newTotalSales = filteredData.reduce((sum, item) => sum + item.price, 0);
+        setTotalSales(newTotalSales); // Recalculate total sales
+    }}
+/>
         </div>
     );
 };
