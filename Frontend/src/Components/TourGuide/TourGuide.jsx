@@ -18,8 +18,8 @@ const TourGuide = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log("Token:", token);
-    console.log("decodedToken:", jwtDecode(token));
+    // console.log("Token:", token);
+    // console.log("decodedToken:", jwtDecode(token));
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
