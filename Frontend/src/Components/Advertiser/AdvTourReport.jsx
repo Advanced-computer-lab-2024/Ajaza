@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Table, message } from 'antd';
+import { Table, message, DatePicker } from 'antd';
 import {jwtDecode} from 'jwt-decode'; // Fixing import as per package usage
 import axios from 'axios';
+import moment from 'moment';
+import { FilterOutlined } from '@ant-design/icons';
+
+const { RangePicker } = DatePicker;
+
+
 
 const AdvTourReport = () => {
     const [salesData, setSalesData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [advertiserId, setAdvertiserId] = useState(null);
     const [totalTourists, setTotalTourists] = useState(0); // State for total tourists
+    const [originalSalesData, setOriginalSalesData] = useState([]);
 
     useEffect(() => {
         const token = localStorage.getItem("token"); // Replace with your token source
@@ -45,10 +52,12 @@ const AdvTourReport = () => {
                         activityName: record.activityName || "Unnamed Activity", // Activity name
                     }));
                     setSalesData(transformedData); // Set transformed data
+                    setOriginalSalesData(transformedData); // Set original data
                     setTotalTourists(totalTourists); // Set total tourists
                 } else {
                     console.error("Invalid data format:", report);
                     setSalesData([]); // Clear sales data if invalid format
+                    setOriginalSalesData([]); // Clear original data
                     setTotalTourists(0); // Reset total tourists
                 }
             } catch (error) {
@@ -61,6 +70,54 @@ const AdvTourReport = () => {
 
         fetchSalesData();
     }, [advertiserId]);
+
+
+    const [filters, setFilters] = useState({
+        dateRange: null,
+        filterMode: 'date',
+    });
+    
+    const applyFilters = (currentData, currentFilters) => {
+        let filteredData = [...currentData];
+
+        if (currentFilters.dateRange && currentFilters.dateRange.length === 2) {
+            const [start, end] = currentFilters.dateRange;
+
+            filteredData = filteredData.filter(item => {
+                const itemDate = moment(item.activityDate, "MM-DD-YYYY");
+                const startDate = moment(start, "MM-DD-YYYY");
+                const endDate = moment(end, "MM-DD-YYYY");
+
+                return itemDate.isBetween(startDate, endDate, undefined, "[]");
+            });
+        }
+
+        return filteredData;
+    };
+
+    const handleDateRangeChange = (dates) => {
+        const newFilters = {
+            ...filters,
+            dateRange: dates,
+        };
+    
+        setFilters(newFilters);
+    
+        if (!dates) {
+            setSalesData(originalSalesData); // Reset to original data
+            setTotalTourists(originalSalesData.length); // Reset total tourists
+        } else {
+            const filteredData = applyFilters(originalSalesData, {
+                ...newFilters,
+                dateRange: dates ? dates.map(date => date.format("MM-DD-YYYY")) : null
+            });
+    
+            setSalesData(filteredData);
+            setTotalTourists(filteredData.length);
+        }
+    };
+
+
 
     const columns = [
         {
@@ -82,6 +139,23 @@ const AdvTourReport = () => {
             title: 'Activity Date',
             dataIndex: 'activityDate',
             key: 'activityDate',
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
+                <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <RangePicker
+                        picker="month"
+                        onChange={(dates) => {
+                            setSelectedKeys(dates ? dates : []);
+                            confirm();
+                            handleDateRangeChange(dates);
+                        }}
+                        value={filters.dateRange}
+                        style={{ display: 'block' }}
+                    />
+                </div>
+            ),
+            filterIcon: (filtered) => (
+                <FilterOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
+            ),
         },
         {
             title: 'Activity Name',
