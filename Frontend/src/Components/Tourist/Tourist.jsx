@@ -45,6 +45,7 @@ import Transportations from "./Transportations";
 import TouristSelectedComplaint from "./TouristSelectedComplaint";
 import FutureBooking from "./FutureBooking";
 import BookingHistory from "./BookingHistory";
+import Cart from "../Common/Cart";
 import BookmarkedPlans from "./BookmarkedPlans";
 import Wishlist from "./Wishlist";
 import { useParams } from "react-router-dom";
@@ -220,6 +221,7 @@ const Tourist = () => {
 
         <Route path="products" element={<Products />} />
         <Route path="products/:id" element={<Product />} />
+        <Route path ="cart/:id" element={<Cart />} />
         <Route path="redeemPoints" element={<RedeemPoints />} />
         <Route path="fileComplaint" element={<FileComplaint />} />
         <Route path="complaints" element={<Complaints />} />

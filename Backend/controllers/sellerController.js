@@ -755,7 +755,7 @@ exports.viewSalesReport = async (req, res) => {
       for (const order of tourist.orders) {
         for (const product of order.products) {
           const productDetails = product.productId; // product details contain everything about the product (from Product.js)
-          if (productDetails && productDetails.sellerId.toString() === sellerId && (order.status !== "cancelled")) {
+          if (productDetails && productDetails.sellerId && productDetails.sellerId.toString() === sellerId && (order.status !== "cancelled")) { // added the && productDetails.sellerId to check if the product has a sellerId before converting to string and comparing
             totalSales += product.quantity * productDetails.price; // Calculate total sales   --> use product.quantity not productDetails.quantity to get the quantity in the order not the quantity of the product in store
             report.push({
               name: productDetails.name,
@@ -820,3 +820,30 @@ exports.myItemsFeedback = async(req,res) => {
     res.status(500).json({ error: error.message });
   }
 }
+
+//count sellers by month
+exports.countSellersByMonth = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ message: "Date is required" });
+    }
+
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
+
+    const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
+    const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0);
+
+    const count = await Seller.countDocuments({
+      date: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    res.status(200).json({ count });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

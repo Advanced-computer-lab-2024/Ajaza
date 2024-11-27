@@ -1805,22 +1805,46 @@ exports.getOrder = async (req, res) => {
   }
 };
 
+exports.getOrderByDate = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const date = req.body.date;
+
+    const tourist = await Tourist.findById(touristId)
+      .populate({
+        path: 'orders.products.productId'
+      });
+    
+    if(!tourist) {
+      return res.status(404).json({error: "Tourist not Found"});
+    }
+    let order;
+    for(let i = 0; i< tourist.orders.length;i++) {
+      if(tourist.orders[i].date.toISOString() === date) {
+        order = tourist.orders[i];
+      }
+    }
+
+    return res.status(200).json(order);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({error: "Internal error"});
+  }
+}
+
 exports.cancelOrder = async (req, res) => {
   try {
     const touristId = req.params.id;
-    const orderId = req.body.orderId;
 
-    const order = tourist.orders.id(orderId);
-
-    if (!order) {
-      return res.status(404).json({ message: "Order not Found" });
-    }
+    const date = req.body.date;
 
     const tourist = await Tourist.findById(touristId);
 
     if (!tourist) {
       return res.status(404).json({ message: "Tourist not Found" });
     }
+
+    const order = tourist.orders.find(item => item.date.toISOString() === date);
 
     for (const item of order.products) {
       const product = await Product.findById(item.productId);
@@ -1837,6 +1861,7 @@ exports.cancelOrder = async (req, res) => {
     await tourist.save();
     return res.status(200).json({ message: "Order cancelled successfully" });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Internal error" });
   }
 };
@@ -2233,7 +2258,7 @@ async function reminders(touristId) {
 exports.checkout = async (req, res) => {
   try {
     const touristId = req.params.id;
-    const { useWallet, cod } = req.body;
+    const { useWallet, cod, deliveryAddress } = req.body;
 
     const tourist = await Tourist.findOne({ _id: touristId }).populate(
       "cart.productId"
@@ -2292,6 +2317,7 @@ exports.checkout = async (req, res) => {
         productId: item.productId._id,
         quantity: item.quantity,
       })),
+      deliveryAddress,
       date: new Date(),
       cod: cod,
       total,
@@ -2313,7 +2339,7 @@ exports.checkout = async (req, res) => {
 
     await tourist.save();
 
-    return { message: "Order created successfully!", order };
+    return res.status(200).json({ message: "Order created successfully!", order });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal error" });
@@ -2382,5 +2408,32 @@ exports.seeNotifications = async (req, res) => {
     return res.status(200).json({ message: "Notifications seen successfully" });
   } catch (error) {
     return res.status(500).json({ message: "Internal error" });
+  }
+};
+
+// Count tourist by month and year
+exports.countTouristsByMonth = async (req, res) => {
+  try {
+    const { date } = req.query; 
+
+    if (!date) {
+      return res.status(400).json({ message: "Date is required" });
+    }
+
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
+
+    const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
+    const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0);
+
+    const count = await Tourist.countDocuments({
+      date: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    res.status(200).json({ count });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

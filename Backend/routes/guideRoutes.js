@@ -9,6 +9,7 @@ const validateMobile = require("../middleware/validateMobile");
 const uploadIdCertificatesImage = require("../middleware/uploadIdCertificatesImage");
 
 router.post("/", guideController.createGuide);
+router.get("/countByMonth", guideController.countGuidesByMonth);
 
 //req 12
 router.get("/pending", guideController.getPendingGuides);
@@ -98,5 +99,7 @@ router.post("/seeNotifications/:id", guideController.seeNotifications);
 router.get("/myItems/feedback/:id", guideController.myItemsFeedback);
 
 router.get("/feedback/:id", guideController.feedback);
+
+
 
 module.exports = router;

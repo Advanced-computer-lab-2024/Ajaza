@@ -1,10 +1,9 @@
+
 // import React, { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { Card, Flex, Rate } from "antd";
-// import SelectCurrency from "../Tourist/SelectCurrency";
+// import { Card, Divider, Flex, Rate } from "antd";
 // import styles from "./BasicCard.module.css";
 // import "./BasicCard.css";
-// import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+// import { Colors } from "./Constants";
 
 // function formatDateTime(availableDateTime) {
 //   return availableDateTime.map((item) => {
@@ -25,6 +24,59 @@
 //   });
 // }
 
+// const getCurrencySymbol = (currency) => {
+//   const symbols = {
+//     AED: "د.إ",
+//     ARS: "$",
+//     AUD: "A$",
+//     BDT: "৳",
+//     BHD: ".د.ب",
+//     BND: "B$",
+//     BRL: "R$",
+//     CAD: "C$",
+//     CHF: "CHF",
+//     CLP: "$",
+//     CNY: "¥",
+//     COP: "$",
+//     CZK: "Kč",
+//     DKK: "kr",
+//     EGP: "EGP",
+//     EUR: "€",
+//     GBP: "£",
+//     HKD: "HK$",
+//     HUF: "Ft",
+//     IDR: "Rp",
+//     ILS: "₪",
+//     INR: "₹",
+//     JPY: "¥",
+//     KRW: "₩",
+//     KWD: "د.ك",
+//     LKR: "Rs",
+//     MAD: "MAD",
+//     MXN: "$",
+//     MYR: "RM",
+//     NOK: "kr",
+//     NZD: "NZ$",
+//     OMR: "ر.ع.",
+//     PHP: "₱",
+//     PKR: "₨",
+//     PLN: "zł",
+//     QAR: "ر.ق",
+//     RUB: "₽",
+//     SAR: "ر.س",
+//     SEK: "kr",
+//     SGD: "S$",
+//     THB: "฿",
+//     TRY: "₺",
+//     TWD: "NT$",
+//     UAH: "₴",
+//     USD: "$",
+//     VND: "₫",
+//     ZAR: "R",
+//   };
+//   return symbols[currency] || currency;
+// };
+
 // const BasicCard = ({
 //   title,
 //   extra,
@@ -39,33 +91,94 @@
 //   hoverable,
 //   currency,
 //   currencyRates,
+//   renderActions, // This prop will receive a custom button for specific components
+//   discounts,
 // }) => {
-//   const navigate = useNavigate();
 //   const [avgRating, setAvgRating] = useState(rating);
 //   const [dateTimeFormatted, setDateTimeFormatted] = useState(null);
 
-//   const convertPriceRange = (priceRange) => {
-//     const [lower, upper] = priceRange.split("-").map(Number);
-//     const convertedLower = (lower * (currencyRates?.[currency] || 1)).toFixed(2);
-//     const convertedUpper = (upper * (currencyRates?.[currency] || 1)).toFixed(2);
-//     return `${convertedLower} - ${convertedUpper}`;
+//   const convertPrice = (price) => {
+//     return (price * (currencyRates?.[currency] || 1)).toFixed(2);
 //   };
 
-//   const convertedPrice =
-//     typeof extra === "string" && extra.includes("-") ? convertPriceRange(extra) :
-//     ((Number(extra) || 0) * (currencyRates?.[currency] || 1)).toFixed(2);
+//   const convertPriceRange = (priceRange) => {
+//     const [lower, upper] = priceRange.split("-").map(Number);
+//     const convertedLower = convertPrice(lower);
+//     const convertedUpper = convertPrice(upper);
+//     return `${convertedLower}-${convertedUpper}`;
+//   };
+
+//   const discountedPrice = (price) => {
+//     if (discounts) {
+//       const discountFactor = 1 - discounts / 100;
+//       return (price * discountFactor).toFixed(2);
+//     }
+//     return price.toFixed(2);
+//   };
+
+//   const convertedPrice = typeof extra === "string" && extra.includes("-")
+//     ? convertPriceRange(extra)
+//     : convertPrice(Number(extra) || 0);
+
+//   const priceWithDiscount = typeof extra === "string" && extra.includes("-")
+//     ? convertPriceRange(
+//         extra
+//           .split("-")
+//           .map((price) => discountedPrice(Number(price)))
+//           .join("-")
+//       )
+//     : discountedPrice(Number(extra));
 
 //   useEffect(() => {
-//     if (dateTime) setDateTimeFormatted(formatDateTime(dateTime));
+//     if (dateTime) {
+//       setDateTimeFormatted(formatDateTime(dateTime));
+//     }
 //   }, [dateTime]);
 
 //   return (
 //     <Card
 //       title={<div onClick={onClick}>{title}</div>}
-//       extra={<div>{`${convertedPrice} ${currency}`}</div>}
-//       actions={actions}
+//       extra={
+//         <div style={{ position: "relative" }}>
+//           {`${getCurrencySymbol(currency)}${priceWithDiscount}`}
+//           {discounts && (
+//             <Flex
+//               style={{
+//                 position: "absolute",
+//                 bottom: "90%",
+//                 right: "-25px",
+//               }}
+//             >
+//               <div
+//                 style={{
+//                   color: Colors.warningDark,
+//                   fontSize: "12px",
+//                   textDecoration: "line-through underline",
+//                   marginRight: "5px",
+//                   whiteSpace: "nowrap",
+//                 }}
+//               >
+//                 {getCurrencySymbol(currency)}
+//                 {convertedPrice}
+//               </div>
+//               <div
+//                 style={{
+//                   backgroundColor: Colors.warningDark,
+//                   color: "white",
+//                   padding: "2px 4px",
+//                   borderRadius: "4px",
+//                   fontSize: "11px",
+//                 }}
+//               >
+//                 -{discounts}%
+//               </div>
+//             </Flex>
+//           )}
+//         </div>
+//       }
+//       actions={renderActions ? [renderActions()] : actions} // Display the custom action button if provided
 //       cover={
-//         photo ? (
+//         photo && (
 //           <Flex justify="center" onClick={onClick}>
 //             <img
 //               alt={photo}
@@ -73,26 +186,28 @@
 //               src={`/uploads/${photo}.jpg`}
 //             />
 //           </Flex>
-//         ) : null
+//         )
 //       }
 //       className="myCard"
 //       hoverable={hoverable}
 //     >
 //       <div onClick={onClick} style={{ padding: "24px" }}>
-//         {Object.entries(fields).map(([key, value]) => (
-//           value !== undefined && (
-//             <div
-//               key={key}
-//               style={{
-//                 width: "100%",
-//                 textOverflow: "ellipsis",
-//                 overflowX: "hidden",
-//               }}
-//             >
-//               <span style={{ fontWeight: "bold" }}>{key}</span>: {String(value)}
-//             </div>
-//           )
-//         ))}
+//         {Object.entries(fields).map(
+//           ([key, value]) =>
+//             value !== undefined && (
+//               <div
+//                 key={key}
+//                 style={{
+//                   width: "100%",
+//                   textOverflow: "ellipsis",
+//                   overflowX: "hidden",
+//                   marginTop: "10px",
+//                 }}
+//               >
+//                 <span style={{ fontWeight: "bold" }}>{key}</span>: {String(value)}
+//               </div>
+//             )
+//         )}
 //         {dateTime && dateTimeFormatted && (
 //           <>
 //             <div style={{ fontWeight: "bold" }}>Dates/Times Available</div>
@@ -101,6 +216,7 @@
 //             ))}
 //           </>
 //         )}
+//         <Divider />
 //         {rateDisplay && (
 //           <Rate allowHalf disabled={!rateEnabled} value={avgRating} />
 //         )}
@@ -110,6 +226,7 @@
 // };
 
 // export default BasicCard;
+
 
 import React, { useEffect, useState } from "react";
 import { Card, Divider, Flex, Rate } from "antd";
@@ -136,6 +253,59 @@ function formatDateTime(availableDateTime) {
   });
 }
 
+const getCurrencySymbol = (currency) => {
+  const symbols = {
+    AED: "د.إ",
+    ARS: "$",
+    AUD: "A$",
+    BDT: "৳",
+    BHD: ".د.ب",
+    BND: "B$",
+    BRL: "R$",
+    CAD: "C$",
+    CHF: "CHF",
+    CLP: "$",
+    CNY: "¥",
+    COP: "$",
+    CZK: "Kč",
+    DKK: "kr",
+    EGP: "EGP",
+    EUR: "€",
+    GBP: "£",
+    HKD: "HK$",
+    HUF: "Ft",
+    IDR: "Rp",
+    ILS: "₪",
+    INR: "₹",
+    JPY: "¥",
+    KRW: "₩",
+    KWD: "د.ك",
+    LKR: "Rs",
+    MAD: "MAD",
+    MXN: "$",
+    MYR: "RM",
+    NOK: "kr",
+    NZD: "NZ$",
+    OMR: "ر.ع.",
+    PHP: "₱",
+    PKR: "₨",
+    PLN: "zł",
+    QAR: "ر.ق",
+    RUB: "₽",
+    SAR: "ر.س",
+    SEK: "kr",
+    SGD: "S$",
+    THB: "฿",
+    TRY: "₺",
+    TWD: "NT$",
+    UAH: "₴",
+    USD: "$",
+    VND: "₫",
+    ZAR: "R",
+  };
+  return symbols[currency] || currency;
+};
+
 const BasicCard = ({
   title,
   extra,
@@ -155,79 +325,45 @@ const BasicCard = ({
 }) => {
   const [avgRating, setAvgRating] = useState(rating);
   const [dateTimeFormatted, setDateTimeFormatted] = useState(null);
-  const [priceBeforeCurrency, setPriceBeforeCurrency] = useState(null);
-  const [convertedPrice, setConvertedPrice] = useState(null);
-  const [currencySymbol, setCurrencySymbol] = useState(
-    currency == "EGP" ? "£" : currency == "EUR" ? "€" : "$"
-  );
-  const [extraConv, setExtraConv] = useState(extra);
 
-  useEffect(() => {
+  const convertPrice = (price) => {
+    return (price * (currencyRates?.[currency] || 1)).toFixed(2);
+  };
+
+  const applyDiscount = (price) => {
     if (discounts) {
-      if (typeof extra === "string" && extra.includes("-")) {
-        const [priceLower, priceUpper] = extra.split("-").map(Number);
-        if (priceLower == priceUpper) {
-          const priceLowerTemp = (
-            priceLower -
-            (discounts / 100) * priceLower
-          ).toFixed(2);
-          setPriceBeforeCurrency(`${priceLowerTemp}`);
-        } else if (priceLower && priceUpper && priceLower !== priceUpper) {
-          const priceLowerTemp = (
-            priceLower -
-            (discounts / 100) * priceLower
-          ).toFixed(2);
-          console.log(priceLowerTemp);
-          const priceUpperTemp = (
-            priceUpper -
-            (discounts / 100) * priceUpper
-          ).toFixed(2);
-          setPriceBeforeCurrency(`${priceLowerTemp} - ${priceUpperTemp}`);
-        }
-      }
-    } else {
-      setPriceBeforeCurrency(extra);
+      const discountFactor = 1 - discounts / 100;
+      return (price * discountFactor).toFixed(2);
     }
-  }, [extra, discounts]);
-
-  useEffect(() => {
-    const conv =
-      typeof extra === "string" && extra.includes("-")
-        ? convertPriceRange(extra)
-        : ((Number(extra) || 0) * (currencyRates?.[currency] || 1)).toFixed(2);
-    setExtraConv(conv);
-  }, [extra]);
-
-  useEffect(() => {
-    setCurrencySymbol(currency == "EGP" ? "£" : currency == "EUR" ? "€" : "$");
-  }, [currency]);
+    return price.toFixed(2);
+  };
 
   const convertPriceRange = (priceRange) => {
     const [lower, upper] = priceRange.split("-").map(Number);
-    const convertedLower = (lower * (currencyRates?.[currency] || 1)).toFixed(
-      2
-    );
-    const convertedUpper = (upper * (currencyRates?.[currency] || 1)).toFixed(
-      2
-    );
-    return `${convertedLower}-${convertedUpper}`;
+    const convertedLower = convertPrice(lower);
+    const convertedUpper = convertPrice(upper);
+    return `${convertedLower} - ${convertedUpper}`;
   };
 
-  // Handle `extra` safely to avoid errors with `.split()`
-  useEffect(() => {
-    const conv =
-      typeof priceBeforeCurrency === "string" &&
-      priceBeforeCurrency.includes("-")
-        ? convertPriceRange(priceBeforeCurrency)
-        : (
-            (Number(priceBeforeCurrency) || 0) *
-            (currencyRates?.[currency] || 1)
-          ).toFixed(2);
-    setConvertedPrice(conv);
-  }, [priceBeforeCurrency, currencyRates]);
+  const convertAndApplyDiscountToRange = (priceRange) => {
+    const [lower, upper] = priceRange.split("-").map(Number);
+    const discountedLower = applyDiscount(lower);
+    const discountedUpper = applyDiscount(upper);
+    return `${convertPrice(discountedLower)} - ${convertPrice(discountedUpper)}`;
+  };
+
+  const convertedPrice = typeof extra === "string" && extra.includes("-")
+    ? convertAndApplyDiscountToRange(extra)
+    : applyDiscount(Number(extra));
+
+  const originalPrice = typeof extra === "string" && extra.includes("-")
+    ? convertPriceRange(extra)
+    : convertPrice(Number(extra));
 
   useEffect(() => {
-    if (dateTime) setDateTimeFormatted(formatDateTime(dateTime));
+    if (dateTime) {
+      setDateTimeFormatted(formatDateTime(dateTime));
+    }
   }, [dateTime]);
 
   return (
@@ -235,8 +371,8 @@ const BasicCard = ({
       title={<div onClick={onClick}>{title}</div>}
       extra={
         <div style={{ position: "relative" }}>
-          {`${currencySymbol}${convertedPrice}`}
-          {discounts ? (
+          {`${getCurrencySymbol(currency)}${convertedPrice}`}
+          {discounts && (
             <Flex
               style={{
                 position: "absolute",
@@ -253,8 +389,8 @@ const BasicCard = ({
                   whiteSpace: "nowrap",
                 }}
               >
-                {currencySymbol}
-                {extraConv}
+                {getCurrencySymbol(currency)}
+                {originalPrice}
               </div>
               <div
                 style={{
@@ -268,12 +404,12 @@ const BasicCard = ({
                 -{discounts}%
               </div>
             </Flex>
-          ) : null}
+          )}
         </div>
       }
       actions={renderActions ? [renderActions()] : actions} // Display the custom action button if provided
       cover={
-        photo ? (
+        photo && (
           <Flex justify="center" onClick={onClick}>
             <img
               alt={photo}
@@ -281,7 +417,7 @@ const BasicCard = ({
               src={`/uploads/${photo}.jpg`}
             />
           </Flex>
-        ) : null
+        )
       }
       className="myCard"
       hoverable={hoverable}
@@ -310,8 +446,7 @@ const BasicCard = ({
                   ...style,
                 }}
               >
-                <span style={{ fontWeight: "bold" }}>{key}</span>:{" "}
-                {String(value)}
+                <span style={{ fontWeight: "bold" }}>{key}</span>: {String(value)}
               </div>
             )
           );
