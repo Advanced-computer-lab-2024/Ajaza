@@ -13,12 +13,16 @@ import { SearchOutlined, DeleteOutlined } from "@ant-design/icons"; // Import th
 import { apiUrl } from "../Common/Constants";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import SearchFilterSortContainer from "../Common/SearchFilterSortContainer";
+import Search from "../Common/Search";
 const { Title } = Typography;
 
 const AllAccounts = () => {
+  const [allAccounts, setAllAccounts] = useState([]); // Store all accounts
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchUsername, setSearchUsername] = useState("");
+  
+  const [searchValue, setSearchValue] = useState("");
   const [isHovered, setIsHovered] = useState(false); // State to manage hover effect
 
   // Fetch accounts from the API
@@ -108,6 +112,7 @@ const AllAccounts = () => {
           ...governors,
         ];
         setAccounts(combinedArray);
+        setAllAccounts(combinedArray);
       } catch (exception) {
       } finally {
         setLoading(false);
@@ -115,42 +120,10 @@ const AllAccounts = () => {
     }
   };
 
-  // Handle search for a specific username
-  const handleSearch = async () => {
-    if (!searchUsername) {
-      message.warning("Please enter a username to search.");
-      return;
-    }
+  
 
-    setLoading(true); // Set loading state while fetching
-
-    try {
-      const response = await fetch(
-        `https://api.example.com/accounts?username=${searchUsername}`
-      );
-      if (!response.ok) throw new Error("Network response was not ok");
-
-      const data = await response.json();
-      setAccounts(data); // Update state with fetched accounts
-      message.success("Account(s) fetched successfully");
-    } catch (error) {
-      console.error("Fetch error:", error);
-      // Display a dummy user if the search fails
-      const dummyUser = [{ id: 0, username: "dummyUser", type: "Admin" }];
-      setAccounts(dummyUser);
-      message.error("Failed to fetch accounts. Displaying dummy user.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Handle Enter key press for searching
-  const handleKeyPress = (event) => {
-    if (event.key === "Enter") {
-      handleSearch();
-    }
-  };
-
+  
+ 
   // Handle delete account
   const handleDelete = async (accountId, accountType) => {
     console.log(accountType + " ali" + accountId);
@@ -192,6 +165,18 @@ const AllAccounts = () => {
     }
   };
 
+
+  useEffect(() => {
+    if (searchValue) {
+      const filteredAccounts = allAccounts.filter((account) =>
+        account.username.toLowerCase().includes(searchValue.toLowerCase())
+      );
+      setAccounts(filteredAccounts);
+    } else {
+      setAccounts(allAccounts); // Reset to all accounts when search is empty
+    }
+  }, [searchValue, allAccounts]);
+
   useEffect(() => {
     fetchAccounts();
   }, []);
@@ -204,10 +189,22 @@ const AllAccounts = () => {
         padding: "20px",
       }}
     >
+   
       <div style={{ flex: 1 }}>
+     
+    
         <Title level={2} style={{ textAlign: "center", marginBottom: "20px" }}>
           Accepted Accounts
         </Title>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
+    <Search
+            activateHover={false}
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            style={{ width: "600px" }}
+            inputStyleParam={{ paddingLeft: "40px" }}
+          />
+          </div>
 
         {loading ? (
           <div> Loading...</div>
@@ -239,50 +236,13 @@ const AllAccounts = () => {
               </Col>
             )}
           </Row>
-        )}
-      </div>
 
-      {/* Hover-Expandable Search Component */}
-      <div
-        style={{
-          position: "relative",
-          width: isHovered ? "350px" : "40px", // Width changes on hover
-          transition: "width 0.3s ease",
-        }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        <Tooltip
-          title="Click to search for a username"
-          placement="left"
-          arrowPointAtCenter
-        >
-          <SearchOutlined style={{ fontSize: "24px", cursor: "pointer" }} />
-        </Tooltip>
-        {isHovered && (
-          <div style={{ marginTop: "10px" }}>
-            <p style={{ marginBottom: "5px" }}>Search for a username:</p>
-            <Input
-              placeholder="Enter username"
-              value={searchUsername}
-              onChange={(e) => setSearchUsername(e.target.value)}
-              onKeyPress={handleKeyPress} // Trigger search on Enter key
-              style={{
-                borderRadius: "10px",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                width: "100%",
-              }}
-            />
-            <Button
-              type="primary"
-              onClick={handleSearch}
-              style={{ marginTop: "10px", width: "100%", borderRadius: "10px" }} // Full width for button
-            >
-              Search
-            </Button>
-          </div>
         )}
       </div>
+      
+
+      
+      
     </div>
   );
 };
