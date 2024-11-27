@@ -86,7 +86,7 @@ const AdvertiserReport = () => {
         if (currentFilters.activityNames && currentFilters.activityNames.length > 0) {
             filteredData = filteredData.filter(item =>
                 currentFilters.activityNames.some(name =>
-                    item.activityName.toLowerCase().includes(name.toLowerCase())
+                    item.activityName.toLowerCase().includes(name.toLowerCase()) // Check if activity name includes any selected name
                 )
             );
         }
@@ -94,16 +94,17 @@ const AdvertiserReport = () => {
         // Apply date range filters
         if (currentFilters.dateRange && currentFilters.dateRange.length === 2) {
             const [start, end] = currentFilters.dateRange;
-            filteredData = filteredData.filter(item => {
-                const itemDate = moment(item.originalDate);
-                const startDate = moment(start, "MM-DD-YYYY");
-                const endDate = moment(end, "MM-DD-YYYY");
     
-                return itemDate.isBetween(startDate, endDate, undefined, "[]");
+            filteredData = filteredData.filter(item => {
+                const itemDate = moment(item.originalDate); // Parse the activity date as a moment object
+                const startDate = moment(start, "MM-DD-YYYY"); // Convert start date to the desired format
+                const endDate = moment(end, "MM-DD-YYYY"); // Convert end date to the desired format
+    
+                return itemDate.isBetween(startDate, endDate, undefined, "[]"); // Check if the activity date falls within the range
             });
         }
     
-        return filteredData; // Return filtered data after applying both filters
+        return filteredData; // Return the filtered data
     };
     
     const handleDateRangeChange = (dates, filterMode = 'date') => {
