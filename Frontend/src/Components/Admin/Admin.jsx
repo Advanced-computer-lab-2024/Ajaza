@@ -31,7 +31,9 @@ import ItinerariesAdmin from "./ItinerariesAdmin";
 import ItineraryAdmin from "./ItineraryAdmin";
 import ComplaintDetails from "./ComplaintDetails";
 import ExamineAccountDetails from "./ExamineAccountDetails";
+import CreatePromoCode from "./CreatePromoCode";
 import { AdminMenuKeyProvider } from "./AdminMenuKeyContext";
+import NumberOfUsers from "./NumberOfUsers";
 const { Content } = Layout;
 // username: alisuper
 // password: 12345a
@@ -84,7 +86,9 @@ const Admin = () => {
             />
             <Route path="events" element={<Events />} />
             <Route path="events/:id" element={<Event />} />
+            <Route path="promocode" element={<CreatePromoCode />} />
 
+            <Route path="numberOfUsers" element={<NumberOfUsers />} />
             <Route path="itinerariesAdmin" element={<ItinerariesAdmin />} />
             <Route path="itinerariesAdmin/:id" element={<ItineraryAdmin />} />
 

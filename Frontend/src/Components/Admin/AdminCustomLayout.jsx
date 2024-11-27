@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  TagsOutlined,
   MenuFoldOutlined,
+  TeamOutlined,
   CalendarOutlined,
   NumberOutlined,
   StarOutlined,
@@ -111,7 +113,13 @@ const AdminCustomLayout = ({ children }) => {
       navigate("products");
     } else if (key == "13") {
       navigate("myProducts");
-    } else if (key == "14") {
+    } else if(key == "74"){
+      navigate("/Admin/promocode");
+    }
+    else if(key == "44"){
+      navigate("/Admin/numberOfUsers");
+    }
+    else if (key == "14") {
       navigate("change-password");
     } else if (key == "15") {
       navigate("archive");
@@ -164,6 +172,16 @@ const AdminCustomLayout = ({ children }) => {
               key: "11",
               icon: <NumberOutlined />,
               label: "Preference Tags",
+            },
+            {
+              key: "74",
+              icon: <TagsOutlined />,
+              label: "PromoCode",
+            },
+            {
+              key: "44",
+              icon: <TeamOutlined />,
+              label: "User Stats",
             },
             {
               key: "12",
