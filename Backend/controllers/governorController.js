@@ -293,3 +293,32 @@ exports.acceptTerms = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Count Governers by month and year
+exports.countGovernersByMonth = async (req, res) => {
+  try {
+    const { date } = req.query; // Get the date from query parameters
+
+    if (!date) {
+      return res.status(400).json({ message: "Date is required" });
+    }
+
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
+
+    // Calculate the start and end of the month
+    const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
+    const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0);
+
+    // Query Governers added within the month
+    const count = await Governor.countDocuments({
+      date: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    res.status(200).json({ count });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
