@@ -36,8 +36,6 @@ router.post("/seeNotifications/:id", adminController.seeNotifications);
 // req 27 - tatos
 router.get('/viewSalesReport/:id', adminController.viewSalesReport);
 
-//router.get("/created/:year/:month", adminController.getUsersByMonth);
-
 
 
 
