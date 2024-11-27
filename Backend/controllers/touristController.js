@@ -2234,7 +2234,7 @@ async function reminders(touristId) {
 exports.checkout = async(req,res) => {
   try {
     const touristId = req.params.id;
-    const { useWallet, cod } = req.body;
+    const { useWallet, cod, deliveryAddress } = req.body;
 
     const tourist = await Tourist.findOne({ _id: touristId }).populate('cart.productId');
 
@@ -2285,6 +2285,7 @@ exports.checkout = async(req,res) => {
         productId: item.productId._id,
         quantity: item.quantity,
       })),
+      deliveryAddress,
       date: new Date(),
       cod: cod,
       total,
@@ -2306,7 +2307,7 @@ exports.checkout = async(req,res) => {
 
     await tourist.save();
 
-    return { message: "Order created successfully!", order };
+    return res.status(200).json({ message: "Order created successfully!", order });
   } catch (error) {
     console.error(error);
     return res.status(500).json({message: "Internal error"});
