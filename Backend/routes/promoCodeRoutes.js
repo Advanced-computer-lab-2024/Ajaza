@@ -13,4 +13,6 @@ router.patch('/:id', promoCodeController.updatePromoCode);
 
 router.delete('/:id', promoCodeController.deletePromoCode);
 
+router.post("/checkValid/:code", promoCodeController.checkValid);
+
 module.exports = router;
