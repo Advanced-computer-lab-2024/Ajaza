@@ -59,3 +59,21 @@ exports.deletePromoCode = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Admin creates a promo code
+exports.createPromoAdmin = async (req, res) => {
+  try {
+    const { code, value } = req.body;
+
+    if (!code || !value) {
+      return res.status(400).json({ message: 'Code and value are required' });
+    }
+
+    // Use the static method
+    const promoCode = await PromoCode.createWithoutBirthday({ code, value });
+
+    res.status(201).json(promoCode);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
