@@ -86,7 +86,7 @@ const AdvertiserReport = () => {
         if (currentFilters.activityNames && currentFilters.activityNames.length > 0) {
             filteredData = filteredData.filter(item =>
                 currentFilters.activityNames.some(name =>
-                    item.activityName.toLowerCase().includes(name.toLowerCase()) // Check if activity name includes any selected name
+                    item.activityName.toLowerCase().includes(name.toLowerCase())
                 )
             );
         }
@@ -94,17 +94,16 @@ const AdvertiserReport = () => {
         // Apply date range filters
         if (currentFilters.dateRange && currentFilters.dateRange.length === 2) {
             const [start, end] = currentFilters.dateRange;
-    
             filteredData = filteredData.filter(item => {
-                const itemDate = moment(item.originalDate); // Parse the activity date as a moment object
-                const startDate = moment(start, "MM-DD-YYYY"); // Convert start date to the desired format
-                const endDate = moment(end, "MM-DD-YYYY"); // Convert end date to the desired format
+                const itemDate = moment(item.originalDate);
+                const startDate = moment(start, "MM-DD-YYYY");
+                const endDate = moment(end, "MM-DD-YYYY");
     
-                return itemDate.isBetween(startDate, endDate, undefined, "[]"); // Check if the activity date falls within the range
+                return itemDate.isBetween(startDate, endDate, undefined, "[]");
             });
         }
     
-        return filteredData; // Return the filtered data
+        return filteredData; // Return filtered data after applying both filters
     };
     
     const handleDateRangeChange = (dates, filterMode = 'date') => {
@@ -203,32 +202,39 @@ const AdvertiserReport = () => {
 
             <p>Total Sales: <strong>${totalSales.toFixed(2)}</strong></p>
 
-            <Table
-                columns={columns}
-                dataSource={salesData}
-                loading={loading}
-                rowKey={(record) => record.key || record.activityName}
-                onChange={(pagination, filters, sorter) => {
-                    // Update the filters in state when activity names filter changes
-                    const activityNames = filters.activityName || []; // Extract activity names filter values
-                    const newFilters = {
-                        ...filters,
-                        activityNames: activityNames.length > 0 ? activityNames : [], // Set activityNames filter
-                    };
-                    setFilters((prev) => ({
-                        ...prev,
-                        activityNames: newFilters.activityNames, // Update the state with new activity names
-                    }));
-            
-                    // Apply filters to get the filtered data
-                    const filteredData = applyFilters(originalSalesData, newFilters);
-            
-                    // Update sales data and recalculate total sales
-                    setSalesData(filteredData);
-                    const newTotalSales = filteredData.reduce((sum, item) => sum + item.price, 0);
-                    setTotalSales(newTotalSales); // Update the total sales
-                }}
-            />
+        <Table
+        columns={columns}
+        dataSource={salesData}
+        loading={loading}
+        rowKey={(record) => record.key || record.activityName}
+        onChange={(pagination, filters, sorter) => {
+        // Extract the filters for activity names and date range
+        const activityNames = filters.activityName || []; // Activity name filter values
+        const dateRange = filters.dateRange || null; // Date range filter values
+
+        // Construct the new filters state
+        const newFilters = {
+            activityNames: activityNames.length > 0 ? activityNames : filters.activityNames || [],
+            dateRange: dateRange ? dateRange : filters.dateRange || null,
+            filterMode: filters.filterMode || 'date', // Ensure filter mode persists
+        };
+
+        // Update the filter state
+        setFilters((prev) => ({
+            ...prev,
+            activityNames: newFilters.activityNames, // Update activity names filter
+            dateRange: newFilters.dateRange, // Update date range filter
+        }));
+
+        // Apply both filters at once (activity names and date range)
+        const filteredData = applyFilters(originalSalesData, newFilters);
+
+        // Update the sales data and total sales after applying filters
+        setSalesData(filteredData);
+        const newTotalSales = filteredData.reduce((sum, item) => sum + item.price, 0);
+        setTotalSales(newTotalSales); // Recalculate total sales
+    }}
+/>
         </div>
     );
 };
