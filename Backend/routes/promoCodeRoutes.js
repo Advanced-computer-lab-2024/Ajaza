@@ -11,6 +11,9 @@ router.get('/:id', promoCodeController.getPromoCodeById);
 // this will probably not be used
 router.patch('/:id', promoCodeController.updatePromoCode);
 
+router.post('/createPromoCode', promoCodeController.createPromoAdmin);
+
+
 router.delete('/:id', promoCodeController.deletePromoCode);
 
 router.post("/checkValid/:code", promoCodeController.checkValid);

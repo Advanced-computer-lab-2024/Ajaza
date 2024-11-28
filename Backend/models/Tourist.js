@@ -86,6 +86,8 @@ const touristSchema = new mongoose.Schema({
       desc: { type: String },
     },
   ],
+  date: { type: Date, default: Date.now }, // Date the advertiser was made
+
   usedPromoCodes: [{ type: String }],
   gaveFeedback: [{ type: mongoose.Schema.Types.ObjectId, required: false}],
   requestingDeletion: { type: Boolean, default: false },//ng added for deletion

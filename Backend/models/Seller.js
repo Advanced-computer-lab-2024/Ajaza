@@ -19,6 +19,8 @@ const sellerSchema = new mongoose.Schema({
     },
   ],
   pending: { type: Boolean, default: true }, // dy el mafrood lama teegy t test te2lebha default: false
+  date: { type: Date, default: Date.now }, // Date the advertiser was made
+
   requestingDeletion: { type: Boolean, default: false },
 });
 

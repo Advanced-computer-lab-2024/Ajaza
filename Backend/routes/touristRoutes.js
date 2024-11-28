@@ -17,6 +17,9 @@ router.post("/", touristController.createTourist);
 
 router.get("/", touristController.getAllTourists);
 
+router.get("/countByMonth", touristController.countTouristsByMonth);
+
+
 router.get("/:id", touristController.getTouristById);
 
 router.patch("/:id", touristController.updateTourist);

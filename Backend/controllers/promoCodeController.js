@@ -93,3 +93,24 @@ exports.checkValid = async (req,res) => {
     res.status(500).json({message:"Internal error"});
   }
 }
+
+// Admin create a promo code
+exports.createPromoAdmin = async (req, res) => {
+  try {
+    const { code, value } = req.body;
+
+    if (!code || !value) {
+      return res.status(400).json({ message: 'Code and value are required' });
+    }
+
+    const promoCode = new PromoCode({
+      code,
+      value,
+    });
+
+    const savedPromoCode = await promoCode.save();
+    res.status(201).json(savedPromoCode);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
