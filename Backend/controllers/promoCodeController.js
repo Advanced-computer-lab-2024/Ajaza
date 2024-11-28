@@ -83,8 +83,10 @@ exports.checkValid = async (req,res) => {
       if(!touristId) {
         return res.status(404).json({message:"Tourist ID needed"});
       }
-      //TODO check if touristid is in birthday.touristIds
-      return res.status(200).json({value: promo.value});
+
+      if(promo.birthday.touristIds.includes(touristId)) {
+        return res.status(200).json({value: promo.value});
+      }
     }
     return res.status(400).json({message:"Invalid promo code"});
 
