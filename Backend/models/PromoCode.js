@@ -5,6 +5,7 @@ const promoCodeSchema = new mongoose.Schema({
   value: { type: Number, required: true }, // Discount value 0.2 for example
   birthday: {
     date: { type: Date, required: true }, // Date associated with the promo code
+    touristIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tourist' }],
   },
 });
 

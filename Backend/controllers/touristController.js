@@ -579,23 +579,24 @@ exports.bookItinerary = async (req, res) => {
       }
 
       tourist.wallet -= total;
-    } else {
-      const amount = total * 100; // Convert to cents for Stripe
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: amount, // Amount in cents (change as necessary)
-        currency: "usd",
-        payment_method: paymentMethodId, // Attach the payment method
-        confirm: true, // Automatically confirm the payment intent
-        return_url: "http://localhost:3000/payment-confirmation", // Optional: if redirect is needed
-        automatic_payment_methods: {
-          enabled: true,
-          allow_redirects: "never", // Avoid redirect-based methods
-        },
-      });
-      if (paymentIntent.status !== "succeeded") {
-        return res.status(400).json({ error: { message: "Payment failed" } });
-      }
     }
+    // } else {
+    //   const amount = total * 100; // Convert to cents for Stripe
+    //   const paymentIntent = await stripe.paymentIntents.create({
+    //     amount: amount, // Amount in cents (change as necessary)
+    //     currency: "usd",
+    //     payment_method: paymentMethodId, // Attach the payment method
+    //     confirm: true, // Automatically confirm the payment intent
+    //     return_url: "http://localhost:3000/payment-confirmation", // Optional: if redirect is needed
+    //     automatic_payment_methods: {
+    //       enabled: true,
+    //       allow_redirects: "never", // Avoid redirect-based methods
+    //     },
+    //   });
+    //   if (paymentIntent.status !== "succeeded") {
+    //     return res.status(400).json({ error: { message: "Payment failed" } });
+    //   }
+    // }
 
     // deduct 1 spot from the itinerary
     availableDate.spots -= 1;
@@ -2258,7 +2259,7 @@ async function reminders(touristId) {
 exports.checkout = async (req, res) => {
   try {
     const touristId = req.params.id;
-    const { useWallet, cod, deliveryAddress } = req.body;
+    const { useWallet, cod, deliveryAddress, total } = req.body;
 
     const tourist = await Tourist.findOne({ _id: touristId }).populate(
       "cart.productId"
@@ -2296,11 +2297,6 @@ exports.checkout = async (req, res) => {
         .status(400)
         .json({ message: "Invalid quantities", invalidCartItems });
     }
-
-    const total = validCartItems.reduce((acc, item) => {
-      const productPrice = item.productId.price;
-      return acc + productPrice * item.quantity;
-    }, 0);
 
     if (useWallet === true) {
       if (tourist.wallet > total) {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { List, Button, message, Empty, Modal, Input, Radio } from "antd";
+import { List, Button, message, Empty, Modal, Input, Radio, notification } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { apiUrl } from "../Common/Constants";
@@ -233,12 +233,16 @@ export const Cart = () => {
 
       const response = await axios.post(
         `${apiUrl}tourist/cart/checkout/${touristId}`,
-        { useWallet: (paymentMethod==="wallet") ,cod: (paymentMethod === "cod") ,deiveryAddress: selectedAddress }
+        { useWallet: (paymentMethod==="wallet") ,cod: (paymentMethod === "cod") ,deiveryAddress: selectedAddress, total: price*promo}
       );
       setIsModalVisible(false); // Close modal after checkout
 
       if(response.status === 200) {
-        message.success("Order placed successfully!");
+        notification.success({
+          message: 'Purchase Success',
+          description: 'Order placed successfully.',
+        });        
+        window.location.href = "http://localhost:3000/tourist/orders";
       } else {
         message.error("An error has occurred. Please try again.");
       }
@@ -252,6 +256,7 @@ export const Cart = () => {
   const handleApplyPromo = async () => {
     //setPromo(promo);
     if(promo === 1) {
+      try {
       console.log(promocode);
       const response = await axios.post(`http://localhost:5000/promocode/checkValid/${promocode}`, { touristId });
 
@@ -261,6 +266,9 @@ export const Cart = () => {
       } else {
         message.error("Invalid promo code");
       }
+    } catch(error) {
+      message.error("Invalid promo code");
+    }
     } else {
       setPromo(1);
     }
@@ -321,6 +329,11 @@ export const Cart = () => {
               item.quantity > 1
                 ? [
                     <Button
+                      icon={<DeleteOutlined />}
+                      danger
+                      onClick={() => handleRemoveItem(item.productId)}
+                    />,
+                    <Button
                       icon={<MinusOutlined />}
                       onClick={() => handleDecrement(item.productId)}
                     />,
@@ -328,11 +341,6 @@ export const Cart = () => {
                     <Button
                       icon={<PlusOutlined />}
                       onClick={() => handleIncrement(item.productId)}
-                    />,
-                    <Button
-                      icon={<DeleteOutlined />}
-                      danger
-                      onClick={() => handleRemoveItem(item.productId)}
                     />,
                   ]
                 : [
@@ -378,7 +386,7 @@ export const Cart = () => {
 
       {/* Modal for Checkout */}
       <Modal
-        title="Checkout"
+        //title="Checkout"
         visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
@@ -390,63 +398,106 @@ export const Cart = () => {
         }}
         cancelText="Cancel"
       >
-        <div style={{ marginTop: "15px" }}>
-          <h6>Delivery Address:</h6>
-          {deliveryAddresses.length > 0 && deliveryAddresses.map((address, index) => (
-            <label key={index} style={{ display: "block", marginBottom: "10px"}}>
-              <input
-                type="radio"
-                name="deliveryAddress"
-                value={index}
-                checked={selectedAddress === index}
-                onChange={() => handleSelection(index)}
-                required
-              />
-              {`${address.house}, ${address.street}, ${address.area}, ${address.city}, ${address.country}`}
-            </label>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50px" }}><h1>Checkout</h1></div>
+        <div>
+          <h6>Order Summary</h6>
+          <div>
+          {cartItems.map((item, index) => (
+            <div
+              key={index}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                border: "1px solid #ccc",
+                padding: "10px",
+                paddingBottom: "0px",
+                marginBottom: "5px",
+                borderRadius: "5px",
+              }}
+            >
+              <div>
+                <strong>{item.quantity}x {item.name}</strong>
+                <p>Price: ${item.price.toFixed(2)}</p>
+              </div>
+              <div><br />
+                <p>Total: ${(item.quantity * item.price).toFixed(2)}</p>
+              </div>
+            </div>
           ))}
+        </div>
+        <h4>Total: <strong></strong>
+        {promo !== 1 && (
+          <span style={{ textDecoration: 'line-through', marginRight: '10px' }}>
+            ${price.toFixed(2)}
+          </span>
+        )}
+        <span style={{ color: promo !== 1 ? 'green' : 'black' }}>
+          ${(price*promo).toFixed(2)}
+        </span>
+      </h4>
+        <div style={{ marginTop: "15px" }}>
+          <h6>Promo Code</h6>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <Input
+              type="text"
+              placeholder="Enter text"
+              value={promocode}
+              onChange={handleInputChange}
+              style={{ flex: "1" }} // Optional: Allows the input to take remaining space
+            />
+            {promo === 1 && (
+              <Button onClick={handleApplyPromo} style={{
+                backgroundColor: "#1b696a",
+                color: "white",
+                borderColor: "#1b696a",
+              }}>
+                Apply
+              </Button>
+            )}
+            {promo !== 1 && (
+              <Button onClick={handleRemovePromo} style={{
+                backgroundColor: "#cc0b38",
+                color: "white",
+                borderColor: "#cc0b38",
+              }}>
+                Cancel
+              </Button>
+            )}
+          </div>
+        </div>
+        </div>
+        <div style={{ marginTop: "15px" }}>
+          <h6>Delivery Address</h6>
+          {deliveryAddresses.length > 0 && (
+            <Radio.Group
+              value={selectedAddress}
+              onChange={(e) => handleSelection(e.target.value)}
+              style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+            >
+              {deliveryAddresses.map((address, index) => (
+                <Radio key={index} value={index}>
+                  {`${address.house}, ${address.street}, ${address.area}, ${address.city}, ${address.country}. Appartment.: ${address.app}, Description: ${address.desc}`}
+                </Radio>
+              ))}
+            </Radio.Group>
+          )}<br />
           <a onClick={navigateToSection} style={{
             color: "blue",
             textDecoration: "underline",
             cursor: "pointer",
           }}>
-            Add address
+            Add delivery address
           </a>
         </div>
-        <div style={{ marginTop: "15px" }}>
-          <h6>Promo code</h6>
-          <Input
-            type="text"
-            placeholder="Enter text"
-            value={promocode}
-            onChange={handleInputChange}
-          />
-          {promo===1 &&(<Button onClick={handleApplyPromo} style={{marginTop: "5px"}}>
-            Apply
-          </Button>)}
-          {promo!==1 &&(<Button onClick={handleRemovePromo} style={{marginTop: "5px"}}>
-            Cancel
-          </Button>)}
-        </div>
-        <h1>
-        {promo !== 1 && (
-          <span style={{ textDecoration: 'line-through', marginRight: '10px' }}>
-            {price} USD
-          </span>
-        )}
-        <span style={{ color: promo !== 1 ? 'green' : 'black' }}>
-          {price*promo} USD
-        </span>
-      </h1>
         <div style={{ marginTop: "20px" }}>
           <h6>Payment Method</h6>
           <Radio.Group
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
           >
-            <Radio value="wallet">Wallet</Radio>
-            <Radio value="card">Credit/Debit Card</Radio>
-            <Radio value="cod">Cash on Delivery</Radio>
+            <Radio value="wallet" style={{ marginRight: "15px" }}>Wallet</Radio>
+            <Radio value="card" style={{ marginRight: "15px" }}>Credit/Debit Card</Radio>
+            <Radio value="cod" style={{ marginRight: "15px" }}>Cash on Delivery</Radio>
           </Radio.Group>
         </div>
         {/* Wallet Balance */}
@@ -461,10 +512,12 @@ export const Cart = () => {
         {paymentMethod === "card" && (
           <StripeContainer
             amount={price} // The price to charge
-            type="product" // Or pass any relevant type
+            type={"product"} // Or pass any relevant type
             userid={touristId} // User ID for payment processing
             useWallet={paymentMethod === "wallet"} // Indicate if wallet is being used
+            id={null}
             setLeave={setLeave} // Pass down state to indicate if payment was processed
+            deliveryAddress={selectedAddress}
           />
         )}
       </Modal>

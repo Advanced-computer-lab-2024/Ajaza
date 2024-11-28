@@ -99,6 +99,7 @@ const HeaderInfo = ({
   const [currentSelectedDate, setCurrentSelectedDate] = useState(null);
   const [currentPrice, setCurrentPrice] = useState(null);
   const [isNotif, setIsNotif] = useState(false);
+  const [promo, setPromo] = useState(1);
   const [promoCode, setPromoCode] = useState("");
   const [selectedDate, setSelectedDate] = useState(
     availableDates ? availableDates[0].date : null
@@ -376,6 +377,36 @@ const HeaderInfo = ({
     setCardDetails((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleApplyPromo = async () => {
+    //setPromo(promo);
+    if(promo === 1) {
+      console.log(promoCode);
+      try {
+      const response = await axios.post(`http://localhost:5000/promocode/checkValid/${promoCode}`, { userid });
+
+      if (response.status === 200) {
+        console.log('Promo value:', response.data.value);
+        setPromo(response.data.value);
+      } else {
+        message.error("Invalid promo code");
+      }
+    } catch(error) {
+      message.error("Invalid promo code");
+
+      }
+    } else {
+      setPromo(1);
+    }
+  };
+
+  const handleRemovePromo = async () => {
+    setPromo(1);
+};
+
+const handleInputChange = (e) => {
+  setPromoCode(e.target.value); // Update the promoCode state when the input changes
+};
+
   //req50
   const locationUrl = useLocation();
   const copyLink = () => {
@@ -483,7 +514,7 @@ const HeaderInfo = ({
     getNewToken();
     Modal.destroyAll();
     setTimeout(() => {
-      navigate("/tourist/");
+      navigate("/tourist/futureBookings");
     }, 500);
   }
 
@@ -506,7 +537,7 @@ const HeaderInfo = ({
       let total;
       let FinalDate;
       if (type === "activity") {
-        total = selectedPriceRef.current;
+        total = selectedPriceRef.current * promo;
         FinalDate = date;
       } else if (type === "itinerary") {
         total = price;
@@ -1151,6 +1182,7 @@ const HeaderInfo = ({
                       onChange={(value) => {
                         setSelectedPrice(value);
                       }}
+                      defaultValue={discountedPriceUpper}
                       style={{ width: "100%", marginBottom: 10 }}
                     >
                       <Option
@@ -1182,11 +1214,31 @@ const HeaderInfo = ({
                   )}
 
                   {/* Promo Code Input */}
-                  <Input
-                    placeholder="Enter promo code"
-                    onChange={(e) => setPromoCode(e.target.value)}
-                    style={{ marginTop: 10 }}
-                  />
+                  <div style={{ marginTop: "15px" }}>
+                    <h6>Promo code</h6>
+                    <Input
+                      type="text"
+                      placeholder="Enter text"
+                      value={promoCode}
+                      onChange={handleInputChange}
+                    />
+                    {promo===1 &&(<Button onClick={handleApplyPromo} style={{marginTop: "5px"}}>
+                      Apply
+                    </Button>)}
+                    {promo!==1 &&(<Button onClick={handleRemovePromo} style={{marginTop: "5px"}}>
+                      Cancel
+                    </Button>)}
+                  </div>
+                  <h1>
+                  {promo !== 1 && (
+                    <span style={{ textDecoration: 'line-through', marginRight: '10px' }}>
+                      {selectedPrice} USD
+                    </span>
+                  )}
+                  <span style={{ color: promo !== 1 ? 'green' : 'black' }}>
+                    {selectedPrice*promo} USD
+                  </span>
+                </h1>
 
                   {/* Payment Method */}
                   <div style={{ marginTop: 20 }}>
@@ -1211,7 +1263,7 @@ const HeaderInfo = ({
                   {/* Stripe Payment Form */}
                   {paymentMethod === "card" && (
                     <StripeContainer
-                      amount={type === "activity" ? selectedPrice : price}
+                      amount={type === "activity" ? selectedPrice*promo : price}
                       type={type}
                       selectedDate={
                         type === "itinerary" ? currentSelectedDate : date
