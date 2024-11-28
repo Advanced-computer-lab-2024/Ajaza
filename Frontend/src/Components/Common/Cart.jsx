@@ -362,7 +362,7 @@ export const Cart = () => {
               avatar={
                 item.photo && (
                   <img
-                    src={`/uploads/${item.photo}`}
+                    src={`/uploads/${item.photo}.jpg`}
                     alt={item.productName}
                     style={{
                       width: "50px",

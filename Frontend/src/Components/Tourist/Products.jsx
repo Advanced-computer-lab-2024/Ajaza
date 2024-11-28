@@ -185,13 +185,13 @@ const Products = () => {
   
   return (
     <div>
-         <div style={{ display: "flex", justifyContent: "flex-end", padding: "10px" }}>
+         {/*<div style={{ display: "flex", justifyContent: "flex-end", padding: "10px" }}>
         
         <ShoppingCartOutlined 
         style={{fontSize: '24px'}}
         onClick={() => navigate(`/tourist/cart/${touristId}`)}
         />
-        </div>
+        </div>*/}
       <div
         style={{
           display: "flex",

@@ -193,35 +193,15 @@ const Product = () => {
 
   return (
     <>
-      <div style={{ display: "flex", justifyContent: "flex-end", padding: "10px" }}>
+      {/*<div style={{ display: "flex", justifyContent: "flex-end", padding: "10px" }}>
         
           <ShoppingCartOutlined 
           style={{fontSize: '24px'}}
           onClick={() => navigate(`/tourist/cart/${touristId}`)}
           />
-      </div>
+      </div>*/}
 
-      <SelectCurrency
-        currency={currency}
-        onCurrencyChange={handleCurrencyChange}
-        style={{ left: -7, top: 45 }}
-      />
-
-      <Item
-        name={product?.name}
-        photos={product?.photo}
-        price={(product.price * currencyRates[currency]).toFixed(2)}
-        desc={product?.desc}
-        sellerName={product?.sellerName}
-        quantity={product?.quantity}
-        sales={product?.sales}
-        feedbacks={product?.feedback}
-        type={"product"}
-        currency={currency}
-      />
-
-   
-      <div style={{ display: "flex", alignItems: "center", marginTop: "20px" }}>
+<div style={{ display: "flex", alignItems: "center", marginTop: "20px" , justifyContent: "flex-end"}}>
       {quantity === 0 ? (
         <CustomButton
           size = "s"
@@ -261,6 +241,67 @@ const Product = () => {
     </>
   )}
       </div>
+
+      <SelectCurrency
+        currency={currency}
+        onCurrencyChange={handleCurrencyChange}
+        style={{ left: -7, top: 45 }}
+      />
+
+      <Item
+        name={product?.name}
+        photos={product?.photo}
+        price={(product.price * currencyRates[currency]).toFixed(2)}
+        desc={product?.desc}
+        sellerName={product?.sellerName}
+        quantity={product?.quantity}
+        sales={product?.sales}
+        feedbacks={product?.feedback}
+        type={"product"}
+        currency={currency}
+      />
+
+   
+      {/*<div style={{ display: "flex", alignItems: "center", marginTop: "20px" }}>
+      {quantity === 0 ? (
+        <CustomButton
+          size = "s"
+          onClick={handleAddToCart}
+          value= "Add to Cart"
+        />
+       
+      ): (
+      <>
+      <MinusOutlined
+        onClick={handleDecrement}
+        style={{
+          fontSize: "24px",
+          color: quantity > 1 ? "#FF0000" : "#d9d9d9",
+          cursor: quantity > 1 ? "pointer" : "not-allowed",
+          marginRight: "10px",
+        }}
+      />
+      <span style={{ fontSize: "18px", margin: "0 10px" }}>{quantity}</span>
+      <PlusOutlined
+        onClick={handleIncrement}
+        style={{
+          fontSize: "24px",
+          color: "#4CAF50",
+          cursor: "pointer",
+          marginRight: "10px",
+        }}
+      />
+      <DeleteOutlined
+        onClick={handleRemoveFromCart}
+        style={{
+          fontSize: "24px",
+          color: "#FF0000",
+          cursor: "pointer",
+        }}
+      />
+    </>
+  )}
+      </div>*/}
     </>
   );
 };
