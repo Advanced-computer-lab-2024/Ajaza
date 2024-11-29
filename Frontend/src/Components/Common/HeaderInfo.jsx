@@ -109,59 +109,108 @@ const HeaderInfo = ({
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [priceString, setPriceString] = useState("");
   const emailRef = useRef(null);
-  const [selectedPrice, setSelectedPrice] = useState( type==="activity" ? priceUpper : price);
-    const selectedPriceRef = useRef(null);
-    const [currencySymbol, setCurrencySymbol] = useState(
-      currency === "AED" ? "د.إ" :
-      currency === "ARS" ? "$" :
-      currency === "AUD" ? "A$" :
-      currency === "BDT" ? "৳" :
-      currency === "BHD" ? ".د.ب" :
-      currency === "BND" ? "B$" :
-      currency === "BRL" ? "R$" :
-      currency === "CAD" ? "C$" :
-      currency === "CHF" ? "CHF" :
-      currency === "CLP" ? "$" :
-      currency === "CNY" ? "¥" :
-      currency === "COP" ? "$" :
-      currency === "CZK" ? "Kč" :
-      currency === "DKK" ? "kr" :
-      currency === "EGP" ? "EGP" :
-      currency === "EUR" ? "€" :
-      currency === "GBP" ? "£" :
-      currency === "HKD" ? "HK$" :
-      currency === "HUF" ? "Ft" :
-      currency === "IDR" ? "Rp" :
-      currency === "ILS" ? "₪" :
-      currency === "INR" ? "₹" :
-      currency === "JPY" ? "¥" :
-      currency === "KRW" ? "₩" :
-      currency === "KWD" ? "د.ك" :
-      currency === "LKR" ? "Rs" :
-      currency === "MAD" ? "MAD" :
-      currency === "MXN" ? "$" :
-      currency === "MYR" ? "RM" :
-      currency === "NOK" ? "kr" :
-      currency === "NZD" ? "NZ$" :
-      currency === "OMR" ? "ر.ع." :
-      currency === "PHP" ? "₱" :
-      currency === "PKR" ? "₨" :
-      currency === "PLN" ? "zł" :
-      currency === "QAR" ? "ر.ق" :
-      currency === "RUB" ? "₽" :
-      currency === "SAR" ? "ر.س" :
-      currency === "SEK" ? "kr" :
-      currency === "SGD" ? "S$" :
-      currency === "THB" ? "฿" :
-      currency === "TRY" ? "₺" :
-      currency === "TWD" ? "NT$" :
-      currency === "UAH" ? "₴" :
-      currency === "USD" ? "$" :
-      currency === "VND" ? "₫" :
-      currency === "ZAR" ? "R" :
-      currency
-    );
-    
+  const [selectedPrice, setSelectedPrice] = useState(
+    type === "activity" ? priceUpper : price
+  );
+  const selectedPriceRef = useRef(null);
+  const [currencySymbol, setCurrencySymbol] = useState(
+    currency === "AED"
+      ? "د.إ"
+      : currency === "ARS"
+      ? "$"
+      : currency === "AUD"
+      ? "A$"
+      : currency === "BDT"
+      ? "৳"
+      : currency === "BHD"
+      ? ".د.ب"
+      : currency === "BND"
+      ? "B$"
+      : currency === "BRL"
+      ? "R$"
+      : currency === "CAD"
+      ? "C$"
+      : currency === "CHF"
+      ? "CHF"
+      : currency === "CLP"
+      ? "$"
+      : currency === "CNY"
+      ? "¥"
+      : currency === "COP"
+      ? "$"
+      : currency === "CZK"
+      ? "Kč"
+      : currency === "DKK"
+      ? "kr"
+      : currency === "EGP"
+      ? "EGP"
+      : currency === "EUR"
+      ? "€"
+      : currency === "GBP"
+      ? "£"
+      : currency === "HKD"
+      ? "HK$"
+      : currency === "HUF"
+      ? "Ft"
+      : currency === "IDR"
+      ? "Rp"
+      : currency === "ILS"
+      ? "₪"
+      : currency === "INR"
+      ? "₹"
+      : currency === "JPY"
+      ? "¥"
+      : currency === "KRW"
+      ? "₩"
+      : currency === "KWD"
+      ? "د.ك"
+      : currency === "LKR"
+      ? "Rs"
+      : currency === "MAD"
+      ? "MAD"
+      : currency === "MXN"
+      ? "$"
+      : currency === "MYR"
+      ? "RM"
+      : currency === "NOK"
+      ? "kr"
+      : currency === "NZD"
+      ? "NZ$"
+      : currency === "OMR"
+      ? "ر.ع."
+      : currency === "PHP"
+      ? "₱"
+      : currency === "PKR"
+      ? "₨"
+      : currency === "PLN"
+      ? "zł"
+      : currency === "QAR"
+      ? "ر.ق"
+      : currency === "RUB"
+      ? "₽"
+      : currency === "SAR"
+      ? "ر.س"
+      : currency === "SEK"
+      ? "kr"
+      : currency === "SGD"
+      ? "S$"
+      : currency === "THB"
+      ? "฿"
+      : currency === "TRY"
+      ? "₺"
+      : currency === "TWD"
+      ? "NT$"
+      : currency === "UAH"
+      ? "₴"
+      : currency === "USD"
+      ? "$"
+      : currency === "VND"
+      ? "₫"
+      : currency === "ZAR"
+      ? "R"
+      : currency
+  );
+
   const [token, setToken] = useState(null);
   const [decodedToken, setDecodedToken] = useState(null);
   const [userid, setUserid] = useState(null);
@@ -194,7 +243,7 @@ const HeaderInfo = ({
   useEffect(() => {
     if (!user) return;
     const dateNow = new Date().getTime();
-    user?.itineraryBookings.forEach((booking) => {
+    user?.itineraryBookings?.forEach((booking) => {
       if (booking.itineraryId == id) {
         // Booked
         const bookDate = new Date(booking.date);
@@ -204,7 +253,7 @@ const HeaderInfo = ({
       }
     });
 
-    user?.activityBookings.forEach((booking) => {
+    user?.activityBookings?.forEach((booking) => {
       if (booking.activityId == id) {
         // Booked
         const bookDate = new Date(date);
@@ -221,53 +270,103 @@ const HeaderInfo = ({
 
   useEffect(() => {
     console.log(currency);
-    setCurrencySymbol( currency === "AED" ? "د.إ" :
-      currency === "ARS" ? "$" :
-      currency === "AUD" ? "A$" :
-      currency === "BDT" ? "৳" :
-      currency === "BHD" ? ".د.ب" :
-      currency === "BND" ? "B$" :
-      currency === "BRL" ? "R$" :
-      currency === "CAD" ? "C$" :
-      currency === "CHF" ? "CHF" :
-      currency === "CLP" ? "$" :
-      currency === "CNY" ? "¥" :
-      currency === "COP" ? "$" :
-      currency === "CZK" ? "Kč" :
-      currency === "DKK" ? "kr" :
-      currency === "EGP" ? "EGP" :
-      currency === "EUR" ? "€" :
-      currency === "GBP" ? "£" :
-      currency === "HKD" ? "HK$" :
-      currency === "HUF" ? "Ft" :
-      currency === "IDR" ? "Rp" :
-      currency === "ILS" ? "₪" :
-      currency === "INR" ? "₹" :
-      currency === "JPY" ? "¥" :
-      currency === "KRW" ? "₩" :
-      currency === "KWD" ? "د.ك" :
-      currency === "LKR" ? "Rs" :
-      currency === "MAD" ? "MAD" :
-      currency === "MXN" ? "$" :
-      currency === "MYR" ? "RM" :
-      currency === "NOK" ? "kr" :
-      currency === "NZD" ? "NZ$" :
-      currency === "OMR" ? "ر.ع." :
-      currency === "PHP" ? "₱" :
-      currency === "PKR" ? "₨" :
-      currency === "PLN" ? "zł" :
-      currency === "QAR" ? "ر.ق" :
-      currency === "RUB" ? "₽" :
-      currency === "SAR" ? "ر.س" :
-      currency === "SEK" ? "kr" :
-      currency === "SGD" ? "S$" :
-      currency === "THB" ? "฿" :
-      currency === "TRY" ? "₺" :
-      currency === "TWD" ? "NT$" :
-      currency === "UAH" ? "₴" :
-      currency === "USD" ? "$" :
-      currency === "VND" ? "₫" :
-      currency === "ZAR" ? "R" : "$");
+    setCurrencySymbol(
+      currency === "AED"
+        ? "د.إ"
+        : currency === "ARS"
+        ? "$"
+        : currency === "AUD"
+        ? "A$"
+        : currency === "BDT"
+        ? "৳"
+        : currency === "BHD"
+        ? ".د.ب"
+        : currency === "BND"
+        ? "B$"
+        : currency === "BRL"
+        ? "R$"
+        : currency === "CAD"
+        ? "C$"
+        : currency === "CHF"
+        ? "CHF"
+        : currency === "CLP"
+        ? "$"
+        : currency === "CNY"
+        ? "¥"
+        : currency === "COP"
+        ? "$"
+        : currency === "CZK"
+        ? "Kč"
+        : currency === "DKK"
+        ? "kr"
+        : currency === "EGP"
+        ? "EGP"
+        : currency === "EUR"
+        ? "€"
+        : currency === "GBP"
+        ? "£"
+        : currency === "HKD"
+        ? "HK$"
+        : currency === "HUF"
+        ? "Ft"
+        : currency === "IDR"
+        ? "Rp"
+        : currency === "ILS"
+        ? "₪"
+        : currency === "INR"
+        ? "₹"
+        : currency === "JPY"
+        ? "¥"
+        : currency === "KRW"
+        ? "₩"
+        : currency === "KWD"
+        ? "د.ك"
+        : currency === "LKR"
+        ? "Rs"
+        : currency === "MAD"
+        ? "MAD"
+        : currency === "MXN"
+        ? "$"
+        : currency === "MYR"
+        ? "RM"
+        : currency === "NOK"
+        ? "kr"
+        : currency === "NZD"
+        ? "NZ$"
+        : currency === "OMR"
+        ? "ر.ع."
+        : currency === "PHP"
+        ? "₱"
+        : currency === "PKR"
+        ? "₨"
+        : currency === "PLN"
+        ? "zł"
+        : currency === "QAR"
+        ? "ر.ق"
+        : currency === "RUB"
+        ? "₽"
+        : currency === "SAR"
+        ? "ر.س"
+        : currency === "SEK"
+        ? "kr"
+        : currency === "SGD"
+        ? "S$"
+        : currency === "THB"
+        ? "฿"
+        : currency === "TRY"
+        ? "₺"
+        : currency === "TWD"
+        ? "NT$"
+        : currency === "UAH"
+        ? "₴"
+        : currency === "USD"
+        ? "$"
+        : currency === "VND"
+        ? "₫"
+        : currency === "ZAR"
+        ? "R"
+        : "$"
+    );
   }, [currency]);
 
   useEffect(() => {
@@ -299,19 +398,19 @@ const HeaderInfo = ({
     // Check if bookmarked/wishlist
     if (!userTemp) return;
     if (type == "activity") {
-      userTemp?.activityBookmarks.forEach((bookmark) => {
+      userTemp?.activityBookmarks?.forEach((bookmark) => {
         if (bookmark == id) {
           bookmarkFound = true;
         }
       });
     } else if (type == "itinerary") {
-      userTemp?.itineraryBookmarks.forEach((bookmark) => {
+      userTemp?.itineraryBookmarks?.forEach((bookmark) => {
         if (bookmark == id) {
           bookmarkFound = true;
         }
       });
     } else {
-      if (userTemp?.wishlist.includes(id)) {
+      if (userTemp?.wishlist?.includes(id)) {
         bookmarkFound = true;
       }
     }
@@ -320,13 +419,13 @@ const HeaderInfo = ({
     let notifFound = false;
     // Check if in notifications
     if (type == "activity") {
-      userTemp?.activityBells.forEach((bookmark) => {
+      userTemp?.activityBells?.forEach((bookmark) => {
         if (bookmark == id) {
           notifFound = true;
         }
       });
     } else if (type == "itinerary") {
-      userTemp?.itineraryBells.forEach((bookmark) => {
+      userTemp?.itineraryBells?.forEach((bookmark) => {
         if (bookmark == id) {
           notifFound = true;
         }
@@ -379,20 +478,22 @@ const HeaderInfo = ({
 
   const handleApplyPromo = async () => {
     //setPromo(promo);
-    if(promo === 1) {
+    if (promo === 1) {
       console.log(promoCode);
       try {
-      const response = await axios.post(`http://localhost:5000/promocode/checkValid/${promoCode}`, { userid });
+        const response = await axios.post(
+          `http://localhost:5000/promocode/checkValid/${promoCode}`,
+          { userid }
+        );
 
-      if (response.status === 200) {
-        console.log('Promo value:', response.data.value);
-        setPromo(response.data.value);
-      } else {
+        if (response.status === 200) {
+          console.log("Promo value:", response.data.value);
+          setPromo(response.data.value);
+        } else {
+          message.error("Invalid promo code");
+        }
+      } catch (error) {
         message.error("Invalid promo code");
-      }
-    } catch(error) {
-      message.error("Invalid promo code");
-
       }
     } else {
       setPromo(1);
@@ -401,11 +502,11 @@ const HeaderInfo = ({
 
   const handleRemovePromo = async () => {
     setPromo(1);
-};
+  };
 
-const handleInputChange = (e) => {
-  setPromoCode(e.target.value); // Update the promoCode state when the input changes
-};
+  const handleInputChange = (e) => {
+    setPromoCode(e.target.value); // Update the promoCode state when the input changes
+  };
 
   //req50
   const locationUrl = useLocation();
@@ -887,17 +988,19 @@ const handleInputChange = (e) => {
         </div>
 
         <div style={{ position: "relative" }}>
-          <Flex
-            align="center"
-            style={{
-              fontSize: "25px",
-              textDecoration: "underline",
-              color: Colors.grey[700],
-            }}
-          >
-            {currencySymbol}
-            {priceString}
-          </Flex>
+          {type == "venue" ? null : (
+            <Flex
+              align="center"
+              style={{
+                fontSize: "25px",
+                textDecoration: "underline",
+                color: Colors.grey[700],
+              }}
+            >
+              {currencySymbol}
+              {priceString}
+            </Flex>
+          )}
           {discounts ? (
             <Flex
               style={{
@@ -1028,7 +1131,9 @@ const handleInputChange = (e) => {
               <Rate value={avgRating} allowHalf disabled />
             </div>
             <Flex>
-              {inPast || type == "product" ? null : isNotif ? (
+              {inPast ||
+              type == "product" ||
+              decodedToken?.role == "admin" ? null : isNotif ? (
                 <BellFilled
                   style={{
                     fontSize: "20px",
@@ -1043,7 +1148,7 @@ const handleInputChange = (e) => {
                   onClick={addNotification}
                 />
               )}
-              {inPast ? null : isSaved ? (
+              {inPast || decodedToken?.role == "admin" ? null : isSaved ? (
                 <HeartFilled
                   style={{
                     fontSize: "20px",
@@ -1222,23 +1327,38 @@ const handleInputChange = (e) => {
                       value={promoCode}
                       onChange={handleInputChange}
                     />
-                    {promo===1 &&(<Button onClick={handleApplyPromo} style={{marginTop: "5px"}}>
-                      Apply
-                    </Button>)}
-                    {promo!==1 &&(<Button onClick={handleRemovePromo} style={{marginTop: "5px"}}>
-                      Cancel
-                    </Button>)}
+                    {promo === 1 && (
+                      <Button
+                        onClick={handleApplyPromo}
+                        style={{ marginTop: "5px" }}
+                      >
+                        Apply
+                      </Button>
+                    )}
+                    {promo !== 1 && (
+                      <Button
+                        onClick={handleRemovePromo}
+                        style={{ marginTop: "5px" }}
+                      >
+                        Cancel
+                      </Button>
+                    )}
                   </div>
                   <h1>
-                  {promo !== 1 && (
-                    <span style={{ textDecoration: 'line-through', marginRight: '10px' }}>
-                      {selectedPrice} USD
+                    {promo !== 1 && (
+                      <span
+                        style={{
+                          textDecoration: "line-through",
+                          marginRight: "10px",
+                        }}
+                      >
+                        {selectedPrice} USD
+                      </span>
+                    )}
+                    <span style={{ color: promo !== 1 ? "green" : "black" }}>
+                      {selectedPrice * promo} USD
                     </span>
-                  )}
-                  <span style={{ color: promo !== 1 ? 'green' : 'black' }}>
-                    {selectedPrice*promo} USD
-                  </span>
-                </h1>
+                  </h1>
 
                   {/* Payment Method */}
                   <div style={{ marginTop: 20 }}>
@@ -1263,7 +1383,9 @@ const handleInputChange = (e) => {
                   {/* Stripe Payment Form */}
                   {paymentMethod === "card" && (
                     <StripeContainer
-                      amount={type === "activity" ? selectedPrice*promo : price}
+                      amount={
+                        type === "activity" ? selectedPrice * promo : price
+                      }
                       type={type}
                       selectedDate={
                         type === "itinerary" ? currentSelectedDate : date
