@@ -92,7 +92,7 @@ const GuidTourReport = () => {
 
     return (
         <div>
-            <h2>Tourists Report</h2>
+            <h2>Guide Tourists Report</h2>
             <p>Total Number of Tourists: <strong>{totalTourists}</strong></p> {/* Display total tourists */}
             <Table
                 columns={columns}
