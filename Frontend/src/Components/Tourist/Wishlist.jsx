@@ -91,6 +91,7 @@ const Wishlist = () => {
     extra: "price",
     rating: "avgRating",
     photo: "photo",
+    stock: "quantity"
   };
 
   const fields = {
@@ -171,10 +172,12 @@ const Wishlist = () => {
     element,
     propMapping,
     onCartClick,
+    stock,
     ...props
   }) => {
     const addToCartFromWishlist = async () => {
       const productId = id;
+      const stockNo=stock;
       try {
         if (!userid || !productId) {
           console.error("Tourist ID or Product ID is missing!");
@@ -183,6 +186,10 @@ const Wishlist = () => {
         if(quantity<=0){
             message.error("Please choose quantity");
             return;
+        }
+        if(stockNo<quantity){
+          message.error("Quantity chosen is more than stock limit");
+          return;
         }
         const response = await axios.post(
           `${apiUrl}tourist/add-to-cart-from-wishlist`,
