@@ -13,7 +13,7 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { apiUrl } from "../Common/Constants";
+import { apiUrl, getSetNewToken } from "../Common/Constants";
 import { useCurrency } from "../Tourist/CurrencyContext";
 import { MinusOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
@@ -144,6 +144,18 @@ export const Cart = () => {
     fetchCartItems();
   }, [touristId]);
 
+  useEffect(() => {
+    const calculateTotalPrice = () => {
+      const totalPrice = cartItems.reduce(
+        (acc, item) => acc + item.price * item.quantity,
+        0
+      );
+      setPrice(totalPrice); // Update the price state
+    };
+  
+    calculateTotalPrice();
+  }, [cartItems]);
+
   const handleIncrement = async (productId) => {
     try {
       const currentItem = cartItems.find(
@@ -260,7 +272,10 @@ export const Cart = () => {
           message: "Purchase Success",
           description: "Order placed successfully.",
         });
-        window.location.href = "http://localhost:3000/tourist/orders";
+        await getSetNewToken(touristId, "tourist");
+        setTimeout(() => {
+          window.location.href = `http://localhost:3000/tourist/orders/${touristId}`;
+        }, 2000);
       } else {
         message.error("An error has occurred. Please try again.");
       }
@@ -306,28 +321,6 @@ export const Cart = () => {
   const navigateToSection = () => {
     window.location.href = "http://localhost:3000/tourist/profile#addresses";
   };
-
-  // const getNewToken = async () => {
-  //   try {
-  //     const response = await axios.post(`${apiUrl}api/auth/generate-token`, {
-  //       id: userid,
-  //       role: decodedToken.role,
-  //     });
-
-  //     const { token: newToken } = response.data;
-
-  //     if (newToken) {
-  //       localStorage.setItem("token", newToken); // Store the new token
-  //       const decTemp = jwtDecode(newToken);
-  //       setDecodedToken(decTemp);
-  //       setUserid(decTemp?.userId);
-  //       user = decTemp.userDetails;
-  //     }
-  //   } catch (error) {
-  //     console.error("Error getting new token:", error);
-  //     message.error("Failed to refresh token. Please try again.");
-  //   }
-  // };
 
   // if (leave) {
   //   getNewToken();
@@ -544,7 +537,17 @@ export const Cart = () => {
             >
               {deliveryAddresses.map((address, index) => (
                 <Radio key={index} value={index}>
-                  {`${address.house}, ${address.street}, ${address.area}, ${address.city}, ${address.country}. Appartment.: ${address.app}, Description: ${address.desc}`}
+                  {[
+                    address.house && address.house,
+                    address.street && address.street,
+                    address.area && address.area,
+                    address.city && address.city,
+                    address.country && address.country,
+                    address.app && `Apartment: ${address.app}`,
+                    address.desc && `Description: ${address.desc}`,
+                  ]
+                    .filter(Boolean) // to remove empty description
+                    .join(", ")}{" "}
                 </Radio>
               ))}
             </Radio.Group>
@@ -571,7 +574,7 @@ export const Cart = () => {
               Wallet
             </Radio>
             <Radio value="card" style={{ marginRight: "15px" }}>
-              Credit/Debit Card
+            Credit/Debit Card
             </Radio>
             <Radio value="cod" style={{ marginRight: "15px" }}>
               Cash on Delivery

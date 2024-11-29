@@ -648,7 +648,7 @@ exports.bookItinerary = async (req, res) => {
     sendEmail(
       tourist.email,
       `Booking confirmed for ${itinerary.name}`,
-      `Your payment of ${total} by ${paymentMethod} was confirmed. You have successfully booked ${itinerary.name} on ${itinerary.date}.`
+      `Your payment of ${total} by ${paymentMethod} was confirmed. You have successfully booked ${itinerary.name} on ${date}.`
     );
 
     // Save both the tourist and itinerary updates

@@ -342,7 +342,7 @@ const AdminReport = () => {
       onFilter: (value, record) => record.itineraryName.includes(value),
     },
     {
-      title: 'Booking Date',
+      title: 'Itinerary Date',
       dataIndex: 'bookingDate',
       key: 'bookingDate',
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
