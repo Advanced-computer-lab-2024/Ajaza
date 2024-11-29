@@ -637,7 +637,7 @@ exports.hideItinerary = async (req, res) => {
     });
     sendEmail(
       guide.email,
-      `Activity Flagged: ${updatedItinerary.name}`,
+      `Itinerary Flagged: ${updatedItinerary.name}`,
       `Dear ${guide.name},\n\nYour itinerary "${updatedItinerary.name}" has been flagged as inappropriate and hidden from public view. Please review it and ensure it meets our guidelines. Contact support if you believe this was an error.\n\nBest regards,\nYour Platform Team`
     );
 

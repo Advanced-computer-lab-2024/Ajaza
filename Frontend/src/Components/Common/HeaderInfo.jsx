@@ -109,8 +109,12 @@ const HeaderInfo = ({
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [priceString, setPriceString] = useState("");
   const emailRef = useRef(null);
+  const discountedPriceLower = priceLower - (discounts / 100) * priceLower;
+  const discountedPriceUpper = priceUpper - (discounts / 100) * priceUpper;
+  const discountedMiddlePrice =
+    (discountedPriceLower + discountedPriceUpper) / 2;
   const [selectedPrice, setSelectedPrice] = useState(
-    type === "activity" ? priceUpper : price
+    type === "activity" ? discountedPriceUpper : price
   );
   const selectedPriceRef = useRef(null);
   const [currencySymbol, setCurrencySymbol] = useState(
@@ -477,7 +481,6 @@ const HeaderInfo = ({
   };
 
   const handleApplyPromo = async () => {
-    //setPromo(promo);
     if (promo === 1) {
       console.log(promoCode);
       try {
@@ -642,7 +645,7 @@ const HeaderInfo = ({
         FinalDate = date;
       } else if (type === "itinerary") {
         total = price;
-        FinalDate = selectedDateRef.current;
+        FinalDate = currentSelectedDate;
       }
       if (spots <= 0) {
         message.error(`Error booking ${type}: No spots available.`);
@@ -874,11 +877,6 @@ const HeaderInfo = ({
     }
     // if successful get user again and set token (if not already returned using the func)
   };
-
-  const discountedPriceLower = priceLower - (discounts / 100) * priceLower;
-  const discountedPriceUpper = priceUpper - (discounts / 100) * priceUpper;
-  const discountedMiddlePrice =
-    (discountedPriceLower + discountedPriceUpper) / 2;
 
   const addNotification = async () => {
     const temp = localStorage.getItem("token");
@@ -1363,14 +1361,14 @@ const HeaderInfo = ({
                     <h6>Promo code</h6>
                     <Input
                       type="text"
-                      placeholder="Enter text"
+                      placeholder="Enter promo code"
                       value={promoCode}
                       onChange={handleInputChange}
                     />
                     {promo === 1 && (
                       <Button
                         onClick={handleApplyPromo}
-                        style={{ marginTop: "5px" }}
+                        style={{ marginTop: "5px", marginBottom: "8px" }}
                       >
                         Apply
                       </Button>
@@ -1378,13 +1376,14 @@ const HeaderInfo = ({
                     {promo !== 1 && (
                       <Button
                         onClick={handleRemovePromo}
-                        style={{ marginTop: "5px" }}
+                        style={{ marginTop: "5px", marginBottom: "8px" }}
                       >
                         Cancel
                       </Button>
                     )}
                   </div>
-                  <h1>
+                  <h4>
+                    Price:{" "}
                     {promo !== 1 && (
                       <span
                         style={{
@@ -1392,13 +1391,13 @@ const HeaderInfo = ({
                           marginRight: "10px",
                         }}
                       >
-                        {selectedPrice} USD
+                        {selectedPrice}{currency}
                       </span>
                     )}
                     <span style={{ color: promo !== 1 ? "green" : "black" }}>
-                      {selectedPrice * promo} USD
+                      {selectedPrice * promo}{currency}
                     </span>
-                  </h1>
+                  </h4>
 
                   {/* Payment Method */}
                   <div style={{ marginTop: 20 }}>
@@ -1407,7 +1406,7 @@ const HeaderInfo = ({
                       onChange={(e) => setPaymentMethod(e.target.value)}
                     >
                       <Radio value="wallet">Pay by Wallet</Radio>
-                      <Radio value="card">Pay by Card</Radio>
+                      <Radio value="card">Pay by Credit/Debit Card</Radio>
                     </Radio.Group>
                   </div>
 

@@ -147,7 +147,7 @@ const GuidTourReport = () => {
             key: 'touristNationality',
         },
         {
-            title: 'Booking Date',
+            title: 'Itinerary Date',
             dataIndex: 'bookingDate',
             key: 'bookingDate',
             filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
