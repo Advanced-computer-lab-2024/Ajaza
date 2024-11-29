@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Tabs, message } from 'antd';
-import {jwtDecode} from "jwt-decode"; // Corrected import
+import {jwtDecode} from "jwt-decode";
 import axios from 'axios';
 
 const { TabPane } = Tabs;
@@ -9,7 +9,12 @@ const AdminReport = () => {
   const [data, setData] = useState({ product: [], activity: [], itinerary: [] });
   const [loading, setLoading] = useState(false);
   const [adminId, setAdminId] = useState(null);
-  const [totalSales, setTotalSales] = useState({ product: 0, activity: 0, itinerary: 0 });
+  const [totals, setTotals] = useState({
+    totalSales: 0,
+    productSales: 0,
+    activityBookingsCommission: 0,
+    itineraryBookingsCommission: 0,
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -35,18 +40,12 @@ const AdminReport = () => {
       setLoading(true);
       try {
         const response = await axios.get(`http://localhost:5000/admin/viewSalesReport/${adminId}`);
-        const { report } = response.data;
-        console.log("Sales report:", report);
-        console.log("NS",adminId);
+        const { report, totalSales, productSales, activityBookingsCommission, itineraryBookingsCommission } = response.data;
 
         if (Array.isArray(report)) {
           const productData = [];
           const activityData = [];
           const itineraryData = [];
-
-          let productTotal = 0;
-          let activityTotal = 0;
-          let itineraryTotal = 0;
 
           report.forEach((item, index) => {
             if (item.type === 'Product') {
@@ -59,9 +58,7 @@ const AdminReport = () => {
                 quantity: item.quantity || 0,
                 price: item.price || 0,
                 total: item.total || 0,
-                category: item.category || "Uncategorized",
               });
-              productTotal += item.total || 0;
             } else if (item.type === 'Activity') {
               activityData.push({
                 key: index,
@@ -72,7 +69,6 @@ const AdminReport = () => {
                 price: item.price || 0,
                 commission: item.commission || 0,
               });
-              activityTotal += item.price || 0;
             } else if (item.type === 'Itinerary') {
               itineraryData.push({
                 key: index,
@@ -83,20 +79,15 @@ const AdminReport = () => {
                 price: item.price || 0,
                 commission: item.commission || 0,
               });
-              itineraryTotal += item.price || 0;
             }
           });
 
           setData({ product: productData, activity: activityData, itinerary: itineraryData });
-          setTotalSales({
-            product: productTotal,
-            activity: activityTotal,
-            itinerary: itineraryTotal,
-          });
+          setTotals({ totalSales, productSales, activityBookingsCommission, itineraryBookingsCommission });
         } else {
           console.error("Invalid data format:", report);
           setData({ product: [], activity: [], itinerary: [] });
-          setTotalSales({ product: 0, activity: 0, itinerary: 0 });
+          setTotals({ totalSales: 0, productSales: 0, activityBookingsCommission: 0, itineraryBookingsCommission: 0 });
         }
       } catch (error) {
         console.error("Error fetching sales data:", error);
@@ -115,7 +106,6 @@ const AdminReport = () => {
     { title: 'Quantity', dataIndex: 'quantity', key: 'quantity' },
     { title: 'Price', dataIndex: 'price', key: 'price', render: (text) => `$${text.toFixed(2)}` },
     { title: 'Total Revenue', dataIndex: 'total', key: 'total', render: (text) => `$${text.toFixed(2)}` },
-    { title: 'Category', dataIndex: 'category', key: 'category' },
   ];
 
   const activityColumns = [
@@ -137,7 +127,8 @@ const AdminReport = () => {
       <h2>Admin Sales Report</h2>
       <Tabs defaultActiveKey="product" centered>
         <TabPane tab="Products" key="product">
-          <p>Total Sales: <strong>${totalSales.product.toFixed(2)}</strong></p>
+          <p><strong>Product Sales:</strong> ${totals.productSales.toFixed(2)}</p>
+          <p><strong>Total Sales:</strong> ${totals.totalSales.toFixed(2)}</p>
           <Table
             columns={productColumns}
             dataSource={data.product}
@@ -146,7 +137,8 @@ const AdminReport = () => {
           />
         </TabPane>
         <TabPane tab="Activities" key="activity">
-          <p>Total Sales: <strong>${totalSales.activity.toFixed(2)}</strong></p>
+          <p><strong>Activity Commission:</strong> ${totals.activityBookingsCommission.toFixed(2)}</p>
+          <p><strong>Total Sales:</strong> ${totals.totalSales.toFixed(2)}</p>
           <Table
             columns={activityColumns}
             dataSource={data.activity}
@@ -155,7 +147,8 @@ const AdminReport = () => {
           />
         </TabPane>
         <TabPane tab="Itineraries" key="itinerary">
-          <p>Total Sales: <strong>${totalSales.itinerary.toFixed(2)}</strong></p>
+          <p><strong>Itinerary Commission:</strong> ${totals.itineraryBookingsCommission.toFixed(2)}</p>
+          <p><strong>Total Sales:</strong> ${totals.totalSales.toFixed(2)}</p>
           <Table
             columns={itineraryColumns}
             dataSource={data.itinerary}
