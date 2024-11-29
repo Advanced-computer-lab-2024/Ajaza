@@ -1,0 +1,122 @@
+/* Cart Container */
+.cart-container {
+  padding: 20px;
+  background-color: #f5f5f5;
+  max-width: 1200px; /* Same width as notifications */
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Section */
+.cart-header {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.cart-header h2 {
+  font-size: 24px;
+  color: #333;
+}
+
+.cart-header p {
+  color: #666;
+  font-size: 16px;
+}
+
+/* Cart Item */
+.cart-item {
+  margin-bottom: 18px;
+}
+
+.cart-message {
+  position: relative;
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid transparent;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover Effect */
+.cart-message:hover {
+  transform: translateX(10px);
+}
+
+/* Cart Details Section */
+.cart-details {
+  display: flex;
+  align-items: center;
+}
+
+.cart-image {
+  width: 70px;
+  height: 70px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-right: 15px;
+  border: 1px solid #d9d9d9;
+}
+
+.cart-text {
+  display: flex;
+  flex-direction: column; /* Stack name and price vertically */
+}
+
+.cart-text strong {
+  font-size: 16px; /* Larger font for the name */
+  color: #333;
+  margin-bottom: 5px; /* Space between name and price */
+}
+.cart-text strong {
+  font-size: 16px;
+  color: #333;
+}
+
+.cart-text span {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Actions Section */
+.cart-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Space between buttons */
+}
+
+.cart-quantity {
+  font-size: 16px;
+  color: #333;
+}
+
+/* Checkout Button */
+.checkout-button-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.checkout-button {
+  background-color: #4caf50; /* Green color */
+  color: #fff;
+  border: 1px solid #4caf50;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.checkout-button:hover {
+  background-color: #45a049; /* Slightly darker green on hover */
+}
+.cart-price {
+  font-size: 14px; /* Slightly smaller font for the price */
+  color: #666;
+}
+
+

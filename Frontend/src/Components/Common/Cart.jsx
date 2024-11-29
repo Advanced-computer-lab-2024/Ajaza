@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { List, Button, message, Empty, Modal, Input, Radio, notification } from "antd";
+import {
+  List,
+  Button,
+  message,
+  Empty,
+  Modal,
+  Input,
+  Radio,
+  notification,
+  Typography,
+  Divider,
+} from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { apiUrl } from "../Common/Constants";
@@ -8,7 +19,7 @@ import { MinusOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 import CustomButton from "./CustomButton";
 import StripeContainer from "./StripeContainer";
-
+import "./Cart.css";
 export const Cart = () => {
   const navigate = useNavigate();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -26,6 +37,8 @@ export const Cart = () => {
   const [selectedAddress, setSelectedAddress] = useState(-1);
   const [promo, setPromo] = useState(1);
   const [promocode, setPromocode] = useState("");
+
+  const { Title, Text } = Typography;
 
   const [currencyRates] = useState({
     AED: 3.6725,
@@ -109,14 +122,14 @@ export const Cart = () => {
           productId: item.productId._id,
           stock: item.productId.quantity,
         }));
-        
+
         // Calculate total price
         const totalPrice = items.reduce(
-          (acc, item) => acc + item.price * item.quantity, 
+          (acc, item) => acc + item.price * item.quantity,
           0
         );
         setPrice(totalPrice); // Update price state
-  
+
         setCartItems(items);
         console.log("Marioumi:", cartItems);
       } catch (error) {
@@ -163,12 +176,12 @@ export const Cart = () => {
   };
 
   const handleCheckout = async () => {
-    if(!paymentMethod || !deliveryAddress || !price ) {
+    if (!paymentMethod || !deliveryAddress || !price) {
       message.error("Please fill in all fields");
     } else {
       message.success("success");
     }
-  }
+  };
 
   const handleDecrement = async (productId) => {
     try {
@@ -233,15 +246,20 @@ export const Cart = () => {
 
       const response = await axios.post(
         `${apiUrl}tourist/cart/checkout/${touristId}`,
-        { useWallet: (paymentMethod==="wallet") ,cod: (paymentMethod === "cod") ,deiveryAddress: selectedAddress, total: price*promo}
+        {
+          useWallet: paymentMethod === "wallet",
+          cod: paymentMethod === "cod",
+          deiveryAddress: selectedAddress,
+          total: price * promo,
+        }
       );
       setIsModalVisible(false); // Close modal after checkout
 
-      if(response.status === 200) {
+      if (response.status === 200) {
         notification.success({
-          message: 'Purchase Success',
-          description: 'Order placed successfully.',
-        });        
+          message: "Purchase Success",
+          description: "Order placed successfully.",
+        });
         window.location.href = "http://localhost:3000/tourist/orders";
       } else {
         message.error("An error has occurred. Please try again.");
@@ -255,29 +273,31 @@ export const Cart = () => {
 
   const handleApplyPromo = async () => {
     //setPromo(promo);
-    if(promo === 1) {
+    if (promo === 1) {
       try {
-      console.log(promocode);
-      const response = await axios.post(`http://localhost:5000/promocode/checkValid/${promocode}`, { touristId });
+        console.log(promocode);
+        const response = await axios.post(
+          `http://localhost:5000/promocode/checkValid/${promocode}`,
+          { touristId }
+        );
 
-      if (response.status === 200) {
-        console.log('Promo value:', response.data.value);
-        setPromo(response.data.value);
-      } else {
+        if (response.status === 200) {
+          console.log("Promo value:", response.data.value);
+          setPromo(response.data.value);
+        } else {
+          message.error("Invalid promo code");
+        }
+      } catch (error) {
         message.error("Invalid promo code");
       }
-    } catch(error) {
-      message.error("Invalid promo code");
-    }
     } else {
       setPromo(1);
     }
   };
 
   const handleRemovePromo = async () => {
-      setPromo(1);
+    setPromo(1);
   };
-
 
   const handleInputChange = (e) => {
     setPromocode(e.target.value); // Update the promoCode state when the input changes
@@ -318,72 +338,78 @@ export const Cart = () => {
   // }
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Your Cart</h2>
+    <div className="cart-container">
+      {/* Page Header */}
+      <div className="cart-header">
+        <Title level={2}>Your Cart</Title>
+        <p>Manage your items and proceed to checkout.</p>
+      </div>
+
+      {/* Cart Items List */}
       <List
-        itemLayout="horizontal"
+        itemLayout="vertical"
         dataSource={cartItems}
         renderItem={(item) => (
-          <List.Item
-            actions={
-              item.quantity > 1
-                ? [
-                    <Button
-                      icon={<DeleteOutlined />}
-                      danger
-                      onClick={() => handleRemoveItem(item.productId)}
-                    />,
-                    <Button
-                      icon={<MinusOutlined />}
-                      onClick={() => handleDecrement(item.productId)}
-                    />,
-                    <span>{item.quantity}</span>,
-                    <Button
-                      icon={<PlusOutlined />}
-                      onClick={() => handleIncrement(item.productId)}
-                    />,
-                  ]
-                : [
-                    <Button
-                      icon={<DeleteOutlined />}
-                      danger
-                      onClick={() => handleRemoveItem(item.productId)}
-                    />,
-                    <span>{item.quantity}</span>,
-                    <Button
-                      icon={<PlusOutlined />}
-                      onClick={() => handleIncrement(item.productId)}
-                    />,
-                  ]
-            }
-          >
-            <List.Item.Meta
-              style={{ marginLeft: "18px" }}
-              avatar={
-                item.photo && (
+          <List.Item className="cart-item">
+            <div className="cart-message">
+              {/* Product Details */}
+              <div className="cart-details">
+                {item.photo && (
                   <img
                     src={`/uploads/${item.photo}.jpg`}
                     alt={item.productName}
-                    style={{
-                      width: "50px",
-                      height: "50px",
-                      objectFit: "cover",
-                    }}
+                    className="cart-image"
                   />
-                )
-              }
-              title={item.name}
-              description={`Price: ${(
-                item.quantity *
-                item.price *
-                currencyRates[currency]
-              ).toFixed(2)} ${currency}`}
-            />
+                )}
+                <div className="cart-text">
+                  <Text strong>{item.name}</Text> {/* Name */}
+                  <Text className="cart-price">
+                    Price:{" "}
+                    {(
+                      item.quantity *
+                      item.price *
+                      currencyRates[currency]
+                    ).toFixed(2)}{" "}
+                    {currency}
+                  </Text>{" "}
+                  {/* Price */}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="cart-actions">
+                <Button
+                  icon={<DeleteOutlined />}
+                  danger
+                  onClick={() => handleRemoveItem(item.productId)}
+                />
+                <Button
+                  icon={<MinusOutlined />}
+                  onClick={() => handleDecrement(item.productId)}
+                />
+                <Text className="cart-quantity">{item.quantity}</Text>
+                <Button
+                  icon={<PlusOutlined />}
+                  onClick={() => handleIncrement(item.productId)}
+                />
+              </div>
+            </div>
           </List.Item>
         )}
       />
-      <CustomButton size="s" value="Checkout" onClick={showModal} />
 
+      {/* Divider */}
+      <Divider />
+
+      {/* Checkout Button */}
+      <div className="checkout-button-container">
+        <CustomButton
+          size="s"
+          value="Checkout"
+          onClick={showModal}
+          className="checkout-button"
+        />
+      </div>
       {/* Modal for Checkout */}
       <Modal
         //title="Checkout"
@@ -398,73 +424,115 @@ export const Cart = () => {
         }}
         cancelText="Cancel"
       >
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "50px" }}><h1>Checkout</h1></div>
-        <div>
-          <h6>Order Summary</h6>
-          <div>
-          {cartItems.map((item, index) => (
-            <div
-              key={index}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                border: "1px solid #ccc",
-                padding: "10px",
-                paddingBottom: "0px",
-                marginBottom: "5px",
-                borderRadius: "5px",
-              }}
-            >
-              <div>
-                <strong>{item.quantity}x {item.name}</strong>
-                <p>Price: ${item.price.toFixed(2)}</p>
-              </div>
-              <div><br />
-                <p>Total: ${(item.quantity * item.price).toFixed(2)}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <h4>Total: <strong></strong>
-        {promo !== 1 && (
-          <span style={{ textDecoration: 'line-through', marginRight: '10px' }}>
-            ${price.toFixed(2)}
-          </span>
-        )}
-        <span style={{ color: promo !== 1 ? 'green' : 'black' }}>
-          ${(price*promo).toFixed(2)}
-        </span>
-      </h4>
-        <div style={{ marginTop: "15px" }}>
-          <h6>Promo Code</h6>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <Input
-              type="text"
-              placeholder="Enter text"
-              value={promocode}
-              onChange={handleInputChange}
-              style={{ flex: "1" }} // Optional: Allows the input to take remaining space
-            />
-            {promo === 1 && (
-              <Button onClick={handleApplyPromo} style={{
-                backgroundColor: "#1b696a",
-                color: "white",
-                borderColor: "#1b696a",
-              }}>
-                Apply
-              </Button>
-            )}
-            {promo !== 1 && (
-              <Button onClick={handleRemovePromo} style={{
-                backgroundColor: "#cc0b38",
-                color: "white",
-                borderColor: "#cc0b38",
-              }}>
-                Cancel
-              </Button>
-            )}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "50px",
+          }}
+        >
+          <div style={{ textAlign: "center", marginBottom: "4px" }}>
+            <h1>Checkout</h1>
+            <Divider />
           </div>
         </div>
+        <div>
+          <div style={{ marginBottom: "20px" }}>
+            <h6 style={{ fontWeight: "bold", marginBottom: "10px" }}>
+              Order Summary
+            </h6>
+            <div
+              style={{ maxHeight: "200px", overflowY: "auto", padding: "10px" }}
+            >
+              {cartItems.map((item, index) => (
+                <div
+                  key={index}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    background: "#f9f9f9",
+                    border: "1px solid #ddd",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    marginBottom: "8px",
+                  }}
+                >
+                  <div>
+                    <strong>
+                      {item.quantity}x {item.name}
+                    </strong>
+                    <p style={{ margin: "5px 0", fontSize: "14px" }}>
+                      Price: ${item.price.toFixed(2)}
+                    </p>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <p style={{ margin: 0, fontWeight: "bold" }}>
+                      Total: ${(item.quantity * item.price).toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <h4 style={{ marginTop: "10px", textAlign: "left" }}>
+              Total:{" "}
+              {promo !== 1 && (
+                <span
+                  style={{
+                    textDecoration: "line-through",
+                    marginRight: "10px",
+                  }}
+                >
+                  ${price.toFixed(2)}
+                </span>
+              )}
+              <span
+                style={{
+                  color: promo !== 1 ? "#4CAF50" : "black",
+                  fontWeight: "bold",
+                }}
+              >
+                ${(price * promo).toFixed(2)}
+              </span>
+            </h4>
+          </div>
+
+          <div style={{ marginTop: "15px" }}>
+            <h6>Promo Code</h6>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <Input
+                type="text"
+                placeholder="Enter text"
+                value={promocode}
+                onChange={handleInputChange}
+                style={{ flex: "1" }} // Optional: Allows the input to take remaining space
+              />
+              {promo === 1 && (
+                <Button
+                  onClick={handleApplyPromo}
+                  style={{
+                    backgroundColor: "#1b696a",
+                    color: "white",
+                    borderColor: "#1b696a",
+                  }}
+                >
+                  Apply
+                </Button>
+              )}
+              {promo !== 1 && (
+                <Button
+                  onClick={handleRemovePromo}
+                  style={{
+                    backgroundColor: "#cc0b38",
+                    color: "white",
+                    borderColor: "#cc0b38",
+                  }}
+                >
+                  Cancel
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
         <div style={{ marginTop: "15px" }}>
           <h6>Delivery Address</h6>
@@ -480,12 +548,16 @@ export const Cart = () => {
                 </Radio>
               ))}
             </Radio.Group>
-          )}<br />
-          <a onClick={navigateToSection} style={{
-            color: "blue",
-            textDecoration: "underline",
-            cursor: "pointer",
-          }}>
+          )}
+          <br />
+          <a
+            onClick={navigateToSection}
+            style={{
+              color: "blue",
+              textDecoration: "underline",
+              cursor: "pointer",
+            }}
+          >
             Add delivery address
           </a>
         </div>
@@ -495,9 +567,15 @@ export const Cart = () => {
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
           >
-            <Radio value="wallet" style={{ marginRight: "15px" }}>Wallet</Radio>
-            <Radio value="card" style={{ marginRight: "15px" }}>Credit/Debit Card</Radio>
-            <Radio value="cod" style={{ marginRight: "15px" }}>Cash on Delivery</Radio>
+            <Radio value="wallet" style={{ marginRight: "15px" }}>
+              Wallet
+            </Radio>
+            <Radio value="card" style={{ marginRight: "15px" }}>
+              Credit/Debit Card
+            </Radio>
+            <Radio value="cod" style={{ marginRight: "15px" }}>
+              Cash on Delivery
+            </Radio>
           </Radio.Group>
         </div>
         {/* Wallet Balance */}
