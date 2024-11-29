@@ -79,43 +79,62 @@ const AdvTourReport = () => {
     
     const applyFilters = (currentData, currentFilters) => {
         let filteredData = [...currentData];
-
+    
+        // Apply date range filters
         if (currentFilters.dateRange && currentFilters.dateRange.length === 2) {
             const [start, end] = currentFilters.dateRange;
-
-            filteredData = filteredData.filter(item => {
-                const itemDate = moment(item.activityDate, "MM-DD-YYYY");
-                const startDate = moment(start, "MM-DD-YYYY");
-                const endDate = moment(end, "MM-DD-YYYY");
-
-                return itemDate.isBetween(startDate, endDate, undefined, "[]");
+            const startDate = moment(start).startOf("day");   // Inclusive of the full start day
+            const endDate = moment(end).endOf("day"); // Inclusive of the full end day
+    
+            filteredData = filteredData.filter((item) => {
+                const itemDate = moment(item.originalDate); // Parse the activity date as a moment object
+                return itemDate.isBetween(startDate, endDate, undefined, "[]"); // Inclusive start and end
             });
         }
-
+    
         return filteredData;
     };
 
-    const handleDateRangeChange = (dates) => {
-        const newFilters = {
-            ...filters,
-            dateRange: dates,
-        };
-    
-        setFilters(newFilters);
-    
-        if (!dates) {
-            setSalesData(originalSalesData); // Reset to original data
-            setTotalTourists(originalSalesData.length); // Reset total tourists
-        } else {
-            const filteredData = applyFilters(originalSalesData, {
-                ...newFilters,
-                dateRange: dates ? dates.map(date => date.format("MM-DD-YYYY")) : null
-            });
-    
-            setSalesData(filteredData);
-            setTotalTourists(filteredData.length);
+const handleDateRangeChange = (dates) => {
+    let adjustedDates = dates;
+
+    if (dates && dates.length === 2) {
+        adjustedDates = [
+            dates[0].startOf('month'), // Start of the first month
+            dates[1].endOf('month') // End of the second month
+        ];
+
+        // Ensure that if the start month is the same as the end month, it still covers the entire month
+        if (dates[0].isSame(dates[1], 'month')) {
+            adjustedDates = [
+                dates[0].startOf('month'), // Start of the month
+                dates[0].endOf('month') // End of the same month
+            ];
         }
+    }
+
+    const newFilters = {
+        ...filters,
+        dateRange: adjustedDates, // Update the dateRange filter with the adjusted dates
     };
+    
+    setFilters(newFilters); // Update the state with the new filters
+    
+    if (!dates) {
+        setSalesData(originalSalesData); // Reset to original data
+        setTotalTourists(originalSalesData.length); // Reset total tourists
+    } else {
+        const filteredData = applyFilters(originalSalesData, {
+            ...newFilters,
+            dateRange: adjustedDates 
+                ? adjustedDates.map(date => date.format("MM-DD-YYYY")) // Format dates to MM-DD-YYYY before filtering
+                : null
+        });
+
+        setSalesData(filteredData);
+        setTotalTourists(filteredData.length);
+    }
+};
 
 
 
