@@ -755,16 +755,18 @@ exports.viewSalesReport = async (req, res) => {
       for (const order of tourist.orders) {
         for (const product of order.products) {
           const productDetails = product.productId; // product details contain everything about the product (from Product.js)
-          if (productDetails && productDetails.sellerId && productDetails.sellerId.toString() === sellerId && (order.status !== "Cancelled")) { // added the && productDetails.sellerId to check if the product has a sellerId before converting to string and comparing
-            totalSales += product.quantity * productDetails.price; // Calculate total sales   --> use product.quantity not productDetails.quantity to get the quantity in the order not the quantity of the product in store
-            report.push({
-              name: productDetails.name,
-              orderDate: order.date,
-              quantity: product.quantity,
-              price: productDetails.price,
-              total: product.quantity * productDetails.price,
-              category: productDetails.category,
-            });
+          if(productDetails.sellerId) {
+            if (productDetails && productDetails.sellerId.toString() === sellerId && (order.status !== "Cancelled")) { // added the && productDetails.sellerId to check if the product has a sellerId before converting to string and comparing
+              totalSales += product.quantity * productDetails.price; // Calculate total sales   --> use product.quantity not productDetails.quantity to get the quantity in the order not the quantity of the product in store
+              report.push({
+                name: productDetails.name,
+                orderDate: order.date,
+                quantity: product.quantity,
+                price: productDetails.price,
+                total: product.quantity * productDetails.price,
+                category: productDetails.category,
+              });
+            }
           }
         }
       }
