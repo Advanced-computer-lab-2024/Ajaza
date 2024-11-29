@@ -222,6 +222,9 @@ exports.viewSalesReport = async (req, res) => {
     }
 
     let totalSales = 0;
+    let productSales = 0;
+    let activityBookingsCommission = 0;
+    let itineraryBookingsCommission = 0;
     const report = [];
 
 
@@ -236,6 +239,7 @@ exports.viewSalesReport = async (req, res) => {
             if (productDetails && (productDetails.adminId.toString() === adminId) && (order.status !== "Cancelled")) {
               const productTotal = product.quantity * productDetails.price;
               totalSales += productTotal;
+              productSales += productTotal;
               report.push({
                 type: 'Product',
                 productName: productDetails.name,
@@ -258,6 +262,7 @@ exports.viewSalesReport = async (req, res) => {
         const activity = booking.activityId;
         if (activity) {
           const commission = booking.total * 0.1;
+          activityBookingsCommission += commission;
           totalSales += commission;
           report.push({
             type: 'Activity',
@@ -274,6 +279,7 @@ exports.viewSalesReport = async (req, res) => {
         const itinerary = booking.itineraryId;
         if (itinerary) {
           const commission = booking.total * 0.1;
+          itineraryBookingsCommission += commission;
           totalSales += commission;
           report.push({
             type: 'Itinerary',
@@ -289,6 +295,9 @@ exports.viewSalesReport = async (req, res) => {
 
     res.status(200).json({
       totalSales,
+      productSales,
+      activityBookingsCommission,
+      itineraryBookingsCommission,
       report,
     });
 
