@@ -233,10 +233,13 @@ const Product = () => {
         }}
       >
         {quantity === 0 ? (
-          <CustomButton
-            size="s"
+          <ShoppingCartOutlined
             onClick={handleAddToCart}
-            value="Add to Cart"
+            style={{
+              fontSize: "24px",
+              color: "#4CAF50",
+              cursor: "pointer",
+            }}
           />
         ) : (
           <>
