@@ -232,19 +232,24 @@ exports.viewSalesReport = async (req, res) => {
       for (const order of tourist.orders) {
         for (const product of order.products) {
           const productDetails = product.productId;
-          if (productDetails && productDetails.adminId.toString() === adminId && (order.status !== "cancelled")) {
-            const productTotal = product.quantity * productDetails.price;
-            totalSales += productTotal;
-            report.push({
-              type: 'Product',
-              productName: productDetails.name,
-              orderDate: order.date,
-              quantity: product.quantity,
-              price: productDetails.price,
-              total: productTotal,
-              category: productDetails.category,
-            });
+          if (productDetails.adminId){  // to fix the internal error issue --> caused by some products not having adminId
+            if (productDetails && (productDetails.adminId.toString() === adminId) && (order.status !== "Cancelled")) {
+              const productTotal = product.quantity * productDetails.price;
+              totalSales += productTotal;
+              report.push({
+                type: 'Product',
+                productName: productDetails.name,
+                orderDate: order.date,
+                quantity: product.quantity,
+                price: productDetails.price,
+                total: productTotal,
+                category: productDetails.category,
+              });
+              
+  
+            }
           }
+          
         }
       }
 
@@ -279,6 +284,7 @@ exports.viewSalesReport = async (req, res) => {
           });
         }
       }
+
     }
 
     res.status(200).json({
