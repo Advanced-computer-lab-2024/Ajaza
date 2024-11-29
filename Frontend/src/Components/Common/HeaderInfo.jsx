@@ -775,6 +775,26 @@ const HeaderInfo = ({
   }
 
   const save = async () => {
+    const temp = localStorage.getItem("token");
+
+    if (!temp) {
+      message.warning(
+        <div>
+          <a
+            style={{
+              textDecoration: "underline",
+              color: Colors.primary.default,
+            }}
+            onClick={() => navigate("/auth/signin")}
+          >
+            Sign In
+          </a>{" "}
+          in to book
+        </div>
+      );
+      return;
+    }
+
     if (type == "product") {
       // add to wishlist logic
       try {
@@ -861,6 +881,25 @@ const HeaderInfo = ({
     (discountedPriceLower + discountedPriceUpper) / 2;
 
   const addNotification = async () => {
+    const temp = localStorage.getItem("token");
+
+    if (!temp) {
+      message.warning(
+        <div>
+          <a
+            style={{
+              textDecoration: "underline",
+              color: Colors.primary.default,
+            }}
+            onClick={() => navigate("/auth/signin")}
+          >
+            Sign In
+          </a>{" "}
+          in to book
+        </div>
+      );
+      return;
+    }
     try {
       const response = await axios.post(
         `${apiUrl}tourist/bell${capitalizeFirstLetter(type)}/${userid}/${id}`
@@ -1133,6 +1172,7 @@ const HeaderInfo = ({
             <Flex>
               {inPast ||
               type == "product" ||
+              type == "venue" ||
               decodedToken?.role == "admin" ? null : isNotif ? (
                 <BellFilled
                   style={{
