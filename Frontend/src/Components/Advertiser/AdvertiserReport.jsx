@@ -84,44 +84,60 @@ const AdvertiserReport = () => {
     
         // Apply activity name filters
         if (currentFilters.activityNames && currentFilters.activityNames.length > 0) {
-            filteredData = filteredData.filter(item =>
-                currentFilters.activityNames.some(name =>
+            filteredData = filteredData.filter((item) =>
+                currentFilters.activityNames.some((name) =>
                     item.activityName.toLowerCase().includes(name.toLowerCase()) // Check if activity name includes any selected name
                 )
             );
         }
     
+
         // Apply date range filters
         if (currentFilters.dateRange && currentFilters.dateRange.length === 2) {
             const [start, end] = currentFilters.dateRange;
-    
-            filteredData = filteredData.filter(item => {
-                const itemDate = moment(item.originalDate); // Parse the activity date as a moment object
-                const startDate = moment(start, "MM-DD-YYYY"); // Convert start date to the desired format
-                const endDate = moment(end, "MM-DD-YYYY"); // Convert end date to the desired format
-    
-                return itemDate.isBetween(startDate, endDate, undefined, "[]"); // Check if the activity date falls within the range
+            const startDate = moment(start, "MM-DD-YYYY").startOf("day");   // Inclusive of the full start day
+            const endDate = moment(end, "MM-DD-YYYY").endOf("day"); // Inclusive of the full end day
+
+            filteredData = filteredData.filter((item) => {
+            const itemDate = moment(item.originalDate); // Parse the activity date as a moment object
+            return itemDate.isBetween(startDate, endDate, undefined, "[]"); // Inclusive start and end
             });
         }
-    
-        return filteredData; // Return the filtered data
+
+        return filteredData;
     };
     
     const handleDateRangeChange = (dates, filterMode = 'date') => {
+        let adjustedDates = dates;
+    
+        if (filterMode === 'month' && dates && dates.length === 2) {
+            adjustedDates = [
+                dates[0].startOf('month'), // Start of the first month
+                dates[1].endOf('month') // End of the second month
+            ];
+    
+            // Ensure that if the start month is the same as the end month, it still covers the entire month
+            if (dates[0].isSame(dates[1], 'month')) {
+                adjustedDates = [
+                    dates[0].startOf('month'), // Start of the month
+                    dates[0].endOf('month') // End of the same month
+                ];
+            }
+        }
+    
         const newFilters = {
             ...filters,
-            dateRange: dates, // Update the dateRange filter with the selected dates
+            dateRange: adjustedDates, // Update the dateRange filter with the adjusted dates
             filterMode: filterMode, // Update the filter mode (e.g., 'date' or 'month')
         };
         
         setFilters(newFilters); // Update the state with the new filters
         
         // Apply filters with the selected date range formatted to avoid empty results
-        // When applying filters, format the dates to MM-DD-YYYY to avoid the issue of empty results
         const filteredData = applyFilters(originalSalesData, {
             ...newFilters,
-            dateRange: dates 
-                ? dates.map(date => date.format("MM-DD-YYYY")) // Format dates to MM-DD-YYYY before filtering
+            dateRange: adjustedDates 
+                ? adjustedDates.map(date => date.format("MM-DD-YYYY")) // Format dates to MM-DD-YYYY before filtering
                 : null
         });
         
