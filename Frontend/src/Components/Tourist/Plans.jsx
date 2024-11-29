@@ -138,7 +138,7 @@ const Plans = () => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const decodedToken = null;
+        let decodedToken = null;
         if (token) {
           decodedToken = jwtDecode(token);
         }
