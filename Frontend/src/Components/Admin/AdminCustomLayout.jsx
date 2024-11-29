@@ -12,6 +12,7 @@ import {
   WarningFilled,
   UserOutlined,
   BellFilled,
+  FileOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme, Flex, message, Modal } from "antd";
 import IconFloatButton from "../Common/IconFloatButton";
@@ -116,6 +117,9 @@ const AdminCustomLayout = ({ children }) => {
     } else if(key == "74"){
       navigate("/Admin/promocode");
     }
+    else if(key == "100"){
+      navigate("/Admin/report");
+    }
     else if(key == "44"){
       navigate("/Admin/numberOfUsers");
     }
@@ -218,6 +222,11 @@ const AdminCustomLayout = ({ children }) => {
               icon: <ExclamationCircleOutlined />,
               label: "Complaints",
             },
+            {
+              key:"100",
+              icon:<FileOutlined />,
+              label:"Sales Report",
+            }
           ]}
         />
       </Sider>
