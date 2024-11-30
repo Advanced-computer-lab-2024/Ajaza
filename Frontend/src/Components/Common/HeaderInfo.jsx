@@ -1189,7 +1189,8 @@ const HeaderInfo = ({
               )}
               {inPast ||
               decodedToken?.role == "admin" ||
-              decodedToken?.role == "seller" ? null : isSaved ? (
+              decodedToken?.role == "seller" ||
+              type == "venue" ? null : isSaved ? (
                 <HeartFilled
                   style={{
                     fontSize: "20px",
