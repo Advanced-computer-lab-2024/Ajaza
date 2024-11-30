@@ -5,6 +5,7 @@ const Guide = require("../models/Guide");
 const Product = require("../models/Product");
 const Admin = require("../models/Admin");
 const Seller = require("../models/Seller");
+const PromoCode = require("../models/PromoCode");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -844,11 +845,14 @@ exports.birthdayEventTriggered = async (usersWithBirthdayToday) => {
 
     const uniquePromoCode = await generateUniqueCode(); //generate a unique 6-character promo code
 
+    let touristIds = usersWithBirthdayToday.map((tourist) => tourist._id);
+
     const newPromoCode = new PromoCode({
       code: uniquePromoCode,
-      value: 0.2, // the discount value
+      value: 0.8, // the discount value
       birthday: {
         date: today,
+        touristIds: touristIds,
       },
     });
 

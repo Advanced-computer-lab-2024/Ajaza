@@ -484,9 +484,10 @@ const HeaderInfo = ({
     if (promo === 1) {
       console.log(promoCode);
       try {
+        console.log("Userid:", userid);
         const response = await axios.post(
           `http://localhost:5000/promocode/checkValid/${promoCode}`,
-          { userid }
+          { touristId: userid }
         );
 
         if (response.status === 200) {

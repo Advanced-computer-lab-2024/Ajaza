@@ -75,9 +75,10 @@ exports.checkValid = async (req,res) => {
     if(!promo) {
       return res.status(404).json({message: "Promocode not found"});
     }
-    if(JSON.stringify(promo.birthday) === '{}') {
+    if(promo.birthday.touristIds.length === 0) {
       return res.status(200).json({value: promo.value});
     } else {
+
       const touristId = req.body.touristId;
 
       if(!touristId) {
@@ -85,10 +86,11 @@ exports.checkValid = async (req,res) => {
       }
 
       if(promo.birthday.touristIds.includes(touristId)) {
-        return res.status(200).json({value: promo.value});
+        return res.status(200).json({value: 0.8});
+      } else {
+        return res.status(404).json({message:"Tourist not eligible"});
       }
     }
-    return res.status(400).json({message:"Invalid promo code"});
 
   } catch(error) {
     console.log(error);
