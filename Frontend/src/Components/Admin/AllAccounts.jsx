@@ -104,7 +104,7 @@ const AllAccounts = () => {
         });
 
         const combinedArray = [
-          ...admins,
+          
           ...tourists,
           ...sellers,
           ...guides,
