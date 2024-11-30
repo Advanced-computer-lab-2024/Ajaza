@@ -10,6 +10,8 @@ const uploadIdCertificatesImage = require("../middleware/uploadIdCertificatesIma
 
 router.post("/", guideController.createGuide);
 router.get("/countByMonth", guideController.countGuidesByMonth);
+router.get('/requestingdeletion', guideController.getGuidesRequestingDeletion);
+
 
 //req 12
 router.get("/pending", guideController.getPendingGuides);

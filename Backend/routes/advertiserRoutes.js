@@ -15,6 +15,9 @@ router.get("/", advertiserController.getAllAdvertisers);
 
 router.get("/countByMonth", advertiserController.countAdvertisersByMonth);
 
+router.get('/requestingdeletion', advertiserController.getAdvertisersRequestingDeletion);
+
+
 
 //req 12
 router.get("/pending", advertiserController.getPendingAdvertisers);

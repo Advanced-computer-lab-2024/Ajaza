@@ -914,3 +914,18 @@ exports.countGuidesByMonth = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Get all guides requesting deletion
+exports.getGuidesRequestingDeletion = async (req, res) => {
+  try {
+    const guides = await Guide.find({ requestingDeletion: true });
+
+    if (!guides.length) {
+      return res.status(404).json({ message: 'No guides requesting deletion found' });
+    }
+
+    res.status(200).json(guides);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

@@ -849,3 +849,18 @@ exports.countSellersByMonth = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Get all sellers requesting deletion
+exports.getSellersRequestingDeletion = async (req, res) => {
+  try {
+    const sellers = await Seller.find({ requestingDeletion: true });
+
+    if (!sellers.length) {
+      return res.status(404).json({ message: 'No sellers requesting deletion found' });
+    }
+
+    res.status(200).json(sellers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
