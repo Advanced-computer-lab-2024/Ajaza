@@ -520,7 +520,7 @@ const HeaderInfo = ({
     const objectId = pathParts[3];
 
     if (!type || !objectId) {
-      message.error("Could not extract details from the URL");
+      console.log("Could not extract details from the URL");
       return;
     }
     const baseUrl = document.baseURI;
