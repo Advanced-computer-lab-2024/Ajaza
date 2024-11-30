@@ -15,6 +15,9 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 router.post("/", touristController.createTourist);
 
+router.get('/requestingdeletion', touristController.getTouristsRequestingDeletion);
+
+
 router.get("/", touristController.getAllTourists);
 
 router.get("/countByMonth", touristController.countTouristsByMonth);

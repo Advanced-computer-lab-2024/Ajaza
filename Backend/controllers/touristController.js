@@ -2437,3 +2437,18 @@ exports.countTouristsByMonth = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Get all tourists requesting deletion
+exports.getTouristsRequestingDeletion = async (req, res) => {
+  try {
+    const tourists = await Tourist.find({ requestingDeletion: true });
+
+    if (!tourists.length) {
+      return res.status(404).json({ message: 'No tourists requesting deletion found' });
+    }
+
+    res.status(200).json(tourists);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

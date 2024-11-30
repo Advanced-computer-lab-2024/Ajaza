@@ -884,3 +884,18 @@ exports.countAdvertisersByMonth = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Get all advertisers requesting deletion
+exports.getAdvertisersRequestingDeletion = async (req, res) => {
+  try {
+    const advertisers = await Advertiser.find({ requestingDeletion: true });
+
+    if (!advertisers.length) {
+      return res.status(404).json({ message: 'No advertisers requesting deletion found' });
+    }
+
+    res.status(200).json(advertisers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
