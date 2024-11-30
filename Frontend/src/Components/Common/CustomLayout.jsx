@@ -50,7 +50,19 @@ const CustomLayout = ({
   const notificationsRef = useRef([]);
   const navigate = useNavigate();
   const guestNavBarItems = (
-    <div style={{ marginLeft: "auto" }}>
+    <div style={{ display: "flex", marginLeft: "auto" }}>
+      <div
+        id="logo"
+        style={{ position: "relative", bottom: 3, marginRight: "450px" }}
+      >
+        <img
+          src={image}
+          alt="Ajaza Logo"
+          style={{
+            width: "58px",
+          }}
+        />
+      </div>
       <CustomButton
         size={"s"}
         value={"Sign in"}
@@ -101,16 +113,18 @@ const CustomLayout = ({
           >
             <IconFloatButton
               icon={BellFilled}
-              badge={{count: notificationsRef.current.length }}
+              badge={{ count: notificationsRef.current.length }}
               onClick={() => navigate(`/${decodedToken.role}/notifications`)}
             />
 
             {decodedToken.role === "tourist" && (
               <IconFloatButton
-              icon={ShoppingCartOutlined}
-              onClick={() => navigate(`/${decodedToken.role}/cart/${decodedToken.userId}`)}
-              style={{ marginLeft: "20px" }}
-            />
+                icon={ShoppingCartOutlined}
+                onClick={() =>
+                  navigate(`/${decodedToken.role}/cart/${decodedToken.userId}`)
+                }
+                style={{ marginLeft: "20px" }}
+              />
             )}
 
             {decodedToken.role !== "governor" &&
