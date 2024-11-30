@@ -51,6 +51,8 @@ import BookmarkedPlans from "./BookmarkedPlans";
 import Wishlist from "./Wishlist";
 import { useParams } from "react-router-dom";
 import OrderDetails from "./OrderDetails";
+import PastOrderDetails from "./PastOrderDetails";
+import PastOrders from "./PastOrders";
 import Help from "./Help";
 
 const Tourist = () => {
@@ -169,7 +171,21 @@ const Tourist = () => {
       key: "14",
       icon: <BookOutlined />,
       label: "Orders",
-      onClick: () => navigate(`orders/${touristId}`),
+     
+      children: [
+        {
+          key: "101",
+          label: "Current Orders",
+          icon: <BookOutlined />,
+          onClick: () => navigate(`orders/${touristId}`),
+        },
+        {
+          key: "102",
+          label: "Past Orders",
+          icon: <BookOutlined />,
+          onClick: () => navigate(`pastOrders/${touristId}`),
+        },
+      ],
     },
     {
       key: "16",
@@ -242,6 +258,13 @@ const Tourist = () => {
         <Route path="bookmarked" element={<BookmarkedPlans />} />
         <Route path="orders/:id" element={<Orders />} />
         <Route path="orders/:touristId/:date" element={<OrderDetails />} />
+
+
+        <Route path="pastOrders/:id" element={<PastOrders />} />
+        <Route path="pastOrders/:touristId/:date" element={<PastOrderDetails />} />
+
+
+
         <Route path="auth/signin" element={<SignIn />} />
 
         <Route path="hotels" element={<Hotels />} />

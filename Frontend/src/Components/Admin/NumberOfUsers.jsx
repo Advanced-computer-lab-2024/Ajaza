@@ -10,7 +10,7 @@ const { Title } = Typography;
 const NumberOfUsers = () => {
     const [selectedMonth, setSelectedMonth] = useState(moment().format('YYYY-MM'));
     const [users, setNumberOfUsers] = useState('...');
-    const [newuser, setNumberOfNewUsers] = useState();
+    const [newuser, setNumberOfNewUsers] = useState('...');
   // Dummy data for new users per month
   const dummyData = {
     '2024-01': 100,
@@ -29,15 +29,37 @@ const NumberOfUsers = () => {
     if (selectedMonth){
       console.log(selectedMonth);
       let date = selectedMonth + '-25';
+      let countOfUsers = 0;
       try{
-        const response = await axios.get('http://localhost:5000/admin/countByMonth', {
+        const response1 = await axios.get('http://localhost:5000/admin/countByMonth', {
           params: { date }, // Send the date as a query parameter
         });
-        setNumberOfNewUsers(response.data.count); 
+       
+        const response2 = await axios.get('http://localhost:5000/seller/countByMonth', {
+          params: { date }, // Send the date as a query parameter
+        });
+        const response3 = await axios.get('http://localhost:5000/tourist/countByMonth', {
+          params: { date }, // Send the date as a query parameter
+        });
+        const response4 = await axios.get('http://localhost:5000/governor/countByMonth', {
+          params: { date }, // Send the date as a query parameter
+        });
+
+        const response5 = await axios.get('http://localhost:5000/advertiser/countByMonth', {
+          params: { date }, // Send the date as a query parameter
+        });
+
+        const response6 = await axios.get('http://localhost:5000/guide/countByMonth', {
+          params: { date }, // Send the date as a query parameter
+        });
+
+
+       countOfUsers = response1.data.count + response2.data.count + response3.data.count + response4.data.count + response5.data.count + response6.data.count;
+        setNumberOfNewUsers(countOfUsers); 
       }
       catch (exception) {
       }
-       // setNumberOfNewUsers(selectedMonth);  
+      
     }
     else{
         setNumberOfNewUsers(10);
