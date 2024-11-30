@@ -96,7 +96,9 @@ const Product = () => {
     const token = localStorage.getItem("token");
     if (token) {
       const decodedToken = jwtDecode(token);
-      setTouristId(decodedToken.userId);
+      if (decodedToken?.role == "tourist") {
+        setTouristId(decodedToken.userId);
+      }
     } else {
       message.error("User not authenticated");
     }
@@ -224,57 +226,59 @@ const Product = () => {
           />
       </div>*/}
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          marginTop: "20px",
-          justifyContent: "flex-end",
-        }}
-      >
-        {quantity === 0 ? (
-          <ShoppingCartOutlined
-            onClick={handleAddToCart}
-            style={{
-              fontSize: "24px",
-              color: "#4CAF50",
-              cursor: "pointer",
-            }}
-          />
-        ) : (
-          <>
-            <MinusOutlined
-              onClick={handleDecrement}
-              style={{
-                fontSize: "24px",
-                color: quantity > 1 ? "#FF0000" : "#d9d9d9",
-                cursor: quantity > 1 ? "pointer" : "not-allowed",
-                marginRight: "10px",
-              }}
-            />
-            <span style={{ fontSize: "18px", margin: "0 10px" }}>
-              {quantity}
-            </span>
-            <PlusOutlined
-              onClick={handleIncrement}
+      {touristId ? (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginTop: "20px",
+            justifyContent: "flex-end",
+          }}
+        >
+          {quantity === 0 ? (
+            <ShoppingCartOutlined
+              onClick={handleAddToCart}
               style={{
                 fontSize: "24px",
                 color: "#4CAF50",
                 cursor: "pointer",
-                marginRight: "10px",
               }}
             />
-            <DeleteOutlined
-              onClick={handleRemoveFromCart}
-              style={{
-                fontSize: "24px",
-                color: "#FF0000",
-                cursor: "pointer",
-              }}
-            />
-          </>
-        )}
-      </div>
+          ) : (
+            <>
+              <MinusOutlined
+                onClick={handleDecrement}
+                style={{
+                  fontSize: "24px",
+                  color: quantity > 1 ? "#FF0000" : "#d9d9d9",
+                  cursor: quantity > 1 ? "pointer" : "not-allowed",
+                  marginRight: "10px",
+                }}
+              />
+              <span style={{ fontSize: "18px", margin: "0 10px" }}>
+                {quantity}
+              </span>
+              <PlusOutlined
+                onClick={handleIncrement}
+                style={{
+                  fontSize: "24px",
+                  color: "#4CAF50",
+                  cursor: "pointer",
+                  marginRight: "10px",
+                }}
+              />
+              <DeleteOutlined
+                onClick={handleRemoveFromCart}
+                style={{
+                  fontSize: "24px",
+                  color: "#FF0000",
+                  cursor: "pointer",
+                }}
+              />
+            </>
+          )}
+        </div>
+      ) : null}
 
       <SelectCurrency
         currency={currency}

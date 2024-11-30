@@ -17,6 +17,7 @@ import ArchivedProds from "../Seller/ArchivedProds";
 import ChangePasswordForm from "../Common/changePassword";
 import SignIn from "../Sign/SignIn";
 import SellerReport from "../Seller/SellerReport";
+import Product from "../Common/Product";
 
 const Seller = () => {
   const navigate = useNavigate();
@@ -80,6 +81,7 @@ const Seller = () => {
     <CustomLayout sideBarItems={sideBarItems}>
       <Routes>
         <Route path="/" element={<Products />} />
+        <Route path="/:id" element={<Product />} />
         <Route path="myProducts" element={<MyProducts />} />
         <Route path="archive" element={<ArchivedProds />} />
         <Route path="report" element={<SellerReport />} />

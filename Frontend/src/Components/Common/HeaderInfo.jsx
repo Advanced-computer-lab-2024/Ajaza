@@ -1187,7 +1187,9 @@ const HeaderInfo = ({
                   onClick={addNotification}
                 />
               )}
-              {inPast || decodedToken?.role == "admin" ? null : isSaved ? (
+              {inPast ||
+              decodedToken?.role == "admin" ||
+              decodedToken?.role == "seller" ? null : isSaved ? (
                 <HeartFilled
                   style={{
                     fontSize: "20px",
@@ -1392,11 +1394,13 @@ const HeaderInfo = ({
                           marginRight: "10px",
                         }}
                       >
-                        {selectedPrice}{currency}
+                        {selectedPrice}
+                        {currency}
                       </span>
                     )}
                     <span style={{ color: promo !== 1 ? "green" : "black" }}>
-                      {selectedPrice * promo}{currency}
+                      {selectedPrice * promo}
+                      {currency}
                     </span>
                   </h4>
 
