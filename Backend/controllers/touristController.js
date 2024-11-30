@@ -2421,9 +2421,9 @@ exports.countTouristsByMonth = async (req, res) => {
       return res.status(400).json({ message: "Invalid date format" });
     }
 
-    const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
-    const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0);
-
+    const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1, 0, 0, 0, 0); // Set time to 00:00:00
+    const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0, 23, 59, 59, 999); // Set time to 23:59:59
+    
     const count = await Tourist.countDocuments({
       joined: { $gte: startOfMonth, $lt: endOfMonth },
     });
