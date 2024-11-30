@@ -2425,7 +2425,7 @@ exports.countTouristsByMonth = async (req, res) => {
     const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0);
 
     const count = await Tourist.countDocuments({
-      date: { $gte: startOfMonth, $lt: endOfMonth },
+      joined: { $gte: startOfMonth, $lt: endOfMonth },
     });
 
     res.status(200).json({ count });
