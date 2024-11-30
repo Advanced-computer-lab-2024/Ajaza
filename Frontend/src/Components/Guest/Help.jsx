@@ -5,13 +5,6 @@ const { Panel } = Collapse;
 const { Title } = Typography;
 
 const Help = () => {
-  const videoData = {
-    plans: "https://www.example.com/video-plans.mp4",
-    itineraries: "https://www.example.com/video-itineraries.mp4",
-    venues: "https://www.example.com/video-venues.mp4",
-    activities: "https://www.example.com/video-activities.mp4",
-  };
-
   return (
     <div style={{ padding: "20px" }}>
       <Title level={3}>Help - How to Begin Your Vacation</Title>
