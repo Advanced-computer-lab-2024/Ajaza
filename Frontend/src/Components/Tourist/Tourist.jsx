@@ -10,6 +10,7 @@ import {
   HomeOutlined,
   HeartOutlined,
   CarOutlined,
+  QuestionCircleOutlined,
 } from "@ant-design/icons";
 import { apiUrl } from "../Common/Constants";
 import { useEffect, useState } from "react";
@@ -50,6 +51,7 @@ import BookmarkedPlans from "./BookmarkedPlans";
 import Wishlist from "./Wishlist";
 import { useParams } from "react-router-dom";
 import OrderDetails from "./OrderDetails";
+import Help from "./Help";
 
 const Tourist = () => {
   const [response, setResponse] = useState([]);
@@ -200,6 +202,13 @@ const Tourist = () => {
         },
       ],
     },
+    {
+      key: "99",
+      icon: <QuestionCircleOutlined />,
+      label: "Help",
+      onClick: () => navigate("help"),
+      
+    }
 
     // TODO put them in nested like current and past bookings ---- products,wishlist,orders
   ];
@@ -213,6 +222,8 @@ const Tourist = () => {
         <Route path="change-password" element={<ChangePasswordForm />} />
         <Route path="itineraries" element={<Itineraries />} />
         <Route path="itineraries/:id" element={<Itinerary />} />
+        <Route path="help" element={<Help/>} />
+
 
         <Route path="venues" element={<Venues />} />
         <Route path="venues/:id" element={<Venue />} />
