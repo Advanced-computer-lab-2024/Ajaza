@@ -218,6 +218,10 @@ const Plans = () => {
               user?.occupation
             );
           });
+        } else {
+          venues = venues.map((venue) => {
+            return calculateYourPrice(venue, "egypt", "student");
+          });
         }
 
         activities = activities.map((activity) => {
