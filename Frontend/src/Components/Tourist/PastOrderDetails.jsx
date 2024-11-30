@@ -6,7 +6,7 @@ import { apiUrl } from "../Common/Constants";
 
 const { Title, Text } = Typography;
 
-const OrderDetails = () => {
+const PastOrderDetails = () => {
   const navigate = useNavigate();
   const { touristId, date } = useParams();
   const [orderr, setOrder] = useState();
@@ -217,6 +217,6 @@ const order = {
   );
 };
 
-export default OrderDetails;
+export default PastOrderDetails;
 
 

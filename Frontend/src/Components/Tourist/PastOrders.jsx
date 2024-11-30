@@ -18,7 +18,7 @@ import {  useParams, useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
-const Orders = () => {
+const PastOrders = () => {
 
 
   const navigate = useNavigate(); // Initialize the navigate function
@@ -39,7 +39,7 @@ const Orders = () => {
     try {
 
         let ordersData = await axios.get(`${apiUrl}tourist/orders/${id}`);
-        const filteredOrders = ordersData.data.filter(order => order.status === "Processing");
+        const filteredOrders = ordersData.data.filter(order => order.status === "Cancelled" || order.status === "Delivered");
 
     //  let ordersData = await axios.get(apiUrl + "tourist/orders/66f6afa80f0094718a203f1d");
       
@@ -62,7 +62,7 @@ const Orders = () => {
   // Handle the view details button click
   const handleDetailsView = async (order) => {
   //  `/tourist/orders/${order._id}/${id}`
-    navigate(`/tourist/orders/${id}/${order.date}`);
+    navigate(`/tourist/pastOrders/${id}/${order.date}`);
    // setSelectedOrder(order); // Set the selected complaint
   };
 
@@ -97,7 +97,7 @@ const Orders = () => {
       }}
     >
       <Title level={2} style={{ textAlign: "center", marginBottom: "20px" }}>
-        Current Orders
+         Past Orders
       </Title>
 
       
@@ -199,4 +199,4 @@ const Orders = () => {
   );
 };
 
-export default Orders;
+export default PastOrders;

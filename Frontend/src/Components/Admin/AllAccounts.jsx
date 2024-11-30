@@ -197,7 +197,7 @@ const AllAccounts = () => {
           Accepted Accounts
         </Title>
         <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-    <Search
+         <Search
             activateHover={false}
             searchValue={searchValue}
             setSearchValue={setSearchValue}
