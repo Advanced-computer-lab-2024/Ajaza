@@ -83,6 +83,7 @@ const currencyRates = {
 const Products = () => {
   const navigate = useNavigate();
   const [touristId, setTouristId] = useState(null);
+  const [sellerId, setSellerId] = useState(null);
   const cardOnclick = (element) => {
     navigate(element["_id"]);
   };
@@ -160,8 +161,17 @@ const Products = () => {
     const token = localStorage.getItem("token");
     if (token) {
       const decodedToken = jwtDecode(token);
-      setTouristId(decodedToken.userId);
-      console.log(decodedToken);
+      if(decodedToken.role === "tourist"){
+        setTouristId(decodedToken.userId);
+        console.log(decodedToken);
+      }
+      else{
+        if(decodedToken.role === "seller"){
+          setSellerId(decodedToken.userId);
+          console.log(decodedToken);
+        }
+      }
+      
     } else {
       message.error("User not authenticated");
     }
@@ -169,6 +179,7 @@ const Products = () => {
 
   useEffect(() => {
     if (touristId) {
+      console.log("I am a tourist");
       const fetchTouristData = async () => {
         try {
           const response = await axios.get(
@@ -181,7 +192,24 @@ const Products = () => {
 
       fetchTouristData();
     }
-  }, [touristId]);
+    else{
+      if(sellerId){
+        console.log("I am a seller");
+        const fetchSellerData = async () => {
+          try {
+            const response = await axios.get(
+              `${apiUrl}seller/sellerReadProfile/${sellerId}`
+            );
+          } catch (error) {
+            message.error("Failed to fetch seller data.");
+          }
+        };
+  
+        fetchSellerData();
+      }
+    }
+  }
+  , [touristId, sellerId]);
   
   return (
     <div>
