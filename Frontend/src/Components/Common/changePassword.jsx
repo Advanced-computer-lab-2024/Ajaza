@@ -12,7 +12,7 @@ import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import "./Profile.css";
 import { useNavigate } from "react-router-dom";
-
+import CustomButton from "./CustomButton";
 import { apiUrl } from "../Common/Constants";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
@@ -50,6 +50,7 @@ const ChangePasswordForm = () => {
 
   const handleSave = async (values) => {
     setLoading(true);
+
 
     if (values?.oldPassword == values?.newPassword) {
       message.error("New password must be different than the old password");
@@ -207,9 +208,15 @@ const ChangePasswordForm = () => {
             </Form.Item>
 
             <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Save Password
-              </Button>
+               <CustomButton
+                    size={"s"}
+                    style={{
+                      width: "120px",
+                      fontWeight: "bold",
+                    }}
+                    value={"Save Password"}
+                    htmlType="submit"
+                    />
             </Form.Item>
           </Form>,
         ]}
