@@ -553,8 +553,15 @@ const HeaderInfo = ({
 
         const email = emailRef.current.input.value;
 
+        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
         if (!email) {
           message.error("Please enter an email address.");
+          return;
+        }
+
+        if (!emailRegex.test(email)) {
+          message.error("Please enter a valid email address.");
           return;
         }
 
@@ -590,8 +597,6 @@ const HeaderInfo = ({
     // i think nenazel drop down fih copy link w email
     //done fo2eha by zeina req50
   };
-
-  // product wishlist
 
   const getNewToken = async () => {
     try {
@@ -1206,36 +1211,39 @@ const HeaderInfo = ({
                 />
               )}
               {/* Dropdown for sharing options */}
-              <Dropdown
-                menu={{
-                  items: [
-                    {
-                      key: "1",
-                      label: "Copy Link",
-                      onClick: copyLink,
-                    },
-                    {
-                      key: "2",
-                      label: "Share via Email",
-                      onClick: shareViaEmail,
-                    },
-                  ],
-                }}
-                trigger={["click"]}
-              >
-                {inPast ? (
-                  <></>
-                ) : (
-                  <ShareAltOutlined
-                    style={{
-                      fontSize: "20px",
-                      marginLeft: "20px",
-                      marginRight: "20px",
-                      cursor: "pointer",
-                    }}
-                  />
-                )}
-              </Dropdown>
+              {decodedToken?.role !== "seller" && (
+                <Dropdown
+                  menu={{
+                    items: [
+                      {
+                        key: "1",
+                        label: "Copy Link",
+                        onClick: copyLink,
+                      },
+                      {
+                        key: "2",
+                        label: "Share via Email",
+                        onClick: shareViaEmail,
+                      },
+                    ],
+                  }}
+                  trigger={["click"]}
+                >
+                  {inPast ? (
+                    <></>
+                  ) : (
+                    <ShareAltOutlined
+                      style={{
+                        fontSize: "20px",
+                        marginLeft: "20px",
+                        marginRight: "20px",
+                        cursor: "pointer",
+                      }}
+                    />
+                  )}
+                </Dropdown>
+              )}
+
               {inPast ? null : (type == "activity" || type == "itinerary") &&
                 decodedToken?.role == "admin" ? (
                 isFlagged ? (
