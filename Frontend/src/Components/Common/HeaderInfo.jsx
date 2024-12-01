@@ -569,9 +569,9 @@ const HeaderInfo = ({
               email: email,
             },
             {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
+              // headers: {
+              //   Authorization: `Bearer ${token}`,
+              // },
             }
           );
           message.success("Email sent successfully!");

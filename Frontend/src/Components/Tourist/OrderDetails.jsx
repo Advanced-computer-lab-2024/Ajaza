@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Table, Card, Typography, Tag, Divider, Button, message } from "antd";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { apiUrl } from "../Common/Constants";
+import { apiUrl, getSetNewToken } from "../Common/Constants";
 
 const { Title, Text } = Typography;
 
@@ -11,9 +11,6 @@ const OrderDetails = () => {
   const { touristId, date } = useParams();
   const [orderr, setOrder] = useState();
   const [loading, setLoading] = useState(true);
-
-
-
 
 const order = {
     "_id": "67451b7b43fd2ca56d15d6a0",
@@ -96,11 +93,6 @@ const order = {
     "status": "Processing"
 };
 
-
-
-
-
-
   const fetch = async () => {
     try {
       console.log("hi");
@@ -140,6 +132,7 @@ const order = {
       message.success("Order has been canceled successfully.");
       navigate(`/tourist/orders/${touristId}`);
       setOrder({ ...order, status: "Cancelled" });
+      getSetNewToken(touristId, "tourist");
     } catch (error) {
       console.error("Error canceling order", error);
       message.error("Failed to cancel the order.");
