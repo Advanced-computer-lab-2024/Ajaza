@@ -27,6 +27,7 @@ import Button from "./Common/CustomButton";
 import { jwtDecode } from "jwt-decode";
 import { apiUrl, Colors } from "./Common/Constants";
 import { Color } from "antd/es/color-picker";
+import LoadingSpinner from "./Common/LoadingSpinner";
 
 const { Option } = Select;
 
@@ -234,7 +235,8 @@ const Itineraries = () => {
           );
           message.success("Itinerary deleted successfully!");
         } catch (error) {
-          const errorMessage = error.response?.data?.message || "Please try again.";
+          const errorMessage =
+            error.response?.data?.message || "Please try again.";
           message.error(`Failed to delete itinerary,${errorMessage}`);
         }
       },
@@ -310,7 +312,7 @@ const Itineraries = () => {
         </div>
 
         {loading ? (
-          <p>Loading itineraries...</p>
+          <LoadingSpinner />
         ) : (
           <Space
             direction="horizontal"
@@ -696,7 +698,7 @@ const Itineraries = () => {
             </Form.List>
 
             <Form.Item>
-              <AntButton type="primary" htmlType="submit">
+              <AntButton type="primary" htmlType="submit" style={{ marginTop: "10px" }}>
                 {editingItineraryId ? "Update Itinerary" : "Create Itinerary"}
               </AntButton>
             </Form.Item>

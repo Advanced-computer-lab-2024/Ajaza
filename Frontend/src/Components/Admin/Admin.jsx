@@ -19,6 +19,7 @@ import ArchivedProds from "./ArchivedProds";
 //import Products from "../Tourist/Products";
 import Products from "./ProductsEvenArch";
 import Product from "../Common/Product";
+import AdminReport from "./AdminReport";
 
 import ExamineAccounts from "./ExamineAccounts";
 import ChangePasswordForm from "../Common/changePassword";
@@ -31,7 +32,9 @@ import ItinerariesAdmin from "./ItinerariesAdmin";
 import ItineraryAdmin from "./ItineraryAdmin";
 import ComplaintDetails from "./ComplaintDetails";
 import ExamineAccountDetails from "./ExamineAccountDetails";
+import CreatePromoCode from "./CreatePromoCode";
 import { AdminMenuKeyProvider } from "./AdminMenuKeyContext";
+import NumberOfUsers from "./NumberOfUsers";
 const { Content } = Layout;
 // username: alisuper
 // password: 12345a
@@ -84,7 +87,10 @@ const Admin = () => {
             />
             <Route path="events" element={<Events />} />
             <Route path="events/:id" element={<Event />} />
+            <Route path="promocode" element={<CreatePromoCode />} />
+            <Route path="report" element={<AdminReport />} />
 
+            <Route path="numberOfUsers" element={<NumberOfUsers />} />
             <Route path="itinerariesAdmin" element={<ItinerariesAdmin />} />
             <Route path="itinerariesAdmin/:id" element={<ItineraryAdmin />} />
 

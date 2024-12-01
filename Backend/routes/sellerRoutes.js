@@ -11,6 +11,12 @@ router.post("/", sellerController.createSeller);
 
 router.get("/", sellerController.getAllSellers);
 
+router.get("/countByMonth", sellerController.countSellersByMonth);
+
+router.get('/requestingdeletion', sellerController.getSellersRequestingDeletion);
+
+
+
 //req 12
 router.get("/pending", sellerController.getPendingSellers);
 

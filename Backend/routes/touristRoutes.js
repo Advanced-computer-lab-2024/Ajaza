@@ -15,7 +15,13 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 router.post("/", touristController.createTourist);
 
+router.get('/requestingdeletion', touristController.getTouristsRequestingDeletion);
+
+
 router.get("/", touristController.getAllTourists);
+
+router.get("/countByMonth", touristController.countTouristsByMonth);
+
 
 router.get("/:id", touristController.getTouristById);
 
@@ -292,6 +298,8 @@ router.post("/savedEvent/remove/itinerary/:id", touristController.removeItinerar
 // req104 OR 101 either both is first function or 101 is first and 104 second
 router.get("/orders/:id", touristController.getOrders);
 router.get("/orders/order/:id", touristController.getOrder);
+router.get("/orders/order/date/:id", touristController.getOrderByDate);
+
 
 // req105
 router.post("/orders/cancel/:id", touristController.cancelOrder);

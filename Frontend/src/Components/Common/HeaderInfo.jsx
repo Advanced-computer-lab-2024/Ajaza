@@ -99,6 +99,7 @@ const HeaderInfo = ({
   const [currentSelectedDate, setCurrentSelectedDate] = useState(null);
   const [currentPrice, setCurrentPrice] = useState(null);
   const [isNotif, setIsNotif] = useState(false);
+  const [promo, setPromo] = useState(1);
   const [promoCode, setPromoCode] = useState("");
   const [selectedDate, setSelectedDate] = useState(
     availableDates ? availableDates[0].date : null
@@ -108,59 +109,112 @@ const HeaderInfo = ({
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [priceString, setPriceString] = useState("");
   const emailRef = useRef(null);
-  const [selectedPrice, setSelectedPrice] = useState( type==="activity" ? priceUpper : price);
-    const selectedPriceRef = useRef(null);
-    const [currencySymbol, setCurrencySymbol] = useState(
-      currency === "AED" ? "د.إ" :
-      currency === "ARS" ? "$" :
-      currency === "AUD" ? "A$" :
-      currency === "BDT" ? "৳" :
-      currency === "BHD" ? ".د.ب" :
-      currency === "BND" ? "B$" :
-      currency === "BRL" ? "R$" :
-      currency === "CAD" ? "C$" :
-      currency === "CHF" ? "CHF" :
-      currency === "CLP" ? "$" :
-      currency === "CNY" ? "¥" :
-      currency === "COP" ? "$" :
-      currency === "CZK" ? "Kč" :
-      currency === "DKK" ? "kr" :
-      currency === "EGP" ? "EGP" :
-      currency === "EUR" ? "€" :
-      currency === "GBP" ? "£" :
-      currency === "HKD" ? "HK$" :
-      currency === "HUF" ? "Ft" :
-      currency === "IDR" ? "Rp" :
-      currency === "ILS" ? "₪" :
-      currency === "INR" ? "₹" :
-      currency === "JPY" ? "¥" :
-      currency === "KRW" ? "₩" :
-      currency === "KWD" ? "د.ك" :
-      currency === "LKR" ? "Rs" :
-      currency === "MAD" ? "MAD" :
-      currency === "MXN" ? "$" :
-      currency === "MYR" ? "RM" :
-      currency === "NOK" ? "kr" :
-      currency === "NZD" ? "NZ$" :
-      currency === "OMR" ? "ر.ع." :
-      currency === "PHP" ? "₱" :
-      currency === "PKR" ? "₨" :
-      currency === "PLN" ? "zł" :
-      currency === "QAR" ? "ر.ق" :
-      currency === "RUB" ? "₽" :
-      currency === "SAR" ? "ر.س" :
-      currency === "SEK" ? "kr" :
-      currency === "SGD" ? "S$" :
-      currency === "THB" ? "฿" :
-      currency === "TRY" ? "₺" :
-      currency === "TWD" ? "NT$" :
-      currency === "UAH" ? "₴" :
-      currency === "USD" ? "$" :
-      currency === "VND" ? "₫" :
-      currency === "ZAR" ? "R" :
-      currency
-    );
-    
+  const discountedPriceLower = priceLower - (discounts / 100) * priceLower;
+  const discountedPriceUpper = priceUpper - (discounts / 100) * priceUpper;
+  const discountedMiddlePrice =
+    (discountedPriceLower + discountedPriceUpper) / 2;
+  const [selectedPrice, setSelectedPrice] = useState(
+    type === "activity" ? discountedPriceUpper : price
+  );
+  const selectedPriceRef = useRef(null);
+  const [currencySymbol, setCurrencySymbol] = useState(
+    currency === "AED"
+      ? "د.إ"
+      : currency === "ARS"
+      ? "$"
+      : currency === "AUD"
+      ? "A$"
+      : currency === "BDT"
+      ? "৳"
+      : currency === "BHD"
+      ? ".د.ب"
+      : currency === "BND"
+      ? "B$"
+      : currency === "BRL"
+      ? "R$"
+      : currency === "CAD"
+      ? "C$"
+      : currency === "CHF"
+      ? "CHF"
+      : currency === "CLP"
+      ? "$"
+      : currency === "CNY"
+      ? "¥"
+      : currency === "COP"
+      ? "$"
+      : currency === "CZK"
+      ? "Kč"
+      : currency === "DKK"
+      ? "kr"
+      : currency === "EGP"
+      ? "EGP"
+      : currency === "EUR"
+      ? "€"
+      : currency === "GBP"
+      ? "£"
+      : currency === "HKD"
+      ? "HK$"
+      : currency === "HUF"
+      ? "Ft"
+      : currency === "IDR"
+      ? "Rp"
+      : currency === "ILS"
+      ? "₪"
+      : currency === "INR"
+      ? "₹"
+      : currency === "JPY"
+      ? "¥"
+      : currency === "KRW"
+      ? "₩"
+      : currency === "KWD"
+      ? "د.ك"
+      : currency === "LKR"
+      ? "Rs"
+      : currency === "MAD"
+      ? "MAD"
+      : currency === "MXN"
+      ? "$"
+      : currency === "MYR"
+      ? "RM"
+      : currency === "NOK"
+      ? "kr"
+      : currency === "NZD"
+      ? "NZ$"
+      : currency === "OMR"
+      ? "ر.ع."
+      : currency === "PHP"
+      ? "₱"
+      : currency === "PKR"
+      ? "₨"
+      : currency === "PLN"
+      ? "zł"
+      : currency === "QAR"
+      ? "ر.ق"
+      : currency === "RUB"
+      ? "₽"
+      : currency === "SAR"
+      ? "ر.س"
+      : currency === "SEK"
+      ? "kr"
+      : currency === "SGD"
+      ? "S$"
+      : currency === "THB"
+      ? "฿"
+      : currency === "TRY"
+      ? "₺"
+      : currency === "TWD"
+      ? "NT$"
+      : currency === "UAH"
+      ? "₴"
+      : currency === "USD"
+      ? "$"
+      : currency === "VND"
+      ? "₫"
+      : currency === "ZAR"
+      ? "R"
+      : currency
+  );
+
   const [token, setToken] = useState(null);
   const [decodedToken, setDecodedToken] = useState(null);
   const [userid, setUserid] = useState(null);
@@ -193,7 +247,7 @@ const HeaderInfo = ({
   useEffect(() => {
     if (!user) return;
     const dateNow = new Date().getTime();
-    user?.itineraryBookings.forEach((booking) => {
+    user?.itineraryBookings?.forEach((booking) => {
       if (booking.itineraryId == id) {
         // Booked
         const bookDate = new Date(booking.date);
@@ -203,7 +257,7 @@ const HeaderInfo = ({
       }
     });
 
-    user?.activityBookings.forEach((booking) => {
+    user?.activityBookings?.forEach((booking) => {
       if (booking.activityId == id) {
         // Booked
         const bookDate = new Date(date);
@@ -220,53 +274,103 @@ const HeaderInfo = ({
 
   useEffect(() => {
     console.log(currency);
-    setCurrencySymbol( currency === "AED" ? "د.إ" :
-      currency === "ARS" ? "$" :
-      currency === "AUD" ? "A$" :
-      currency === "BDT" ? "৳" :
-      currency === "BHD" ? ".د.ب" :
-      currency === "BND" ? "B$" :
-      currency === "BRL" ? "R$" :
-      currency === "CAD" ? "C$" :
-      currency === "CHF" ? "CHF" :
-      currency === "CLP" ? "$" :
-      currency === "CNY" ? "¥" :
-      currency === "COP" ? "$" :
-      currency === "CZK" ? "Kč" :
-      currency === "DKK" ? "kr" :
-      currency === "EGP" ? "EGP" :
-      currency === "EUR" ? "€" :
-      currency === "GBP" ? "£" :
-      currency === "HKD" ? "HK$" :
-      currency === "HUF" ? "Ft" :
-      currency === "IDR" ? "Rp" :
-      currency === "ILS" ? "₪" :
-      currency === "INR" ? "₹" :
-      currency === "JPY" ? "¥" :
-      currency === "KRW" ? "₩" :
-      currency === "KWD" ? "د.ك" :
-      currency === "LKR" ? "Rs" :
-      currency === "MAD" ? "MAD" :
-      currency === "MXN" ? "$" :
-      currency === "MYR" ? "RM" :
-      currency === "NOK" ? "kr" :
-      currency === "NZD" ? "NZ$" :
-      currency === "OMR" ? "ر.ع." :
-      currency === "PHP" ? "₱" :
-      currency === "PKR" ? "₨" :
-      currency === "PLN" ? "zł" :
-      currency === "QAR" ? "ر.ق" :
-      currency === "RUB" ? "₽" :
-      currency === "SAR" ? "ر.س" :
-      currency === "SEK" ? "kr" :
-      currency === "SGD" ? "S$" :
-      currency === "THB" ? "฿" :
-      currency === "TRY" ? "₺" :
-      currency === "TWD" ? "NT$" :
-      currency === "UAH" ? "₴" :
-      currency === "USD" ? "$" :
-      currency === "VND" ? "₫" :
-      currency === "ZAR" ? "R" : "$");
+    setCurrencySymbol(
+      currency === "AED"
+        ? "د.إ"
+        : currency === "ARS"
+        ? "$"
+        : currency === "AUD"
+        ? "A$"
+        : currency === "BDT"
+        ? "৳"
+        : currency === "BHD"
+        ? ".د.ب"
+        : currency === "BND"
+        ? "B$"
+        : currency === "BRL"
+        ? "R$"
+        : currency === "CAD"
+        ? "C$"
+        : currency === "CHF"
+        ? "CHF"
+        : currency === "CLP"
+        ? "$"
+        : currency === "CNY"
+        ? "¥"
+        : currency === "COP"
+        ? "$"
+        : currency === "CZK"
+        ? "Kč"
+        : currency === "DKK"
+        ? "kr"
+        : currency === "EGP"
+        ? "EGP"
+        : currency === "EUR"
+        ? "€"
+        : currency === "GBP"
+        ? "£"
+        : currency === "HKD"
+        ? "HK$"
+        : currency === "HUF"
+        ? "Ft"
+        : currency === "IDR"
+        ? "Rp"
+        : currency === "ILS"
+        ? "₪"
+        : currency === "INR"
+        ? "₹"
+        : currency === "JPY"
+        ? "¥"
+        : currency === "KRW"
+        ? "₩"
+        : currency === "KWD"
+        ? "د.ك"
+        : currency === "LKR"
+        ? "Rs"
+        : currency === "MAD"
+        ? "MAD"
+        : currency === "MXN"
+        ? "$"
+        : currency === "MYR"
+        ? "RM"
+        : currency === "NOK"
+        ? "kr"
+        : currency === "NZD"
+        ? "NZ$"
+        : currency === "OMR"
+        ? "ر.ع."
+        : currency === "PHP"
+        ? "₱"
+        : currency === "PKR"
+        ? "₨"
+        : currency === "PLN"
+        ? "zł"
+        : currency === "QAR"
+        ? "ر.ق"
+        : currency === "RUB"
+        ? "₽"
+        : currency === "SAR"
+        ? "ر.س"
+        : currency === "SEK"
+        ? "kr"
+        : currency === "SGD"
+        ? "S$"
+        : currency === "THB"
+        ? "฿"
+        : currency === "TRY"
+        ? "₺"
+        : currency === "TWD"
+        ? "NT$"
+        : currency === "UAH"
+        ? "₴"
+        : currency === "USD"
+        ? "$"
+        : currency === "VND"
+        ? "₫"
+        : currency === "ZAR"
+        ? "R"
+        : "$"
+    );
   }, [currency]);
 
   useEffect(() => {
@@ -298,19 +402,19 @@ const HeaderInfo = ({
     // Check if bookmarked/wishlist
     if (!userTemp) return;
     if (type == "activity") {
-      userTemp?.activityBookmarks.forEach((bookmark) => {
+      userTemp?.activityBookmarks?.forEach((bookmark) => {
         if (bookmark == id) {
           bookmarkFound = true;
         }
       });
     } else if (type == "itinerary") {
-      userTemp?.itineraryBookmarks.forEach((bookmark) => {
+      userTemp?.itineraryBookmarks?.forEach((bookmark) => {
         if (bookmark == id) {
           bookmarkFound = true;
         }
       });
     } else {
-      if (userTemp?.wishlist.includes(id)) {
+      if (userTemp?.wishlist?.includes(id)) {
         bookmarkFound = true;
       }
     }
@@ -319,13 +423,13 @@ const HeaderInfo = ({
     let notifFound = false;
     // Check if in notifications
     if (type == "activity") {
-      userTemp?.activityBells.forEach((bookmark) => {
+      userTemp?.activityBells?.forEach((bookmark) => {
         if (bookmark == id) {
           notifFound = true;
         }
       });
     } else if (type == "itinerary") {
-      userTemp?.itineraryBells.forEach((bookmark) => {
+      userTemp?.itineraryBells?.forEach((bookmark) => {
         if (bookmark == id) {
           notifFound = true;
         }
@@ -376,6 +480,38 @@ const HeaderInfo = ({
     setCardDetails((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleApplyPromo = async () => {
+    if (promo === 1) {
+      console.log(promoCode);
+      try {
+        console.log("Userid:", userid);
+        const response = await axios.post(
+          `http://localhost:5000/promocode/checkValid/${promoCode}`,
+          { touristId: userid }
+        );
+
+        if (response.status === 200) {
+          console.log("Promo value:", response.data.value);
+          setPromo(response.data.value);
+        } else {
+          message.error("Invalid promo code");
+        }
+      } catch (error) {
+        message.error("Invalid promo code");
+      }
+    } else {
+      setPromo(1);
+    }
+  };
+
+  const handleRemovePromo = async () => {
+    setPromo(1);
+  };
+
+  const handleInputChange = (e) => {
+    setPromoCode(e.target.value); // Update the promoCode state when the input changes
+  };
+
   //req50
   const locationUrl = useLocation();
   const copyLink = () => {
@@ -384,7 +520,7 @@ const HeaderInfo = ({
     const objectId = pathParts[3];
 
     if (!type || !objectId) {
-      message.error("Could not extract details from the URL");
+      console.log("Could not extract details from the URL");
       return;
     }
     const baseUrl = document.baseURI;
@@ -483,7 +619,7 @@ const HeaderInfo = ({
     getNewToken();
     Modal.destroyAll();
     setTimeout(() => {
-      navigate("/tourist/");
+      navigate("/tourist/futureBookings");
     }, 500);
   }
 
@@ -506,11 +642,11 @@ const HeaderInfo = ({
       let total;
       let FinalDate;
       if (type === "activity") {
-        total = selectedPriceRef.current;
+        total = selectedPriceRef.current * promo;
         FinalDate = date;
       } else if (type === "itinerary") {
         total = price;
-        FinalDate = selectedDateRef.current;
+        FinalDate = currentSelectedDate;
       }
       if (spots <= 0) {
         message.error(`Error booking ${type}: No spots available.`);
@@ -643,6 +779,26 @@ const HeaderInfo = ({
   }
 
   const save = async () => {
+    const temp = localStorage.getItem("token");
+
+    if (!temp) {
+      message.warning(
+        <div>
+          <a
+            style={{
+              textDecoration: "underline",
+              color: Colors.primary.default,
+            }}
+            onClick={() => navigate("/auth/signin")}
+          >
+            Sign In
+          </a>{" "}
+          in to book
+        </div>
+      );
+      return;
+    }
+
     if (type == "product") {
       // add to wishlist logic
       try {
@@ -723,12 +879,26 @@ const HeaderInfo = ({
     // if successful get user again and set token (if not already returned using the func)
   };
 
-  const discountedPriceLower = priceLower - (discounts / 100) * priceLower;
-  const discountedPriceUpper = priceUpper - (discounts / 100) * priceUpper;
-  const discountedMiddlePrice =
-    (discountedPriceLower + discountedPriceUpper) / 2;
-
   const addNotification = async () => {
+    const temp = localStorage.getItem("token");
+
+    if (!temp) {
+      message.warning(
+        <div>
+          <a
+            style={{
+              textDecoration: "underline",
+              color: Colors.primary.default,
+            }}
+            onClick={() => navigate("/auth/signin")}
+          >
+            Sign In
+          </a>{" "}
+          in to book
+        </div>
+      );
+      return;
+    }
     try {
       const response = await axios.post(
         `${apiUrl}tourist/bell${capitalizeFirstLetter(type)}/${userid}/${id}`
@@ -856,17 +1026,19 @@ const HeaderInfo = ({
         </div>
 
         <div style={{ position: "relative" }}>
-          <Flex
-            align="center"
-            style={{
-              fontSize: "25px",
-              textDecoration: "underline",
-              color: Colors.grey[700],
-            }}
-          >
-            {currencySymbol}
-            {priceString}
-          </Flex>
+          {type == "venue" ? null : (
+            <Flex
+              align="center"
+              style={{
+                fontSize: "25px",
+                textDecoration: "underline",
+                color: Colors.grey[700],
+              }}
+            >
+              {currencySymbol}
+              {priceString}
+            </Flex>
+          )}
           {discounts ? (
             <Flex
               style={{
@@ -997,7 +1169,10 @@ const HeaderInfo = ({
               <Rate value={avgRating} allowHalf disabled />
             </div>
             <Flex>
-              {inPast || type == "product" ? null : isNotif ? (
+              {inPast ||
+              type == "product" ||
+              type == "venue" ||
+              decodedToken?.role == "admin" ? null : isNotif ? (
                 <BellFilled
                   style={{
                     fontSize: "20px",
@@ -1012,7 +1187,10 @@ const HeaderInfo = ({
                   onClick={addNotification}
                 />
               )}
-              {inPast ? null : isSaved ? (
+              {inPast ||
+              decodedToken?.role == "admin" ||
+              decodedToken?.role == "seller" ||
+              type == "venue" ? null : isSaved ? (
                 <HeartFilled
                   style={{
                     fontSize: "20px",
@@ -1151,6 +1329,7 @@ const HeaderInfo = ({
                       onChange={(value) => {
                         setSelectedPrice(value);
                       }}
+                      defaultValue={discountedPriceUpper}
                       style={{ width: "100%", marginBottom: 10 }}
                     >
                       <Option
@@ -1182,11 +1361,49 @@ const HeaderInfo = ({
                   )}
 
                   {/* Promo Code Input */}
-                  <Input
-                    placeholder="Enter promo code"
-                    onChange={(e) => setPromoCode(e.target.value)}
-                    style={{ marginTop: 10 }}
-                  />
+                  <div style={{ marginTop: "15px" }}>
+                    <h6>Promo code</h6>
+                    <Input
+                      type="text"
+                      placeholder="Enter promo code"
+                      value={promoCode}
+                      onChange={handleInputChange}
+                    />
+                    {promo === 1 && (
+                      <Button
+                        onClick={handleApplyPromo}
+                        style={{ marginTop: "5px", marginBottom: "8px" }}
+                      >
+                        Apply
+                      </Button>
+                    )}
+                    {promo !== 1 && (
+                      <Button
+                        onClick={handleRemovePromo}
+                        style={{ marginTop: "5px", marginBottom: "8px" }}
+                      >
+                        Cancel
+                      </Button>
+                    )}
+                  </div>
+                  <h4>
+                    Price:{" "}
+                    {promo !== 1 && (
+                      <span
+                        style={{
+                          textDecoration: "line-through",
+                          marginRight: "10px",
+                        }}
+                      >
+                        {selectedPrice}
+                        {currency}
+                      </span>
+                    )}
+                    <span style={{ color: promo !== 1 ? "green" : "black" }}>
+                      {selectedPrice * promo}
+                      {currency}
+                    </span>
+                  </h4>
 
                   {/* Payment Method */}
                   <div style={{ marginTop: 20 }}>
@@ -1195,7 +1412,7 @@ const HeaderInfo = ({
                       onChange={(e) => setPaymentMethod(e.target.value)}
                     >
                       <Radio value="wallet">Pay by Wallet</Radio>
-                      <Radio value="card">Pay by Card</Radio>
+                      <Radio value="card">Pay by Credit/Debit Card</Radio>
                     </Radio.Group>
                   </div>
 
@@ -1211,7 +1428,9 @@ const HeaderInfo = ({
                   {/* Stripe Payment Form */}
                   {paymentMethod === "card" && (
                     <StripeContainer
-                      amount={type === "activity" ? selectedPrice : price}
+                      amount={
+                        type === "activity" ? selectedPrice * promo : price
+                      }
                       type={type}
                       selectedDate={
                         type === "itinerary" ? currentSelectedDate : date

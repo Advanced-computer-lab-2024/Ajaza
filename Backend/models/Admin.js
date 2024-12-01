@@ -10,6 +10,7 @@ const adminSchema = new mongoose.Schema({
       productId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Product' }, 
     },
   ],
+  date: { type: Date, default: Date.now }, // Date the admin was made.
 });
 
 // Create the model

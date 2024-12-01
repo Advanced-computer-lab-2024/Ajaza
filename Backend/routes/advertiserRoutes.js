@@ -13,6 +13,12 @@ router.post("/", advertiserController.createAdvertiser);
 
 router.get("/", advertiserController.getAllAdvertisers);
 
+router.get("/countByMonth", advertiserController.countAdvertisersByMonth);
+
+router.get('/requestingdeletion', advertiserController.getAdvertisersRequestingDeletion);
+
+
+
 //req 12
 router.get("/pending", advertiserController.getPendingAdvertisers);
 
@@ -112,6 +118,8 @@ router.get('/viewTouristReport/:id', advertiserController.viewTouristReport);
 router.get("/myItems/feedback/:id", advertiserController.myItemsFeedback);
 
 router.post("/seeNotifications/:id", advertiserController.seeNotifications);
+
+
 
 
 module.exports = router;

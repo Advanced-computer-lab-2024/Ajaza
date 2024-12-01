@@ -222,6 +222,9 @@ exports.viewSalesReport = async (req, res) => {
     }
 
     let totalSales = 0;
+    let productSales = 0;
+    let activityBookingsCommission = 0;
+    let itineraryBookingsCommission = 0;
     const report = [];
 
 
@@ -232,19 +235,25 @@ exports.viewSalesReport = async (req, res) => {
       for (const order of tourist.orders) {
         for (const product of order.products) {
           const productDetails = product.productId;
-          if (productDetails && productDetails.adminId.toString() === adminId && (order.status !== "cancelled")) {
-            const productTotal = product.quantity * productDetails.price;
-            totalSales += productTotal;
-            report.push({
-              type: 'Product',
-              productName: productDetails.name,
-              orderDate: order.date,
-              quantity: product.quantity,
-              price: productDetails.price,
-              total: productTotal,
-              category: productDetails.category,
-            });
+          if (productDetails.adminId){  // to fix the internal error issue --> caused by some products not having adminId
+            if (productDetails && (productDetails.adminId.toString() === adminId) && (order.status !== "Cancelled")) {
+              const productTotal = product.quantity * productDetails.price;
+              totalSales += productTotal;
+              productSales += productTotal;
+              report.push({
+                type: 'Product',
+                productName: productDetails.name,
+                orderDate: order.date,
+                quantity: product.quantity,
+                price: productDetails.price,
+                total: productTotal,
+                category: productDetails.category,
+              });
+              
+  
+            }
           }
+          
         }
       }
 
@@ -253,6 +262,7 @@ exports.viewSalesReport = async (req, res) => {
         const activity = booking.activityId;
         if (activity) {
           const commission = booking.total * 0.1;
+          activityBookingsCommission += commission;
           totalSales += commission;
           report.push({
             type: 'Activity',
@@ -269,6 +279,7 @@ exports.viewSalesReport = async (req, res) => {
         const itinerary = booking.itineraryId;
         if (itinerary) {
           const commission = booking.total * 0.1;
+          itineraryBookingsCommission += commission;
           totalSales += commission;
           report.push({
             type: 'Itinerary',
@@ -279,10 +290,14 @@ exports.viewSalesReport = async (req, res) => {
           });
         }
       }
+
     }
 
     res.status(200).json({
       totalSales,
+      productSales,
+      activityBookingsCommission,
+      itineraryBookingsCommission,
       report,
     });
 
@@ -291,3 +306,31 @@ exports.viewSalesReport = async (req, res) => {
     return res.status(500).json({ message: "Internal error" });
   }
 }
+
+// Count Admins by month and year
+exports.countAdminsByMonth = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ message: "Date is required" });
+    }
+
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
+
+    const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
+    const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0);
+
+    const count = await Admin.countDocuments({
+      date: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    res.status(200).json({ count });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+

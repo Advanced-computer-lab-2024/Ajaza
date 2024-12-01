@@ -856,3 +856,46 @@ exports.seeNotifications = async(req,res) => {
     return res.status(500).json({message: "Internal error"});
   }
 };
+
+
+// Count advertisers by month and year
+exports.countAdvertisersByMonth = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ message: "Date is required" });
+    }
+
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
+
+    const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
+    const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0);
+
+    const count = await Advertiser.countDocuments({
+      date: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    res.status(200).json({ count });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get all advertisers requesting deletion
+exports.getAdvertisersRequestingDeletion = async (req, res) => {
+  try {
+    const advertisers = await Advertiser.find({ requestingDeletion: true });
+
+    if (!advertisers.length) {
+      return res.status(404).json({ message: 'No advertisers requesting deletion found' });
+    }
+
+    res.status(200).json(advertisers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

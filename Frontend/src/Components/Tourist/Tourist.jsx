@@ -10,6 +10,7 @@ import {
   HomeOutlined,
   HeartOutlined,
   CarOutlined,
+  QuestionCircleOutlined,
 } from "@ant-design/icons";
 import { apiUrl } from "../Common/Constants";
 import { useEffect, useState } from "react";
@@ -21,6 +22,7 @@ import Notifications from "../Common/Notifications";
 import Plans from "./Plans";
 import Venues from "./Venues";
 import Products from "./Products";
+import Orders from "./Orders";
 import Product from "../Common/Product";
 import Venue from "../Common/Venue";
 import RedeemPoints from "./RedeemPoints";
@@ -48,6 +50,10 @@ import Cart from "../Common/Cart";
 import BookmarkedPlans from "./BookmarkedPlans";
 import Wishlist from "./Wishlist";
 import { useParams } from "react-router-dom";
+import OrderDetails from "./OrderDetails";
+import PastOrderDetails from "./PastOrderDetails";
+import PastOrders from "./PastOrders";
+import Help from "./Help";
 
 const Tourist = () => {
   const [response, setResponse] = useState([]);
@@ -165,7 +171,21 @@ const Tourist = () => {
       key: "14",
       icon: <BookOutlined />,
       label: "Orders",
-      onClick: () => navigate("orders"),
+     
+      children: [
+        {
+          key: "101",
+          label: "Current Orders",
+          icon: <BookOutlined />,
+          onClick: () => navigate(`orders/${touristId}`),
+        },
+        {
+          key: "102",
+          label: "Past Orders",
+          icon: <BookOutlined />,
+          onClick: () => navigate(`pastOrders/${touristId}`),
+        },
+      ],
     },
     {
       key: "16",
@@ -198,6 +218,13 @@ const Tourist = () => {
         },
       ],
     },
+    {
+      key: "99",
+      icon: <QuestionCircleOutlined />,
+      label: "Help",
+      onClick: () => navigate("help"),
+      
+    }
 
     // TODO put them in nested like current and past bookings ---- products,wishlist,orders
   ];
@@ -211,6 +238,8 @@ const Tourist = () => {
         <Route path="change-password" element={<ChangePasswordForm />} />
         <Route path="itineraries" element={<Itineraries />} />
         <Route path="itineraries/:id" element={<Itinerary />} />
+        <Route path="help" element={<Help/>} />
+
 
         <Route path="venues" element={<Venues />} />
         <Route path="venues/:id" element={<Venue />} />
@@ -227,6 +256,14 @@ const Tourist = () => {
         <Route path="touristHistory" element={<TouristHistory />} />
         <Route path="bookingHistory" element={<BookingHistory />} />
         <Route path="bookmarked" element={<BookmarkedPlans />} />
+        <Route path="orders/:id" element={<Orders />} />
+        <Route path="orders/:touristId/:date" element={<OrderDetails />} />
+
+
+        <Route path="pastOrders/:id" element={<PastOrders />} />
+        <Route path="pastOrders/:touristId/:date" element={<PastOrderDetails />} />
+
+
 
         <Route path="auth/signin" element={<SignIn />} />
 

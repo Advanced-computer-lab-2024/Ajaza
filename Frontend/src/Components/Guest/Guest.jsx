@@ -1,7 +1,7 @@
 import React from "react";
 import { CustomLayout } from "../Common";
 import { Route, Routes, useNavigate } from "react-router-dom";
-import { CalendarOutlined, ContainerOutlined } from "@ant-design/icons";
+import { CalendarOutlined, ContainerOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { apiUrl } from "../Common/Constants";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -17,6 +17,7 @@ import Venues from "../Tourist/Venues";
 import Venue from "../Common/Venue";
 import Activities from "../Tourist/Activities";
 import Activity from "../Common/Activity";
+import Help from "../Guest/Help";
 
 const Guest = () => {
   const [response, setResponse] = useState([]);
@@ -49,6 +50,12 @@ const Guest = () => {
       label: "Activities",
       onClick: () => navigate("activities"),
     },
+    {
+      key: "5",
+      icon: <QuestionCircleOutlined />,
+      label: "Help",
+      onClick: () => navigate("help"),
+    }
   ];
   return (
     <CustomLayout guest={true} sideBarItems={sideBarItems}>
@@ -56,6 +63,7 @@ const Guest = () => {
         <Route path="/" element={<Plans />} />
         <Route path="itineraries" element={<Itineraries />} />
         <Route path="itineraries/:id" element={<Itinerary />} />
+        <Route path="help" element={<Help/>} />
 
         <Route path="venues" element={<Venues />} />
         <Route path="venues/:id" element={<Venue />} />

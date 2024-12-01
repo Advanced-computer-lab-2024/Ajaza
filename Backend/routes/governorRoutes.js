@@ -5,6 +5,8 @@ const uniqueUsername = require("../middleware/uniqueUsername");
 const uploadVenuePicturesImage = require("../middleware/uploadImage");
 
 router.post("/createAgain", governorController.createGovernor);
+router.get("/countByMonth", governorController.countGovernersByMonth);
+
 
 router.post("/createGov", governorController.createGovernor);
 
@@ -15,6 +17,7 @@ router.get("/getGov/:id", governorController.getGovernorById);
 router.patch("/updateGov/:id", governorController.updateGovernor);
 
 router.delete("/deleteGov/:id", governorController.deleteGovernor);
+
 
 //---req 21----
 /* create: 

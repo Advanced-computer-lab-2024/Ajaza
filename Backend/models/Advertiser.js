@@ -22,6 +22,8 @@ const advertiserSchema = new mongoose.Schema({
       seen: { type: Boolean, default: false },
     },
   ],
+  date: { type: Date, default: Date.now }, // Date the advertiser was made
+
   requestingDeletion: { type: Boolean, default: false}
 });
 

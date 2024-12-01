@@ -25,6 +25,8 @@ const guideSchema = new mongoose.Schema({
       comments: { type: String, required: false },
     },
   ],
+  date: { type: Date, default: Date.now }, // Date the advertiser was made
+
   requestingDeletion: { type:Boolean, default: false}
 });
 

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  TagsOutlined,
   MenuFoldOutlined,
+  TeamOutlined,
   CalendarOutlined,
   NumberOutlined,
   StarOutlined,
@@ -10,6 +12,7 @@ import {
   WarningFilled,
   UserOutlined,
   BellFilled,
+  FileOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme, Flex, message, Modal } from "antd";
 import IconFloatButton from "../Common/IconFloatButton";
@@ -111,7 +114,16 @@ const AdminCustomLayout = ({ children }) => {
       navigate("products");
     } else if (key == "13") {
       navigate("myProducts");
-    } else if (key == "14") {
+    } else if(key == "74"){
+      navigate("/Admin/promocode");
+    }
+    else if(key == "100"){
+      navigate("/Admin/report");
+    }
+    else if(key == "44"){
+      navigate("/Admin/numberOfUsers");
+    }
+    else if (key == "14") {
       navigate("change-password");
     } else if (key == "15") {
       navigate("archive");
@@ -166,6 +178,16 @@ const AdminCustomLayout = ({ children }) => {
               label: "Preference Tags",
             },
             {
+              key: "74",
+              icon: <TagsOutlined />,
+              label: "PromoCode",
+            },
+            {
+              key: "44",
+              icon: <TeamOutlined />,
+              label: "User Stats",
+            },
+            {
               key: "12",
               icon: <NumberOutlined />,
               label: "Products",
@@ -200,6 +222,11 @@ const AdminCustomLayout = ({ children }) => {
               icon: <ExclamationCircleOutlined />,
               label: "Complaints",
             },
+            {
+              key:"100",
+              icon:<FileOutlined />,
+              label:"Sales Report",
+            }
           ]}
         />
       </Sider>

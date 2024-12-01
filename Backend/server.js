@@ -89,7 +89,7 @@ connection.once("open", () => {
 });
 
 //first zero is minutes, second zero is hours of when will daily birth checks be held. //change zeroes for testing
-cron.schedule("0 0 * * *", () => {
+cron.schedule("8 15 * * *", () => {
   if (process.env.BIRTHDAYS === "true") {
     console.log("Running daily birthday check...");
     checkBirthdaysToday();

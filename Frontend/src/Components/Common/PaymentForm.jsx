@@ -2,8 +2,9 @@
 import React, { useState } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Button, notification } from 'antd';
+import { getSetNewToken } from './Constants';
 
-const PaymentForm = ({amount, type, selectedDate, userid, id, useWallet, setLeave}) => {
+const PaymentForm = ({amount, type, selectedDate, userid, id, useWallet, setLeave, deliveryAddress}) => {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -120,11 +121,12 @@ const PaymentForm = ({amount, type, selectedDate, userid, id, useWallet, setLeav
               message: 'Booking Success',
               description: 'Your booking was successful.',
             });
+            await getSetNewToken(id,"tourist");
             childSetLeave();
           }
 
 
-        } else {
+        } else if (type === "itinerary") {
           const bookingResponse = await fetch(`http://localhost:5000/tourist/${userid}/itinerary/${id}/book`, {
             method: 'POST',
             headers: {
@@ -136,7 +138,7 @@ const PaymentForm = ({amount, type, selectedDate, userid, id, useWallet, setLeav
           const bookingResult = await bookingResponse.json();
           console.log(bookingResult);
 
-          if (bookingResult.error && !bookingResult.error.startsWith("The provided PaymentMethod was previously")) {
+          if (bookingResult.error) {
             notification.error({
               message: 'Booking Failed',
               description: bookingResult.error.message,
@@ -147,11 +149,37 @@ const PaymentForm = ({amount, type, selectedDate, userid, id, useWallet, setLeav
               message: 'Booking Success',
               description: 'Your booking was successful.',
             });
+            await getSetNewToken(id,"tourist");
             childSetLeave();
 
           }
-        }
+        } else {
+          const purchaseResponse = await fetch(`http://localhost:5000/tourist/cart/checkout/${userid}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ paymentMethodId: paymentMethod.id, total: amount, useWallet: false, cod: false, deliveryAddress: deliveryAddress }),
+          });
 
+          const purchaseResult = await purchaseResponse.json();
+          console.log(purchaseResult);
+
+          if (purchaseResult.error) {
+            notification.error({
+              message: 'Purchase Failed',
+              description: purchaseResult.error.message,
+            });
+          } else {
+            notification.success({
+              message: 'Purchase Success',
+              description: 'Your purchase was successful.',
+            });
+            await getSetNewToken(id,"tourist");
+            childSetLeave();
+            window.location.href = "http://localhost:3000/tourist/orders";
+          }
+        }
       }
       setLoading(false);
     }
@@ -173,7 +201,7 @@ const PaymentForm = ({amount, type, selectedDate, userid, id, useWallet, setLeav
         loading={loading}
         style={{ marginLeft: '69%' }}
       >
-        {loading ? 'Processing...' : 'Pay & Book by card'}
+        {loading ? 'Processing...' : (type==="product")?'Place Order':'Pay & Book by card'}
       </Button>
     </form>
   );

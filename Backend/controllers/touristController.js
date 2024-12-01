@@ -5,6 +5,7 @@ const Guide = require("../models/Guide");
 const Product = require("../models/Product");
 const Admin = require("../models/Admin");
 const Seller = require("../models/Seller");
+const PromoCode = require("../models/PromoCode");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -579,23 +580,24 @@ exports.bookItinerary = async (req, res) => {
       }
 
       tourist.wallet -= total;
-    } else {
-      const amount = total * 100; // Convert to cents for Stripe
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: amount, // Amount in cents (change as necessary)
-        currency: "usd",
-        payment_method: paymentMethodId, // Attach the payment method
-        confirm: true, // Automatically confirm the payment intent
-        return_url: "http://localhost:3000/payment-confirmation", // Optional: if redirect is needed
-        automatic_payment_methods: {
-          enabled: true,
-          allow_redirects: "never", // Avoid redirect-based methods
-        },
-      });
-      if (paymentIntent.status !== "succeeded") {
-        return res.status(400).json({ error: { message: "Payment failed" } });
-      }
     }
+    // } else {
+    //   const amount = total * 100; // Convert to cents for Stripe
+    //   const paymentIntent = await stripe.paymentIntents.create({
+    //     amount: amount, // Amount in cents (change as necessary)
+    //     currency: "usd",
+    //     payment_method: paymentMethodId, // Attach the payment method
+    //     confirm: true, // Automatically confirm the payment intent
+    //     return_url: "http://localhost:3000/payment-confirmation", // Optional: if redirect is needed
+    //     automatic_payment_methods: {
+    //       enabled: true,
+    //       allow_redirects: "never", // Avoid redirect-based methods
+    //     },
+    //   });
+    //   if (paymentIntent.status !== "succeeded") {
+    //     return res.status(400).json({ error: { message: "Payment failed" } });
+    //   }
+    // }
 
     // deduct 1 spot from the itinerary
     availableDate.spots -= 1;
@@ -647,7 +649,7 @@ exports.bookItinerary = async (req, res) => {
     sendEmail(
       tourist.email,
       `Booking confirmed for ${itinerary.name}`,
-      `Your payment of ${total} by ${paymentMethod} was confirmed. You have successfully booked ${itinerary.name} on ${itinerary.date}.`
+      `Your payment of ${total} by ${paymentMethod} was confirmed. You have successfully booked ${itinerary.name} on ${date}.`
     );
 
     // Save both the tourist and itinerary updates
@@ -843,11 +845,14 @@ exports.birthdayEventTriggered = async (usersWithBirthdayToday) => {
 
     const uniquePromoCode = await generateUniqueCode(); //generate a unique 6-character promo code
 
+    let touristIds = usersWithBirthdayToday.map((tourist) => tourist._id);
+
     const newPromoCode = new PromoCode({
       code: uniquePromoCode,
-      value: 0.2, // the discount value
+      value: 0.8, // the discount value
       birthday: {
         date: today,
+        touristIds: touristIds,
       },
     });
 
@@ -1805,22 +1810,46 @@ exports.getOrder = async (req, res) => {
   }
 };
 
+exports.getOrderByDate = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const date = req.body.date;
+
+    const tourist = await Tourist.findById(touristId)
+      .populate({
+        path: 'orders.products.productId'
+      });
+    
+    if(!tourist) {
+      return res.status(404).json({error: "Tourist not Found"});
+    }
+    let order;
+    for(let i = 0; i< tourist.orders.length;i++) {
+      if(tourist.orders[i].date.toISOString() === date) {
+        order = tourist.orders[i];
+      }
+    }
+
+    return res.status(200).json(order);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({error: "Internal error"});
+  }
+}
+
 exports.cancelOrder = async (req, res) => {
   try {
     const touristId = req.params.id;
-    const orderId = req.body.orderId;
 
-    const order = tourist.orders.id(orderId);
-
-    if (!order) {
-      return res.status(404).json({ message: "Order not Found" });
-    }
+    const date = req.body.date;
 
     const tourist = await Tourist.findById(touristId);
 
     if (!tourist) {
       return res.status(404).json({ message: "Tourist not Found" });
     }
+
+    const order = tourist.orders.find(item => item.date.toISOString() === date);
 
     for (const item of order.products) {
       const product = await Product.findById(item.productId);
@@ -1837,6 +1866,7 @@ exports.cancelOrder = async (req, res) => {
     await tourist.save();
     return res.status(200).json({ message: "Order cancelled successfully" });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Internal error" });
   }
 };
@@ -2233,7 +2263,7 @@ async function reminders(touristId) {
 exports.checkout = async (req, res) => {
   try {
     const touristId = req.params.id;
-    const { useWallet, cod } = req.body;
+    const { useWallet, cod, deliveryAddress, total } = req.body;
 
     const tourist = await Tourist.findOne({ _id: touristId }).populate(
       "cart.productId"
@@ -2272,11 +2302,6 @@ exports.checkout = async (req, res) => {
         .json({ message: "Invalid quantities", invalidCartItems });
     }
 
-    const total = validCartItems.reduce((acc, item) => {
-      const productPrice = item.productId.price;
-      return acc + productPrice * item.quantity;
-    }, 0);
-
     if (useWallet === true) {
       if (tourist.wallet > total) {
         tourist.wallet -= total;
@@ -2292,6 +2317,7 @@ exports.checkout = async (req, res) => {
         productId: item.productId._id,
         quantity: item.quantity,
       })),
+      deliveryAddress,
       date: new Date(),
       cod: cod,
       total,
@@ -2313,7 +2339,7 @@ exports.checkout = async (req, res) => {
 
     await tourist.save();
 
-    return { message: "Order created successfully!", order };
+    return res.status(200).json({ message: "Order created successfully!", order });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal error" });
@@ -2382,5 +2408,47 @@ exports.seeNotifications = async (req, res) => {
     return res.status(200).json({ message: "Notifications seen successfully" });
   } catch (error) {
     return res.status(500).json({ message: "Internal error" });
+  }
+};
+
+// Count tourist by month and year
+exports.countTouristsByMonth = async (req, res) => {
+  try {
+    const { date } = req.query; 
+
+    if (!date) {
+      return res.status(400).json({ message: "Date is required" });
+    }
+
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
+
+    const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1, 0, 0, 0, 0); // Set time to 00:00:00
+    const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0, 23, 59, 59, 999); // Set time to 23:59:59
+    
+    const count = await Tourist.countDocuments({
+      joined: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    res.status(200).json({ count });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get all tourists requesting deletion
+exports.getTouristsRequestingDeletion = async (req, res) => {
+  try {
+    const tourists = await Tourist.find({ requestingDeletion: true });
+
+    if (!tourists.length) {
+      return res.status(404).json({ message: 'No tourists requesting deletion found' });
+    }
+
+    res.status(200).json(tourists);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

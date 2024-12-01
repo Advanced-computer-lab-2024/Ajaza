@@ -67,6 +67,7 @@ const touristSchema = new mongoose.Schema({
       date: { type: Date, default: Date.now },
       cod: { type: Boolean, required: false },
       total: { type: Number, required: false },
+      deliveryAddress: { type: Number, required: false},
       status: {
         type: String,
         enum: ["Delivered", "Cancelled", "Processing"],
