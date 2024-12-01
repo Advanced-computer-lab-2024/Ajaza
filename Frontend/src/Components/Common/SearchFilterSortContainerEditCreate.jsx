@@ -377,7 +377,7 @@ const SearchFilterSortContainerEditCreate = ({
         }
       );
       setRefreshElements((prev) => !prev);
-      message.success("Product updated successfully!");
+      message.success("Product created successfully!");
       setIsModalVisible(false);
       form.resetFields();
       setEditingProductId(null);
