@@ -120,7 +120,7 @@ const ProductsEvenArch = () => {
         let combinedArray = products;
 
         combinedArray = combinedArray.map((element) => {
-          return { ...element, avgRating: getAvgRating(element.feedback) };
+          return { ...element, avgRating: getAvgRating(element.feedback) , basePrice: element.price };
         });
 
         console.log(combinedArray);
@@ -134,9 +134,19 @@ const ProductsEvenArch = () => {
     fetchData();
   }, []);
 
+
   const handleCurrencyChange = (selectedCurrency) => {
     setCurrency(selectedCurrency);
   };
+
+  useEffect(() => {
+    setCombinedElements((prevElements) =>
+      prevElements.map((element) => ({
+        ...element,
+        price: (element.basePrice * currencyRates[currency]).toFixed(2), 
+      }))
+    );
+  }, [currency]);
 
   return (
     <div>
@@ -152,6 +162,7 @@ const ProductsEvenArch = () => {
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
+          style={{ left: 1070, top: 55 }}
         />
       </div>
       <SearchFilterSortContainer

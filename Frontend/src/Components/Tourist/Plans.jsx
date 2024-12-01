@@ -208,7 +208,12 @@ const Plans = () => {
         };
 
         venues = venues.map((venue) => {
-          return calculateYourPrice(venue, user?.nationality, user?.occupation);
+          const calculatedPrice = calculateYourPrice(venue, user?.nationality, user?.occupation);
+  
+          return {
+            ...venue, 
+            basePrice: `${calculateYourPrice}`, 
+          };
         });
 
         activities = activities.map((activity) => {
@@ -225,7 +230,7 @@ const Plans = () => {
         ];
 
         combinedArray = combinedArray.map((element) => {
-          return { ...element, avgRating: getAvgRating(element.feedback) };
+          return { ...element, avgRating: getAvgRating(element.feedback) , basePrice: element.price };
         });
         console.log(combinedArray);
 
@@ -238,6 +243,22 @@ const Plans = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    setCombinedElements((prevElements) =>
+      prevElements.map((element) => {
+        if (element.type !== "Activity") {
+          return {
+            ...element,
+            price: (element.basePrice * currencyRates[currency]).toFixed(2), 
+          };
+        }
+        // If it's an activity, return it without modifying
+        return element;
+      })
+    );
+  }, [currency]);
+  
+
   return (
     <div>
       <div
@@ -249,7 +270,7 @@ const Plans = () => {
         }}
       >
         <SelectCurrency
-          basePrice={null}
+          //basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
           style={{ left: 1000, top: 55 }}

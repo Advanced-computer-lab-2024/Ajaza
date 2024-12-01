@@ -254,7 +254,7 @@ const ItinerariesAdmin = () => {
         let combinedArray = itineraries;
 
         combinedArray = combinedArray.map((element) => {
-          return { ...element, avgRating: getAvgRating(element.feedback) };
+          return { ...element, avgRating: getAvgRating(element.feedback) , basePrice : element.price };
         });
         console.log(combinedArray);
 
@@ -270,6 +270,15 @@ const ItinerariesAdmin = () => {
     setCurrency(selectedCurrency);
   };
 
+  useEffect(() => {
+    setCombinedElements((prevElements) =>
+      prevElements.map((element) => ({
+        ...element,
+        price: (element.basePrice * currencyRates[currency]).toFixed(2), 
+      }))
+    );
+  }, [currency]);
+
   return (
     <div>
       <div
@@ -284,6 +293,7 @@ const ItinerariesAdmin = () => {
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
+          style={{ left: 1070, top: 55 }}
         />
       </div>
       <SearchFilterSortContainer

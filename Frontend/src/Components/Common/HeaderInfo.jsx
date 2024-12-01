@@ -214,9 +214,9 @@ const HeaderInfo = ({
     });
   }, [user, id, date]);
 
-  useEffect(() => {
-    console.log(past);
-  }, [past]);
+  // useEffect(() => {
+  //   console.log(past);
+  // }, [past]);
 
   useEffect(() => {
     console.log(currency);

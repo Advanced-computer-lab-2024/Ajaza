@@ -168,6 +168,7 @@ const MyProducts = () => {
             ...element,
             avgRating: getAvgRating(element.feedback),
             sales: element.sales || 0, // Ensure sales is set to 0 if not present
+            basePrice : element.price,
           };
         });
 
@@ -226,6 +227,15 @@ const MyProducts = () => {
     console.log("NOURSALAH user", userId);
   }, [archivingProductId, userId]);
 
+  useEffect(() => {
+    setCombinedElements((prevElements) =>
+      prevElements.map((element) => ({
+        ...element,
+        price: (element.basePrice * currencyRates[currency]).toFixed(2), 
+      }))
+    );
+  }, [currency]);
+
   return (
     <>
       <Flex justify="end">
@@ -250,7 +260,7 @@ const MyProducts = () => {
         }}
       >
         <SelectCurrency
-          basePrice={null}
+          //basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
           style={{ left: 1070, top: -29 }}
