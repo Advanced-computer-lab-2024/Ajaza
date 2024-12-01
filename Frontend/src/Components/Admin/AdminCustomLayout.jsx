@@ -98,6 +98,10 @@ const AdminCustomLayout = ({ children }) => {
       navigate("/admin");
     } else if (key === "5") {
       navigate("/Admin/manage-activity-categories"); // New navigation for activity categories
+    }
+    else if(key === "210"){
+      navigate("/Admin/deletionRequests");
+
     } else if (key === "setting:1") {
       navigate("/Admin/add-Accounts");
     } else if (key === "setting:3") {
@@ -169,6 +173,10 @@ const AdminCustomLayout = ({ children }) => {
                 {
                   label: "Accepted Accounts",
                   key: "setting:2",
+                },
+                {
+                   label: "Deletion Requests",
+                   key: "210",
                 },
               ],
             },
