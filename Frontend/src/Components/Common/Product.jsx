@@ -236,14 +236,12 @@ const Product = () => {
           }}
         >
           {quantity === 0 ? (
-            <ShoppingCartOutlined
-              onClick={handleAddToCart}
-              style={{
-                fontSize: "24px",
-                color: "#4CAF50",
-                cursor: "pointer",
-              }}
-            />
+            <CustomButton
+                value={"Add to Cart"}
+                size={"s"}
+                style={{ position: 'relative', top: 250, left: -315, zIndex: 10 }}
+                onClick={handleAddToCart}
+              />
           ) : (
             <>
               <MinusOutlined
@@ -252,10 +250,16 @@ const Product = () => {
                   fontSize: "24px",
                   color: quantity > 1 ? "#FF0000" : "#d9d9d9",
                   cursor: quantity > 1 ? "pointer" : "not-allowed",
-                  marginRight: "10px",
+                  //marginRight: "10px",
+                  position: "relative",
+                  top: 250,
+                  left: -315,
+                  zIndex: 10,
                 }}
               />
-              <span style={{ fontSize: "18px", margin: "0 10px" }}>
+              <span style={{ fontSize: "18px", margin: "0 10px" ,
+               position: "relative", top: 250 , left: -315,
+               }}>
                 {quantity}
               </span>
               <PlusOutlined
@@ -264,7 +268,11 @@ const Product = () => {
                   fontSize: "24px",
                   color: "#4CAF50",
                   cursor: "pointer",
-                  marginRight: "10px",
+                  //marginRight: "10px",
+                  position: "relative",
+                  top: 250,
+                  left: -315,
+                  zIndex: 10,
                 }}
               />
               <DeleteOutlined
@@ -273,6 +281,11 @@ const Product = () => {
                   fontSize: "24px",
                   color: "#FF0000",
                   cursor: "pointer",
+                  position: "relative",
+                  top: 250,
+                  left: -315,
+                  zIndex: 10,
+                  marginLeft: "10px",
                 }}
               />
             </>
