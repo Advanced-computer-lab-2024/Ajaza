@@ -278,7 +278,7 @@ const Events = () => {
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
-          style={{ left: 1070, top: 55 }}
+          style={{ left: 1070, top: 55  }}
         />
       </div>
       <SearchFilterSortContainer

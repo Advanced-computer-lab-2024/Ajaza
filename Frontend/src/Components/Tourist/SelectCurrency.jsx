@@ -62,7 +62,7 @@ const SelectCurrency = ({ currency, onCurrencyChange, style = {} }) => {
   };
 
   return (
-    <Select value={currency} onChange={handleCurrencyChange} style={{ width: 70, ...style}}>
+    <Select value={currency} onChange={handleCurrencyChange} style={{ width: 70, ...style , }}>
       {Object.keys(currencyRates).map((curr) => (
         <Option key={curr} value={curr}>
           {curr}

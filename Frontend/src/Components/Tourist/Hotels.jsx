@@ -336,7 +336,7 @@ const Hotels = () => {
                   Check-out: {hotel.checkout} <br />
                   Score: {hotel.score}
                 </div>
-                <Button type="link" onClick={() => handleViewDetails(hotel)}>
+                <Button type="link"  style={{color:"#1b696a"}} onClick={() => handleViewDetails(hotel)}>
                   View Details
                 </Button>
               </List.Item>

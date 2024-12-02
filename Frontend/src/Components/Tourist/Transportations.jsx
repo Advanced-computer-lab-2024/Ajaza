@@ -305,7 +305,7 @@ const Transportations = () => {
                    Vehicle Seats: {transportation.vehicle_seats} <br />
                    End Address: {transportation.end_address_line} <br />
                 </div>
-                <Button type="link" onClick={() => handleViewDetails(transportation)}>
+                <Button type="link" style={{color:"#1b696a"}} onClick={() => handleViewDetails(transportation)}>
                   View Details
                 </Button>
               </List.Item>

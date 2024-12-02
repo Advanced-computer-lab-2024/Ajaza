@@ -186,19 +186,26 @@ const CustomLayout = ({
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider
+      
         trigger={null}
         collapsible
         collapsed={collapsed && !hover}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
+        style={{
+          backgroundColor: '#5b8b77', 
+        }}
       >
         <div className="demo-logo-vertical" />
         <Menu
-          theme="dark"
-          mode="inline"
+         //theme="dark"
+          //mode="inline"
           defaultSelectedKeys={[selectedKey]}
           items={sideBarItems}
           onClick={handleMenuClick}
+          style={{
+            backgroundColor: '#5b8b77', 
+          }}
         />
       </Sider>
       <Layout>
@@ -219,6 +226,8 @@ const CustomLayout = ({
               fontSize: "16px",
               width: 64,
               height: 64,
+       
+           
             }}
           />
           {guest ? guestNavBarItems : navBarItems}

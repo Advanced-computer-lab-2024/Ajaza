@@ -142,15 +142,16 @@ const AdminCustomLayout = ({ children }) => {
         collapsed={collapsed && !hover}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
+        style={{ backgroundColor: "#5b8b77" }}
       >
         <div className="demo-logo-vertical" />
         <Menu
-          theme="dark"
+          //theme="dark"
           mode="inline"
           defaultSelectedKeys={[selectedMenuKey]}
           onClick={handleMenuClick}
-          style={{ transition: "all 0.3s ease" }}
-          items={[
+          style={{ transition: "all 0.3s ease" , backgroundColor: "#5b8b77" , color:"black"}}
+          items={[ 
             {
               key: "5",
               icon: <StarOutlined />,

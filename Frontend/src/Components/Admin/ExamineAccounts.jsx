@@ -274,11 +274,11 @@ const ExamineAccounts = () => {
                 <Button
                   type="primary"
                   onClick={handleAccept}
-                  style={{ marginRight: 10 }}
+                  style={{ marginRight: 10 , backgroundColor:"#5b8b77" }}
                 >
                   Accept
                 </Button>
-                <Button type="primary" onClick={handleReject}>
+                <Button type="primary" onClick={handleReject} style={{backgroundColor:"#5b8b77"}}>
                   Reject
                 </Button>
               </div>
@@ -340,7 +340,7 @@ const ExamineAccounts = () => {
                         type="default"
                         icon={<BarsOutlined />}
                         onClick={() => handleDetailsView(account)}
-                        style={{ color: "blue" }}
+                        style={{ color: "#1b696a" }}
                       >
                         View Details
                       </Button>

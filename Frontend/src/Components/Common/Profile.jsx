@@ -32,6 +32,7 @@ import { apiUrl, getSetNewToken } from "../Common/Constants";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useCurrency } from "../Tourist/CurrencyContext";
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const { Title } = Typography;
 
@@ -533,16 +534,25 @@ const Profile = () => {
     </Menu>
   );
 
+  const [hovered, setHovered] = useState(false);
+
+
   return (
     <>
       <Flex justify="left">
         <Button
           type="primary"
-          style={{ fontWeight: "bold" }}
+          style={{fontWeight: "bold",
+            color: hovered? "white" : "red",
+            //backgroundColor: "white",
+            backgroundColor: hovered ? "#ff6961" : "white",}}
           danger
           onClick={() => confirmLogOut()}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          icon={<LogoutIcon/>}
         >
-          Log out
+          Log Out
         </Button>
 
         <Button
@@ -888,7 +898,7 @@ const Profile = () => {
                           right: 20,
                           border: "none",
                           background: "none",
-                          color: "#1890ff",
+                          color: "#5b8b77",
                           fontSize: "16px",
                         }}
                         onClick={(e) => {
@@ -1048,6 +1058,7 @@ const Profile = () => {
               title="Add Delivery Address"
               visible={isModalVisible}
               onCancel={handleCancelDelivery}
+              style={{backgroundColor: '#5b8b77'}}
               footer={null}
             >
               <Form
@@ -1105,7 +1116,7 @@ const Profile = () => {
                   <Input.TextArea rows={3} />
                 </Form.Item>
                 <Form.Item>
-                  <Button type="primary" htmlType="submit" block>
+                  <Button type="primary" htmlType="submit" style={{backgroundColor:"#5b8b77"}} block>
                     Add Address
                   </Button>
                 </Form.Item>

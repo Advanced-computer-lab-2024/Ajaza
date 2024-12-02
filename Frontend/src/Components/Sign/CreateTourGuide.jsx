@@ -3,10 +3,11 @@ import { CustomLayout } from "../Common";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Itineraries from "../Itineraries";
 import { CalendarOutlined, UploadOutlined } from "@ant-design/icons";
-import { Form, Input, Upload, message } from "antd";
+import { Form, Input, Upload, message , Card } from "antd";
 import CustomButton from "../Common/CustomButton";
 import axios from "axios";
 import SignIn from "./SignIn";
+import image from "../../Assets/Register.png";
 
 const CreateTourGuide = () => {
   const [formData, setFormData] = useState({
@@ -198,62 +199,95 @@ const CreateTourGuide = () => {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "100vh",
+          minWidth: "100vw",
+          marginLeft: "-5vw",
+          marginRight: "-5vw",
+          marginTop: "-5vh",
+          backgroundImage: `url(${image})`, // Set the background image
+          backgroundSize: "cover", // Cover the entire screen
         }}
       >
+    <Card
+        style={{
+          width: 600,
+          height: 400,
+          background: "rgba(255, 255, 255, 0.60)", 
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", 
+          borderRadius: "10px", 
+          padding: "20px",
+          top: -100,
+          marginLeft: "-1vw",
+          marginTop: "100px",
+        }}
+      >
+      <div style={{ textAlign: "center", marginBottom: "15px" }}>
+        <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>
+          Registeration
+        </h1>
+      </div>
         <Form
           name="basic"
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 16 }}
-          style={{ maxWidth: 600, width: "100%" }}
+          style={{ maxWidth: 600, width: "100%" ,  
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center", 
+           }}
           autoComplete="off"
         >
           {currentStep === 1 && (
             <>
               <Form.Item
-                label="Email"
+                //label="Email"
                 name="email"
                 rules={[
                   { required: true, message: "Please input your email!" },
                   { type: "email", message: "Please enter a valid email!" },
                 ]}
+                style={{width: "80%" }}
               >
                 <Input
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
+                  placeholder="Email"
                 />
               </Form.Item>
 
               <Form.Item
-                label="Username"
+                //label="Username"
                 name="username"
                 rules={[
                   { required: true, message: "Please input your username!" },
                 ]}
+                style={{width: "80%" }}
               >
                 <Input
                   name="username"
                   value={formData.username}
                   onChange={handleInputChange}
+                  placeholder="Username"
                 />
               </Form.Item>
 
               <Form.Item
-                label="Password"
+                //label="Password"
                 name="password"
                 rules={[
                   { required: true, message: "Please input your password!" },
                   { validator: passwordStrengthValidator },
                 ]}
+                style={{width: "80%" }}
               >
                 <Input.Password
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
+                  placeholder="Password"
                 />
               </Form.Item>
 
-              <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+              <Form.Item >
                 <CustomButton
                   type="primary"
                   onClick={nextStep}
@@ -287,7 +321,7 @@ const CreateTourGuide = () => {
                 >
                   <CustomButton
                     icon={<UploadOutlined />}
-                    size="m"
+                    size="s"
                     value="Upload"
                   />
                 </Upload>
@@ -312,13 +346,13 @@ const CreateTourGuide = () => {
                 >
                   <CustomButton
                     icon={<UploadOutlined />}
-                    size="m"
+                    size="s"
                     value="Upload"
                   />
                 </Upload>
               </Form.Item>
 
-              <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+              <Form.Item >
                 <CustomButton
                   type="default"
                   onClick={previousStep}
@@ -338,6 +372,7 @@ const CreateTourGuide = () => {
             </>
           )}
         </Form>
+        </Card>
       </div>
 
       <Routes>

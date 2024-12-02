@@ -482,7 +482,7 @@ const SearchFilterSortContainerEditCreate = ({
             >
               <a
                 onClick={(e) => e.preventDefault()}
-                style={{ marginLeft: "auto" }}
+                style={{ marginLeft: "auto" , color: "#1b696a" }}
               >
                 <Space>
                   Filter
@@ -498,7 +498,7 @@ const SearchFilterSortContainerEditCreate = ({
                 defaultSelectedKeys: ["3"],
               }}
             >
-              <Typography.Link style={{ marginLeft: "30px" }}>
+              <Typography.Link style={{ marginLeft: "30px" , color:"#1b696a" }}>
                 <Space>
                   Sort
                   <DownOutlined />

@@ -6,6 +6,8 @@ import CreateTourist from "./CreateTourist";
 import CreateTourGuide from "./CreateTourGuide";
 import CreateSeller from "./CreateSeller";
 import CreateAdvertiser from "./CreateAdvertiser";
+import image from "../../Assets/login.jpg";
+import { Box } from "@mui/material";
 
 const { Header, Content } = Layout;
 
@@ -59,7 +61,7 @@ const SignUp = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#2C3E50",
+          backgroundColor: "#1b696a",   
         }}
       >
         <Menu
@@ -71,7 +73,8 @@ const SignUp = () => {
             style: { 
               paddingLeft: "20px",
                paddingRight: "20px" ,
-               backgroundColor: "#2C3E50",
+               backgroundColor: "#1b696a",
+               color: "white",
             },
           }))}
           onClick={handleMenuClick}
@@ -80,7 +83,7 @@ const SignUp = () => {
             justifyContent: "center",
             width: "100%",              // Take full width of the header
             maxWidth: "800px",
-            backgroundColor: "#2C3E50",
+            backgroundColor: "#1b696a",
           }}
         />
       </Header>
@@ -97,11 +100,6 @@ const SignUp = () => {
             borderRadius: borderRadiusLG,
           }}
         >
-          <div style={{ textAlign: "center", marginBottom: "20px" }}>
-            <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>
-              Registeration
-            </h1>
-          </div>
           <Routes>
             <Route path="/" element={<CreateTourist />} />
             <Route path="guide" element={<CreateTourGuide />} />
