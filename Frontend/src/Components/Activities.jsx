@@ -600,7 +600,7 @@ const Activities = () => {
           </Form.Item>
 
           <Form.Item>
-            <AntButton type="primary" htmlType="submit">
+            <AntButton type="primary" htmlType="submit" style={{backgroundColor:"#5b8b77"}}>
               {editingActivityId ? "Save Changes" : "Create Activity"}
             </AntButton>
           </Form.Item>

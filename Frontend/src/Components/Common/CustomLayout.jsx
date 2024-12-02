@@ -193,7 +193,7 @@ const CustomLayout = ({
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         style={{
-          backgroundColor: '#5b8b77', 
+          backgroundColor: '#1b696a', 
         }}
       >
         <div className="demo-logo-vertical" />
@@ -204,7 +204,8 @@ const CustomLayout = ({
           items={sideBarItems}
           onClick={handleMenuClick}
           style={{
-            backgroundColor: '#5b8b77', 
+            backgroundColor: '#1b696a', 
+            color:"black",
           }}
         />
       </Sider>

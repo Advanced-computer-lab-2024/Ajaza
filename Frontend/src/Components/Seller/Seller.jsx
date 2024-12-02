@@ -42,6 +42,11 @@ const Seller = () => {
     }
   }, [navigate]);
 
+  const commonStyle = {
+    color: 'black', 
+    // backgroundColor: '#5b8b77'
+    };
+
   const sideBarItems = [
     {
       key: "1",
@@ -50,6 +55,7 @@ const Seller = () => {
       onClick: () => {
         navigate("/seller");
       },
+      style: commonStyle,
     },
     {
       key: "2",
@@ -58,6 +64,7 @@ const Seller = () => {
       onClick: () => {
         navigate("myProducts");
       },
+      style: commonStyle,
     },
     {
       key: "3",
@@ -66,6 +73,7 @@ const Seller = () => {
       onClick: () => {
         navigate("archive");
       },
+      style: commonStyle,
     },
     {
       key: "4",
@@ -74,6 +82,7 @@ const Seller = () => {
       onClick: () => {
         navigate("report");
       },
+      style: commonStyle,
     },
   ];
 
