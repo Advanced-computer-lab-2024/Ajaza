@@ -28,6 +28,7 @@ import { jwtDecode } from "jwt-decode";
 import { apiUrl, Colors } from "./Common/Constants";
 import { Color } from "antd/es/color-picker";
 import LoadingSpinner from "./Common/LoadingSpinner";
+import dayjs from "dayjs";
 
 const { Option } = Select;
 
@@ -658,16 +659,30 @@ const Itineraries = () => {
 
             {/* Available date time entries */}
             <Form.List name="availableDateTime">
-              {(fields, { add, remove }) => (
-                <>
-                  {fields.map(({ key, fieldKey, name }) => (
-                    <div key={key} style={{ display: "flex", marginBottom: 8 }}>
-                      <Form.Item
-                        {...fieldKey}
-                        name={[name, "date"]}
-                        fieldKey={[fieldKey[0], "date"]}
-                        label="Available Date"
-                        rules={[{ required: true, message: "Missing date" }]}
+            {(fields, { add, remove }) => (
+    <>
+      {fields.map(({ key, fieldKey, name }) => (
+        <div key={key} style={{ display: "flex", marginBottom: 8 }}>
+          <Form.Item
+            {...fieldKey}
+            name={[name, "date"]}
+            fieldKey={[fieldKey[0], "date"]}
+            label="Available Date"
+            rules={[
+              { required: true, message: "Missing date" },
+              {
+                validator: (_, value) => {
+                  const today = dayjs().startOf("day");
+                  if (value && dayjs(value).isBefore(today)) {
+                    return Promise.reject(
+                      new Error("Itinerary date cannot be in the past")
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+            style={{ marginRight: 16 }} // Add margin to separate available date and available spots in the form
                       >
                         <Input type="date" />
                       </Form.Item>
