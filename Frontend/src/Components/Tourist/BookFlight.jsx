@@ -8,6 +8,7 @@ import SelectCurrency from './SelectCurrency';
 import image from "../../Assets/login.jpg";
 import CustomButton from '../Common/CustomButton';
 import { useCurrency } from './CurrencyContext';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 
@@ -639,9 +640,26 @@ export const BookFlight = () => {
                     ))}
                 </Select>
             </Form.Item>
-                <Form.Item label="Departure Date" name="departureDate" rules={[{ required: true }]}>
-                    <DatePicker />
-                </Form.Item>
+
+            <Form.Item
+                label="Departure Date"
+                name="departureDate"
+                rules={[
+                    { required: true, message: "Please select a departure date" },
+                    {
+                    validator: (_, value) => {
+                        const today = dayjs().startOf("day");
+                        if (value && value.isBefore(today)) {
+                        return Promise.reject(new Error("Departure date cannot be in the past"));
+                        }
+                        return Promise.resolve();
+                    },
+                    },
+                ]}
+                >
+                <DatePicker />
+            </Form.Item>
+
                 <Form.Item label="Count" name="count" rules={[{ required: true }]}>
                     <InputNumber min={1} max={9} />
                 </Form.Item>
