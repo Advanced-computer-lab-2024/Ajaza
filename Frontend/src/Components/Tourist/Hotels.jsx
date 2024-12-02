@@ -273,16 +273,26 @@ const Hotels = () => {
               </Form.Item>
 
               <Form.Item
-                name="secondDate"
-                label="Select Check Out Date"
-                rules={[{ required: true, message: 'Please select an end date!' }]}
-              >
-                <DatePicker
-                  format="YYYY-MM-DD"
-                  disabledDate={disableDatesAfterFirstDate}
-                  placeholder="Select an end date"
-                />
-              </Form.Item>
+                  name="secondDate"
+                  label="Select Check Out Date"
+                  rules={[
+                    { required: true, message: 'Please select an end date!' },
+                    {
+                      validator: (_, value) => {
+                        if (value && firstDate && value.isBefore(firstDate, 'day')) {
+                          return Promise.reject(new Error("Check-out date cannot be before check-in date"));
+                        }
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
+                  >
+                  <DatePicker
+                    format="YYYY-MM-DD"
+                    disabledDate={disableDatesAfterFirstDate}
+                    placeholder="Select an end date"
+                  />
+                </Form.Item>
               <Form.Item
                 name="numberInput"
                 label="Number of visitors"
