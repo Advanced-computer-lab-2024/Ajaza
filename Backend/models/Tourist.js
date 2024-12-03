@@ -67,6 +67,7 @@ const touristSchema = new mongoose.Schema({
       date: { type: Date, default: Date.now },
       cod: { type: Boolean, required: false },
       total: { type: Number, required: false },
+      deliveryAddress: { type: Number, required: false},
       status: {
         type: String,
         enum: ["Delivered", "Cancelled", "Processing"],
@@ -90,6 +91,8 @@ const touristSchema = new mongoose.Schema({
   requestingDeletion: { type: Boolean, default: false },//ng added for deletion
   preferredTags: [{ type: String }],
   preferredCategories: [{ type: String }],
+  activityBells: [{ type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Activity'}],
+  itineraryBells: [{ type: mongoose.Schema.Types.ObjectId, required: false, ref: 'Itinerary'}],
 });
 
 // Create the model

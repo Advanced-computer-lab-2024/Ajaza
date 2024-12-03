@@ -4,6 +4,7 @@ import { Form, Modal } from "antd";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { apiUrl } from "../Common/Constants";
+import LoadingSpinner from "../Common/LoadingSpinner";
 
 const ItineraryAdmin = () => {
   const { id } = useParams();
@@ -18,27 +19,26 @@ const ItineraryAdmin = () => {
     const savedFlagState = localStorage.getItem(`flagClicked-${id}`);
     setIsFlagRed(savedFlagState === "true"); // Set to true if previously clicked
   }, [id]);*/
+  const fetchItinerary = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}itinerary/${id}`);
+      setItinerary(response.data);
+      //  const savedFlagState = localStorage.getItem(`flagClicked-${id}`);
+      //    setIsFlagRed(savedFlagState === "true"); // Set to true if previously clicked
+      // Set to true if previously clicked
+      if (itinerary.hidden === true) {
+        setIsFlagRed(true);
+
+        // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
+      } else {
+        setIsFlagRed(false);
+      }
+    } catch (error) {
+      console.error("Error fetching itinerary:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchItinerary = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}itinerary/${id}`);
-        setItinerary(response.data);
-        //  const savedFlagState = localStorage.getItem(`flagClicked-${id}`);
-        //    setIsFlagRed(savedFlagState === "true"); // Set to true if previously clicked
-        // Set to true if previously clicked
-        if (itinerary.hidden === true) {
-          setIsFlagRed(true);
-
-          // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
-        } else {
-          setIsFlagRed(false);
-        }
-      } catch (error) {
-        console.error("Error fetching itinerary:", error);
-      }
-    };
-
     fetchItinerary();
   }, [id]);
 
@@ -84,12 +84,14 @@ const ItineraryAdmin = () => {
     // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
     try {
       const response = await axios.patch(`${apiUrl}itinerary/hide/${id}`);
+      //fetchItinerary();
       console.log(response.data);
-      setItinerary(response.data.updatedItinerary);
+      //  setItinerary(response.data.updatedItinerary);
       //  setActivity(response.data);
     } catch (error) {
       console.error("Error hiding event:", error);
     }
+    fetchItinerary();
     setIsModalVisible(false); // Close the modal
   };
 
@@ -127,7 +129,7 @@ const ItineraryAdmin = () => {
   //   itinerary?.availableDateTime?.map((d) => d.date).join(", ") || "";
 
   if (!itinerary) {
-    return <div>Loading itienerary... </div>;
+    return <LoadingSpinner />;
   }
   console.log(itinerary);
 
@@ -205,7 +207,7 @@ const ItineraryAdmin = () => {
 
       {/* Confirmation Modal */}
       <Modal
-        title="Confirm UnFlag"
+        title="Cancel Flagging"
         visible={unflagisModalVisible}
         onOk={confirmUnFlag}
         onCancel={cancelUnFlag}

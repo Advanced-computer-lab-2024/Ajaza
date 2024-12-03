@@ -1,47 +1,74 @@
 .notification-container {
-    padding: 20px;
-    background-color: #f5f5f5;
-    max-width: 800px; /* You can adjust this based on your layout */
-    margin: 0 auto; /* Center the notifications container */
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .notification-row {
-    width: 100%;
-  }
-  
-  .notification-item {
-    margin-bottom: 16px; /* Space between notifications */
-  }
-  
-  .notification-message {
-    background-color: #fff;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    border-left: 4px solid transparent; /* Border that will change color */
-  }
-  
-  .notification-message.unseen {
-    border-left: 4px solid #1b696a; /* Yellow border for unseen notifications */
-    border-right: 4px solid  #1b696a;
-    background-color: #a9f1d3; /* Light yellow background for unseen notifications */
-  }
-  
-  .notification-message.seen {
-    background-color: #e0e0e0; /* Light gray for seen notifications */
-    border-left: 4px solid #4caf50; /* Green border for seen notifications */
-  }
-  
-  .notification-message:hover {
-    transform: translateX(10px); /* Subtle hover effect */
-  }
-  
-  .notification-message p {
-    margin: 0;
-    font-size: 14px;
-    color: #333;
-  }
-  
+  padding: 20px;
+  background-color: #f5f5f5;
+  max-width: 1200px; /* Adjust to your layout */
+  margin: 0 auto; /* Center the notifications container */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.notification-header {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.notification-row {
+  width: 100%;
+}
+
+.notification-item {
+  margin-bottom: 18px; /* Space between notifications */
+}
+
+.notification-message {
+  position: relative;
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  border-left: 4px solid transparent; /* Border that will change color */
+  display: flex;
+  justify-content: space-between; /* Distributes space between elements */
+  align-items: center;
+}
+
+.notification-message .notification-text {
+  flex: 1; /* Takes up remaining space */
+  margin-right: 18px; /* Spacing between text and button */
+  color: #333;
+  font-size: 16px;
+}
+
+.notification-message .notification-button {
+  flex-shrink: 0; /* Prevents the button from shrinking */
+}
+
+.notification-message.unseen {
+  border-left: 4px solid #1b696a; /* Border for unseen notifications */
+  border-right: 4px solid #1b696a;
+  background-color: #ffffff; /* Background for unseen notifications */
+}
+
+.notification-message.seen {
+  background-color: #a9f1d3; /* Background for seen notifications */
+  border-left: 4px solid #1b696a; /* Border for unseen notifications */
+  border-right: 4px solid #1b696a;
+}
+
+.notification-message:hover {
+  transform: translateX(10px); /* Subtle hover effect */
+}
+
+.notification-message p {
+  margin: 0;
+  font-size: 14px;
+  color: #000000;
+}
+
+.no-notifications {
+  text-align: center;
+  color: #888;
+  font-size: 16px;
+  margin-top: 20px;
+}

@@ -11,6 +11,12 @@ router.post("/", sellerController.createSeller);
 
 router.get("/", sellerController.getAllSellers);
 
+router.get("/countByMonth", sellerController.countSellersByMonth);
+
+router.get('/requestingdeletion', sellerController.getSellersRequestingDeletion);
+
+
+
 //req 12
 router.get("/pending", sellerController.getPendingSellers);
 
@@ -79,9 +85,11 @@ router.patch("/requestDeletion/:id", sellerController.requestDeletion);
 
 router.post("/validateEmailUsername", sellerController.validateEmailUsername); // New route for email and username validation
 
-
-
 router.get('/viewSalesReport/:id', sellerController.viewSalesReport);
+
+router.post("/seeNotifications/:id", sellerController.seeNotifications);
+
+router.get("/myItems/feedback/:id", sellerController.myItemsFeedback);
 
 
 module.exports = router;

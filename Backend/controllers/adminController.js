@@ -172,3 +172,165 @@ exports.deleteImgs = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+exports.seeNotifications = async(req,res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await Admin.findById(userId);
+
+    if(!user) {
+      return res.status(404).json({message: "User not found"});
+    }
+
+    for(let i = 0; i < user.notifications.length; i++) {
+      user.notifications[i].seen = true;
+    }
+
+    await user.save();
+
+    return res.status(200).json({message: "Notifications seen successfully"});
+  }
+  catch(error) {
+    return res.status(500).json({message: "Internal error"});
+  }
+}
+
+//req 27 - Tatos (Done)
+exports.viewSalesReport = async (req, res) => {
+  const adminId = req.params.id;
+  try {
+    const admin = await Admin.findById(adminId);
+
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    const tourists = await Tourist.find({
+      $or: [
+        { "orders.products.productId": { $exists: true } },
+        { "activityBookings.activityId": { $exists: true } },
+        { "itineraryBookings.itineraryId": { $exists: true } }
+      ]
+    })
+    .populate('orders.products.productId')
+    .populate('activityBookings.activityId')
+    .populate('itineraryBookings.itineraryId');
+
+    if (!tourists || tourists.length === 0) {
+      return res.status(404).json({ message: "No sales or bookings found" });
+    }
+
+    let totalSales = 0;
+    let productSales = 0;
+    let activityBookingsCommission = 0;
+    let itineraryBookingsCommission = 0;
+    const report = [];
+
+
+    // Loop through all tourists
+    for (const tourist of tourists) {
+
+      // Calculate total sales from product orders
+      for (const order of tourist.orders) {
+        for (const product of order.products) {
+          const productDetails = product.productId;
+          if (productDetails.adminId){  // to fix the internal error issue --> caused by some products not having adminId
+            if (productDetails && (productDetails.adminId.toString() === adminId) && (order.status !== "Cancelled")) {
+              const productTotal = product.quantity * productDetails.price;
+              totalSales += productTotal;
+              productSales += productTotal;
+              report.push({
+                type: 'Product',
+                productName: productDetails.name,
+                orderDate: order.date,
+                quantity: product.quantity,
+                price: productDetails.price,
+                total: productTotal,
+                category: productDetails.category,
+              });
+              
+  
+            }
+          }
+          
+        }
+      }
+
+      // Calculate 10% commission from activity bookings
+      for (const booking of tourist.activityBookings) {
+        const activity = booking.activityId;
+        if (activity) {
+          const commission = booking.total * 0.1;
+          activityBookingsCommission += commission;
+          totalSales += commission;
+          report.push({
+            type: 'Activity',
+            activityName: activity.name,
+            activityDate: activity.date,
+            price: booking.total,
+            commission: commission,
+          });
+        }
+      }
+
+      // Calculate 10% commission from itinerary bookings
+      for (const booking of tourist.itineraryBookings) {
+        const itinerary = booking.itineraryId;
+        if (itinerary) {
+          const commission = booking.total * 0.1;
+          itineraryBookingsCommission += commission;
+          totalSales += commission;
+          report.push({
+            type: 'Itinerary',
+            itineraryName: itinerary.name,
+            bookingDate: booking.date,
+            price: booking.total,
+            commission: commission,
+          });
+        }
+      }
+
+    }
+
+    res.status(200).json({
+      totalSales,
+      productSales,
+      activityBookingsCommission,
+      itineraryBookingsCommission,
+      report,
+    });
+
+
+  } catch (error) {
+    return res.status(500).json({ message: "Internal error" });
+  }
+}
+
+// Count Admins by month and year
+exports.countAdminsByMonth = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ message: "Date is required" });
+    }
+
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
+
+    const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
+    const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0);
+
+    const count = await Admin.countDocuments({
+      date: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    res.status(200).json({ count });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+

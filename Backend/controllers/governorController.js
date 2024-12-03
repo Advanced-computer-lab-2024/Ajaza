@@ -105,7 +105,7 @@ exports.readAllGovernorVenues = async (req, res) => {
     const venues = await Venue.find({ governorId, isVisible: true });
 
     if (!venues || venues.length === 0) {
-      //return res.status(404).json({ message: 'No venues found for this governor.' });
+      return res.status(404).json({ message: 'No venues found for this governor.' });
     }
 
     res.status(200).json(venues);
@@ -188,12 +188,12 @@ exports.getGovernorVenues = async (req, res) => {
     const venues = await Venue.find({ governorId, isVisible: true });
 
     if (!venues || venues.length === 0) {
-      //return res.status(404).json({ message: 'No venues found for this governor' });
+      return res.status(404).json({ message: 'No venues found for this governor' });
     }
 
     res.status(200).json(venues);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -245,7 +245,7 @@ exports.createTagForVenue = async (req, res) => {
     } else {
       return res
         .status(400)
-        .json({ message: "All tags already exist for this venue." });
+        .json({ message: "Tag already exist for this venue." });
     }
     // Save the updated venue
     await venue.save();
@@ -255,7 +255,7 @@ exports.createTagForVenue = async (req, res) => {
       .json({ message: "Tag assigned to venue successfully", tags, venue });
   } catch (error) {
     // Handle any error that occurs and return it in the response
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -289,6 +289,33 @@ exports.acceptTerms = async (req, res) => {
     user.acceptedTerms = true;
     await user.save();
     res.status(200).json({ message: "Terms accepted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Count Governers by month and year
+exports.countGovernersByMonth = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ message: "Date is required" });
+    }
+
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
+
+    const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
+    const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0);
+
+    const count = await Governor.countDocuments({
+      date: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    res.status(200).json({ count });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

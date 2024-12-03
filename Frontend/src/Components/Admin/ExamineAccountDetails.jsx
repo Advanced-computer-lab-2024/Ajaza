@@ -30,6 +30,7 @@ const ExamineAccountDetails = () => {
     const [imageCert8, setImageCert8] = useState("");
     const [imageCert9, setImageCert9] = useState("");
     const [imageCert10, setImageCert10] = useState("");
+    
 
     useEffect(() => {
         const fetchAccountDetails = async () => {
@@ -47,7 +48,7 @@ const ExamineAccountDetails = () => {
                     setImageCert1(hisCertificates[0] ? `http://localhost:3000/${hisCertificates[0]}` : "");
                     setImageCert2(hisCertificates[1] ? `http://localhost:3000/${hisCertificates[1]}` : "");
                     setImageCert3(hisCertificates[2] ? `http://localhost:3000/${hisCertificates[2]}` : "");
-                     setImageCert4(hisCertificates[3] ? `http://localhost:3000/${hisCertificates[3]}` : "");
+                    setImageCert4(hisCertificates[3] ? `http://localhost:3000/${hisCertificates[3]}` : "");
                     setImageCert5(hisCertificates[4] ? `http://localhost:3000/${hisCertificates[4]}` : "");
                     setImageCert6(hisCertificates[5] ? `http://localhost:3000/${hisCertificates[5]}` : "");
                     setImageCert7(hisCertificates[6] ? `http://localhost:3000/${hisCertificates[6]}` : "");
@@ -154,10 +155,10 @@ const ExamineAccountDetails = () => {
     )}
 
     <div style={{ marginTop: 20 }}>
-        <Button type="primary" onClick={handleAccept} style={{ marginRight: 10 }}>
+        <Button type="primary" onClick={handleAccept} style={{ marginRight: 10 , backgroundColor:"#5b8b77" }}>
             Accept
         </Button>
-        <Button type="default" onClick={handleReject}>
+        <Button type="default" onClick={handleReject} style={{color:"red" }}>
             Reject
         </Button>
     </div>

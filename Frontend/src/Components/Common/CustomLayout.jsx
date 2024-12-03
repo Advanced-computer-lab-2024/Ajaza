@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Icon, {
   BellFilled,
   MenuFoldOutlined,
@@ -11,6 +11,7 @@ import Icon, {
   ContainerOutlined,
   HourglassFilled,
 } from "@ant-design/icons";
+import { ShoppingCartOutlined } from "@ant-design/icons";
 import { Flex, Button, Layout, Menu, theme, message, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
 
@@ -45,9 +46,23 @@ const CustomLayout = ({
   );
   const [collapsed, setCollapsed] = useState(true);
   const [hover, setHover] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const notificationsRef = useRef([]);
   const navigate = useNavigate();
   const guestNavBarItems = (
-    <div style={{ marginLeft: "auto" }}>
+    <div style={{ display: "flex", marginLeft: "auto" }}>
+      <div
+        id="logo"
+        style={{ position: "relative", bottom: 3, marginRight: "450px" }}
+      >
+        <img
+          src={image}
+          alt="Ajaza Logo"
+          style={{
+            width: "58px",
+          }}
+        />
+      </div>
       <CustomButton
         size={"s"}
         value={"Sign in"}
@@ -70,6 +85,11 @@ const CustomLayout = ({
     if (token) {
       const decodedToken = jwtDecode(token);
       setUser(decodedToken.userDetails);
+      const unseenNotifications = decodedToken.userDetails.notifications.filter(
+        (notification) => !notification.seen
+      );
+      setNotifications(unseenNotifications); // Store only unseen notifications
+      notificationsRef.current = unseenNotifications;
       setNavBarItems(
         <Flex justify="center" style={{ width: "100%", position: "relative" }}>
           <div id="logo" style={{ position: "relative", right: 40, bottom: 3 }}>
@@ -93,10 +113,20 @@ const CustomLayout = ({
           >
             <IconFloatButton
               icon={BellFilled}
-              badge={{ count: 5 }}
-              onClick={() => navigate("/notifications")} 
+              badge={{ count: notificationsRef.current.length }}
+              onClick={() => navigate(`/${decodedToken.role}/notifications`)}
             />
-            
+
+            {decodedToken.role === "tourist" && (
+              <IconFloatButton
+                icon={ShoppingCartOutlined}
+                onClick={() =>
+                  navigate(`/${decodedToken.role}/cart/${decodedToken.userId}`)
+                }
+                style={{ marginLeft: "20px" }}
+              />
+            )}
+
             {decodedToken.role !== "governor" &&
               decodedToken.role !== "admin" && (
                 <UserOutlined
@@ -156,19 +186,27 @@ const CustomLayout = ({
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider
+      
         trigger={null}
         collapsible
         collapsed={collapsed && !hover}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
+        style={{
+          backgroundColor: '#1b696a', 
+        }}
       >
         <div className="demo-logo-vertical" />
         <Menu
-          theme="dark"
-          mode="inline"
+         //theme="dark"
+          //mode="inline"
           defaultSelectedKeys={[selectedKey]}
           items={sideBarItems}
           onClick={handleMenuClick}
+          style={{
+            backgroundColor: '#1b696a', 
+            color:"black",
+          }}
         />
       </Sider>
       <Layout>
@@ -189,6 +227,8 @@ const CustomLayout = ({
               fontSize: "16px",
               width: 64,
               height: 64,
+       
+           
             }}
           />
           {guest ? guestNavBarItems : navBarItems}

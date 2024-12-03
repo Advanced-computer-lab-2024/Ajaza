@@ -83,7 +83,7 @@ const Complaints = () => {
                       type="default"
                       icon={<BarsOutlined />}
                       onClick={() => handleDetailsView(complaint)}
-                      style={{ color: "blue" }}
+                      style={{ color: "#1b696a" }}
                     >
                       View Details
                     </Button>

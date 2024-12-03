@@ -15,7 +15,7 @@ import { apiUrl } from "../Common/Constants";
 
 const { Header, Content } = Layout;
 
-const items = [
+const menuItems = [
   { key: "1", label: "Add Admin" },
   { key: "2", label: "Add Tourism Governor" },
 ];
@@ -141,7 +141,7 @@ const AddAccounts = () => {
               </Form.Item>
 
               <Form.Item>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" style={{backgroundColor:"#5b8b77"}}>
                   Add Admin Account
                 </Button>
               </Form.Item>
@@ -191,7 +191,7 @@ const AddAccounts = () => {
                 <Input placeholder="Password" type="password" />
               </Form.Item>
               <Form.Item>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" style={{backgroundColor:"#5b8b77"}}>
                   Add Tourism Governor Account
                 </Button>
               </Form.Item>
@@ -224,34 +224,47 @@ const AddAccounts = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          backgroundColor:"#5b8b77"
         }}
       >
         <div className="demo-logo" />
         <Menu
-          theme="dark"
+          //theme="dark"
           mode="horizontal"
           defaultSelectedKeys={["1"]}
-          items={items}
+          items={menuItems.map((item) => ({
+            key: item.key,
+            label: item.label,
+            style: { 
+              paddingLeft: "20px",
+               paddingRight: "20px" ,
+               backgroundColor: "#5b8b77",
+               color: "white",
+            }, }))}
           onClick={handleMenuClick}
           style={{
             flex: 0,
             display: "flex",
             justifyContent: "center",
             gap: "50px", // Add spacing between menu items
+            backgroundColor:"#5b8b77",
+            color:"white"
           }}
         />
       </Header>
       <Content
         style={{
           padding: "0 48px",
+          color:"white"
         }}
       >
         <div
           style={{
             padding: 24,
             minHeight: 380,
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
+            //background: colorBgContainer,
+            //borderRadius: borderRadiusLG,
+            
           }}
         >
           {renderContent()}

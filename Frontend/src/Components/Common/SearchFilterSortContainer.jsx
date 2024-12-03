@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Col, Row, Card, Avatar, Flex } from "antd";
+import { Col, Row, Card, Avatar, Flex, Modal, Input } from "antd";
 import {
   EditOutlined,
   EllipsisOutlined,
   SettingOutlined,
+  FilterFilled,
+  FilterOutlined,
 } from "@ant-design/icons";
-import Search from "./Search";
 import { DownOutlined } from "@ant-design/icons";
-import { Dropdown, Space, Typography } from "antd";
+import { Dropdown, Space, Typography, Button } from "antd";
 import { jwtDecode } from "jwt-decode";
+
+import Search from "./Search";
+import { useCurrency } from "../Tourist/CurrencyContext";
+import { currencyRates } from "./Constants";
 
 function mapPropsToValues(element, propMapping) {
   if (!propMapping || !element) {
@@ -132,7 +137,6 @@ const sortElements = (elements, sortField, sortAsc) => {
     }
 
     if (!sortField) {
-      console.log("here");
     }
 
     if (isNaN(aValue)) return sortAsc ? -1 : 1;
@@ -212,6 +216,49 @@ const SearchFilterSortContainer = ({
   const [filterCriteria, setFilterCriteria] = useState(null);
   const [filterField, setFilterField] = useState(null);
 
+  const { currency, setCurrency } = useCurrency();
+  const [minPrice, setMinPrice] = useState(null);
+  const [maxPrice, setMaxPrice] = useState(null);
+
+  const [open, setOpen] = useState(false);
+  const showModal = () => {
+    setOpen(true);
+  };
+  const handleOk = () => {
+    if (!minPrice && !maxPrice) return;
+    setFilterField("price");
+    setFilterCriteria({ minPrice, maxPrice });
+    setFilterFn(() => (criteria, element) => {
+      let minPrice = criteria.minPrice / currencyRates[currency];
+      let maxPrice = criteria.maxPrice / currencyRates[currency];
+      if (element.lower) {
+        // Activity
+        let lower = element.lower;
+        let upper = element.upper;
+        if (element.discounts) {
+          lower = lower - lower * (element.discounts / 100);
+          upper = upper - upper * (element.discounts / 100);
+        }
+
+        if (lower > maxPrice || upper < minPrice) {
+          return false;
+        } else {
+          return true;
+        }
+      } else {
+        // Normal price
+        if (element.price < minPrice || element.price > maxPrice) {
+          return false;
+        } else {
+          return true;
+        }
+      }
+    });
+    setOpen(false);
+  };
+  const handleCancel = () => {
+    setOpen(false);
+  };
   // if (!cardOnclick) {
   //   cardOnclick = (element) => {
   //     navigate(element["_id"]);
@@ -261,6 +308,9 @@ const SearchFilterSortContainer = ({
     setDisplayedElements(temp);
   }, [searchValue, sortField, sortAsc, filterField, filterCriteria, filterFn]);
 
+  useEffect(() => {
+    handleOk();
+  }, [currency]);
   // useEffect(() => {
   //   console.log(displayedElements);
   // }, [displayedElements]);
@@ -363,22 +413,28 @@ const SearchFilterSortContainer = ({
         label: fieldData.displayName,
         children: [],
       };
-
-      let itemKey = 2;
-      for (const value of fieldData.values) {
-        group.children.push({
-          key: `${groupKey}-${itemKey}`,
-          label: value.displayName,
-          onClick: () => {
-            // Set the compare function without executing it
-            setFilterFn(() => (filterCriteria, element) => {
-              return fieldData.compareFn(filterCriteria, element);
-            });
-            setFilterCriteria(value.filterCriteria);
-            setFilterField(fieldName);
-          },
-        });
-        itemKey++;
+      if (fieldName == "price") {
+        group.children = undefined;
+        group.onClick = () => {
+          showModal();
+        };
+      } else {
+        let itemKey = 2;
+        for (const value of fieldData.values) {
+          group.children.push({
+            key: `${groupKey}-${itemKey}`,
+            label: value.displayName,
+            onClick: () => {
+              // Set the compare function without executing it
+              setFilterFn(() => (filterCriteria, element) => {
+                return fieldData.compareFn(filterCriteria, element);
+              });
+              setFilterCriteria(value.filterCriteria);
+              setFilterField(fieldName);
+            },
+          });
+          itemKey++;
+        }
       }
 
       filterItems.push(group);
@@ -411,7 +467,7 @@ const SearchFilterSortContainer = ({
             }}
           >
             <a onClick={(e) => e.preventDefault()}>
-              <Space>
+              <Space style={{color: "#1b696a"}}>
                 Filter
                 <DownOutlined />
               </Space>
@@ -424,7 +480,7 @@ const SearchFilterSortContainer = ({
               selectable: true,
             }}
           >
-            <Typography.Link style={{ marginLeft: "30px" }}>
+            <Typography.Link style={{ marginLeft: "30px" , color:"#1b696a"}}>
               <Space>
                 Sort
                 <DownOutlined />
@@ -454,6 +510,50 @@ const SearchFilterSortContainer = ({
           );
         })}
       </Row>
+      <Modal
+        open={open}
+        title={
+          <h5 style={{ textAlign: "center", marginBottom: "20px" }}>
+            Filter Price
+          </h5>
+        }
+        onOk={handleOk}
+        onCancel={handleCancel}
+        footer={(_, { OkBtn, CancelBtn }) => (
+          <>
+            <CancelBtn />
+            <Button
+              type="primary"
+              style={{ width: "50px" }}
+              icon={<FilterOutlined />}
+              onClick={handleOk}
+            />
+          </>
+        )}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-around",
+            marginBottom: "20px",
+          }}
+        >
+          <Input
+            type="number"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+            placeholder="Minimum Price"
+            style={{ width: "200px" }}
+          />
+          <Input
+            type="number"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+            placeholder="Maximum Price"
+            style={{ width: "200px" }}
+          />
+        </div>
+      </Modal>
     </>
   );
 };

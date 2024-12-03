@@ -5,6 +5,7 @@ import {
   Typography,
   Space,
   Input,
+  InputNumber,
   Button,
   Form,
   message,
@@ -12,6 +13,8 @@ import {
   Flex,
   Menu,
   Dropdown,
+  Row, 
+  Col,
 } from "antd";
 import {
   UserOutlined,
@@ -28,8 +31,60 @@ import "./Profile.css";
 import { apiUrl, getSetNewToken } from "../Common/Constants";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { useCurrency } from "../Tourist/CurrencyContext";
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const { Title } = Typography;
+
+const currencyRates = {
+  AED: 3.6725,
+  ARS: 1004.0114,
+  AUD: 1.5348,
+  BDT: 110.5,
+  BHD: 0.376,
+  BND: 1.3456,
+  BRL: 5.8149,
+  CAD: 1.3971,
+  CHF: 0.8865,
+  CLP: 973.6481,
+  CNY: 7.2462,
+  COP: 4389.3228,
+  CZK: 24.2096,
+  DKK: 7.1221,
+  EGP: 48.58,
+  EUR: 0.9549,
+  GBP: 0.7943,
+  HKD: 7.7825,
+  HUF: 392.6272,
+  IDR: 15911.807,
+  ILS: 3.7184,
+  INR: 84.5059,
+  JPY: 154.4605,
+  KRW: 1399.323,
+  KWD: 0.3077,
+  LKR: 291.0263,
+  MAD: 10.5,
+  MXN: 20.4394,
+  MYR: 4.4704,
+  NOK: 11.0668,
+  NZD: 1.7107,
+  OMR: 0.385,
+  PHP: 58.9091,
+  PKR: 279.0076,
+  PLN: 4.1476,
+  QAR: 3.64,
+  RUB: 101.2963,
+  SAR: 3.75,
+  SEK: 11.063,
+  SGD: 1.3456,
+  THB: 34.7565,
+  TRY: 34.5345,
+  TWD: 32.5602,
+  UAH: 36.9,
+  USD: 1,
+  VND: 24000.0,
+  ZAR: 18.0887,
+};
 
 const Profile = () => {
   const [response, setResponse] = useState(null); // Store decoded token or API data
@@ -42,7 +97,12 @@ const Profile = () => {
   const [showPasswordForm, setShowPasswordForm] = useState(false); // State to toggle password form visibility
   const [logo, setLogo] = useState("http://localhost:3000/uploads/logo.svg"); // Store logo image
   const [photo, setPhoto] = useState("http://localhost:3000/uploads/logo.svg"); // Store photo image
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [formDelivery] = Form.useForm();
+  const [addresses, setAddresses] = useState([]);
   const navigate = useNavigate(); // useNavigate hook for programmatic navigation
+  const { currency } = useCurrency();
+  const [walletConverted, setWalletConverted] = useState(0);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -56,6 +116,7 @@ const Profile = () => {
       const userDetails = decodedToken.userDetails;
       setUserDetails(userDetails);
       setPending(userDetails.pending); // Set pending status from userDetails
+      setAddresses(userDetails.deliveryAddresses || []);
 
       // Populate form fields with userDetails values
       form.setFieldsValue({
@@ -77,6 +138,13 @@ const Profile = () => {
       }
     }
   }, [form]);
+
+  useEffect(() => {
+    if (userDetails?.wallet !== undefined && currency) {
+      const convertedValue = (userDetails.wallet * (currencyRates[currency] || 1)).toFixed(2);
+      setWalletConverted(convertedValue);
+    }
+  }, [userDetails, currency]);
 
   // Handle saving profile changes
   const handleSave = async (values) => {
@@ -173,6 +241,53 @@ const Profile = () => {
   const handleCancel = () => {
     setIsEditing(false);
     form.setFieldsValue(userDetails); // Reset the form to initial values
+  };
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleCancelDelivery = () => {
+    formDelivery.resetFields();
+    setIsModalVisible(false);
+  };
+
+  const handleAddAddress = async (values) => {
+
+    const response = await axios.post(
+      `${apiUrl}tourist/address/${userDetails._id}`,
+      values,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if(response.status == 200) {
+      const newToken = response.data.token;
+
+      // Check if newToken is valid
+      if (!newToken || typeof newToken !== "string") {
+        throw new Error("Invalid token returned from API");
+      }
+
+      // Update the token in localStorage
+      localStorage.setItem("token", newToken);
+
+      // Decode the new token and update user details locally
+      const decodedToken = jwtDecode(newToken);
+      setResponse(decodedToken);
+      setUserDetails(decodedToken.userDetails); // Update the local profile data
+
+      message.success("Delivery address added successfully");  
+      setAddresses([...addresses, values]);
+    } else {
+      message.error("An error has occurred. Please try again later.")
+    }
+
+    formDelivery.resetFields();
+    setIsModalVisible(false);
   };
 
   // Utility function to format keys
@@ -419,16 +534,25 @@ const Profile = () => {
     </Menu>
   );
 
+  const [hovered, setHovered] = useState(false);
+
+
   return (
     <>
       <Flex justify="left">
         <Button
           type="primary"
-          style={{ fontWeight: "bold" }}
+          style={{fontWeight: "bold",
+            color: hovered? "white" : "red",
+            //backgroundColor: "white",
+            backgroundColor: hovered ? "#ff6961" : "white",}}
           danger
           onClick={() => confirmLogOut()}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          icon={<LogoutIcon/>}
         >
-          Log out
+          Log Out
         </Button>
 
         <Button
@@ -774,7 +898,7 @@ const Profile = () => {
                           right: 20,
                           border: "none",
                           background: "none",
-                          color: "#1890ff",
+                          color: "#5b8b77",
                           fontSize: "16px",
                         }}
                         onClick={(e) => {
@@ -824,7 +948,7 @@ const Profile = () => {
                     {userDetails.nationality && (
                       <div>
                         <strong>Nationality: </strong>
-                        <span>{userDetails.nationality}</span>
+                        <span>{userDetails.nationality.charAt(0).toUpperCase()+ userDetails.nationality.slice(1)}</span>
                       </div>
                     )}
                     {userDetails.dob && (
@@ -848,7 +972,9 @@ const Profile = () => {
                     {userDetails.wallet !== undefined && (
                       <div>
                         <strong>Wallet: </strong>
-                        <span>{userDetails.wallet || 0} USD</span>
+                        <span>
+                    {walletConverted} {currency}
+                  </span>
                       </div>
                     )}
                     {userDetails.totalPoints !== undefined && (
@@ -888,6 +1014,117 @@ const Profile = () => {
           )}
         </Space>
       </Card>
+      {role === "tourist" && (
+        <Card
+          style={{
+            width: "100%",
+            maxWidth: 600,
+            margin: "50px auto",
+            padding: "20px",
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Space direction="vertical" align="center" style={{ width: "100%" }}></Space>
+            <h3 style={{ textAlign: "center", flex: 1, margin: 0 }}>Delivery Addresses</h3>
+            <Button type="primary" icon="+" onClick={showModal} style={{ marginBottom: 0 }}>
+            Add Address
+            </Button>
+          </div>
+          <hr />
+          {addresses !== undefined && (
+                        <Row gutter={[16, 16]}>
+                        {userDetails.deliveryAddresses.map((address, index) => (
+                          <Col xs={84} sm={12} md={8} key={index}>
+                            <Card
+                              title={`${address.city}, ${address.country}`}
+                              bordered={true}
+                              hoverable
+                            >
+                              <p><strong>Area:</strong> {address.area}</p>
+                              <p><strong>Street:</strong> {address.street}</p>
+                              <p><strong>House:</strong> {address.house}</p>
+                              <p><strong>Apartment:</strong> {address.app}</p>
+                              <p><strong>Description:</strong> {address.desc}</p>
+                            </Card>
+                          </Col>
+                        ))}
+                      </Row>
+                      
+                      )}
+              {isModalVisible && (
+
+            <Modal
+              title="Add Delivery Address"
+              visible={isModalVisible}
+              onCancel={handleCancelDelivery}
+              style={{backgroundColor: '#5b8b77'}}
+              footer={null}
+            >
+              <Form
+                form={form}
+                layout="vertical"
+                onFinish={handleAddAddress}
+              >
+                <Form.Item
+                  label="Country"
+                  name="country"
+                  rules={[{ required: true, message: "Please input the country!" }]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label="City"
+                  name="city"
+                  rules={[{ required: true, message: "Please input the city!" }]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label="Area"
+                  name="area"
+                  rules={[{ required: true, message: "Please input the area!" }]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label="Street"
+                  name="street"
+                  rules={[{ required: true, message: "Please input the street!" }]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label="House Number"
+                  name="house"
+                  rules={[{ required: true, message: "Please input the house number!" }]}
+                >
+                  <InputNumber min={1} style={{ width: "100%" }} />
+                </Form.Item>
+                <Form.Item
+                  label="Apartment Number"
+                  name="app"
+                  rules={[{ required: true, message: "Please input the apartment number!" }]}
+                >
+                  <InputNumber min={1} style={{ width: "100%" }} />
+                </Form.Item>
+                <Form.Item
+                  label="Description"
+                  name="desc"
+                  rules={[{ required: false }]}
+                >
+                  <Input.TextArea rows={3} />
+                </Form.Item>
+                <Form.Item>
+                  <Button type="primary" htmlType="submit" style={{backgroundColor:"#5b8b77"}} block>
+                    Add Address
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Modal>)}
+        </Card>
+        )}
+        <section id="addresses"><hr /></section>
     </>
   );
 };

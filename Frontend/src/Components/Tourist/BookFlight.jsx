@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Form, Input, DatePicker, InputNumber, Select, message } from 'antd';
+import { Form, Empty, DatePicker, InputNumber, Select, message } from 'antd';
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
 import BasicCard from '../Common/BasicCard';
@@ -8,14 +8,59 @@ import SelectCurrency from './SelectCurrency';
 import image from "../../Assets/login.jpg";
 import CustomButton from '../Common/CustomButton';
 import { useCurrency } from './CurrencyContext';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 
 const currencyRates = {
-    EGP: 48.58,
-    USD: 1,
-    EUR: 0.91,
-};
+    AED: 3.6725 ,
+  ARS: 1004.0114 ,
+  AUD: 1.5348,
+  BDT: 110.50,
+  BHD: 0.3760,
+  BND: 1.3456,
+  BRL: 5.8149,
+  CAD: 1.3971,
+  CHF: 0.8865,
+  CLP: 973.6481,
+  CNY: 7.2462,
+  COP: 4389.3228,
+  CZK: 24.2096,
+  DKK: 7.1221,
+  EGP: 48.58,
+  EUR: 0.9549,
+  GBP: 0.7943,
+  HKD: 7.7825,
+  HUF: 392.6272,
+  IDR: 15911.8070,
+  ILS: 3.7184,
+  INR: 84.5059,
+  JPY: 154.4605,
+  KRW: 1399.3230,
+  KWD: 0.3077,
+  LKR: 291.0263,
+  MAD: 10.50,
+  MXN: 20.4394,
+  MYR: 4.4704,
+  NOK: 11.0668,
+  NZD: 1.7107,
+  OMR: 0.3850,
+  PHP: 58.9091,
+  PKR: 279.0076,
+  PLN: 4.1476,
+  QAR: 3.6400,
+  RUB: 101.2963,
+  SAR: 3.7500,
+  SEK: 11.0630,
+  SGD: 1.3456,
+  THB: 34.7565,
+  TRY: 34.5345,
+  TWD: 32.5602,
+  UAH: 36.90,
+  USD : 1,
+  VND: 24000.00,
+  ZAR: 18.0887,
+  };
 
 export const BookFlight = () => {
     const [flights, setFlights] = useState([]);
@@ -62,8 +107,13 @@ export const BookFlight = () => {
                 departureDate: departureDate.format('YYYY-MM-DD'),
                 count,
             });
-            console.log("aaallllooooo",origin, destination, departureDate, count);
-            setFlights(response.data);
+    
+            if (response.data.length === 0) {
+                return <Empty description="API QUOTA FINISHED" style={{ marginTop: "20px" }} />;
+            } else {
+                setFlights(response.data);
+            }
+    
         } catch (error) {
             if (error.response && error.response.status === 429) {
                 message.error("API quota limit has been reached. Please try again later.");
@@ -74,7 +124,7 @@ export const BookFlight = () => {
             setLoading(false);
         }
     };
-
+    
 
 
     const handleBookFlight = async (flight) => {
@@ -590,9 +640,26 @@ export const BookFlight = () => {
                     ))}
                 </Select>
             </Form.Item>
-                <Form.Item label="Departure Date" name="departureDate" rules={[{ required: true }]}>
-                    <DatePicker />
-                </Form.Item>
+
+            <Form.Item
+                label="Departure Date"
+                name="departureDate"
+                rules={[
+                    { required: true, message: "Please select a departure date" },
+                    {
+                    validator: (_, value) => {
+                        const today = dayjs().startOf("day");
+                        if (value && value.isBefore(today)) {
+                        return Promise.reject(new Error("Departure date cannot be in the past"));
+                        }
+                        return Promise.resolve();
+                    },
+                    },
+                ]}
+                >
+                <DatePicker />
+            </Form.Item>
+
                 <Form.Item label="Count" name="count" rules={[{ required: true }]}>
                     <InputNumber min={1} max={9} />
                 </Form.Item>

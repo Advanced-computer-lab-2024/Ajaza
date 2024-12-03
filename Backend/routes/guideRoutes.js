@@ -9,6 +9,8 @@ const validateMobile = require("../middleware/validateMobile");
 const uploadIdCertificatesImage = require("../middleware/uploadIdCertificatesImage");
 
 router.post("/", guideController.createGuide);
+router.get("/countByMonth", guideController.countGuidesByMonth);
+router.get('/requestingdeletion', guideController.getGuidesRequestingDeletion);
 
 
 //req 12
@@ -16,8 +18,7 @@ router.get("/pending", guideController.getPendingGuides);
 
 router.get("/accepted", guideController.getAcceptedGuides);
 
-router.get('/details/:id', guideController.getGuideDetails);
-
+router.get("/details/:id", guideController.getGuideDetails);
 
 router.get("/", guideController.getAllGuides);
 
@@ -26,7 +27,6 @@ router.get("/:id", guideController.getGuideById);
 router.patch("/:id", guideController.updateGuide);
 
 router.delete("/deleteAgain/:id", guideController.deleteGuide);
-
 
 //req 16 ng
 router.delete("/deleteGuides", guideController.deleteGuidesRequestingDeletion);
@@ -90,6 +90,18 @@ router.patch("/requestDeletion/:id", guideController.requestDeletion);
 
 router.post("/validateEmailUsername", guideController.validateEmailUsername); // New route for email and username validation
 
-router.get('/viewSalesReport/:id', guideController.viewSalesReport);
+// view sales report
+router.get("/viewSalesReport/:id", guideController.viewSalesReport);
+
+// view tourist report
+router.get("/viewTouristReport/:id", guideController.viewTouristReport);
+
+router.post("/seeNotifications/:id", guideController.seeNotifications);
+
+router.get("/myItems/feedback/:id", guideController.myItemsFeedback);
+
+router.get("/feedback/:id", guideController.feedback);
+
+
 
 module.exports = router;

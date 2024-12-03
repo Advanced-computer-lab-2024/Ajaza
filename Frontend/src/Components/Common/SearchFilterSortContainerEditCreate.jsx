@@ -197,60 +197,68 @@ const SearchFilterSortContainerEditCreate = ({
     setDisplayedElements(elements);
   }, [elements]);
 
-  // useEffect(() => {
-  //   let temp = filterSearchArray(elements, searchValue, searchFields);
-  //   temp = sortElements(temp, sortField, sortAsc);
-  //   console.log("search useEffect");
+  useEffect(() => {
+    let temp = filterSearchArray(elements, searchValue, searchFields);
+    temp = sortElements(temp, sortField, sortAsc);
+    console.log("search useEffect");
 
-  //   setDisplayedElements(temp);
-  // }, [searchValue]);
+    setDisplayedElements(temp);
+  }, [searchValue]);
 
-  // useEffect(() => {
-  //   let temp = filterSearchArray(elements, searchValue, searchFields);
-  //   temp = sortElements(temp, sortField, sortAsc);
-  //   console.log("sortField useEffect");
+  useEffect(() => {
+    let temp = filterSearchArray(elements, searchValue, searchFields);
+    temp = sortElements(temp, sortField, sortAsc);
+    console.log("sortField useEffect");
 
-  //   setDisplayedElements(temp);
-  // }, [sortField]);
+    setDisplayedElements(temp);
+  }, [sortField]);
 
-  // useEffect(() => {
-  //   let temp = filterSearchArray(elements, searchValue, searchFields);
-  //   temp = sortElements(temp, sortField, sortAsc);
+  useEffect(() => {
+    let temp = filterSearchArray(elements, searchValue, searchFields);
+    temp = sortElements(temp, sortField, sortAsc);
 
-  //   setDisplayedElements(temp);
-  // }, [sortAsc]);
+    setDisplayedElements(temp);
+  }, [sortAsc]);
 
-  // useEffect(() => {
-  //   let temp = filterSearchArray(elements, searchValue, searchFields);
-  //   temp = sortElements(temp, sortField, sortAsc);
-  //   if (filterCriteria && filterField && filterFn) {
-  //     temp = temp.filter((element) => {
-  //       let returnValue = filterFn(filterCriteria, element);
-  //       return returnValue;
-  //     });
-  //   }
-  //   setDisplayedElements(temp);
-  // }, [searchValue, sortField, sortAsc, filterField, filterCriteria, filterFn]);
+  useEffect(() => {
+    let temp = filterSearchArray(elements, searchValue, searchFields);
+    temp = sortElements(temp, sortField, sortAsc);
+    if (filterCriteria && filterField && filterFn) {
+      temp = temp.filter((element) => {
+        let returnValue = filterFn(filterCriteria, element);
+        return returnValue;
+      });
+    }
+    setDisplayedElements(temp);
+  }, [searchValue, sortField, sortAsc, filterField, filterCriteria, filterFn]);
 
-  // useEffect(() => {
-  //   let temp = filterSearchArray(elements, searchValue, searchFields);
-  //   temp = sortElements(temp, sortField, sortAsc);
+  useEffect(() => {
+    let temp = filterSearchArray(elements, searchValue, searchFields);
+    temp = sortElements(temp, sortField, sortAsc);
 
-  //   // Filter out archived products
-  //   temp = temp.filter(element => !element.isArchived); // Ensure 'isArchived' is correctly mapped from your data
+    // Filter out archived products
+    temp = temp.filter((element) => !element.isArchived); // Ensure 'isArchived' is correctly mapped from your data
 
-  //   if (filterCriteria && filterField && filterFn) {
-  //     temp = temp.filter((element) => {
-  //       let returnValue = filterFn(filterCriteria, element);
-  //       return returnValue;
-  //     });
-  //   }
-  //   setDisplayedElements(temp);
-  // }, [searchValue, sortField, sortAsc, filterField, filterCriteria, filterFn, elements]);
+    if (filterCriteria && filterField && filterFn) {
+      temp = temp.filter((element) => {
+        let returnValue = filterFn(filterCriteria, element);
+        return returnValue;
+      });
+    }
+    setDisplayedElements(temp);
+  }, [
+    searchValue,
+    sortField,
+    sortAsc,
+    filterField,
+    filterCriteria,
+    filterFn,
+    elements,
+  ]);
 
-  // useEffect(() => {
-  //   console.log(displayedElements);
-  // }, [displayedElements]);
+  useEffect(() => {
+    console.log(displayedElements);
+  }, [displayedElements]);
 
   const sortItems = [];
   sortFields?.forEach((field, index) => {
@@ -369,7 +377,7 @@ const SearchFilterSortContainerEditCreate = ({
         }
       );
       setRefreshElements((prev) => !prev);
-      message.success("Product updated successfully!");
+      message.success("Product created successfully!");
       setIsModalVisible(false);
       form.resetFields();
       setEditingProductId(null);
@@ -383,27 +391,34 @@ const SearchFilterSortContainerEditCreate = ({
   const editProduct = async (formValues) => {
     try {
       const formData = new FormData();
-      
+
       // Append all fields to FormData
       Object.entries(formValues).forEach(([key, value]) => {
         formData.append(key, value);
       });
-  
+
       // Check if a new photo is being uploaded
       if (formValues.photo && formValues.photo.length > 0) {
         const file = formValues.photo[0].originFileObj;
-  
+
         // Validate the file type
-        const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        const validImageTypes = [
+          "image/jpeg",
+          "image/png",
+          "image/gif",
+          "image/webp",
+        ];
         if (!validImageTypes.includes(file.type)) {
-          message.error("You can only upload image files (JPEG, PNG, GIF, WEBP).");
+          message.error(
+            "You can only upload image files (JPEG, PNG, GIF, WEBP)."
+          );
           return; // Exit the function if the file type is invalid
         }
-  
+
         // Append the valid photo to FormData
         formData.append("photo", file);
       }
-  
+
       const response = await axios.patch(
         `${apiUrl}product/${userId}/product/${editingProductId}/adminSellerEditProduct`,
         formData,
@@ -413,7 +428,7 @@ const SearchFilterSortContainerEditCreate = ({
           },
         }
       );
-  
+
       setRefreshElements((prev) => !prev);
       message.success("Product updated successfully!");
       setIsModalVisible(false);
@@ -467,7 +482,7 @@ const SearchFilterSortContainerEditCreate = ({
             >
               <a
                 onClick={(e) => e.preventDefault()}
-                style={{ marginLeft: "auto" }}
+                style={{ marginLeft: "auto" , color: "#1b696a" }}
               >
                 <Space>
                   Filter
@@ -483,7 +498,7 @@ const SearchFilterSortContainerEditCreate = ({
                 defaultSelectedKeys: ["3"],
               }}
             >
-              <Typography.Link style={{ marginLeft: "30px" }}>
+              <Typography.Link style={{ marginLeft: "30px" , color:"#1b696a" }}>
                 <Space>
                   Sort
                   <DownOutlined />

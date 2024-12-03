@@ -27,6 +27,8 @@ import Button from "./Common/CustomButton";
 import { jwtDecode } from "jwt-decode";
 import { apiUrl, Colors } from "./Common/Constants";
 import { Color } from "antd/es/color-picker";
+import LoadingSpinner from "./Common/LoadingSpinner";
+import dayjs from "dayjs";
 
 const { Option } = Select;
 
@@ -88,8 +90,8 @@ const Itineraries = () => {
       );
       setItinerariesData(response.data);
     } catch (error) {
-      console.error("Error fetching itineraries:", error);
-      message.error("Failed to fetch itineraries.");
+      const errorMessage = error.response?.data?.message || "Please try again.";
+      message.error(`Failed to fetch itinerary,${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -159,8 +161,8 @@ const Itineraries = () => {
       setIsModalVisible(false);
       form.resetFields();
     } catch (error) {
-      console.error("Error creating itinerary:", error);
-      message.error("Failed to create itinerary.");
+      const errorMessage = error.response?.data?.message || "Please try again.";
+      message.error(`Failed to create itinerary,${errorMessage}`);
     }
   };
 
@@ -215,8 +217,8 @@ const Itineraries = () => {
       form.resetFields();
       setEditingItineraryId(null);
     } catch (error) {
-      console.error("Failed to update itinerary:", error);
-      message.error("Failed to update itinerary.");
+      const errorMessage = error.response?.data?.message || "Please try again.";
+      message.error(`Failed to update itinerary,${errorMessage}`);
     }
   };
 
@@ -234,8 +236,9 @@ const Itineraries = () => {
           );
           message.success("Itinerary deleted successfully!");
         } catch (error) {
-          console.error("Error deleting itinerary:", error);
-          message.error("Failed to delete itinerary.");
+          const errorMessage =
+            error.response?.data?.message || "Please try again.";
+          message.error(`Failed to delete itinerary,${errorMessage}`);
         }
       },
     });
@@ -310,7 +313,7 @@ const Itineraries = () => {
         </div>
 
         {loading ? (
-          <p>Loading itineraries...</p>
+          <LoadingSpinner />
         ) : (
           <Space
             direction="horizontal"
@@ -333,7 +336,7 @@ const Itineraries = () => {
                 style={{
                   minWidth: 370,
                   maxWidth: 370,
-                  maxHeight: 700,
+                  maxHeight: 900,
                   marginBottom: "8px",
                   marginRight: "12px",
                   border:
@@ -553,7 +556,7 @@ const Itineraries = () => {
                 },
               ]}
             >
-              <InputNumber  
+              <InputNumber
                 min={1}
                 placeholder="Enter max tourists"
                 style={{ width: "100%" }}
@@ -656,16 +659,30 @@ const Itineraries = () => {
 
             {/* Available date time entries */}
             <Form.List name="availableDateTime">
-              {(fields, { add, remove }) => (
-                <>
-                  {fields.map(({ key, fieldKey, name }) => (
-                    <div key={key} style={{ display: "flex", marginBottom: 8 }}>
-                      <Form.Item
-                        {...fieldKey}
-                        name={[name, "date"]}
-                        fieldKey={[fieldKey[0], "date"]}
-                        label="Available Date"
-                        rules={[{ required: true, message: "Missing date" }]}
+            {(fields, { add, remove }) => (
+    <>
+      {fields.map(({ key, fieldKey, name }) => (
+        <div key={key} style={{ display: "flex", marginBottom: 8 }}>
+          <Form.Item
+            {...fieldKey}
+            name={[name, "date"]}
+            fieldKey={[fieldKey[0], "date"]}
+            label="Available Date"
+            rules={[
+              { required: true, message: "Missing date" },
+              {
+                validator: (_, value) => {
+                  const today = dayjs().startOf("day");
+                  if (value && dayjs(value).isBefore(today)) {
+                    return Promise.reject(
+                      new Error("Itinerary date cannot be in the past")
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+            style={{ marginRight: 16 }} // Add margin to separate available date and available spots in the form
                       >
                         <Input type="date" />
                       </Form.Item>
@@ -696,7 +713,7 @@ const Itineraries = () => {
             </Form.List>
 
             <Form.Item>
-              <AntButton type="primary" htmlType="submit">
+              <AntButton type="primary" htmlType="submit" style={{ marginTop: "10px" }}>
                 {editingItineraryId ? "Update Itinerary" : "Create Itinerary"}
               </AntButton>
             </Form.Item>

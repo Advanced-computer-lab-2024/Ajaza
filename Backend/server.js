@@ -89,16 +89,100 @@ connection.once("open", () => {
 });
 
 //first zero is minutes, second zero is hours of when will daily birth checks be held. //change zeroes for testing
-cron.schedule("0 0 * * *", () => {
+cron.schedule("8 15 * * *", () => {
   if (process.env.BIRTHDAYS === "true") {
     console.log("Running daily birthday check...");
     checkBirthdaysToday();
+    console.log("Running daily booking reminders...");
+    sendReminders();
   }
 });
 
 app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
+
+async function sendReminders() {
+  const bookings = await getBookings();
+  if (bookings.length === 0) {
+    console.log("No bookings within the next 24 hours.");
+    return;
+  }
+  for(let i = 0; i<bookings.length; i++){
+    const booking = bookings[i];
+    const { touristId, bookingType, date, name } = booking;
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      console.error(`Tourist with ID ${touristId} not found.`);
+      continue;
+    }
+
+    const { email } = tourist;
+    const subject = `Reminder: You have a ${bookingType} booking tomorrow!`;
+    const html = `<p>Hello ${tourist.username},</p>
+      <p>This is a friendly reminder that you have a ${bookingType} booking tomorrow on ${date}.</p>
+      <p>Activity/Itinerary: ${name}</p>
+      <p>Enjoy your experience!</p>
+      <p>Best regards,</p>
+      <p>The Reservy Team</p>`;
+
+    sendEmail(email, subject, html);
+
+    if(bookingType === "Activity"){ 
+      tourist.notifications.push({text: `You have a ${bookingType} booking tomorrow on ${date} for ${name}.`, seen: false, activityId: booking.activityId});
+    } else {
+      tourist.notifications.push({text: `You have a ${bookingType} booking tomorrow on ${date} for ${name}.`, seen: false, itineraryId: booking.itineraryId});
+    }
+    await tourist.save();
+  }
+
+}
+
+async function getBookings() {
+  try {
+    const now = new Date();
+    const next24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+    const tourists = await Tourist.find({})
+      .populate('activityBookings.activityId')
+      .populate('itineraryBookings.itineraryId');
+
+    const bookingsWithin24Hours = [];
+
+    tourists.forEach((tourist) => {
+      const { _id: touristId } = tourist;
+
+      tourist.activityBookings.forEach((booking) => {
+        const activity = booking.activityId;
+        if (activity && activity.date >= now && activity.date <= next24Hours) {
+          bookingsWithin24Hours.push({
+            touristId,
+            bookingType: "Activity",
+            activityId: activity._id,
+            name: activity.name,
+            date: activity.date,
+          });
+        }
+      });
+
+      tourist.itineraryBookings.forEach((booking) => {
+        if (booking.date && booking.date >= now && booking.date <= next24Hours) {
+          bookingsWithin24Hours.push({
+            touristId,
+            bookingType: "Itinerary",
+            itineraryId: booking.itineraryId,
+            name: booking.itineraryId.name,
+            date: booking.date,
+          });
+        }
+      });
+    });
+    return bookingsWithin24Hours;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
 
 async function checkBirthdaysToday() {
   //sign up was saving dob as string, this function will update all dob fields to date. However I changed the sign up to store dob as date so this call may not be needed -AA

@@ -3,6 +3,9 @@ const Advertiser = require("../models/Advertiser");
 const Tourist = require("../models/Tourist");
 const Tag = require("../models/Tag");
 const Category = require("../models/Category");
+const nodemailer = require("nodemailer");
+
+
 // Create a new activity
 exports.createActivity = async (req, res) => {
   try {
@@ -157,7 +160,6 @@ exports.giveActivityFeedback = async (req, res) => {
       return res.status(400).json({ message: "Bad request" });
     }
 
-
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
       return res.status(404).json({ message: "Tourist not found" });
@@ -188,7 +190,6 @@ exports.giveActivityFeedback = async (req, res) => {
         .json({ message: "No valid past activity booking found" });
     }
     const touristName = tourist.username;
-
 
     // append the feedback to the activity
     activity.feedback.push({ touristName, rating, comments });
@@ -282,22 +283,39 @@ exports.createTransportation = async (req, res) => {
 // -- req 19 ---
 exports.createSpecifiedActivity = async (req, res) => {
   try {
-      const {advertiserId} =req.params;
-      const { name, date,upper,lower, location, price, category, tags, discounts, isOpen,spots } = req.body;
-     /* const advertiser = await Advertiser.findById(advertiserId);
-      if (!advertiser) {
-        return res.status(404).json({ message: 'Advertiser not found' });
-      }
-      if (advertiser.requestingDeletion) {
-        return res.status(400).json({ message: 'There is a deletion request. Cant Create Activity' });
-      }
-      if (advertiser.acceptedTerms== false) {
-        return res.status(400).json({ message: 'Terms and conditions must be accepted' });
-      }
-      if ( advertiser.pending==true) {
-        return res.status(400).json({ message: 'The profile is still pending approval.' });
-      }
-        */
+    const { advertiserId } = req.params;
+    const {
+      name,
+      date,
+      upper,
+      lower,
+      location,
+      price,
+      category,
+      tags,
+      discounts,
+      isOpen,
+      spots,
+    } = req.body;
+    const advertiser = await Advertiser.findById(advertiserId);
+    if (!advertiser) {
+      return res.status(404).json({ message: "Advertiser not found" });
+    }
+    if (advertiser.requestingDeletion) {
+      return res
+        .status(400)
+        .json({ message: "There is a deletion request. Cant Create Activity" });
+    }
+    if (advertiser.acceptedTerms == false) {
+      return res
+        .status(400)
+        .json({ message: "Terms and conditions must be accepted" });
+    }
+    if (advertiser.pending == true) {
+      return res
+        .status(400)
+        .json({ message: "The profile is still pending approval." });
+    }
 
     const newActivity = new Activity({
       advertiserId,
@@ -312,7 +330,7 @@ exports.createSpecifiedActivity = async (req, res) => {
       discounts,
       isOpen,
       spots,
-      isFlagged : false,
+      isFlagged: false,
       hidden: false,
     });
 
@@ -325,23 +343,27 @@ exports.createSpecifiedActivity = async (req, res) => {
 exports.readActivitiesOfAdvertiser = async (req, res) => {
   try {
     const { advertiserId } = req.params;
-    /*const advertiser = await Advertiser.findById(advertiserId);
-      if (!advertiser) {
-        return res.status(404).json({ message: 'Advertiser not found' });
-      }
-      if (!advertiser.acceptedTerms) {
-        return res.status(400).json({ message: 'Terms and conditions must be accepted' });
-      }
-      if ( advertiser.pending) {
-        return res.status(400).json({ message: 'The profile is still pending approval.' });
-      }*/
+    const advertiser = await Advertiser.findById(advertiserId);
+    if (!advertiser) {
+      return res.status(404).json({ message: "Advertiser not found" });
+    }
+    if (!advertiser.acceptedTerms) {
+      return res
+        .status(400)
+        .json({ message: "Terms and conditions must be accepted" });
+    }
+    if (advertiser.pending) {
+      return res
+        .status(400)
+        .json({ message: "The profile is still pending approval." });
+    }
     const activities = await Activity.find({
       advertiserId,
       $or: [{ hidden: false }, { hidden: true, isFlagged: true }],
     });
 
     if (!activities || activities.length === 0) {
-      //return res.status(404).json({ message: 'No activities found for this advertiser.' });
+      return res.status(404).json({ message: 'No activities found for this advertiser.' });
     }
     res.status(200).json(activities);
   } catch (error) {
@@ -351,26 +373,28 @@ exports.readActivitiesOfAdvertiser = async (req, res) => {
 exports.deleteSpecificActivity = async (req, res) => {
   try {
     const { advertiserId, activityId } = req.params;
-    /*const advertiser = await Advertiser.findById(advertiserId);
+    const advertiser = await Advertiser.findById(advertiserId);
     if (!advertiser) {
-      return res.status(404).json({ message: 'Advertiser not found' });
+      return res.status(404).json({ message: "Advertiser not found" });
     }
     if (!advertiser.acceptedTerms) {
-      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+      return res
+        .status(400)
+        .json({ message: "Terms and conditions must be accepted" });
     }
-    if ( advertiser.pending) {
-      return res.status(400).json({ message: 'The profile is still pending approval.' });
-    }*/
+    if (advertiser.pending) {
+      return res
+        .status(400)
+        .json({ message: "The profile is still pending approval." });
+    }
     const activity = await Activity.findOne({
       _id: activityId,
       advertiserId: advertiserId,
     });
     if (!activity) {
-      return res
-        .status(404)
-        .json({
-          message: "Activity not found or you are not authorized to delete it.",
-        });
+      return res.status(404).json({
+        message: "Activity not found or you are not authorized to delete it.",
+      });
     }
     const tourists = await Tourist.find();
     for (const tourist of tourists) {
@@ -379,11 +403,9 @@ exports.deleteSpecificActivity = async (req, res) => {
       );
 
       if (hasBooking) {
-        return res
-          .status(400)
-          .json({
-            message: "Cannot delete activity; there are existing bookings.",
-          });
+        return res.status(400).json({
+          message: "There are existing bookings.",
+        });
       }
     }
 
@@ -412,16 +434,20 @@ exports.updateActivityFilteredFields = async (req, res) => {
       discounts,
       isOpen,
     } = req.body;
-    /*const advertiser = await Advertiser.findById(advertiserId);
+    const advertiser = await Advertiser.findById(advertiserId);
     if (!advertiser) {
-      return res.status(404).json({ message: 'Advertiser not found' });
+      return res.status(404).json({ message: "Advertiser not found" });
     }
     if (!advertiser.acceptedTerms) {
-      return res.status(400).json({ message: 'Terms and conditions must be accepted' });
+      return res
+        .status(400)
+        .json({ message: "Terms and conditions must be accepted" });
     }
     if (advertiser.pending) {
-      return res.status(400).json({ message: 'The profile is still pending approval.' });
-    }*/
+      return res
+        .status(400)
+        .json({ message: "The profile is still pending approval." });
+    }
     // Log IDs for debugging
 
     const activity = await Activity.findOne({
@@ -429,12 +455,12 @@ exports.updateActivityFilteredFields = async (req, res) => {
       advertiserId: advertiserId,
     });
     if (!activity) {
-      return res
-        .status(404)
-        .json({
-          message: "Activity not found or you are not authorized to update it.",
-        });
+      return res.status(404).json({
+        message: "Activity not found or you are not authorized to update it.",
+      });
     }
+
+    const isOpenBefore = activity.isOpen;
 
     // updating only the allowed fields
     if (name) activity.name = name;
@@ -447,16 +473,34 @@ exports.updateActivityFilteredFields = async (req, res) => {
     if (category) activity.category = category;
     if (tags) activity.tags = tags;
     if (discounts) activity.discounts = discounts;
-    //if (isOpen) activity.isOpen = isOpen;
     if (isOpen !== undefined) activity.isOpen = isOpen;
 
     const updatedActivity = await activity.save();
+
+    if (isOpenBefore === false && isOpen === true)  notifyInterestedTourists(activityId, activity.name); //added by AA
 
     res.status(200).json(updatedActivity);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+async function notifyInterestedTourists(activityId, name) {
+  try {
+
+    const tourists = await Tourist.find({
+      activityBells: activityId,
+    })
+
+    for(let i = 0; i< tourists.length;i++) {
+      tourists[i].notifications.push({text: (name + " is now open for booking"), seen: false, activityId: activityId});
+      await tourists[i].save();
+    }
+
+  } catch(error) {
+    console.log(error);
+  }
+}
 
 //req 44
 exports.getUpcomingActivities = async (req, res) => {
@@ -483,6 +527,34 @@ exports.getUpcomingActivities = async (req, res) => {
 exports.getActivitiesByPreferrences = async (req, res) => {
   res.status(200).json({ null: "null" });
 };
+
+async function sendEmail(email, subject, html) {
+  const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.NODE_MAILER_USER,
+      pass: process.env.NODE_MAILER_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: "reservy.me@gmail.com",
+    to: email,
+    subject: subject,
+    html: html,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error("Error sending email: ", error);
+    } else {
+      console.log("Email sent: ", info.response);
+    }
+  });
+}
 
 // flag activity inappropriate then hide it
 exports.hideActivity = async (req, res) => {
@@ -512,17 +584,22 @@ exports.hideActivity = async (req, res) => {
     }
 
     // Create a notification for the advertiser
-    const notificationText = `Your activity with ID ${activityId} has been flagged as inappropriate.`;
+    const notificationText = `Your activity ${updatedActivity.name} has been flagged as inappropriate.`;
     advertiser.notifications.push({
       text: notificationText,
       seen: false, // Set to false initially, you can update it when the advertiser views it
     });
+    sendEmail(
+      advertiser.email,
+      `Activity Flagged: ${updatedActivity.name}`,
+      `Dear ${advertiser.name},\n\nYour activity "${updatedActivity.name}" has been flagged as inappropriate and hidden from public view. Please review it and ensure it meets our guidelines. Contact support if you believe this was an error.\n\nBest regards,\nYour Platform Team`
+    );
 
     // Save the updated advertiser
     await advertiser.save();
 
     res.status(200).json({
-      message: `Activity ${activityId} has been hidden successfully and the advertiser has been notified.`,
+      message: `Activity ${updatedActivity.name} has been hidden successfully and the advertiser has been notified.`,
       updatedActivity,
     });
   } catch (error) {
@@ -548,31 +625,8 @@ exports.unhideActivity = async (req, res) => {
       return res.status(404).json({ message: "Activity not found" });
     }
 
-    // Get the advertiserId associated with this activity
-    const selectedAdvertiserId = updatedActivity.advertiserId;
-
-    // Find the advertiser by ID
-    const advertiser = await Advertiser.findById(selectedAdvertiserId);
-
-    if (!advertiser) {
-      return res.status(404).json({ message: "Advertiser not found" });
-    }
-
-    // Remove the notification related to the hidden/flagged activity
-    // Assuming that the notification text includes the activity ID
-    const notificationText = `Your activity with ID ${activityId} has been flagged as inappropriate.`;
-    const notificationIndex = advertiser.notifications.findIndex(
-      (notification) => notification.text === notificationText
-    );
-
-    if (notificationIndex !== -1) {
-      // Remove the notification from the array
-      advertiser.notifications.splice(notificationIndex, 1);
-      await advertiser.save(); // Save the updated advertiser
-    }
-
     res.status(200).json({
-      message: `Activity ${activityId} has been unhidden successfully and the notification has been removed.`,
+      message: `Activity ${updatedActivity.name} has been unhidden successfully.`,
       updatedActivity,
     });
   } catch (error) {

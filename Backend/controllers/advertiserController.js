@@ -692,7 +692,7 @@ exports.getAdvertiserDetails = async (req, res) => {
   }
 };
 
-// req28 - tatos (Not Done Yet)
+// req28 - tatos (Done)
 exports.viewSalesReport = async (req, res) => {
   const advertiserId = req.params.id;
   try {
@@ -714,9 +714,11 @@ exports.viewSalesReport = async (req, res) => {
         .json({ message: "Advertiser is requesting deletion" });
     }
 
+
     const tourists = await Tourist.find({
       "activityBookings.activityId": { $exists: true },
-    });
+    }).populate('activityBookings.activityId');
+
     if (!tourists || tourists.length === 0) {
       return res.status(404).json({ message: "No activity bookings found" });
     }
@@ -724,28 +726,175 @@ exports.viewSalesReport = async (req, res) => {
     let totalSales = 0;
     const report = [];
 
-    // Iterate through each tourist's activityBookings
     for (const tourist of tourists) {
       for (const booking of tourist.activityBookings) {
-        const activity = await Activity.findById(booking.activityId).exec();
+        const activity = booking.activityId;
         if (activity && activity.advertiserId.toString() === advertiserId) {
           totalSales += booking.total; // Add the total field from activityBookings to totalSales
           report.push({
             name: activity.name,
-            date: activity.date,
-            category: activity.category,
+            // date: booking.date,    // Date is not available in the booking object of activityBookings
+            activityDate: activity.date, // Use the date field from activity
             price: booking.total, // Use the total field from activityBookings
+            category: activity.category,
           });
         }
       }
     }
 
-    console.log(`Total Sales: ${totalSales}`);
-
     res.status(200).json({
       totalSales,
       report,
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+
+// req 30 - tatos (Done)
+exports.viewTouristReport = async (req, res) => {
+  const advertiserId = req.params.id;
+  try {
+    const advertiser = await Advertiser.findById(advertiserId);
+    if (!advertiser) {
+      return res.status(404).json({ message: "Advertiser not found" });
+    }
+    if (advertiser.pending) {
+      return res.status(401).json({ message: "Waiting for admin approval" });
+    }
+    if (!advertiser.acceptedTerms) {
+      return res
+        .status(401)
+        .json({ message: "Terms and Conditions must be accepted" });
+    }
+    if (advertiser.requestingDeletion) {
+      return res
+        .status(401)
+        .json({ message: "Advertiser is requesting deletion" });
+    }
+
+
+    const tourists = await Tourist.find({
+      "activityBookings.activityId": { $exists: true },
+    }).populate('activityBookings.activityId');
+
+    if (!tourists || tourists.length === 0) {
+      return res.status(404).json({ message: "No activity bookings found" });
+    }
+
+    const report = [];
+    let totalTourists = 0;
+
+    for (const tourist of tourists) {
+      for (const booking of tourist.activityBookings) {
+        const activity = booking.activityId;
+        if (activity && activity.advertiserId.toString() === advertiserId) {
+          totalTourists += 1;
+          report.push({
+            touristUserName: tourist.username,
+            touristDOB: tourist.dob,
+            touristNationality: tourist.nationality,
+            activityDate: activity.date, // Use the date field from activity for the filter in the future
+            activityName: activity.name,
+          });
+        }
+      }
+    }
+
+    res.status(200).json({
+      totalTourists,
+      report,
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
+
+
+
+exports.myItemsFeedback = async(req,res) => {
+  try {
+    const advertiserId = req.params.id;
+
+    const activities = await Activity.find({ advertiserId });
+
+    const allFeedback = activities.reduce((acc, activity) => {
+      return acc.concat(activity.feedback);
+    }, []);
+
+    return { message: "Feedback returned successfully.", feedback: allFeedback };
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+exports.seeNotifications = async(req,res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await Advertiser.findById(userId);
+
+    if(!user) {
+      return res.status(404).json({message: "User not found"});
+    }
+
+    for(let i = 0; i < user.notifications.length; i++) {
+      user.notifications[i].seen = true;
+    }
+
+    await user.save();
+
+    return res.status(200).json({message: "Notifications seen successfully"});
+  }
+  catch(error) {
+    return res.status(500).json({message: "Internal error"});
+  }
+};
+
+
+// Count advertisers by month and year
+exports.countAdvertisersByMonth = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ message: "Date is required" });
+    }
+
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
+
+    const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
+    const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0);
+
+    const count = await Advertiser.countDocuments({
+      date: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    res.status(200).json({ count });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get all advertisers requesting deletion
+exports.getAdvertisersRequestingDeletion = async (req, res) => {
+  try {
+    const advertisers = await Advertiser.find({ requestingDeletion: true });
+
+    if (!advertisers.length) {
+      return res.status(404).json({ message: 'No advertisers requesting deletion found' });
+    }
+
+    res.status(200).json(advertisers);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

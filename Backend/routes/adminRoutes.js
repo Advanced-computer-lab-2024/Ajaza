@@ -8,6 +8,9 @@ router.post("/", adminController.createAdmin);
 // this will probably not be used
 router.get("/", adminController.getAllAdmins);
 
+router.get("/countByMonth", adminController.countAdminsByMonth);
+
+
 // probably used when product is out of stock (to send notification to admin who posted product)
 router.get("/:id", adminController.getAdminById);
 
@@ -27,5 +30,13 @@ router.delete(
 );
 
 router.delete("/deleteImgs", adminController.deleteImgs);
+
+router.post("/seeNotifications/:id", adminController.seeNotifications);
+
+// req 27 - tatos
+router.get('/viewSalesReport/:id', adminController.viewSalesReport);
+
+
+
 
 module.exports = router;

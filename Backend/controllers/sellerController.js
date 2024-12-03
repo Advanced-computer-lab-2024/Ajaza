@@ -718,63 +718,10 @@ exports.getSellerDetails = async (req, res) => {
   }
 };
 
-//req 28 - tatos (Not Done Yet)
 
-// exports.viewSalesReport = async (req, res) => {
-//   const sellerId = req.params.id;
-//   try {
-//     // Check if the seller exists
-//     const seller = await Seller.findById(sellerId);
-//     if (!seller) {
-//       return res.status(404).json({ message: "Seller not found" });
-//     }
-//     if (seller.pending) {
-//       return res.status(401).json({ message: "Waiting for admin approval" });
-//     }
-//     if (!seller.acceptedTerms) {
-//       return res.status(401).json({ message: "Terms and Conditions must be accepted" });
-//     }
-//     if(seller.requestingDeletion){
-//       return res.status(401).json({ message: "Seller is requesting deletion" });
-//     }
-//     // Find all tourists
-//     const tourists = await Tourist.find();
-
-//     let orders = [];
-
-//     // Iterate through each tourist to find orders matching the sellerId
-//     tourists.forEach(tourist => {
-//       const matchingOrders = tourist.orders.filter(order => order.sellerId === sellerId);
-//       orders = orders.concat(matchingOrders);
-//     });
-
-//     // Log the orders found
-//     console.log('Orders found:', orders);
-
-//     // Calculate the total sales by multiplying the price by the quantity for each order
-//     const totalSales = orders.reduce((total, order) => total + (order.price * order.quantity), 0);
-
-//     const salesDetails = orders.map(order => ({
-//       productName: order.productName,
-//       dateOfOrder: order.dateOfOrder,
-//       quantity: order.quantity,
-//       price: order.price
-//     }));
-
-//     // Log the total sales and sales details
-//     console.log('Total Sales:', totalSales);
-//     console.log('Sales Details:', salesDetails);
-
-//     // Return the total sales and additional details
-//     res.status(200).json({ totalSales, salesDetails });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
-
-//method 2: (incorrect but works for now):
+// req 28 - tatos (Done)
 exports.viewSalesReport = async (req, res) => {
-  sellerId = req.params.id;
+  const sellerId = req.params.id;
   try {
     const seller = await Seller.findById(sellerId);
     if (!seller) {
@@ -791,30 +738,128 @@ exports.viewSalesReport = async (req, res) => {
     if (seller.requestingDeletion) {
       return res.status(401).json({ message: "Seller is requesting deletion" });
     }
+    
 
-    // Find all products sold by the seller
-    const products = await Product.find({ sellerId: sellerId });
-    console.log(products); // Log the products found
+    const tourists = await Tourist.find({
+      "orders.products.productId": { $exists: true },
+    }).populate('orders.products.productId');
 
-    if (products.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No products found for this seller" });
+    if (!tourists || tourists.length === 0) {
+      return res.status(404).json({ message: "No orders found" });
     }
+
     let totalSales = 0;
-    let salesDetails = [];
-    for (const product of products) {
-      if (product.sales > 0) {
-        totalSales += product.sales * product.price;
-        salesDetails.push({
-          productName: product.name,
-          sales: product.sales,
-          price: product.price,
-          sellerName: product.sellerName,
-        });
+    const report = [];
+
+    for (const tourist of tourists) {
+      for (const order of tourist.orders) {
+        for (const product of order.products) {
+          const productDetails = product.productId; // product details contain everything about the product (from Product.js)
+          if(productDetails.sellerId) {
+            if (productDetails && productDetails.sellerId.toString() === sellerId && (order.status !== "Cancelled")) { // added the && productDetails.sellerId to check if the product has a sellerId before converting to string and comparing
+              totalSales += product.quantity * productDetails.price; // Calculate total sales   --> use product.quantity not productDetails.quantity to get the quantity in the order not the quantity of the product in store
+              report.push({
+                name: productDetails.name,
+                orderDate: order.date,
+                quantity: product.quantity,
+                price: productDetails.price,
+                total: product.quantity * productDetails.price,
+                category: productDetails.category,
+              });
+            }
+          }
+        }
       }
     }
-    res.status(200).json({ totalSales, salesDetails });
+
+    res.status(200).json({
+      totalSales,
+      report,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
+
+exports.seeNotifications = async(req,res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await Seller.findById(userId);
+
+    if(!user) {
+      return res.status(404).json({message: "User not found"});
+    }
+
+    for(let i = 0; i < user.notifications.length; i++) {
+      user.notifications[i].seen = true;
+    }
+
+    await user.save();
+
+    return res.status(200).json({message: "Notifications seen successfully"});
+  }
+  catch(error) {
+    return res.status(500).json({message: "Internal error"});
+  }
+}
+
+exports.myItemsFeedback = async(req,res) => {
+  try {
+    const sellerId = req.params.id;
+
+    const products = await Product.find({ sellerId });
+
+    const allFeedback = products.reduce((acc, product) => {
+      return acc.concat(product.feedback);
+    }, []);
+
+    return { message: "Feedback returned successfully.", feedback: allFeedback };
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+//count sellers by month
+exports.countSellersByMonth = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ message: "Date is required" });
+    }
+
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
+
+    const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
+    const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0);
+
+    const count = await Seller.countDocuments({
+      date: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    res.status(200).json({ count });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get all sellers requesting deletion
+exports.getSellersRequestingDeletion = async (req, res) => {
+  try {
+    const sellers = await Seller.find({ requestingDeletion: true });
+
+    if (!sellers.length) {
+      return res.status(404).json({ message: 'No sellers requesting deletion found' });
+    }
+
+    res.status(200).json(sellers);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

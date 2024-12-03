@@ -2,18 +2,22 @@ import React, { useState, useEffect } from "react";
 import { CustomLayout } from "../Common";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Itineraries from "../Itineraries";
-import { CalendarOutlined, ContainerOutlined, FileOutlined } from "@ant-design/icons";
+import {
+  CalendarOutlined,
+  ContainerOutlined,
+  FileOutlined,
+} from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
-import SearchFilterSortContainerEditCreate from "../Common/SearchFilterSortContainerEditCreate";
 import Profile from "../Common/Profile";
+import Notifications from "../Common/Notifications";
 import Image from "../Common/Image";
 import Products from "../Tourist/Products";
 import MyProducts from "../Admin/MyProducts";
 import ArchivedProds from "../Seller/ArchivedProds";
 import ChangePasswordForm from "../Common/changePassword";
 import SignIn from "../Sign/SignIn";
-import Report from "../Seller/Report";
-
+import SellerReport from "../Seller/SellerReport";
+import Product from "../Common/Product";
 
 const Seller = () => {
   const navigate = useNavigate();
@@ -38,6 +42,11 @@ const Seller = () => {
     }
   }, [navigate]);
 
+  const commonStyle = {
+    color: 'black', 
+    // backgroundColor: '#5b8b77'
+    };
+
   const sideBarItems = [
     {
       key: "1",
@@ -46,6 +55,7 @@ const Seller = () => {
       onClick: () => {
         navigate("/seller");
       },
+      style: commonStyle,
     },
     {
       key: "2",
@@ -54,6 +64,7 @@ const Seller = () => {
       onClick: () => {
         navigate("myProducts");
       },
+      style: commonStyle,
     },
     {
       key: "3",
@@ -62,14 +73,16 @@ const Seller = () => {
       onClick: () => {
         navigate("archive");
       },
+      style: commonStyle,
     },
     {
       key: "4",
       icon: <FileOutlined />,
-      label: "Report",
+      label: "Sales Report",
       onClick: () => {
         navigate("report");
       },
+      style: commonStyle,
     },
   ];
 
@@ -77,10 +90,12 @@ const Seller = () => {
     <CustomLayout sideBarItems={sideBarItems}>
       <Routes>
         <Route path="/" element={<Products />} />
+        <Route path="/:id" element={<Product />} />
         <Route path="myProducts" element={<MyProducts />} />
         <Route path="archive" element={<ArchivedProds />} />
-        <Route path="report" element={<Report />} />
+        <Route path="report" element={<SellerReport />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="notifications" element={<Notifications />} />
         <Route path="change-password" element={<ChangePasswordForm />} />
         <Route path="image" element={<Image />} />
         <Route path="auth/signin" element={<SignIn />} />

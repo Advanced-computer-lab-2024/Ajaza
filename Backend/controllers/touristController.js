@@ -3,6 +3,9 @@ const Activity = require("../models/Activity");
 const Itinerary = require("../models/Itinerary");
 const Guide = require("../models/Guide");
 const Product = require("../models/Product");
+const Admin = require("../models/Admin");
+const Seller = require("../models/Seller");
+const PromoCode = require("../models/PromoCode");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -188,9 +191,10 @@ exports.emailShare = async (req, res) => {
         '"><button>Go to link</button></a>',
     };
 
-    transporter.sendMail(mailOptions)
-      .then(info => console.log("Email sent: ", info.response))
-      .catch(error => console.error("Error sending email: ", error));
+    transporter
+      .sendMail(mailOptions)
+      .then((info) => console.log("Email sent: ", info.response))
+      .catch((error) => console.error("Error sending email: ", error));
 
     res.status(200).json({ message: "Email is being sent" });
   } catch (error) {
@@ -208,7 +212,7 @@ exports.cancelActivityBooking = async (req, res) => {
 
     const activity = await Activity.findById(activityId);
     if (!activity) {
-      console.log("activityId",activityId);
+      console.log("activityId", activityId);
       return res.status(404).json({ message: "Activity not found" });
     }
 
@@ -225,7 +229,7 @@ exports.cancelActivityBooking = async (req, res) => {
 
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
-      console.log("touristId",touristId);
+      console.log("touristId", touristId);
       return res.status(404).json({ message: "Tourist not found" });
     }
 
@@ -254,7 +258,7 @@ exports.cancelActivityBooking = async (req, res) => {
 
     console.log("booking cancelled");
     res.status(200).json({
-      message: "Activity booking canceled successfully",
+      message: `Activity booking canceled successfully, refund: ${totalPaid}USD. Current wallet balance: ${tourist.wallet}`,
       refund: totalPaid,
     });
   } catch (error) {
@@ -274,16 +278,15 @@ exports.cancelItineraryBooking = async (req, res) => {
 
     const itinerary = await Itinerary.findById(itineraryId);
     if (!itinerary) {
-      console.log("iten id",itineraryId);
+      console.log("iten id", itineraryId);
       return res.status(404).json({ message: "Itinerary not found" });
     }
 
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
-      console.log("touristId",touristId);
+      console.log("touristId", touristId);
       return res.status(404).json({ message: "Tourist not found" });
     }
-
 
     const bookingIndex = tourist.itineraryBookings.findIndex(
       (booking) => booking.itineraryId.toString() === itineraryId
@@ -334,7 +337,7 @@ exports.cancelItineraryBooking = async (req, res) => {
     await itinerary.save();
     console.log("booking cancelled");
     res.status(200).json({
-      message: "Itinerary booking canceled successfully",
+      message: `Itinerary booking canceled successfully, refund: ${totalPaid}USD. Current wallet balance: ${tourist.wallet}`,
       refund: totalPaid,
     });
   } catch (error) {
@@ -371,7 +374,10 @@ exports.redeemPoints = async (req, res) => {
 
     // Respond with the updated tourist data
     res.status(200).json({
-      message: "Points redeemed successfully!" + maxRedeemablePoints + " added to wallet",
+      message:
+        "Points redeemed successfully!" +
+        maxRedeemablePoints +
+        " added to wallet",
       wallet: tourist.wallet,
       points: tourist.points,
     });
@@ -388,18 +394,20 @@ exports.bookActivity = async (req, res) => {
 
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
-      console.log("touristId",touristId);
+      console.log("touristId", touristId);
       return res.status(404).json({ message: "Tourist not found" });
     }
 
     if (!isAdult(tourist.dob)) {
       console.log("not adult");
-      return res.status(418).json({ message: "Tourist is not an adult" });
+      if (useWallet === false) wallet += total;
+      return res.status(418).json({ message: "Tourist is not an adult." });
     }
 
     //this condition may be commented since handling it in the frontend
     if (promoCode && tourist.usedPromoCodes.includes(promoCode)) {
       console.log("promo code already used");
+      if (useWallet === false) wallet += total;
       return res
         .status(404)
         .json({ message: "You already used this promo code" });
@@ -407,13 +415,15 @@ exports.bookActivity = async (req, res) => {
 
     const activity = await Activity.findById(activityId);
     if (!activity) {
-      console.log("activityId",activityId);
+      console.log("activityId", activityId);
+      if (useWallet === false) wallet += total;
       return res.status(404).json({ message: "Activity not found" });
     }
 
     // check if the activity is open for booking
     if (!activity.isOpen || activity.spots <= 0) {
       console.log("activity not open");
+      if (useWallet === false) wallet += total;
       return res
         .status(400)
         .json({ message: "This activity is not open for booking" });
@@ -423,26 +433,11 @@ exports.bookActivity = async (req, res) => {
     if (useWallet) {
       if (tourist.wallet < total) {
         console.log("insufficient wallet balance");
+        if (useWallet === false) wallet += total;
         return res.status(400).json({ message: "Insufficient wallet balance" });
       }
 
       tourist.wallet -= total;
-    } else {
-      // Process payment using the extracted function
-      const amount = total * 100; // Convert to cents for Stripe
-      try {
-        const paymentIntent = await processPayment(amount, paymentMethodId);
-
-        // Check if the payment was successful
-        if (paymentIntent.status !== "succeeded") {
-          return res.status(400).json({ message: "Payment failed" });
-        }
-      } catch (error) {
-        console.log("payment failed");
-        return res
-          .status(400)
-          .json({ message: `Payment failed: ${error.message}` });
-      }
     }
 
     // deduct 1 spot from the activity
@@ -504,7 +499,7 @@ exports.bookActivity = async (req, res) => {
     console.log("activity booked");
     res.status(200).json({ message: "Activity booked successfully", tourist });
   } catch (error) {
-    console.log("error",error);
+    console.log("error", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -521,23 +516,26 @@ exports.bookItinerary = async (req, res) => {
 
     if (date < new Date()) {
       console.log("date must be in the future");
+      if (useWallet === false) wallet += total;
       return res.status(400).json({ message: "Date must be in the future" });
     }
 
     const tourist = await Tourist.findById(touristId);
     if (!tourist) {
-      console.log("touristId",touristId);
+      console.log("touristId", touristId);
       return res.status(404).json({ message: "Tourist not found" });
     }
 
     if (!isAdult(tourist.dob)) {
       console.log("not adult");
+      if (useWallet === false) wallet += total;
       return res.status(400).json({ message: "Tourist is not an adult" });
     }
 
     //unnecessary condition
     if (promoCode && tourist.usedPromoCodes.includes(promoCode)) {
       console.log("promo code already used");
+      if (useWallet === false) wallet += total;
       return res
         .status(404)
         .json({ message: "You already used this promo code" });
@@ -545,13 +543,15 @@ exports.bookItinerary = async (req, res) => {
 
     const itinerary = await Itinerary.findById(itineraryId);
     if (!itinerary) {
-      console.log("itineraryId",itineraryId);
+      console.log("itineraryId", itineraryId);
+      if (useWallet === false) wallet += total;
       return res.status(404).json({ message: "Itinerary not found" });
     }
 
     // check if the itinerary is open for booking
     if (!itinerary.active) {
       console.log("itinerary not open");
+      if (useWallet === false) wallet += total;
       return res
         .status(400)
         .json({ message: "This itinerary is not open for booking" });
@@ -564,6 +564,7 @@ exports.bookItinerary = async (req, res) => {
 
     if (!availableDate || availableDate.spots <= 0) {
       console.log("no spots available");
+      if (useWallet === false) wallet += total;
       return res.status(400).json({
         message: "No spots available for this itinerary on the selected date",
       });
@@ -579,22 +580,24 @@ exports.bookItinerary = async (req, res) => {
       }
 
       tourist.wallet -= total;
-    } else {
-      // Process payment using the extracted function
-      const amount = total * 100; // Convert to cents for Stripe
-      try {
-        const paymentIntent = await processPayment(amount, paymentMethodId);
-
-        // Check if the payment was successful
-        if (paymentIntent.status !== "succeeded") {
-          return res.status(400).json({ message: "Payment failed" });
-        }
-      } catch (error) {
-        return res
-          .status(400)
-          .json({ message: `Payment failed: ${error.message}` });
-      }
     }
+    // } else {
+    //   const amount = total * 100; // Convert to cents for Stripe
+    //   const paymentIntent = await stripe.paymentIntents.create({
+    //     amount: amount, // Amount in cents (change as necessary)
+    //     currency: "usd",
+    //     payment_method: paymentMethodId, // Attach the payment method
+    //     confirm: true, // Automatically confirm the payment intent
+    //     return_url: "http://localhost:3000/payment-confirmation", // Optional: if redirect is needed
+    //     automatic_payment_methods: {
+    //       enabled: true,
+    //       allow_redirects: "never", // Avoid redirect-based methods
+    //     },
+    //   });
+    //   if (paymentIntent.status !== "succeeded") {
+    //     return res.status(400).json({ error: { message: "Payment failed" } });
+    //   }
+    // }
 
     // deduct 1 spot from the itinerary
     availableDate.spots -= 1;
@@ -646,7 +649,7 @@ exports.bookItinerary = async (req, res) => {
     sendEmail(
       tourist.email,
       `Booking confirmed for ${itinerary.name}`,
-      `Your payment of ${total} by ${paymentMethod} was confirmed. You have successfully booked ${itinerary.name} on ${itinerary.date}.`
+      `Your payment of ${total} by ${paymentMethod} was confirmed. You have successfully booked ${itinerary.name} on ${date}.`
     );
 
     // Save both the tourist and itinerary updates
@@ -842,11 +845,14 @@ exports.birthdayEventTriggered = async (usersWithBirthdayToday) => {
 
     const uniquePromoCode = await generateUniqueCode(); //generate a unique 6-character promo code
 
+    let touristIds = usersWithBirthdayToday.map((tourist) => tourist._id);
+
     const newPromoCode = new PromoCode({
       code: uniquePromoCode,
-      value: 0.2, // the discount value
+      value: 0.8, // the discount value
       birthday: {
         date: today,
+        touristIds: touristIds,
       },
     });
 
@@ -895,7 +901,6 @@ exports.birthdayEventTriggered = async (usersWithBirthdayToday) => {
 
       await tourist.save();
     }
-
   } catch (error) {
     console.error("Error creating promo code:", error);
   }
@@ -950,7 +955,10 @@ exports.getHistory = async (req, res) => {
     let guides = [];
     let guideNames = [];
     for (let i = 0; i < tourist.itineraryBookings.length; i++) {
-      if (tourist.itineraryBookings[i].date < currentDate && tourist.itineraryBookings[i].itineraryId) {
+      if (
+        tourist.itineraryBookings[i].date < currentDate &&
+        tourist.itineraryBookings[i].itineraryId
+      ) {
         itineraries.push({
           itineraryId: tourist.itineraryBookings[i].itineraryId._id,
           name: tourist.itineraryBookings[i].itineraryId.name,
@@ -973,7 +981,7 @@ exports.getHistory = async (req, res) => {
             );
           }
         ).length;
-        
+
         const guideName = await Guide.findById(
           tourist.itineraryBookings[i].itineraryId.guideId
         ).select("username");
@@ -981,7 +989,9 @@ exports.getHistory = async (req, res) => {
           guides.push({
             guideId: tourist.itineraryBookings[i].itineraryId.guideId,
             name: guideName.username,
-            gaveFeedback: tourist.gaveFeedback.includes(tourist.itineraryBookings[i].itineraryId.guideId),
+            gaveFeedback: tourist.gaveFeedback.includes(
+              tourist.itineraryBookings[i].itineraryId.guideId
+            ),
             //gaveFeedback: numberOfBookingsWithGuide < guideNumberOfTimesRated,
           });
           guideNames.push(guideName.username);
@@ -991,7 +1001,10 @@ exports.getHistory = async (req, res) => {
 
     let products = [];
     for (let i = 0; i < tourist.orders.length; i++) {
-      if(tourist.orders[i].date < currentDate && tourist.orders[i].status != "Cancelled") {
+      if (
+        tourist.orders[i].date < currentDate &&
+        tourist.orders[i].status != "Cancelled"
+      ) {
         for (let j = 0; j < tourist.orders[i].products.length; j++) {
           products.push({
             productId: tourist.orders[i].products[j].productId._id,
@@ -1005,12 +1018,64 @@ exports.getHistory = async (req, res) => {
         }
       }
     }
-//66f6ae2a0f0094718a1f7d82 some product id to test
+    //66f6ae2a0f0094718a1f7d82 some product id to test
     res.status(200).json({
       activities: activities,
       itineraries: itineraries,
       guides: guides,
       products: products,
+    });
+  } catch (error) {
+    console.error("Error retrieving past activity bookings:", error);
+  }
+};
+
+exports.getHistoryFull = async (req, res) => {
+  try {
+    const tourist = await Tourist.findById(req.params.id)
+      .populate("activityBookings.activityId")
+      .populate("itineraryBookings.itineraryId")
+      .populate("orders.products.productId");
+
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    const currentDate = new Date();
+    let activities = [];
+    for (let i = 0; i < tourist.activityBookings.length; i++) {
+      if (tourist.activityBookings[i].activityId.date < currentDate) {
+        activities.push(tourist.activityBookings[i].activityId);
+      }
+    }
+    let itineraries = [];
+    let guides = [];
+    for (let i = 0; i < tourist.itineraryBookings.length; i++) {
+      if (
+        tourist.itineraryBookings[i].date < currentDate &&
+        tourist.itineraryBookings[i].itineraryId
+      ) {
+        itineraries.push(tourist.itineraryBookings[i].itineraryId);
+      }
+    }
+
+    // let products = [];
+    // for (let i = 0; i < tourist.orders.length; i++) {
+    //   if (
+    //     tourist.orders[i].date < currentDate &&
+    //     tourist.orders[i].status != "Cancelled"
+    //   ) {
+    //     for (let j = 0; j < tourist.orders[i].products.length; j++) {
+    //       products.push(tourist.orders[i].products[j].productId);
+    //     }
+    //   }
+    // }
+    //66f6ae2a0f0094718a1f7d82 some product id to test
+    res.status(200).json({
+      activities: activities,
+      itineraries: itineraries,
+      // guides: guides,
+      // products: products,
     });
   } catch (error) {
     console.error("Error retrieving past activity bookings:", error);
@@ -1066,14 +1131,15 @@ exports.getFutureBookings = async (req, res) => {
           (new Date(tourist.activityBookings[i].activityId.date) -
             currentDate) /
           (1000 * 60 * 60);
-        if(tourist.activityBookings[i].activityId) {
+        if (tourist.activityBookings[i].activityId) {
           activities.push({
             activityId: tourist.activityBookings[i].activityId._id,
             name: tourist.activityBookings[i].activityId.name,
             date: tourist.activityBookings[i].activityId.date,
             canBeCancelled: hoursDifference > 48,
           });
-      ``}
+          ``;
+        }
       }
     }
     let itineraries = [];
@@ -1082,7 +1148,7 @@ exports.getFutureBookings = async (req, res) => {
         const hoursDifference =
           (new Date(tourist.itineraryBookings[i].date) - currentDate) /
           (1000 * 60 * 60);
-        if(tourist.itineraryBookings[i].itineraryId) {
+        if (tourist.itineraryBookings[i].itineraryId) {
           itineraries.push({
             itineraryId: tourist.itineraryBookings[i].itineraryId._id,
             name: tourist.itineraryBookings[i].itineraryId.name,
@@ -1099,6 +1165,162 @@ exports.getFutureBookings = async (req, res) => {
   }
 };
 
+//req67
+exports.addActivityBells = async (req, res) => {
+  const { touristId, activityId } = req.params;
+  //cleanActivityBells(touristId);
+
+  try {
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+    const activity = await Activity.findById(activityId);
+    if (!activity) {
+      return res.status(404).json({ message: "Activity not found" });
+    }
+
+    if (!tourist.activityBells.includes(activityId)) {
+      tourist.activityBells.push(activityId);
+    } else {
+      return res.status(400).json({ message: "Activity already marked" });
+    }
+
+    await tourist.save();
+
+    res.status(200).json({ message: "Activity marked successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+async function cleanActivityBells(touristId) {
+  const tourist = await Tourist.findById(touristId);
+  const activityBells = tourist.activityBells;
+
+  const currentDate = new Date();
+  for (let i = 0; i < activityBells.length; i++) {
+    const activity = await Activity.findById(activityBells[i]);
+    if (!activity) {
+      activityBells.splice(i, 1);
+      i--;
+    } else {
+      if (activity.date < currentDate) {
+        activityBells.splice(i, 1);
+        i--;
+      } else {
+        if (activity.hidden) {
+          activityBells.splice(i, 1);
+          i--;
+        }
+      }
+    }
+  }
+
+  tourist.activityBells = activityBells;
+  await tourist.save();
+}
+
+exports.removeActivityBells = async (req, res) => {
+  const { touristId, activityId } = req.params;
+
+  try {
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    const activityIndex = tourist.activityBells.findIndex(
+      (bell) => bell.toString() === activityId
+    );
+
+    if (activityIndex === -1) {
+      return res.status(404).json({ message: "Activity not marked" });
+    }
+
+    tourist.activityBells.splice(activityIndex, 1);
+    await tourist.save();
+
+    res.status(200).json({ message: "Activity unmarked successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.addItineraryBells = async (req, res) => {
+  const { touristId, itineraryId } = req.params;
+  //cleanItineraryBells(touristId);
+
+  try {
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+    const itinerary = await Itinerary.findById(itineraryId);
+    if (!itinerary) {
+      return res.status(404).json({ message: "Itinerary not found" });
+    }
+
+    if (!tourist.itineraryBells.includes(itineraryId)) {
+      tourist.itineraryBells.push(itineraryId);
+    } else {
+      return res.status(400).json({ message: "Itinerary already marked" });
+    }
+
+    await tourist.save();
+
+    res.status(200).json({ message: "Itinerary marked successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+async function cleanItineraryBells(touristId) {
+  const tourist = await Tourist.findById(touristId);
+  const itineraryBells = tourist.itineraryBells;
+
+  for (let i = 0; i < itineraryBells.length; i++) {
+    const itinerary = await Itinerary.findById(itineraryBells[i]);
+    if (!itinerary) {
+      itineraryBells.splice(i, 1);
+      i--;
+    } else {
+      if (itinerary.hidden) {
+        itineraryBells.splice(i, 1);
+        i--;
+      }
+    }
+  }
+  tourist.itineraryBells = itineraryBells;
+  await tourist.save();
+}
+
+exports.removeItineraryBells = async (req, res) => {
+  const { touristId, itineraryId } = req.params;
+
+  try {
+    const tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    const itineraryIndex = tourist.itineraryBells.findIndex(
+      (bell) => bell.toString() === itineraryId
+    );
+
+    if (itineraryIndex === -1) {
+      return res.status(404).json({ message: "Itinerary not marked" });
+    }
+
+    tourist.itineraryBells.splice(itineraryIndex, 1);
+    await tourist.save();
+
+    res.status(200).json({ message: "Itinerary unmarked successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 //req65
 exports.addActivityBookmark = async (req, res) => {
   const { touristId, activityId } = req.params;
@@ -1109,9 +1331,15 @@ exports.addActivityBookmark = async (req, res) => {
     if (!tourist) {
       return res.status(404).json({ message: "Tourist not found" });
     }
+    const activity = await Activity.findById(activityId);
+    if (!activity) {
+      return res.status(404).json({ message: "Activity not found" });
+    }
 
     if (!tourist.activityBookmarks.includes(activityId)) {
       tourist.activityBookmarks.push(activityId);
+    } else {
+      return res.status(400).json({ message: "Activity already bookmarked" });
     }
 
     await tourist.save();
@@ -1149,6 +1377,52 @@ async function cleanActivityBookmarks(touristId) {
   await tourist.save();
 }
 
+exports.removeActivityBookmark = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const activityIdToRemove = req.body.activityId;
+
+    const tourist = await Tourist.findById(touristId);
+
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    tourist.activityBookmarks = tourist.activityBookmarks.filter(
+      (activityId) => activityId.toString() !== activityIdToRemove.toString()
+    );
+
+    tourist.save();
+
+    return res.status(200).json({ message: "Bookmark removed successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Network error" });
+  }
+};
+
+exports.removeItineraryBookmark = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const itineraryIdToRemove = req.body.itineraryId;
+
+    const tourist = await Tourist.findById(touristId);
+
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    tourist.itineraryBookmarks = tourist.itineraryBookmarks.filter(
+      (itineraryId) => itineraryId.toString() !== itineraryIdToRemove.toString()
+    );
+
+    tourist.save();
+
+    return res.status(200).json({ message: "Bookmark removed successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Network error" });
+  }
+};
+
 //req65
 exports.addItineraryBookmark = async (req, res) => {
   const { touristId, itineraryId } = req.params;
@@ -1159,9 +1433,15 @@ exports.addItineraryBookmark = async (req, res) => {
     if (!tourist) {
       return res.status(404).json({ message: "Tourist not found" });
     }
+    const itinerary = await Itinerary.findById(itineraryId);
+    if (!itinerary) {
+      return res.status(404).json({ message: "Itinerary not found" });
+    }
 
     if (!tourist.itineraryBookmarks.includes(itineraryId)) {
       tourist.itineraryBookmarks.push(itineraryId);
+    } else {
+      return res.status(400).json({ message: "Itinerary already bookmarked" });
     }
 
     await tourist.save();
@@ -1256,6 +1536,7 @@ exports.requestAccountDeletion = async (req, res) => {
 exports.addToWishlist = async (req, res) => {
   try {
     const { touristId, productId } = req.body;
+    console.log(productId);
 
     // Find the tourist by ID
     const tourist = await Tourist.findById(touristId);
@@ -1385,7 +1666,7 @@ exports.addToCartFromWishlist = async (req, res) => {
   }
 };
 
-exports.addDeliveryAddress = async (req, res) => {
+exports.addDeliveryAddressO = async (req, res) => {
   try {
     const { touristId, address } = req.body;
 
@@ -1431,11 +1712,9 @@ exports.getSavedEvents = async (req, res) => {
   try {
     const touristId = req.params.id;
 
-
     const tourist = await Tourist.findById(touristId)
       .populate("activityBookmarks")
-      .populate("itineraryBookmarks")
-    ;
+      .populate("itineraryBookmarks");
     if (!tourist) {
       console.log("Tourist not found");
       return res.status(404).json({ message: "Tourist not found" });
@@ -1443,7 +1722,7 @@ exports.getSavedEvents = async (req, res) => {
 
     let activities = tourist.activityBookmarks;
     let itineraries = tourist.itineraryBookmarks;
-    console.log("yemken",activities, itineraries);
+    console.log("yemken", activities, itineraries);
 
     res.status(200).json({ activities: activities, itineraries: itineraries });
   } catch (error) {
@@ -1452,4 +1731,724 @@ exports.getSavedEvents = async (req, res) => {
       .status(500)
       .json({ message: "An error occurred while retrieving the saved events" });
   }
+};
+
+exports.saveEvent = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const { activityId, itineraryId } = req.body;
+
+    const tourist = await Tourist.findById(touristId);
+
+    if (!tourist) {
+      return res.status(404).json({ error: "Tourist not Found" });
+    }
+
+    if (activityId && !tourist.activityBookmarks.includes(activityId)) {
+      tourist.activityBookmarks.push(activityId);
+      await tourist.save();
+      return res
+        .status(200)
+        .json({ message: "Activity Bookmarked successfully" });
+    }
+
+    if (itineraryId && !tourist.itineraryBookmarks.includes(itineraryId)) {
+      tourist.itineraryBookmarks.push(itineraryId);
+      await tourist.save();
+      return res
+        .status(200)
+        .json({ message: "Itinerary Bookmarked successfully" });
+    }
+
+    return res.status(500).json({ error: "Missing params" });
+  } catch (error) {
+    return res.status(500).json({ error: "Internal error" });
+  }
+};
+
+exports.getOrders = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+
+    const tourist = await Tourist.findById(touristId).populate({
+      path: "orders.products.productId",
+    });
+
+    if (!tourist) {
+      return res.status(404).json({ error: "Tourist not Found" });
+    }
+
+    return res.status(200).json(tourist.orders);
+  } catch (error) {
+    return res.status(500).json({ error: "Internal error" });
+  }
+};
+
+exports.getOrder = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+
+    const tourist = await Tourist.findById(touristId).populate({
+      path: "orders.products.productId",
+    });
+
+    if (!tourist) {
+      return res.status(404).json({ error: "Tourist not Found" });
+    }
+
+    const orderId = req.body.orderId;
+
+    const order = tourist.orders.id(orderId);
+
+    if (!order) {
+      res.status(404).json({ message: "Order not Found" });
+    }
+
+    return res.status(200).json(order);
+  } catch (error) {
+    res.status(500).json({ error: "Internal error" });
+  }
+};
+
+exports.getOrderByDate = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const date = req.body.date;
+
+    const tourist = await Tourist.findById(touristId)
+      .populate({
+        path: 'orders.products.productId'
+      });
+    
+    if(!tourist) {
+      return res.status(404).json({error: "Tourist not Found"});
+    }
+    let order;
+    for(let i = 0; i< tourist.orders.length;i++) {
+      if(tourist.orders[i].date.toISOString() === date) {
+        order = tourist.orders[i];
+      }
+    }
+
+    return res.status(200).json(order);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({error: "Internal error"});
+  }
 }
+
+exports.cancelOrder = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+
+    const date = req.body.date;
+
+    const tourist = await Tourist.findById(touristId);
+
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not Found" });
+    }
+
+    const order = tourist.orders.find(item => item.date.toISOString() === date);
+
+    for (const item of order.products) {
+      const product = await Product.findById(item.productId);
+
+      if (product) {
+        product.quantity += item.quantity;
+        product.sales -= item.quantity * product.price;
+        await product.save();
+      }
+    }
+
+    order.status = "Cancelled";
+    tourist.wallet += order.total;
+    await tourist.save();
+    return res.status(200).json({ message: "Order cancelled successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal error" });
+  }
+};
+
+exports.addDeliveryAddress = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const { country, city, area, street, house, app, desc } = req.body;
+
+    if (!country || !city || !area || !street || !house || !app) {
+      console.log("missing");
+      return res.status(400).json({ message: "Missing params" });
+    }
+    const address = { country, city, area, street, house, app, desc };
+
+    const tourist = await Tourist.findById(touristId);
+
+    if (!tourist) {
+      console.log("not found");
+      return res.status(404).json({ message: "Tourist not Found" });
+    }
+
+    tourist.deliveryAddresses.push(address);
+    await tourist.save();
+
+    const token = jwt.sign(
+      {
+        userId: tourist._id,
+        role: "tourist",
+        userDetails: tourist,
+      }, // Include user data in the token
+      process.env.JWT_SECRET, // Use the environment variable
+      { expiresIn: "1h" }
+    );
+
+    return res
+      .status(200)
+      .json({ message: "Address added successfully", token });
+  } catch (error) {
+    console.log("error");
+    res.status(500).json({ message: "Internal error" });
+  }
+};
+
+exports.addProductToCart = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const productId = req.body.productId;
+
+    if (!productId) {
+      return res.status(404).json({ message: "Product not Found" });
+    }
+
+    const tourist = await Tourist.findById(touristId);
+
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not Found" });
+    }
+
+    refreshCart(touristId);
+
+    if (
+      !tourist.cart.some(
+        (item) => item.productId.toString() === productId.toString()
+      )
+    ) {
+      tourist.cart.push({ productId, quantity: 1 });
+      await tourist.save();
+    } else {
+      return res.status(400).json({ message: "Product already in cart" });
+    }
+    return res
+      .status(200)
+      .json({ message: "Product added to cart successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal error" });
+  }
+};
+
+exports.changeQuantityInCart = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const { productId, quantity } = req.body;
+
+    if (!productId || !quantity) {
+      return res.status(400).json({ message: "Missing params" });
+    }
+
+    const tourist = await Tourist.findById(touristId);
+
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not Found" });
+    }
+
+    refreshCart(touristId);
+
+    const result = await Tourist.findOneAndUpdate(
+      { _id: touristId, "cart.productId": productId },
+      { $set: { "cart.$[elem].quantity": quantity } },
+      {
+        arrayFilters: [{ "elem.productId": productId }],
+        new: true,
+      }
+    );
+
+    if (!result) {
+      return res
+        .status(404)
+        .json({ message: "Error has occurred, Cart refreshed" });
+    }
+
+    return res.status(200).json({ message: "Quantity updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal error" });
+  }
+};
+
+exports.incQuantityInCart = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const { productId } = req.body;
+
+    if (!productId) {
+      return res.status(400).json({ message: "Missing params" });
+    }
+
+    const tourist = await Tourist.findById(touristId);
+
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not Found" });
+    }
+
+    refreshCart(touristId);
+
+    for (let i = 0; i < tourist.cart.length; i++) {
+      if (tourist.cart[i].productId.toString() === productId.toString()) {
+        tourist.cart[i].quantity += 1;
+        await tourist.save();
+        return res
+          .status(200)
+          .json({ message: "Quantity updated successfully" });
+      }
+    }
+
+    return res.status(404).json({ message: "Product not in cart" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal error" });
+  }
+};
+
+exports.getCart = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+
+    const tourist = await Tourist.findById(touristId).populate(
+      "cart.productId"
+    );
+
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    return res.status(200).json(tourist.cart);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal error" });
+  }
+};
+
+exports.decQuantityInCart = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const { productId } = req.body;
+
+    if (!productId) {
+      return res.status(400).json({ message: "Missing params" });
+    }
+
+    const tourist = await Tourist.findById(touristId);
+
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not Found" });
+    }
+
+    refreshCart(touristId);
+
+    for (let i = 0; i < tourist.cart.length; i++) {
+      if (tourist.cart[i].productId.toString() === productId.toString()) {
+        tourist.cart[i].quantity -= 1;
+        if (tourist.cart[i].quantity === 0) {
+          tourist.cart.splice(i, 1);
+        }
+        await tourist.save();
+        return res.status(200).json({ message: "Cart updated successfully" });
+      }
+    }
+
+    return res.status(404).json({ message: "Product not in cart" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal error" });
+  }
+};
+
+//helper
+async function refreshCart(touristId) {
+  try {
+    const tourist = await Tourist.findById(touristId).populate(
+      "cart.productId"
+    );
+
+    if (!tourist) {
+      return { error: "Tourist not found." };
+    }
+
+    const validCart = tourist.cart.filter((item) => {
+      const product = item.productId;
+      return product && !product.archived && !product.hidden;
+    });
+
+    tourist.cart = validCart;
+    await tourist.save();
+
+    return { message: "Cart refreshed successfully.", cart: tourist.cart };
+  } catch (error) {
+    console.error(error);
+    return { error: "An error occurred while refreshing the cart." };
+  }
+}
+
+exports.removeFromCart = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const productId = req.body.productId;
+
+    const tourist = await Tourist.findById(touristId);
+
+    refreshCart(touristId);
+
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    const result = await Tourist.findByIdAndUpdate(
+      touristId,
+      { $pull: { cart: { productId } } },
+      { new: true }
+    );
+
+    if (!result) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    await tourist.save();
+
+    return res
+      .status(200)
+      .json({ message: "Product removed from cart successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal error" });
+  }
+};
+
+exports.allReminders = async () => {
+  try {
+    const tourists = await Tourist.find();
+
+    for (let i = 0; i < tourists.length; i++) {
+      reminders(tourists[i]._id);
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Reminders for all tourists sent successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal error" });
+  }
+};
+
+async function reminders(touristId) {
+  try {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const startOfDay = new Date(tomorrow.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(tomorrow.setHours(23, 59, 59, 999));
+
+    const tourist = await Tourist.findById(touristId)
+      .populate({
+        path: "activityBookings.activityId",
+        select: "date name",
+      })
+      .populate({
+        path: "itineraryBookings.itineraryId",
+        select: "name",
+      });
+
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
+    }
+
+    const activityEvents = tourist.activityBookings.filter((booking) => {
+      const activityDate = booking.activityId?.date;
+      return activityDate >= startOfDay && activityDate <= endOfDay;
+    });
+
+    const itineraryEvents = tourist.itineraryBookings.filter((booking) => {
+      return booking.date >= startOfDay && booking.date <= endOfDay;
+    });
+
+    for (let i = 0; i < activityEvents.length; i++) {
+      tourist.notifications.push({
+        text:
+          activityEvents[i].activityId?.name +
+          "reminder: You have a booking tomorrow!",
+        seen: false,
+        activityId: activityEvents[i].activityId?._id,
+      });
+      const transporter = nodemailer.createTransport({
+        service: "Gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.NODE_MAILER_USER,
+          pass: process.env.NODE_MAILER_PASS,
+        },
+      });
+
+      const mailOptions = {
+        from: "reservy.me@gmail.com",
+        to: tourist.email,
+        subject: "Reminder",
+        html:
+          "<h2>" +
+          (activityEvents[i].activityId?.name +
+            "reminder: You have a booking tomorrow!") +
+          "</h2>",
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error("Error sending email: ", error);
+        } else {
+          console.log("Email sent: ", info.response);
+        }
+      });
+    }
+
+    for (let i = 0; i < itineraryEvents.length; i++) {
+      tourist.notifications.push({
+        text:
+          itineraryEvents[i].itineraryId?.name +
+          "reminder: You have a booking tomorrow!",
+        seen: false,
+        itineraryId: itineraryEvents[i].itineraryId?._id,
+      });
+      const transporter = nodemailer.createTransport({
+        service: "Gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.NODE_MAILER_USER,
+          pass: process.env.NODE_MAILER_PASS,
+        },
+      });
+
+      const mailOptions = {
+        from: "reservy.me@gmail.com",
+        to: tourist.email,
+        subject: "Reminder!",
+        html:
+          "<h2>" +
+          (itineraryEvents[i].itineraryId?.name +
+            "reminder: You have a booking tomorrow!") +
+          "</h2>",
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error("Error sending email: ", error);
+        } else {
+          console.log("Email sent: ", info.response);
+        }
+      });
+    }
+
+    await tourist.save();
+    return res.status(200).json({ message: "Reminders sent successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal error" });
+  }
+}
+
+exports.checkout = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const { useWallet, cod, deliveryAddress, total } = req.body;
+
+    const tourist = await Tourist.findOne({ _id: touristId }).populate(
+      "cart.productId"
+    );
+
+    refreshCart(touristId);
+
+    if (!tourist || tourist.cart.length <= 0) {
+      return res
+        .status(400)
+        .json({
+          message: "Cart refreshed, cart is now empty: cannot place order",
+        });
+    }
+
+    const validCartItems = [];
+    const invalidCartItems = [];
+
+    for (const item of tourist.cart) {
+      const product = item.productId;
+
+      if (product.quantity >= item.quantity) {
+        validCartItems.push(item);
+      } else {
+        invalidCartItems.push({
+          productId: product._id,
+          availableQuantity: product.quantity,
+          requestedQuantity: item.quantity,
+        });
+      }
+    }
+
+    if (invalidCartItems.length > 0 || validCartItems.length <= 0) {
+      return res
+        .status(400)
+        .json({ message: "Invalid quantities", invalidCartItems });
+    }
+
+    if (useWallet === true) {
+      if (tourist.wallet > total) {
+        tourist.wallet -= total;
+      } else {
+        return res.status(400).json({ message: "Insufficient funds" });
+      }
+    } else {
+      console.log("handling swipe payment"); //TODO
+    }
+
+    const order = {
+      products: validCartItems.map((item) => ({
+        productId: item.productId._id,
+        quantity: item.quantity,
+      })),
+      deliveryAddress,
+      date: new Date(),
+      cod: cod,
+      total,
+      status: "Processing",
+    };
+
+    tourist.orders.push(order);
+
+    for (const item of validCartItems) {
+      const product = item.productId;
+      product.quantity -= item.quantity;
+      if (product.quantity == 0) {
+        outOfStock(product.name, product.sellerId, product.adminId);
+      }
+      await product.save();
+    }
+
+    tourist.cart = [];
+
+    await tourist.save();
+
+    return res.status(200).json({ message: "Order created successfully!", order });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal error" });
+  }
+};
+
+async function outOfStock(name, sellerId, adminId) {
+  try {
+    if (sellerId) {
+      const seller = await Seller.findById(sellerId);
+
+      seller.notifications.push({
+        text: `Your product ${name} is out of stock`,
+        seen: false,
+      });
+
+      sendEmail(
+        seller.email,
+        `Product Out of Stock: ${name}`,
+        `Dear ${seller.name},\n\nWe noticed that your product "${name}" is currently out of stock. Please restock it as soon as possible to continue serving your customers. If this was intentional, no further action is needed.\n\nBest regards,\nYour Platform Team`
+      );
+
+      seller.save();
+    } else if (adminId) {
+      const admin = await Admin.findById(adminId);
+
+      admin.notifications.push({
+        text: `Your product ${name} is out of stock`,
+        seen: false,
+      });
+
+      sendEmail(
+        admin.email,
+        `Product Out of Stock: ${name}`,
+        `Dear ${admin.name},\n\nThe product "${name}" is currently out of stock. Please contact the seller or take the necessary steps to address this issue.\n\nBest regards,\nYour Platform Team`
+      );
+
+      admin.save();
+    } else {
+      return;
+    }
+
+    return { message: "Notification sent successfully." };
+  } catch (error) {
+    console.error(error);
+    return { error: "An error occurred while sending notification." };
+  }
+}
+
+exports.seeNotifications = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await Tourist.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    for (let i = 0; i < user.notifications.length; i++) {
+      user.notifications[i].seen = true;
+    }
+
+    await user.save();
+
+    return res.status(200).json({ message: "Notifications seen successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal error" });
+  }
+};
+
+// Count tourist by month and year
+exports.countTouristsByMonth = async (req, res) => {
+  try {
+    const { date } = req.query; 
+
+    if (!date) {
+      return res.status(400).json({ message: "Date is required" });
+    }
+
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
+
+    const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1, 0, 0, 0, 0); // Set time to 00:00:00
+    const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0, 23, 59, 59, 999); // Set time to 23:59:59
+    
+    const count = await Tourist.countDocuments({
+      joined: { $gte: startOfMonth, $lt: endOfMonth },
+    });
+
+    res.status(200).json({ count });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get all tourists requesting deletion
+exports.getTouristsRequestingDeletion = async (req, res) => {
+  try {
+    const tourists = await Tourist.find({ requestingDeletion: true });
+
+    if (!tourists.length) {
+      return res.status(404).json({ message: 'No tourists requesting deletion found' });
+    }
+
+    res.status(200).json(tourists);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
