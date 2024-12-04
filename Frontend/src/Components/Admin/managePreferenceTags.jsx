@@ -148,7 +148,7 @@ const ManagePreferenceTags = () => {
           type="primary"
           icon={addingtag ? <MinusOutlined /> : <PlusOutlined />}
           onClick={() => setAddingtag(!addingtag)}
-          style={{backgroundColor: "#5b8b77"}}
+          style={{backgroundColor: "#1b696a"}}
         >
           {addingtag ? "Close Tag" : "Add Tag"}
         </Button>

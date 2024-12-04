@@ -155,7 +155,7 @@ const ExamineAccountDetails = () => {
     )}
 
     <div style={{ marginTop: 20 }}>
-        <Button type="primary" onClick={handleAccept} style={{ marginRight: 10 , backgroundColor:"#5b8b77" }}>
+        <Button type="primary" onClick={handleAccept} style={{ marginRight: 10 , backgroundColor:"#1b696a" }}>
             Accept
         </Button>
         <Button type="default" onClick={handleReject} style={{color:"red" }}>

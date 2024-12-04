@@ -140,7 +140,7 @@ const TouristSelectedComplaint = () => {
         <Button
           type="primary"
           onClick={handleSendReply}
-          style={{ marginTop: "10px" }}
+          style={{ marginTop: "10px" , backgroundColor: "#1b696a" }}
         >
           Send Reply
         </Button>

@@ -158,13 +158,13 @@ const AdminCustomLayout = ({ children }) => {
           items={[ 
             {
               key: "5",
-              icon: <StarOutlined />,
+              icon: <StarOutlined style={{color:"black"}}/>,
               label: "Activity Categories",
               style: commonStyle,
             },
             {
               key: "6",
-              icon: <UserOutlined />,
+              icon: <UserOutlined style={{color:"black"}}/>,
               label: "Accounts",
               style: commonStyle,
 

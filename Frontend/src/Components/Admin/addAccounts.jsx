@@ -115,7 +115,7 @@ const AddAccounts = () => {
     switch (selectedKey) {
       case "1":
         return (
-          <div>
+          <div className="admin-menu">
             <Form
               form={form}
               layout="vertical"
@@ -141,7 +141,7 @@ const AddAccounts = () => {
               </Form.Item>
 
               <Form.Item>
-                <Button type="primary" htmlType="submit" style={{backgroundColor:"#5b8b77"}}>
+                <Button type="primary" htmlType="submit" style={{backgroundColor:"#1b696a"}}>
                   Add Admin Account
                 </Button>
               </Form.Item>
@@ -191,7 +191,7 @@ const AddAccounts = () => {
                 <Input placeholder="Password" type="password" />
               </Form.Item>
               <Form.Item>
-                <Button type="primary" htmlType="submit" style={{backgroundColor:"#5b8b77"}}>
+                <Button type="primary" htmlType="submit" style={{backgroundColor:"#1b696a"}}>
                   Add Tourism Governor Account
                 </Button>
               </Form.Item>
@@ -224,11 +224,12 @@ const AddAccounts = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor:"#5b8b77"
+          backgroundColor:"#1b696a"
         }}
       >
         <div className="demo-logo" />
         <Menu
+         className="admin-menu"
           //theme="dark"
           mode="horizontal"
           defaultSelectedKeys={["1"]}
@@ -238,7 +239,7 @@ const AddAccounts = () => {
             style: { 
               paddingLeft: "20px",
                paddingRight: "20px" ,
-               backgroundColor: "#5b8b77",
+               backgroundColor: "#1b696a",
                color: "white",
             }, }))}
           onClick={handleMenuClick}
@@ -247,7 +248,7 @@ const AddAccounts = () => {
             display: "flex",
             justifyContent: "center",
             gap: "50px", // Add spacing between menu items
-            backgroundColor:"#5b8b77",
+            backgroundColor:"#1b696a",
             color:"white"
           }}
         />

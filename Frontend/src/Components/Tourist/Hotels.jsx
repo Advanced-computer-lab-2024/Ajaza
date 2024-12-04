@@ -302,7 +302,7 @@ const Hotels = () => {
               </Form.Item>
 
               <Form.Item>
-                <Button type="primary" htmlType="submit" loading={loading}>
+                <Button type="primary" htmlType="submit" loading={loading} style={{backgroundColor:"#1b696a"}}>
                   Search
                 </Button>
               </Form.Item>
@@ -360,7 +360,7 @@ const Hotels = () => {
           </>
         )}
         
-        <CustomButton value="Book" key="book" type="primary" onClick={handleBooking}>
+        <CustomButton value="Book" key="book" type="primary" onClick={handleBooking} size={"s"}>
         </CustomButton>
         <Space wrap>
           {hotelImages.map((image, index) => (

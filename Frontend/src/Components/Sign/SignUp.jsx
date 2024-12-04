@@ -65,6 +65,7 @@ const SignUp = () => {
         }}
       >
         <Menu
+          className="signup-item"
           mode="horizontal"
           selectedKeys={[role]}
           items={menuItems.map((item) => ({
@@ -90,6 +91,7 @@ const SignUp = () => {
       <Content
         style={{
           padding: "0 48px",
+          backgroundColor: "#1b696a",
         }}
       >
         <div
@@ -98,6 +100,7 @@ const SignUp = () => {
             minHeight: 380,
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
+            backgroundColor:"#1b696a",
           }}
         >
           <Routes>

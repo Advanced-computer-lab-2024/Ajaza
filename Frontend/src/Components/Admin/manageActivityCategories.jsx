@@ -141,7 +141,7 @@ const ManageActivityCategories = () => {
               placeholder="Enter new category name"
               style={{ width: "200px", marginRight: "8px" }}
             />
-            <Button type="primary" onClick={handleAddCategory} style={{backgroundColor:"#5b8b77"}}>
+            <Button type="primary" onClick={handleAddCategory} style={{backgroundColor:"#1b696a"}}>
               Add
             </Button>
           </div>
@@ -149,7 +149,7 @@ const ManageActivityCategories = () => {
 
         <Button
           type="primary"
-          style={{backgroundColor: "#5b8b77"}}
+          style={{backgroundColor: "#1b696a"}}
           icon={addingCategory ? <MinusOutlined /> : <PlusOutlined />}
           onClick={() => setAddingCategory(!addingCategory)}
         >
