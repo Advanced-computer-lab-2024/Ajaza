@@ -122,7 +122,7 @@ const ThirdParty = () => {
         </Col>  
       </Row>
 
-      <Tabs defaultActiveKey="1" style={{ marginBottom: 20 }}>
+      <Tabs defaultActiveKey="1" style={{ marginBottom: 20 , color:"#1b696a"}}>
         <TabPane tab="Flights" key="1">
           {loading ? (
             <p>Loading flight bookings...</p>

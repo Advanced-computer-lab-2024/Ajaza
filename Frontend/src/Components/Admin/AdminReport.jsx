@@ -153,6 +153,29 @@ const AdminReport = () => {
         return itemDate.isBetween(startDate, endDate, undefined, "[]");
       });
     }
+    if (type === 'activity') {
+      const newActivityCommission = filteredData.reduce((sum, item) => sum + item.commission, 0);
+      setTotals((prevTotals) => ({
+        ...prevTotals,
+        activityBookingsCommission: newActivityCommission,
+      }));
+    }
+  
+    if (type === 'itinerary') {
+      const newItineraryCommission = filteredData.reduce((sum, item) => sum + item.commission, 0);
+      setTotals((prevTotals) => ({
+        ...prevTotals,
+        itineraryBookingsCommission: newItineraryCommission,
+      }));
+    }
+    setData((prevData) => {
+      const updatedData = {
+        ...prevData,
+        [type]: filteredData,
+      };
+      recalculateTotalSales(updatedData);
+      return updatedData;
+    });
 
     return filteredData;
   };
@@ -200,7 +223,30 @@ const AdminReport = () => {
         ...prevTotals,
         productSales: newProductSales,
       }));
-    } 
+    }
+    if (type === 'activity') {
+      const newActivityCommission = filteredData.reduce((sum, item) => sum + item.commission, 0);
+      setTotals((prevTotals) => ({
+        ...prevTotals,
+        activityBookingsCommission: newActivityCommission,
+      }));
+    }
+    if (type === 'itinerary') {
+      const newItineraryCommission = filteredData.reduce((sum, item) => sum + item.commission, 0);
+      setTotals((prevTotals) => ({
+        ...prevTotals,
+        itineraryBookingsCommission: newItineraryCommission,
+      }));
+    }
+    
+    setData((prevData) => {
+      const updatedData = {
+        ...prevData,
+        [type]: filteredData,
+      };
+      recalculateTotalSales(updatedData);
+      return updatedData;
+    });
   };
 
   const resetFilters = (type) => {
@@ -234,7 +280,27 @@ const AdminReport = () => {
         itineraryBookingsCommission: newItineraryCommission,
       }));
     }
+    setData((prevData) => {
+      const updatedData = {
+        ...prevData,
+        [type]: originalData[type],
+      };
+      recalculateTotalSales(updatedData);
+      return updatedData;
+    });
   };
+
+  const recalculateTotalSales = (filteredData) => {
+    const productSales = filteredData.product.reduce((sum, item) => sum + item.total, 0);
+    const activityCommissions = filteredData.activity.reduce((sum, item) => sum + item.commission, 0);
+    const itineraryCommissions = filteredData.itinerary.reduce((sum, item) => sum + item.commission, 0);
+  
+    setTotals((prevTotals) => ({
+      ...prevTotals,
+      totalSales: productSales + activityCommissions + itineraryCommissions,
+    }));
+  };
+  
 
   const uniqueProductNames = [...new Set(originalData.product.map(item => item.productName))];
   const uniqueActivityNames = [...new Set(originalData.activity.map(item => item.activityName))];
@@ -283,7 +349,6 @@ const AdminReport = () => {
     },
     { title: 'Quantity', dataIndex: 'quantity', key: 'quantity' },
     { title: 'Price', dataIndex: 'price', key: 'price', render: (text) => `$${text.toFixed(2)}`, sorter: (a, b) => a.price - b.price },
-    { title: 'Total Revenue', dataIndex: 'total', key: 'total', render: (text) => `$${text.toFixed(2)}` },
   ];
 
   const activityColumns = [
@@ -383,7 +448,7 @@ const AdminReport = () => {
 
         <TabPane tab="Products" key="product">
           <p><strong>Product Sales:</strong> ${totals.productSales.toFixed(2)}</p>
-          <p><strong>Total Sales:</strong> ${totals.totalSales.toFixed(2)}</p>
+          <p><strong>Total Sales + Commissions:</strong> ${totals.totalSales.toFixed(2)}</p>
           <Table
             columns={productColumns}
             dataSource={data.product}
@@ -422,7 +487,7 @@ const AdminReport = () => {
 
         <TabPane tab="Activities" key="activity">
           <p><strong>Activity Commission:</strong> ${totals.activityBookingsCommission.toFixed(2)}</p>
-          <p><strong>Total Sales:</strong> ${totals.totalSales.toFixed(2)}</p>
+          <p><strong>Total Sales + Commissions:</strong> ${totals.totalSales.toFixed(2)}</p>
           <Table
             columns={activityColumns}
             dataSource={data.activity}
@@ -456,7 +521,7 @@ const AdminReport = () => {
 
         <TabPane tab="Itineraries" key="itinerary">
           <p><strong>Itinerary Commission:</strong> ${totals.itineraryBookingsCommission.toFixed(2)}</p>
-          <p><strong>Total Sales:</strong> ${totals.totalSales.toFixed(2)}</p>
+          <p><strong>Total Sales + Commissions:</strong> ${totals.totalSales.toFixed(2)}</p>
           <Table
             columns={itineraryColumns}
             dataSource={data.itinerary}

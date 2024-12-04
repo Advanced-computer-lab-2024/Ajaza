@@ -713,7 +713,7 @@ const Itineraries = () => {
             </Form.List>
 
             <Form.Item>
-              <AntButton type="primary" htmlType="submit" style={{ marginTop: "10px" }}>
+              <AntButton type="primary" htmlType="submit" style={{ marginTop: "10px" , backgroundColor: "#1b696a"}}>
                 {editingItineraryId ? "Update Itinerary" : "Create Itinerary"}
               </AntButton>
             </Form.Item>

@@ -597,7 +597,7 @@ const SearchFilterSortContainerEditCreate = ({
               maxCount={1}
             >
               <p className="ant-upload-drag-icon">
-                <InboxOutlined />
+                <InboxOutlined style={{color:"#1b696a"}} />
               </p>
               <p className="ant-upload-text">
                 Click or drag file to this area to upload
@@ -606,7 +606,7 @@ const SearchFilterSortContainerEditCreate = ({
           </Form.Item>
 
           <Form.Item>
-            <AntButton type="primary" htmlType="submit">
+            <AntButton type="primary" htmlType="submit" style={{backgroundColor:"#1b696a"}}>
               {editingProductId ? "Save Changes" : "Create Product"}
             </AntButton>
           </Form.Item>

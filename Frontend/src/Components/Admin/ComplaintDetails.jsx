@@ -133,7 +133,7 @@ const ComplaintDetails = () => {
             <Button
               type="primary"
               onClick={handleAccept}
-              style={{ marginRight: 10 , backgroundColor:"#5b8b77"}}
+              style={{ marginRight: 10 , backgroundColor:"#1b696a"}}
             >
               Resolve
             </Button>
@@ -156,7 +156,7 @@ const ComplaintDetails = () => {
         <Button
           type="primary"
           onClick={handleSendReply}
-          style={{ marginTop: "10px" , backgroundColor:"#5b8b77"}}
+          style={{ marginTop: "10px" , backgroundColor:"#1b696a"}}
         >
           Send Reply
         </Button>

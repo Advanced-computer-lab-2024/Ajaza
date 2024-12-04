@@ -1058,7 +1058,7 @@ const Profile = () => {
               title="Add Delivery Address"
               visible={isModalVisible}
               onCancel={handleCancelDelivery}
-              style={{backgroundColor: '#5b8b77'}}
+              style={{backgroundColor: '#1b696a'}}
               footer={null}
             >
               <Form
@@ -1116,7 +1116,7 @@ const Profile = () => {
                   <Input.TextArea rows={3} />
                 </Form.Item>
                 <Form.Item>
-                  <Button type="primary" htmlType="submit" style={{backgroundColor:"#5b8b77"}} block>
+                  <Button type="primary" htmlType="submit" style={{backgroundColor:"#1b696a"}} block>
                     Add Address
                   </Button>
                 </Form.Item>

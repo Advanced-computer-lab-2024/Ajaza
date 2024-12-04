@@ -120,7 +120,7 @@ const CreatePromoCode = () => {
   
 
   <Form.Item>
-    <Button type="primary" htmlType="submit" style={{backgroundColor:"#5b8b77"}}>
+    <Button type="primary" htmlType="submit" style={{backgroundColor:"#1b696a"}}>
       Add PromoCode
     </Button>
   </Form.Item>
@@ -155,11 +155,12 @@ const CreatePromoCode = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor:"#5b8b77"
+          backgroundColor:"#1b696a"
         }}
       >
         <div className="demo-logo" />
         <Menu
+         className="promo-menu"
           //theme="dark"
           mode="horizontal"
           defaultSelectedKeys={["1"]}
@@ -169,7 +170,7 @@ const CreatePromoCode = () => {
             style: { 
               paddingLeft: "20px",
                paddingRight: "20px" ,
-               backgroundColor: "#5b8b77",
+               backgroundColor: "#1b696a",
                color: "white",
             }, }))}
           onClick={handleMenuClick}
@@ -178,7 +179,7 @@ const CreatePromoCode = () => {
             display: "flex",
             justifyContent: "center",
             gap: "50px", // Add spacing between menu items
-            backgroundColor:"#5b8b77" 
+            backgroundColor:"#1b696a" 
           }}
         />
       </Header>

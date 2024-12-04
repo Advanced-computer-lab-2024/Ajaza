@@ -134,6 +134,7 @@ const Tourist = () => {
       label: "Complaints",
       style: commonStyle,
       icon: <ReportGmailerrorredOutlinedIcon />,
+      style: commonStyle,
       children: [
         {
           key: "7",
