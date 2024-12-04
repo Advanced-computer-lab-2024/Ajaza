@@ -82,14 +82,17 @@ const CustomLayout = ({
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      const decodedToken = jwtDecode(token);
-      setUser(decodedToken.userDetails);
-      const unseenNotifications = decodedToken.userDetails.notifications.filter(
-        (notification) => !notification.seen
-      );
-      setNotifications(unseenNotifications); // Store only unseen notifications
-      notificationsRef.current = unseenNotifications;
+  if (token) {
+    const decodedToken = jwtDecode(token);
+    setUser(decodedToken.userDetails);
+    
+    // Add a check to ensure userDetails and notifications exist
+    const unseenNotifications = decodedToken.userDetails?.notifications?.filter(
+      (notification) => !notification.seen
+    ) || []; // Provide an empty array as fallback
+
+    setNotifications(unseenNotifications);
+    notificationsRef.current = unseenNotifications;
       setNavBarItems(
         <Flex justify="center" style={{ width: "100%", position: "relative" }}>
           <div id="logo" style={{ position: "relative", right: 40, bottom: 3 }}>
