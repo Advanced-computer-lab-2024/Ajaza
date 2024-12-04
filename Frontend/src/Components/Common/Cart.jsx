@@ -152,7 +152,7 @@ export const Cart = () => {
       );
       setPrice(totalPrice); // Update the price state
     };
-  
+
     calculateTotalPrice();
   }, [cartItems]);
 
@@ -372,11 +372,6 @@ export const Cart = () => {
               {/* Action Buttons */}
               <div className="cart-actions">
                 <Button
-                  icon={<DeleteOutlined />}
-                  danger
-                  onClick={() => handleRemoveItem(item.productId)}
-                />
-                <Button
                   icon={<MinusOutlined />}
                   onClick={() => handleDecrement(item.productId)}
                 />
@@ -384,6 +379,11 @@ export const Cart = () => {
                 <Button
                   icon={<PlusOutlined />}
                   onClick={() => handleIncrement(item.productId)}
+                />
+                <Button
+                  icon={<DeleteOutlined />}
+                  danger
+                  onClick={() => handleRemoveItem(item.productId)}
                 />
               </div>
             </div>
@@ -425,7 +425,7 @@ export const Cart = () => {
             height: "50px",
           }}
         >
-          <div style={{ textAlign: "center", marginBottom: "4px" }}>
+          <div style={{ textAlign: "center", marginTop: "20px" }}>
             <h1>Checkout</h1>
             <Divider />
           </div>
@@ -574,7 +574,7 @@ export const Cart = () => {
               Wallet
             </Radio>
             <Radio value="card" style={{ marginRight: "15px" }}>
-            Credit/Debit Card
+              Credit/Debit Card
             </Radio>
             <Radio value="cod" style={{ marginRight: "15px" }}>
               Cash on Delivery
