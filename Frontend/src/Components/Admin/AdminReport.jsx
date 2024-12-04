@@ -168,6 +168,14 @@ const AdminReport = () => {
         itineraryBookingsCommission: newItineraryCommission,
       }));
     }
+    setData((prevData) => {
+      const updatedData = {
+        ...prevData,
+        [type]: filteredData,
+      };
+      recalculateTotalSales(updatedData);
+      return updatedData;
+    });
 
     return filteredData;
   };
@@ -229,7 +237,16 @@ const AdminReport = () => {
         ...prevTotals,
         itineraryBookingsCommission: newItineraryCommission,
       }));
-    } 
+    }
+    
+    setData((prevData) => {
+      const updatedData = {
+        ...prevData,
+        [type]: filteredData,
+      };
+      recalculateTotalSales(updatedData);
+      return updatedData;
+    });
   };
 
   const resetFilters = (type) => {
@@ -263,7 +280,27 @@ const AdminReport = () => {
         itineraryBookingsCommission: newItineraryCommission,
       }));
     }
+    setData((prevData) => {
+      const updatedData = {
+        ...prevData,
+        [type]: originalData[type],
+      };
+      recalculateTotalSales(updatedData);
+      return updatedData;
+    });
   };
+
+  const recalculateTotalSales = (filteredData) => {
+    const productSales = filteredData.product.reduce((sum, item) => sum + item.total, 0);
+    const activityCommissions = filteredData.activity.reduce((sum, item) => sum + item.commission, 0);
+    const itineraryCommissions = filteredData.itinerary.reduce((sum, item) => sum + item.commission, 0);
+  
+    setTotals((prevTotals) => ({
+      ...prevTotals,
+      totalSales: productSales + activityCommissions + itineraryCommissions,
+    }));
+  };
+  
 
   const uniqueProductNames = [...new Set(originalData.product.map(item => item.productName))];
   const uniqueActivityNames = [...new Set(originalData.activity.map(item => item.activityName))];
