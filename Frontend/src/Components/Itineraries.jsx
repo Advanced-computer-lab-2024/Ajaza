@@ -5,6 +5,7 @@ import {
   PlusOutlined,
   MinusCircleOutlined,
   FlagOutlined,
+  InboxOutlined,
 } from "@ant-design/icons";
 import {
   Avatar,
@@ -21,6 +22,7 @@ import {
   Divider,
   Tag,
   Typography,
+  Upload,
 } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
@@ -31,6 +33,7 @@ import LoadingSpinner from "./Common/LoadingSpinner";
 import dayjs from "dayjs";
 
 const { Option } = Select;
+const { Dragger } = Upload;
 
 const apiClient = axios.create({
   baseURL: apiUrl,
@@ -48,6 +51,7 @@ const Itineraries = () => {
   const [canEdit, setCanEdit] = useState(true);
   const [touristsData, setTouristsData] = useState([]);
   const { Title, Text } = Typography;
+  const [fileList, setFileList] = useState([]);
 
   const [form] = Form.useForm();
   const [options, setOptions] = useState([]);
@@ -126,6 +130,13 @@ const Itineraries = () => {
     }
   }, []);
 
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
+
   const createItinerary = async (values) => {
     try {
       console.log("Form Values:", values); // Debugging line
@@ -152,10 +163,28 @@ const Itineraries = () => {
         feedback: [],
       };
 
+      const formData = new FormData();
+      if (values.pictures && values.pictures.length > 0) {
+        for (let i = 0; i < values.pictures.length; i++) {
+          formData.append("pictures", values.pictures[i].originFileObj);
+        }
+      }
+
       const response = await apiClient.post(
         `/itinerary/createSpecifiedItinerary/${userid}`,
         newItinerary
       );
+
+      const picResponse = await apiClient.post(
+        `itinerary/uploadPhotos/${response.data._id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
       setItinerariesData([...itinerariesData, response.data]);
       message.success("Itinerary created successfully!");
       setIsModalVisible(false);
@@ -265,6 +294,9 @@ const Itineraries = () => {
 
     setIsModalVisible(true);
   };
+
+  const handleFileChange = ({ fileList: newFileList }) =>
+    setFileList(newFileList);
 
   const showModal = () => {
     setEditingItineraryId(null);
@@ -711,6 +743,31 @@ const Itineraries = () => {
                 </>
               )}
             </Form.List>
+
+            {!editingItineraryId && (
+              <Form.Item
+                label="Pictures"
+                name="pictures"
+                valuePropName="fileList"
+                getValueFromEvent={normFile}
+              >
+                <Dragger
+                  name="pictures"
+                  listType="text"
+                  fileList={fileList}
+                  onChange={handleFileChange}
+                  beforeUpload={() => false}
+                  maxCount={3}
+                >
+                  <p className="ant-upload-drag-icon">
+                    <InboxOutlined />
+                  </p>
+                  <p className="ant-upload-text">
+                    Click or drag file to this area to upload
+                  </p>
+                </Dragger>
+              </Form.Item>
+            )}
 
             <Form.Item>
               <AntButton type="primary" htmlType="submit" style={{ marginTop: "10px" , backgroundColor: "#1b696a"}}>

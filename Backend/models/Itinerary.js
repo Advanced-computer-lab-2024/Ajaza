@@ -38,7 +38,9 @@ const itinerarySchema = new mongoose.Schema({
   maxTourists: { type: Number, required: true, default: 20 },
   hidden: { type: Boolean, default: false },
   isFlagged: {type: Boolean, default: false},
-
+  pictures: [
+    { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Img" },
+  ],
 });
 
 // Create the model

@@ -202,7 +202,7 @@ const CustomLayout = ({
         <div className="demo-logo-vertical" />
         <Menu
          //theme="dark"
-          //mode="inline"
+          mode="inline"
           defaultSelectedKeys={[selectedKey]}
           items={sideBarItems}
           onClick={handleMenuClick}
