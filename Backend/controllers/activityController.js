@@ -296,6 +296,7 @@ exports.createSpecifiedActivity = async (req, res) => {
       discounts,
       isOpen,
       spots,
+      pictures
     } = req.body;
     const advertiser = await Advertiser.findById(advertiserId);
     if (!advertiser) {
@@ -332,6 +333,7 @@ exports.createSpecifiedActivity = async (req, res) => {
       spots,
       isFlagged: false,
       hidden: false,
+      pictures
     });
 
     const savedActivity = await newActivity.save();

@@ -321,6 +321,7 @@ exports.createSpecifiedItinerary = async (req, res) => {
       dropOff,
       tags,
       maxTourists,
+      pictures
     } = req.body;
     const guide = await Guide.findById(guideId);
     if (!guide) {
@@ -356,6 +357,7 @@ exports.createSpecifiedItinerary = async (req, res) => {
       hidden: false,
       active: true,
       tags,
+      pictures
     });
     //const newItinerary = new Itinerary(req.body);
 

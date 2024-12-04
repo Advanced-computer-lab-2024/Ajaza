@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const activityController = require("../controllers/activityController");
+const uploadVenuePictures = require("../middleware/uploadVenuePictures");
 
 router.post("/", activityController.createActivity);
 
@@ -52,7 +53,7 @@ router.post(
 );
 
 // req19
-router.post('/createSpecifiedActivity/:advertiserId', activityController.createSpecifiedActivity);
+router.post('/createSpecifiedActivity/:advertiserId', uploadVenuePictures, activityController.createSpecifiedActivity);
 router.get('/readActivities/:advertiserId', activityController.readActivitiesOfAdvertiser);
 router.delete('/deleteSpecificActivity/:advertiserId/:activityId', activityController.deleteSpecificActivity);
 router.put('/updateActivityFilteredFields/:advertiserId/:activityId', activityController.updateActivityFilteredFields);

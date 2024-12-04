@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const itineraryController = require("../controllers/itineraryController");
+const uploadVenuePictures = require("../middleware/uploadVenuePictures");
 
 router.post("/", itineraryController.createItinerary);
 
@@ -52,7 +53,7 @@ params:name,
       pickUp,
       dropOff,
       maxTourists*/
-router.post('/createSpecifiedItinerary/:guideId', itineraryController.createSpecifiedItinerary);
+router.post('/createSpecifiedItinerary/:guideId', uploadVenuePictures, itineraryController.createSpecifiedItinerary);
 router.get('/readItinerariesOfGuide/:guideId', itineraryController.readItinerariesOfGuide);
 router.patch('/updateItineraryFilteredFields/:guideId/:itineraryId', itineraryController.updateItineraryFilteredFields);
 router.delete('/deleteSpecificItinerary/:guideId/:itineraryId', itineraryController.deleteSpecificItinerary);
