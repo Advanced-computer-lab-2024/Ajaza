@@ -279,12 +279,12 @@ const Activities = () => {
           marginBottom: "16px",
         }}
       >
-        <SelectCurrency
+        {/* <SelectCurrency
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
           style={{ left: 1000, top: 55 }}
-        />
+        /> */}
       </div>
       <SearchFilterSortContainer
         cardComponent={BasicCard}

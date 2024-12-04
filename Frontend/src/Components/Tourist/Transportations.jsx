@@ -282,11 +282,11 @@ const Transportations = () => {
       transportations?.length > 0 && !formVisible && ( // Render list if hotels are available and form is not visible
         <Card style={{ width: "100%", maxWidth: 600, margin: "20px auto", padding: "20px" }}>
           <Title level={4}>Available Transportations</Title>
-          <SelectCurrency
+          {/* <SelectCurrency
               currency={currency}
               onCurrencyChange={handleCurrencyChange}
               style={{ float: "right" , left:-700 , top: -70}}
-            />
+            /> */}
           <List
             itemLayout="vertical"
             dataSource={transportations}

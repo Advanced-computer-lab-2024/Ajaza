@@ -115,10 +115,10 @@ const ThirdParty = () => {
     <div>
       <Row style={{ marginBottom: "20px" }} justify="start">
         <Col>
-          <SelectCurrency
+          {/* <SelectCurrency
             currency={currency}
             onCurrencyChange={handleCurrencyChange}
-          />
+          /> */}
         </Col>  
       </Row>
 

@@ -666,7 +666,7 @@ export const BookFlight = () => {
                 <Form.Item>
                     <CustomButton size="s" value="Search Flights" htmlType="submit" loading={loading} />
                 </Form.Item>
-                <SelectCurrency currency={currency} onCurrencyChange={handleCurrencyChange} style={{top:15}}/>
+                {/* <SelectCurrency currency={currency} onCurrencyChange={handleCurrencyChange} style={{top:15}}/> */}
             </Form>
 
             <div style={{ marginTop: '20px', display: 'flex', flexWrap: 'wrap', gap: '16px' }}>

@@ -58,3 +58,7 @@
 .anticon.anticon-ellipsis{
   color: #1b696a;
 }
+
+.ant-modal-footer .ant-btn-primary {
+  background-color: #1b696a !important;
+}

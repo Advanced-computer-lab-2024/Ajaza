@@ -239,7 +239,8 @@ const Product = () => {
             <CustomButton
                 value={"Add to Cart"}
                 size={"s"}
-                style={{ position: 'relative', top: 250, left: -315, zIndex: 10 }}
+                //style={{ position: 'relative', top: 60, left: -105, zIndex: 10 }}
+                style={{ position: 'relative', top: 120, left: -105, zIndex: 10 }}
                 onClick={handleAddToCart}
               />
           ) : (
@@ -293,11 +294,11 @@ const Product = () => {
         </div>
       ) : null}
 
-      <SelectCurrency
+      {/* <SelectCurrency
         currency={currency}
         onCurrencyChange={handleCurrencyChange}
         style={{ left: -7, top: 45 }}
-      />
+      /> */}
 
       <Item
         id={id}

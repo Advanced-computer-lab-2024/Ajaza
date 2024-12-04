@@ -131,26 +131,10 @@ const Tourist = () => {
     },
     {
       key: "18",
-      label: "Complaints",
+      label: "My Complaints",
       style: commonStyle,
       icon: <ReportGmailerrorredOutlinedIcon />,
       style: commonStyle,
-      children: [
-        {
-          key: "7",
-          icon: <ReportGmailerrorredOutlinedIcon />,
-          label: "File Complaint",
-          onClick: () => navigate("FileComplaint"),
-          style: commonStyle,
-        },
-        {
-          key: "8",
-          icon: <ReportGmailerrorredOutlinedIcon />,
-          label: "My Complaints",
-          onClick: () => navigate("Complaints"),
-          style: commonStyle,
-        },
-      ],
     },
     {
       key: "9",
