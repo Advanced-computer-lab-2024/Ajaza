@@ -64,4 +64,7 @@ router.get('/fetchOptions/fetchOptions', itineraryController.fetchOptions);
 // req39
 //router.get("/preferrences/:id", itineraryController.getItinerariesByPreferences);
 
+router.post("/uploadPhotos/:itineraryId", uploadVenuePictures, itineraryController.uploadItineraryPictures);
+
+
 module.exports = router;

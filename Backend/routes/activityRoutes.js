@@ -61,4 +61,7 @@ router.put('/updateActivityFilteredFields/:advertiserId/:activityId', activityCo
 // req39
 //router.get("/preferrences/:id", activityController.getActivitiesByPreferences);
 
+router.post("/uploadPhotos/:activityId", uploadVenuePictures, activityController.uploadActivityPictures);
+
+
 module.exports = router;

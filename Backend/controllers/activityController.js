@@ -638,3 +638,19 @@ exports.unhideActivity = async (req, res) => {
       .json({ message: `Error unhiding activity: ${error.message}` });
   }
 };
+
+
+exports.uploadActivityPictures = async (req, res) => {
+  try {
+    const activity = await Activity.findById(req.params.activityId);
+    const pictures = req.body.pictures;
+    if (!activity) {
+      return res.status(404).json({ message: "Activity not found" });
+    }
+    activity.pictures = pictures;
+    await activity.save();
+    res.status(200).json(activity);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
