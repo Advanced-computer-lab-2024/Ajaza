@@ -448,7 +448,7 @@ const AdminReport = () => {
 
         <TabPane tab="Products" key="product">
           <p><strong>Product Sales:</strong> ${totals.productSales.toFixed(2)}</p>
-          <p><strong>Total Sales:</strong> ${totals.totalSales.toFixed(2)}</p>
+          <p><strong>Total Sales + Commissions:</strong> ${totals.totalSales.toFixed(2)}</p>
           <Table
             columns={productColumns}
             dataSource={data.product}
@@ -487,7 +487,7 @@ const AdminReport = () => {
 
         <TabPane tab="Activities" key="activity">
           <p><strong>Activity Commission:</strong> ${totals.activityBookingsCommission.toFixed(2)}</p>
-          <p><strong>Total Sales:</strong> ${totals.totalSales.toFixed(2)}</p>
+          <p><strong>Total Sales + Commissions:</strong> ${totals.totalSales.toFixed(2)}</p>
           <Table
             columns={activityColumns}
             dataSource={data.activity}
@@ -521,7 +521,7 @@ const AdminReport = () => {
 
         <TabPane tab="Itineraries" key="itinerary">
           <p><strong>Itinerary Commission:</strong> ${totals.itineraryBookingsCommission.toFixed(2)}</p>
-          <p><strong>Total Sales:</strong> ${totals.totalSales.toFixed(2)}</p>
+          <p><strong>Total Sales + Commissions:</strong> ${totals.totalSales.toFixed(2)}</p>
           <Table
             columns={itineraryColumns}
             dataSource={data.itinerary}
