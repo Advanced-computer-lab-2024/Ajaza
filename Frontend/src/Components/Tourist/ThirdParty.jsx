@@ -5,6 +5,7 @@ import { apiUrl } from "../Common/Constants";
 import { jwtDecode } from "jwt-decode";
 import SelectCurrency from "./SelectCurrency";
 import { useCurrency } from "./CurrencyContext";
+import "./ThirdParty.css";
 
 const { TabPane } = Tabs;
 
@@ -119,211 +120,222 @@ const ThirdParty = () => {
             currency={currency}
             onCurrencyChange={handleCurrencyChange}
           />
-        </Col>  
+        </Col>
       </Row>
 
-      <Tabs defaultActiveKey="1" style={{ marginBottom: 20 , color:"#1b696a"}}>
-        <TabPane tab="Flights" key="1">
-          {loading ? (
-            <p>Loading flight bookings...</p>
-          ) : flights.length > 0 ? (
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "16px",
-                justifyContent: "flex-start",
-              }}
-            >
-              {flights.map((flight) => (
-                <Card
-                  key={flight._id}
-                  title={flight.arrivalAirport}
-                  bordered={false}
-                  style={{
-                    width: "100%",
-                    maxWidth: "300px",
-                    marginBottom: "16px",
-                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                    borderRadius: "8px",
-                    padding: "16px",
-                  }}
-                >
-                  <p>
-                    <strong>Departure Airport:</strong>{" "}
-                    {flight.departureAirport}
-                  </p>
-                  <p>
-                    <strong>Carrier:</strong> {flight.carrier}
-                  </p>
-                  <p>
-                    <strong>Flight Number:</strong> {flight.flightNumber}
-                  </p>
-                  <p>
-                    <strong>Price:</strong>{" "}
-                    {convertPrice(flight.price, flight.currency)} {currency}
-                  </p>
-                  <p>
-                    <strong>Departure Time:</strong>{" "}
-                    {new Date(flight.departureTime)
-                      .toISOString()
-                      .slice(0, 16)
-                      .replace("T", " ")}
-                  </p>
-                  <p>
-                    <strong>Arrival Time:</strong>{" "}
-                    {new Date(flight.arrivalTime)
-                      .toISOString()
-                      .slice(0, 16)
-                      .replace("T", " ")}
-                  </p>
-                  <p>
-                    <strong>Stops:</strong> {flight.stops}
-                  </p>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <p>No flight bookings found.</p>
-          )}
-        </TabPane>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center", // Center horizontally
+          marginBottom: 20, // Add spacing below
+        }}
+      >
+        <Tabs
+          defaultActiveKey="1"
+          style={{ marginBottom: 20, color: "#1b696a", textAlign: "center" }}
+        >
+          <TabPane tab="Flights" key="1">
+            {loading ? (
+              <p>Loading flight bookings...</p>
+            ) : flights.length > 0 ? (
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "16px",
+                  justifyContent: "flex-start",
+                }}
+              >
+                {flights.map((flight) => (
+                  <Card
+                    key={flight._id}
+                    title={flight.arrivalAirport}
+                    bordered={false}
+                    style={{
+                      width: "100%",
+                      maxWidth: "300px",
+                      marginBottom: "16px",
+                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                      borderRadius: "8px",
+                      padding: "16px",
+                    }}
+                  >
+                    <p>
+                      <strong>Departure Airport:</strong>{" "}
+                      {flight.departureAirport}
+                    </p>
+                    <p>
+                      <strong>Carrier:</strong> {flight.carrier}
+                    </p>
+                    <p>
+                      <strong>Flight Number:</strong> {flight.flightNumber}
+                    </p>
+                    <p>
+                      <strong>Price:</strong>{" "}
+                      {convertPrice(flight.price, flight.currency)} {currency}
+                    </p>
+                    <p>
+                      <strong>Departure Time:</strong>{" "}
+                      {new Date(flight.departureTime)
+                        .toISOString()
+                        .slice(0, 16)
+                        .replace("T", " ")}
+                    </p>
+                    <p>
+                      <strong>Arrival Time:</strong>{" "}
+                      {new Date(flight.arrivalTime)
+                        .toISOString()
+                        .slice(0, 16)
+                        .replace("T", " ")}
+                    </p>
+                    <p>
+                      <strong>Stops:</strong> {flight.stops}
+                    </p>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <p>No flight bookings found.</p>
+            )}
+          </TabPane>
 
-        <TabPane tab="Hotels" key="2">
-          {loading ? (
-            <p>Loading hotel bookings...</p>
-          ) : hotels.length > 0 ? (
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "16px",
-                justifyContent: "flex-start",
-              }}
-            >
-              {hotels.map((hotel) => (
-                <Card
-                  key={hotel._id}
-                  title={hotel.city}
-                  bordered={false}
-                  style={{
-                    width: "100%",
-                    maxWidth: "300px",
-                    marginBottom: "16px",
-                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                    borderRadius: "8px",
-                    padding: "16px",
-                  }}
-                >
-                  <p>
-                    <strong>Hotel:</strong> {hotel.hotelName}
-                  </p>
-                  <p>
-                    <strong>Price:</strong>{" "}
-                    {convertPrice(hotel.price, hotel.currency)} {currency}
-                  </p>
-                  <p>
-                    <strong>Checkin:</strong>{" "}
-                    {new Date(hotel.checkin).toISOString().slice(0, 10)}
-                  </p>
-                  <p>
-                    <strong>Checkout:</strong>{" "}
-                    {new Date(hotel.checkout).toISOString().slice(0, 10)}
-                  </p>
-                  <p>
-                    <strong>Score:</strong> {hotel.score}
-                  </p>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <p>No hotel bookings found.</p>
-          )}
-        </TabPane>
+          <TabPane tab="Hotels" key="2">
+            {loading ? (
+              <p>Loading hotel bookings...</p>
+            ) : hotels.length > 0 ? (
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "16px",
+                  justifyContent: "flex-start",
+                }}
+              >
+                {hotels.map((hotel) => (
+                  <Card
+                    key={hotel._id}
+                    title={hotel.city}
+                    bordered={false}
+                    style={{
+                      width: "100%",
+                      maxWidth: "300px",
+                      marginBottom: "16px",
+                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                      borderRadius: "8px",
+                      padding: "16px",
+                    }}
+                  >
+                    <p>
+                      <strong>Hotel:</strong> {hotel.hotelName}
+                    </p>
+                    <p>
+                      <strong>Price:</strong>{" "}
+                      {convertPrice(hotel.price, hotel.currency)} {currency}
+                    </p>
+                    <p>
+                      <strong>Checkin:</strong>{" "}
+                      {new Date(hotel.checkin).toISOString().slice(0, 10)}
+                    </p>
+                    <p>
+                      <strong>Checkout:</strong>{" "}
+                      {new Date(hotel.checkout).toISOString().slice(0, 10)}
+                    </p>
+                    <p>
+                      <strong>Score:</strong> {hotel.score}
+                    </p>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <p>No hotel bookings found.</p>
+            )}
+          </TabPane>
 
-        <TabPane tab="Transportations" key="3">
-          {loading ? (
-            <p>Loading transportation bookings...</p>
-          ) : transportations.length > 0 ? (
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "16px",
-                justifyContent: "flex-start",
-              }}
-            >
-              {transportations.map((transportation) => (
-                <Card
-                  key={transportation._id}
-                  title={"to " + transportation.end_address_line}
-                  bordered={false}
-                  style={{
-                    width: "100%",
-                    maxWidth: "300px",
-                    marginBottom: "16px",
-                    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                    borderRadius: "8px",
-                    padding: "16px",
-                  }}
-                >
-                  <p>
-                    <strong>Price:</strong>{" "}
-                    {convertPrice(
-                      transportation.quotation_monetaryAmount,
-                      transportation.quotation_currencyCode
-                    )}{" "}
-                    {currency}
-                  </p>
-                  <p>
-                    <strong>From:</strong>{" "}
-                    {transportation.start_locationCode +
-                      ", " +
-                      transportation.end_address_cityName}
-                  </p>
-                  <p>
-                    <strong>Vehicle Description:</strong>{" "}
-                    {transportation.vehicle_description +
-                      ", " +
-                      transportation.vehicle_code}
-                  </p>
-                  <p>
-                    <strong>Pickup Time:</strong>{" "}
-                    {new Date(transportation.start_dateTime)
-                      .toISOString()
-                      .slice(0, 16)
-                      .replace("T", " ")}
-                  </p>
-                  <p>
-                    <strong>Estimated Arrival Time:</strong>{" "}
-                    {new Date(transportation.end_dateTime)
-                      .toISOString()
-                      .slice(0, 16)
-                      .replace("T", " ")}
-                  </p>
-                  <p>
-                    <strong>Transfer Type:</strong>{" "}
-                    {transportation.transferType}
-                  </p>
-                  <p>
-                    <strong>Maximum Passengers:</strong>{" "}
-                    {transportation.vehicle_seats}
-                  </p>
-                  <p>
-                    <strong>Distance:</strong>{" "}
-                    {transportation.distance_value
-                      ? transportation.distance_value +
-                        " " +
-                        transportation.distance_unit
-                      : "NA"}
-                  </p>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <p>No transportation bookings found.</p>
-          )}
-        </TabPane>
-      </Tabs>
+          <TabPane tab="Transportations" key="3">
+            {loading ? (
+              <p>Loading transportation bookings...</p>
+            ) : transportations.length > 0 ? (
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "16px",
+                  justifyContent: "flex-start",
+                }}
+              >
+                {transportations.map((transportation) => (
+                  <Card
+                    key={transportation._id}
+                    title={"to " + transportation.end_address_line}
+                    bordered={false}
+                    style={{
+                      width: "100%",
+                      maxWidth: "300px",
+                      marginBottom: "16px",
+                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                      borderRadius: "8px",
+                      padding: "16px",
+                    }}
+                  >
+                    <p>
+                      <strong>Price:</strong>{" "}
+                      {convertPrice(
+                        transportation.quotation_monetaryAmount,
+                        transportation.quotation_currencyCode
+                      )}{" "}
+                      {currency}
+                    </p>
+                    <p>
+                      <strong>From:</strong>{" "}
+                      {transportation.start_locationCode +
+                        ", " +
+                        transportation.end_address_cityName}
+                    </p>
+                    <p>
+                      <strong>Vehicle Description:</strong>{" "}
+                      {transportation.vehicle_description +
+                        ", " +
+                        transportation.vehicle_code}
+                    </p>
+                    <p>
+                      <strong>Pickup Time:</strong>{" "}
+                      {new Date(transportation.start_dateTime)
+                        .toISOString()
+                        .slice(0, 16)
+                        .replace("T", " ")}
+                    </p>
+                    <p>
+                      <strong>Estimated Arrival Time:</strong>{" "}
+                      {new Date(transportation.end_dateTime)
+                        .toISOString()
+                        .slice(0, 16)
+                        .replace("T", " ")}
+                    </p>
+                    <p>
+                      <strong>Transfer Type:</strong>{" "}
+                      {transportation.transferType}
+                    </p>
+                    <p>
+                      <strong>Maximum Passengers:</strong>{" "}
+                      {transportation.vehicle_seats}
+                    </p>
+                    <p>
+                      <strong>Distance:</strong>{" "}
+                      {transportation.distance_value
+                        ? transportation.distance_value +
+                          " " +
+                          transportation.distance_unit
+                        : "NA"}
+                    </p>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <p>No transportation bookings found.</p>
+            )}
+          </TabPane>
+        </Tabs>
+      </div>
     </div>
   );
 };
