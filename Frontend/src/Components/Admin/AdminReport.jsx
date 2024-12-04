@@ -153,6 +153,21 @@ const AdminReport = () => {
         return itemDate.isBetween(startDate, endDate, undefined, "[]");
       });
     }
+    if (type === 'activity') {
+      const newActivityCommission = filteredData.reduce((sum, item) => sum + item.commission, 0);
+      setTotals((prevTotals) => ({
+        ...prevTotals,
+        activityBookingsCommission: newActivityCommission,
+      }));
+    }
+  
+    if (type === 'itinerary') {
+      const newItineraryCommission = filteredData.reduce((sum, item) => sum + item.commission, 0);
+      setTotals((prevTotals) => ({
+        ...prevTotals,
+        itineraryBookingsCommission: newItineraryCommission,
+      }));
+    }
 
     return filteredData;
   };
@@ -199,6 +214,20 @@ const AdminReport = () => {
       setTotals((prevTotals) => ({
         ...prevTotals,
         productSales: newProductSales,
+      }));
+    }
+    if (type === 'activity') {
+      const newActivityCommission = filteredData.reduce((sum, item) => sum + item.commission, 0);
+      setTotals((prevTotals) => ({
+        ...prevTotals,
+        activityBookingsCommission: newActivityCommission,
+      }));
+    }
+    if (type === 'itinerary') {
+      const newItineraryCommission = filteredData.reduce((sum, item) => sum + item.commission, 0);
+      setTotals((prevTotals) => ({
+        ...prevTotals,
+        itineraryBookingsCommission: newItineraryCommission,
       }));
     } 
   };
@@ -283,7 +312,6 @@ const AdminReport = () => {
     },
     { title: 'Quantity', dataIndex: 'quantity', key: 'quantity' },
     { title: 'Price', dataIndex: 'price', key: 'price', render: (text) => `$${text.toFixed(2)}`, sorter: (a, b) => a.price - b.price },
-    { title: 'Total Revenue', dataIndex: 'total', key: 'total', render: (text) => `$${text.toFixed(2)}` },
   ];
 
   const activityColumns = [
