@@ -114,7 +114,7 @@ const CustomLayout = ({
       UnseennotificationsRef.current = unseenNotifications;
       const allNotifications = decodedToken.userDetails?.notifications || [];
       setAllNotifications(allNotifications);
-      const userid = decodedToken.userDetails._id;
+      //const userid = decodedToken.userDetails._id;
 
       const confirmLogOut = async (userid) => {
         Modal.confirm({
