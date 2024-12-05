@@ -59,10 +59,12 @@ const CustomLayout = ({
   );
   const [collapsed, setCollapsed] = useState(true);
   const [hover, setHover] = useState(false);
-  
+  const [userid, setUserid] = useState();
+  const [role, setRole] = useState();
   const [Unseennotifications, setUnseenNotifications] = useState([]);
   const [allnotifications, setAllNotifications] = useState([]);
   const UnseennotificationsRef = useRef([]);
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const guestNavBarItems = (
     <div style={{ display: "flex", marginLeft: "auto" }}>
@@ -100,13 +102,15 @@ const CustomLayout = ({
     if (token) {
       const decodedToken = jwtDecode(token);
       setUser(decodedToken.userDetails);
-
+      setUserid(decodedToken.userDetails._id);
+      setRole(decodedToken.role);
       const unseenNotifications =
         decodedToken.userDetails?.notifications?.filter(
           (notification) => !notification.seen
         ) || [];
       UnseennotificationsRef.current = unseenNotifications;
       const allNotifications = decodedToken.userDetails?.notifications || [];
+      setAllNotifications(allNotifications);
       const userid = decodedToken.userDetails._id;
 
       const notificationMenu = (
@@ -137,6 +141,8 @@ const CustomLayout = ({
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
+                    width: "100%",
+                    textAlign: "left",
                   }}
                 >
                   <div className="notification-text" style={{ flex: 1 }}>
@@ -179,29 +185,7 @@ const CustomLayout = ({
             </Menu.Item>
           )}
         </Menu>
-      )
-      const markNotificationsAsSeen = async (userid) => {
-        console.log("Marking notifications as seen for user:", userid);
-        try {
-          const response = await axios.post(
-            `${apiUrl}tourist/seeNotifications/${userid}`,
-            {} // Empty body as required by API
-          );
-          if (response.status === 200) {
-            console.log("Notifications marked as seen successfully");
-            const updatedNotifications = allnotifications.map((notification) => ({
-              ...notification,
-              seen: true,
-            }));
-            setAllNotifications(updatedNotifications);
-            setUnseenNotifications([]); // Reset the unseen notifications count
-            UnseennotificationsRef.current = [];
-          }
-        } catch (error) {
-          console.error("Error marking notifications as seen:", error.message);
-        }
-      };
-
+      );
       setNavBarItems(
         <Flex justify="center" style={{ width: "100%", position: "relative" }}>
           <div id="logo" style={{ position: "relative", right: 40, bottom: 3 }}>
@@ -228,8 +212,7 @@ const CustomLayout = ({
               trigger={["click"]}
               onVisibleChange={(visible) => {
                 if (visible) {
-                  markNotificationsAsSeen(userid);
-                  UnseennotificationsRef.current = [];
+                  setIsOpen(visible);
                 }
               }}
             >
@@ -279,7 +262,40 @@ const CustomLayout = ({
         </Flex>
       );
     }
-  }, []);
+  }, [isOpen]);
+
+  const markNotificationsAsSeen = async (userid) => {
+    console.log("Marking notifications as seen for user:", userid);
+    try {
+      const response = await axios.post(
+        `${apiUrl}tourist/seeNotifications/${userid}`,
+        {} // Empty body as required by API
+      );
+      if (response.status === 200) {
+        console.log("Notifications marked as seen successfully");
+        await getSetNewToken(userid, role);
+        const updatedNotifications = allnotifications.map(
+          (notification) => ({
+            ...notification,
+            seen: true,
+          })
+        );
+        setAllNotifications(updatedNotifications);
+        setUnseenNotifications([]); // Reset the unseen notifications count
+        UnseennotificationsRef.current = [];
+      }
+    } catch (error) {
+      console.error("Error marking notifications as seen:", error.message);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      markNotificationsAsSeen(userid).finally(() => {
+        setIsOpen(false); // Reset isOpen to false
+      });
+    }
+  }, [isOpen, userid]);
 
   const confirmLogOut = async (id) => {
     Modal.confirm({
@@ -295,8 +311,6 @@ const CustomLayout = ({
       },
     });
   };
-
-  
 
   const [selectedKey, setSelectedKey] = useState(
     localStorage.getItem("selectedMenuKey") || "1"
