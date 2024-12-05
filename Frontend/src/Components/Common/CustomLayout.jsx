@@ -97,6 +97,7 @@ const CustomLayout = ({
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  const [userDetails, setUserDetails] = useState(null);
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -104,6 +105,8 @@ const CustomLayout = ({
       setUser(decodedToken.userDetails);
       setUserid(decodedToken.userDetails._id);
       setRole(decodedToken.role);
+      const userDetails = decodedToken.userDetails;
+      setUserDetails(userDetails);
       const unseenNotifications =
         decodedToken.userDetails?.notifications?.filter(
           (notification) => !notification.seen
@@ -113,6 +116,62 @@ const CustomLayout = ({
       setAllNotifications(allNotifications);
       const userid = decodedToken.userDetails._id;
 
+      const confirmLogOut = async (userid) => {
+        Modal.confirm({
+          title: "Are you sure you want to log out?",
+          // content: "This action is irreversable",
+          okText: "Log Out",
+          okType: "danger",
+          icon: <WarningFilled style={{ color: "#ff4d4f" }} />,
+          onOk: () => {
+            localStorage.removeItem("token");
+            message.success("Logged Out");
+            navigate("/");
+          },
+        });
+      };
+
+      const confirmDelete = async (userid) => {
+        Modal.confirm({
+          title: "Are you sure? This action is irreversible",
+          content: "Do you want to request deletion of your account?",
+          okText: "Delete",
+          okType: "danger",
+          icon: <WarningFilled style={{ color: "#ff4d4f" }} />,
+          onOk: async () => {
+            try {
+              // console.log(`${apiUrl}${role}/requestDeletion/${userDetails._id}`);
+    
+              const response = await axios.patch(
+                `${apiUrl}${role}/requestDeletion/${userDetails._id}`
+              );
+    
+              navigate("/");
+              localStorage.removeItem("token");
+    
+              message.success("Deletion Request Sent!");
+            } catch (error) {
+              message.error(error?.response?.data?.message);
+            }
+          },
+        });
+      };
+    
+    const menu = (
+      <div style={{ marginTop: "10px" }}> {/* Add margin directly here */}
+        <Menu>
+          <Menu.Item key="1" onClick={() => navigate(`/${decodedToken.role}/profile`)}>
+            View Profile
+          </Menu.Item>
+          <Menu.Item key="2" onClick={confirmLogOut}>
+            Log Out
+          </Menu.Item>
+          <Menu.Item key="3" onClick={confirmDelete} style={{ color: "red" }}>
+            Delete Profile
+          </Menu.Item>
+        </Menu>
+      </div>
+    );
       const notificationMenu = (
         <Menu
           style={{
@@ -233,16 +292,20 @@ const CustomLayout = ({
                 style={{ marginLeft: "20px" }}
               />
             )}
-            {decodedToken.role !== "governor" &&
-              decodedToken.role !== "admin" && (
-                <UserOutlined
-                  className="hover"
-                  style={{ fontSize: "20px", marginLeft: "30px" }}
-                  onClick={() => {
-                    navigate(`/${decodedToken.role}/profile`);
-                  }}
-                />
-              )}
+            {decodedToken.role !== "governor" && decodedToken.role !== "admin" && (
+              <Dropdown
+              overlay={menu}
+              trigger={["click"]}
+              overlayStyle={{
+                marginTop: "80px",
+              }}
+            >
+              <UserOutlined
+                className="hover"
+                style={{ fontSize: "20px", marginLeft: "30px", cursor: "pointer" }}
+              />
+            </Dropdown>
+            )}
             {(decodedToken.role == "governor" ||
               decodedToken.role == "admin") && (
               <div
