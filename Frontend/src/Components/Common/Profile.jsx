@@ -565,29 +565,7 @@ const Profile = () => {
 
   return (
     <>
-      <Flex justify="left">
-        <Button
-          type="primary"
-          style={{fontWeight: "bold",
-            color: hovered? "white" : "red",
-            //backgroundColor: "white",
-            backgroundColor: hovered ? "#ff6961" : "white",}}
-          danger
-          onClick={() => confirmLogOut()}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-          icon={<LogoutIcon/>}
-        >
-          Log Out
-        </Button>
-
-        <Button
-          style={{ marginLeft: "auto" }}
-          type="primary"
-          danger
-          icon={<DeleteOutlined />}
-          onClick={() => confirmDelete()}
-        ></Button>
+      <Flex justify="left">    
       </Flex>
 
       <Card
