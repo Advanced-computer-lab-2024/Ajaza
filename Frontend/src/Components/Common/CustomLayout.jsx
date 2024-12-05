@@ -157,21 +157,32 @@ const CustomLayout = ({
         });
       };
     
-    const menu = (
-      <div style={{ marginTop: "10px" }}> {/* Add margin directly here */}
+      const menu = (
+        <div style={{ marginTop: "10px"}}>
         <Menu>
-          <Menu.Item key="1" onClick={() => navigate(`/${decodedToken.role}/profile`)}>
+          <Menu.Item key="1" onClick={() => navigate(`/${decodedToken.role}/profile`)}
+            style={{  textAlign: "center" }}>
             View Profile
           </Menu.Item>
-          <Menu.Item key="2" onClick={confirmLogOut}>
+          <Menu.Item key="2" onClick={confirmLogOut} style={{  textAlign: "center",color: "red" }}>
             Log Out
           </Menu.Item>
-          <Menu.Item key="3" onClick={confirmDelete} style={{ color: "red" }}>
-            Delete Profile
+          <Menu.Item key="3" style={{ textAlign: "center", padding: 0 }}>
+            <Button
+              type="primary"
+              danger
+              onClick={confirmDelete}
+              style={{
+                width: "100%", 
+              }}
+            >
+              Delete Profile
+            </Button>
           </Menu.Item>
         </Menu>
-      </div>
-    );
+        </div>
+      );
+      
       const notificationMenu = (
         <Menu
           style={{
@@ -296,8 +307,10 @@ const CustomLayout = ({
               <Dropdown
               overlay={menu}
               trigger={["click"]}
+              placement="bottomCenter" 
+              getPopupContainer={(trigger) => trigger.parentNode} 
               overlayStyle={{
-                marginTop: "80px",
+                marginTop: "5px",
               }}
             >
               <UserOutlined
