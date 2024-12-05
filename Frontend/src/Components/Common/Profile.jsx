@@ -1155,38 +1155,42 @@ const Profile = () => {
             </Modal>)}
         </Card>
         )}
-        <Card style={{
+        {role === "tourist" && (  // Conditionally render this part if the role is "tourist"
+        <Card
+          style={{
             width: "100%",
             maxWidth: 600,
             margin: "50px auto",
             padding: "20px",
             boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-          }}>
-        <h2>Redeem Points</h2>
-      <p>Your current points: {points}</p>
-      <p>Your wallet balance: USD {wallet.toFixed(2)}</p>
-      {points < 10000 ? (
-        <Tooltip title="You must have at least 10000 points to redeem">
-          <span>
+          }}
+        >
+          <h2>Redeem Points</h2>
+          <p>Your current points: {points}</p>
+          <p>Your wallet balance: USD {wallet.toFixed(2)}</p>
+          {points < 10000 ? (
+            <Tooltip title="You must have at least 10000 points to redeem">
+              <span>
+                <CustomButton
+                  size="m"
+                  value="Redeem Points"
+                  onClick={redeemPoints}
+                  disabled
+                  loading={loading}
+                />
+              </span>
+            </Tooltip>
+          ) : (
             <CustomButton
               size="m"
               value="Redeem Points"
               onClick={redeemPoints}
-              disabled
+              disabled={false}
               loading={loading}
             />
-          </span>
-        </Tooltip>
-      ) : (
-        <CustomButton
-          size="m"
-          value="Redeem Points"
-          onClick={redeemPoints}
-          disabled={false}
-          loading={loading}
-        />
+          )}
+        </Card>
       )}
-      </Card>
     </>
   );
 };

@@ -39,6 +39,13 @@ const CustomButton = ({
     fontSize = "20px";
     fontWeight = "bold";
     margin = "15px";
+  } else if (size === "xs") {
+    width = "80px";
+    height = "25px";
+    borderRadius = rounded ? "14px" : "8px";
+    fontSize = "10px";
+    fontWeight = "bold";
+    margin = "8px";
   } else {
     width = "200px";
     height = "70px";
