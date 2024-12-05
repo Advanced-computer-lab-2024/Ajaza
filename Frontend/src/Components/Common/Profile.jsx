@@ -577,13 +577,35 @@ const Profile = () => {
           boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
         }}
         actions={[
-          isEditing ? (
-            <SaveOutlined key="save" onClick={() => form.submit()} />
-          ) : (
-            !pending && <EditOutlined key="edit" onClick={handleEdit} />
-          ),
-          isEditing && <CloseOutlined key="cancel" onClick={handleCancel} />,
-        ]}
+  isEditing ? (
+    <SaveOutlined key="save" onClick={() => form.submit()} />
+  ) : (
+    !pending && (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          position: "absolute",
+          bottom: "-20px", 
+          left: "100%",
+          transform: "translateX(-50%)",
+        }}
+      >
+        <EditOutlined
+          key="edit"
+          onClick={handleEdit}
+          style={{
+            fontSize: "24px",
+            cursor: "pointer",
+          }}
+        />
+      </div>
+    )
+  ),
+  isEditing && <CloseOutlined key="cancel" onClick={handleCancel} />,
+]}
+
       >
       <SelectCurrency
          currency={currency}
