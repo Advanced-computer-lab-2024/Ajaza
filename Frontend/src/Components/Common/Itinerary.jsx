@@ -121,11 +121,11 @@ const Itinerary = () => {
 
   return (
     <>
-      <SelectCurrency
+      {/* <SelectCurrency
         currency={currency}
         onCurrencyChange={handleCurrencyChange}
         style={{ left: -7, top: 45 }}
-      />
+      /> */}
       {itinerary && (
         <Item
           id={itinerary._id}

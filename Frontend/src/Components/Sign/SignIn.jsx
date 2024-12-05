@@ -4,12 +4,14 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Button, Form, Typography, message, Card } from "antd";
 import { Box } from "@mui/material";
-import image from "../../Assets/login.jpg";
+import image from "../../Assets/signinfinal.png";
 import { Colors } from "../Common/Constants";
 import CustomButton from "../Common/CustomButton";
 import { apiUrl } from "../Common/Constants";
 import { jwtDecode } from "jwt-decode";
 import LoadingSpinner from "../Common/LoadingSpinner";
+// import { Route, Routes, useNavigate } from "react-router-dom";
+
 
 const SignIn = () => {
   const [response, setResponse] = useState(null);
@@ -156,6 +158,15 @@ const SignIn = () => {
     }
   };
 
+  const handleSignUpClick = () => {
+    navigate("/auth/signup");
+    };
+
+    const handleGuestClick = () => {
+      localStorage.removeItem("token");
+      navigate("/guest");
+    };
+
   return (
     <>
       <Box
@@ -172,14 +183,22 @@ const SignIn = () => {
       >
         <Card
           title={<strong>User Login</strong>}
-          bordered={false}
+          //bordered={false}
           style={{
-            width: 450,
+            width: 580,
+            height: 700,
             padding: "20px", // Padding inside the box
             backgroundColor: "rgba(255, 255, 255, 0.75)", // Slight transparency
             textAlign: "left",
-            marginLeft: "550px",
-            marginTop: "100px",
+            marginLeft: "919px",
+            marginTop: "-10px",
+            marginBottom: "27px",
+            borderColor:"#1b696a",
+            //top: 20.5,
+            borderRadius: 0,
+            alignContent : "center",
+            
+        
           }}
         >
           <Form
@@ -191,12 +210,13 @@ const SignIn = () => {
             onFinishFailed={onFinishFailed}
             autoComplete="off"
             onKeyDown={handleKeyDown} // Add the onKeyDown event listener here
+            
           >
-            <Form.Item
+            <Form.Item style={{top: 90}}
               name="username"
               rules={[
                 { required: true, message: "Please input your username!" },
-              ]}
+              ]} 
             >
               <Input placeholder="Username" />
             </Form.Item>
@@ -211,7 +231,7 @@ const SignIn = () => {
             </Form.Item>
 
             {!forgotPasswordLoading ? (
-              <Form.Item style={{ marginBottom: "0px" }}>
+              <Form.Item >
                 <Typography.Link
                   href="/forgot-password"
                   onClick={info}
@@ -239,7 +259,7 @@ const SignIn = () => {
                 <CustomButton
                   size="s"
                   value={"Log in"}
-                  style={{ marginLeft: "-8px", width: 370 }}
+                  style={{ left: 60, width: 370 }}
                   onClick={() => signIn()}
                   disabled={
                     !clientReady ||
@@ -251,7 +271,35 @@ const SignIn = () => {
                 />
               )}
             </Form.Item>
+            <Form.Item style={{textAlign:"center" }}>
+            <Typography.Text style={{ marginBottom: '9px', display: 'block' }}>
+                  Don't have an account?
+                </Typography.Text>
+                <Typography.Link
+                  onClick={handleSignUpClick}
+                  style={{
+                    color: Colors.primary.default,
+                    //margin: "0 0 20px 5px",
+                    textDecoration: "underline",
+                  }}
+                >
+                  SignUp
+                </Typography.Link>
+                <Typography.Link
+                  onClick={handleGuestClick}
+                  style={{
+                    color: Colors.primary.default,
+                    //margin: "0 0 20px 5px",
+                    textDecoration: "underline",
+                     marginBottom: '9px', display: 'block'
+                  }}
+                >
+                  Continue as Guest
+                </Typography.Link>
+              </Form.Item>
+
           </Form>
+
         </Card>
       </Box>
     </>

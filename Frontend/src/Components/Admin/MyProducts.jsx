@@ -258,12 +258,12 @@ const MyProducts = () => {
             marginRight: "60px",
           }}
         />
-        <SelectCurrency
+        {/* <SelectCurrency
           //basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
           style={{}}
-        />
+        /> */}
       </div>
       <SearchFilterSortContainerEditCreate
         cardComponent={BasicCard}

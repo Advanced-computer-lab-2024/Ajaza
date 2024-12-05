@@ -35,6 +35,7 @@ import ExamineAccountDetails from "./ExamineAccountDetails";
 import CreatePromoCode from "./CreatePromoCode";
 import { AdminMenuKeyProvider } from "./AdminMenuKeyContext";
 import NumberOfUsers from "./NumberOfUsers";
+import AccountsToBeDeleted from "./AccountsToBeDeleted";
 const { Content } = Layout;
 // username: alisuper
 // password: 12345a
@@ -71,6 +72,7 @@ const Admin = () => {
               element={<ManageActivityCategories />}
             />
             <Route path="add-Accounts" element={<AddAccounts />} />
+            <Route path="deletionRequests" element={<AccountsToBeDeleted />} />
             <Route path="/" element={<AllAccounts />} />
             <Route path="examine-Accounts" element={<ExamineAccounts />} />
             <Route

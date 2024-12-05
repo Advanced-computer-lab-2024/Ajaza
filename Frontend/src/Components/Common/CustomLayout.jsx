@@ -12,17 +12,30 @@ import Icon, {
   HourglassFilled,
 } from "@ant-design/icons";
 import { ShoppingCartOutlined } from "@ant-design/icons";
-import { Flex, Button, Layout, Menu, theme, message, Modal } from "antd";
+import {
+  Flex,
+  Button,
+  Layout,
+  Menu,
+  theme,
+  message,
+  Modal,
+  Dropdown,
+  Badge,
+  Typography,
+} from "antd";
 import { useNavigate } from "react-router-dom";
 
 import IconFloatButton from "./IconFloatButton";
-import { Colors } from "./Constants";
+import { apiUrl, getSetNewToken, Colors } from "./Constants";
 import CustomButton from "./CustomButton";
 import { jwtDecode } from "jwt-decode";
 import image from "../../Assets/logo-cropped.svg";
 import style from "./CustomLayout.module.css";
+import axios from "axios";
 
 const { Header, Sider, Content } = Layout;
+const { Title } = Typography;
 
 const CustomLayout = ({
   userType = "Tour Guide",
@@ -46,8 +59,10 @@ const CustomLayout = ({
   );
   const [collapsed, setCollapsed] = useState(true);
   const [hover, setHover] = useState(false);
-  const [notifications, setNotifications] = useState([]);
-  const notificationsRef = useRef([]);
+  
+  const [Unseennotifications, setUnseenNotifications] = useState([]);
+  const [allnotifications, setAllNotifications] = useState([]);
+  const UnseennotificationsRef = useRef([]);
   const navigate = useNavigate();
   const guestNavBarItems = (
     <div style={{ display: "flex", marginLeft: "auto" }}>
@@ -85,11 +100,108 @@ const CustomLayout = ({
     if (token) {
       const decodedToken = jwtDecode(token);
       setUser(decodedToken.userDetails);
-      const unseenNotifications = decodedToken.userDetails.notifications.filter(
-        (notification) => !notification.seen
-      );
-      setNotifications(unseenNotifications); // Store only unseen notifications
-      notificationsRef.current = unseenNotifications;
+
+      const unseenNotifications =
+        decodedToken.userDetails?.notifications?.filter(
+          (notification) => !notification.seen
+        ) || [];
+      UnseennotificationsRef.current = unseenNotifications;
+      const allNotifications = decodedToken.userDetails?.notifications || [];
+      const userid = decodedToken.userDetails._id;
+
+      const notificationMenu = (
+        <Menu
+          style={{
+            maxHeight: 500,
+            overflowY: "auto",
+            width: 300,
+            padding: "10px",
+          }}
+        >
+          <div className="notification-header" style={{ marginBottom: "15px" }}>
+            <Title level={3}>Notifications</Title>
+            <p>Keep track of all your updates and messages here.</p>
+          </div>
+          {allNotifications.length > 0 ? (
+            [...allNotifications].reverse().map((notification) => (
+              <Menu.Item key={notification._id} style={{ padding: 0 }}>
+                <div
+                  className={`notification-item ${
+                    notification.seen ? "seen" : "unseen"
+                  }`}
+                  style={{
+                    padding: "10px",
+                    borderRadius: "8px",
+                    backgroundColor: notification.seen ? "#f0f0f0" : "#d4f8d4", // Light green for unseen
+                    marginBottom: "10px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <div className="notification-text" style={{ flex: 1 }}>
+                    {notification.text}
+                  </div>
+                  {/* Show button if activityId or itineraryId exists */}
+                  {(notification.activityId || notification.itineraryId) && (
+                    <CustomButton
+                      size="xs"
+                      rounded={true}
+                      style={{
+                        backgroundColor: "#1b696a",
+                        color: "#fff",
+                        border: "1px solid #4caf50",
+                      }}
+                      value={
+                        notification.activityId
+                          ? "View Activity"
+                          : "View Itinerary"
+                      }
+                      onClick={() => {
+                        if (notification.activityId) {
+                          navigate(
+                            `/tourist/activities/${notification.activityId}`
+                          );
+                        } else if (notification.itineraryId) {
+                          navigate(
+                            `/tourist/itineraries/${notification.itineraryId}`
+                          );
+                        }
+                      }}
+                    />
+                  )}
+                </div>
+              </Menu.Item>
+            ))
+          ) : (
+            <Menu.Item disabled style={{ textAlign: "center" }}>
+              No notifications available
+            </Menu.Item>
+          )}
+        </Menu>
+      )
+      const markNotificationsAsSeen = async (userid) => {
+        console.log("Marking notifications as seen for user:", userid);
+        try {
+          const response = await axios.post(
+            `${apiUrl}tourist/seeNotifications/${userid}`,
+            {} // Empty body as required by API
+          );
+          if (response.status === 200) {
+            console.log("Notifications marked as seen successfully");
+            const updatedNotifications = allnotifications.map((notification) => ({
+              ...notification,
+              seen: true,
+            }));
+            setAllNotifications(updatedNotifications);
+            setUnseenNotifications([]); // Reset the unseen notifications count
+            UnseennotificationsRef.current = [];
+          }
+        } catch (error) {
+          console.error("Error marking notifications as seen:", error.message);
+        }
+      };
+
       setNavBarItems(
         <Flex justify="center" style={{ width: "100%", position: "relative" }}>
           <div id="logo" style={{ position: "relative", right: 40, bottom: 3 }}>
@@ -111,11 +223,23 @@ const CustomLayout = ({
               margin: "auto 0",
             }}
           >
-            <IconFloatButton
-              icon={BellFilled}
-              badge={{ count: notificationsRef.current.length }}
-              onClick={() => navigate(`/${decodedToken.role}/notifications`)}
-            />
+            <Dropdown
+              overlay={notificationMenu}
+              trigger={["click"]}
+              onVisibleChange={(visible) => {
+                if (visible) {
+                  markNotificationsAsSeen(userid);
+                  UnseennotificationsRef.current = [];
+                }
+              }}
+            >
+              <div onClick={(e) => e.preventDefault()}>
+                <IconFloatButton
+                  icon={BellFilled}
+                  badge={{ count: UnseennotificationsRef.current.length }}
+                />
+              </div>
+            </Dropdown>
 
             {decodedToken.role === "tourist" && (
               <IconFloatButton
@@ -126,7 +250,6 @@ const CustomLayout = ({
                 style={{ marginLeft: "20px" }}
               />
             )}
-
             {decodedToken.role !== "governor" &&
               decodedToken.role !== "admin" && (
                 <UserOutlined
@@ -137,7 +260,6 @@ const CustomLayout = ({
                   }}
                 />
               )}
-
             {(decodedToken.role == "governor" ||
               decodedToken.role == "admin") && (
               <div
@@ -174,6 +296,8 @@ const CustomLayout = ({
     });
   };
 
+  
+
   const [selectedKey, setSelectedKey] = useState(
     localStorage.getItem("selectedMenuKey") || "1"
   );
@@ -191,14 +315,21 @@ const CustomLayout = ({
         collapsed={collapsed && !hover}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
+        style={{
+          backgroundColor: "#1b696a",
+        }}
       >
         <div className="demo-logo-vertical" />
         <Menu
-          theme="dark"
+          //theme="dark"
           mode="inline"
           defaultSelectedKeys={[selectedKey]}
           items={sideBarItems}
           onClick={handleMenuClick}
+          style={{
+            backgroundColor: "#1b696a",
+            color: "black",
+          }}
         />
       </Sider>
       <Layout>

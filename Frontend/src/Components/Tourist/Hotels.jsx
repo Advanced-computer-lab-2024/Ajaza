@@ -273,16 +273,26 @@ const Hotels = () => {
               </Form.Item>
 
               <Form.Item
-                name="secondDate"
-                label="Select Check Out Date"
-                rules={[{ required: true, message: 'Please select an end date!' }]}
-              >
-                <DatePicker
-                  format="YYYY-MM-DD"
-                  disabledDate={disableDatesAfterFirstDate}
-                  placeholder="Select an end date"
-                />
-              </Form.Item>
+                  name="secondDate"
+                  label="Select Check Out Date"
+                  rules={[
+                    { required: true, message: 'Please select an end date!' },
+                    {
+                      validator: (_, value) => {
+                        if (value && firstDate && value.isBefore(firstDate, 'day')) {
+                          return Promise.reject(new Error("Check-out date cannot be before check-in date"));
+                        }
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
+                  >
+                  <DatePicker
+                    format="YYYY-MM-DD"
+                    disabledDate={disableDatesAfterFirstDate}
+                    placeholder="Select an end date"
+                  />
+                </Form.Item>
               <Form.Item
                 name="numberInput"
                 label="Number of visitors"
@@ -292,7 +302,7 @@ const Hotels = () => {
               </Form.Item>
 
               <Form.Item>
-                <Button type="primary" htmlType="submit" loading={loading}>
+                <Button type="primary" htmlType="submit" loading={loading} style={{backgroundColor:"#1b696a"}}>
                   Search
                 </Button>
               </Form.Item>
@@ -308,11 +318,11 @@ const Hotels = () => {
       hotels.length > 0 && !formVisible && ( // Render list if hotels are available and form is not visible
         <Card style={{ width: "100%", maxWidth: 600, margin: "20px auto", padding: "20px" }}>
           <Title level={4}>Available Hotels</Title>
-          <SelectCurrency
+          {/* <SelectCurrency
               currency={currency}
               onCurrencyChange={handleCurrencyChange}
               style={{ float: "right", left:-700 , top: -70 }}
-            />
+            /> */}
           <List
             itemLayout="vertical"
             dataSource={hotels}
@@ -326,7 +336,7 @@ const Hotels = () => {
                   Check-out: {hotel.checkout} <br />
                   Score: {hotel.score}
                 </div>
-                <Button type="link" onClick={() => handleViewDetails(hotel)}>
+                <Button type="link"  style={{color:"#1b696a"}} onClick={() => handleViewDetails(hotel)}>
                   View Details
                 </Button>
               </List.Item>
@@ -350,7 +360,7 @@ const Hotels = () => {
           </>
         )}
         
-        <CustomButton value="Book" key="book" type="primary" onClick={handleBooking}>
+        <CustomButton value="Book" key="book" type="primary" onClick={handleBooking} size={"s"}>
         </CustomButton>
         <Space wrap>
           {hotelImages.map((image, index) => (

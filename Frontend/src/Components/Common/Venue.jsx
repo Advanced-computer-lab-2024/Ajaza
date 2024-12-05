@@ -106,11 +106,11 @@ const Venue = () => {
 
   return (
     <>
-      <SelectCurrency
+      {/* <SelectCurrency
         currency={currency}
         onCurrencyChange={handleCurrencyChange}
         style={{ left: -7, top: 45 }}
-      />
+      /> */}
       <Item
         name={venue?.name}
         photos={venue?.pictures}

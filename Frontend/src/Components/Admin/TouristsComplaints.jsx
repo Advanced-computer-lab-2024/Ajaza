@@ -207,7 +207,7 @@ const TouristsComplaints = () => {
             position: "absolute",
             top: 0,
             right: 0,
-            backgroundColor: "#1890ff", // Blue color
+            backgroundColor: "#1b696a", // Blue color
             color: "white", // White text
             marginTop: "20px", // Push it down a bit from the top
             marginRight: "300px", // Add some space from the right edge
@@ -227,6 +227,7 @@ const TouristsComplaints = () => {
             right: 0,
             marginTop: "20px", // Push it down a bit from the top
             marginRight: "20px", // Add some space from the right edge
+            backgroundColor: "#1b696a",
           }}
         >
           Sort by Date ({isDescending ? "Newest First" : "Oldest First"})
@@ -295,7 +296,7 @@ const TouristsComplaints = () => {
                 <Button
                   type="primary"
                   onClick={handleSendReply}
-                  style={{ marginTop: "10px" }}
+                  style={{ marginTop: "10px" , backgroundColor: "#1b696a" }}
                 >
                   Send Reply
                 </Button>
@@ -345,7 +346,7 @@ const TouristsComplaints = () => {
                         type="default"
                         icon={<BarsOutlined />}
                         onClick={() => handleDetailsView(complaint)}
-                        style={{ color: "blue" }}
+                        style={{ color: "#1b696a" }}
                       >
                         View Details
                       </Button>

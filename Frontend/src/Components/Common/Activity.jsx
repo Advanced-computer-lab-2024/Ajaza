@@ -113,11 +113,11 @@ const Activity = () => {
     : 0;
   return (
     <>
-      <SelectCurrency
+      {/* <SelectCurrency
         currency={currency}
         onCurrencyChange={handleCurrencyChange}
         style={{ left: -7, top: 45 }}
-      />
+      /> */}
 
       <Item
         id={activity?._id}

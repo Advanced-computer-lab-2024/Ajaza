@@ -33,6 +33,11 @@ const Advertiser = () => {
     }
   }, [navigate]);
 
+  const commonStyle = {
+    color: 'black', 
+    // backgroundColor: '#5b8b77'
+    };
+
   const sideBarItems = [
     {
       key: "1",
@@ -41,6 +46,7 @@ const Advertiser = () => {
       onClick: () => {
         navigate("/advertiser/");
       },
+      style: commonStyle,
     },
     {
       key: "2",
@@ -49,6 +55,7 @@ const Advertiser = () => {
       onClick: () => {
         navigate("salesReport");
       },
+      style: commonStyle,
     },
     {
       key: "3",
@@ -56,7 +63,8 @@ const Advertiser = () => {
       label: "Tourist Report",
       onClick: () => {
         navigate("touristReport");
-      }
+      } , 
+      style: commonStyle,
     },
   ];
   return (

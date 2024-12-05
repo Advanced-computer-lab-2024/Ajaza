@@ -79,6 +79,11 @@ const Tourist = () => {
     }
   }, [navigate]);
 
+  const commonStyle = {
+  color: 'black', 
+  // backgroundColor: '#5b8b77'
+  };
+
   const sideBarItems = [
     {
       key: "1",
@@ -87,90 +92,90 @@ const Tourist = () => {
       onClick: () => {
         navigate("/tourist/");
       },
+      style: commonStyle,
     },
     {
       key: "2",
       icon: <CalendarOutlined />,
       label: "Itineraries",
       onClick: () => navigate("itineraries"),
+      style: commonStyle,
     },
     {
       key: "3",
       icon: <CalendarOutlined />,
       label: "Venues",
       onClick: () => navigate("venues"),
+      style: commonStyle,
     },
     {
       key: "4",
       icon: <CalendarOutlined />,
       label: "Activities",
       onClick: () => navigate("activities"),
+      style: commonStyle,
     },
     {
       key: "5",
       icon: <ContainerOutlined />,
       label: "Products",
       onClick: () => navigate("products"),
+      style: commonStyle,
     },
     {
       key: "6",
       icon: <RedeemIcon />,
       label: "Redeem Points",
       onClick: () => navigate("redeemPoints"),
+      style: commonStyle,
     },
     {
       key: "18",
-      label: "Complaints",
+      label: "My Complaints",
+      style: commonStyle,
       icon: <ReportGmailerrorredOutlinedIcon />,
-      children: [
-        {
-          key: "7",
-          icon: <ReportGmailerrorredOutlinedIcon />,
-          label: "File Complaint",
-          onClick: () => navigate("FileComplaint"),
-        },
-        {
-          key: "8",
-          icon: <ReportGmailerrorredOutlinedIcon />,
-          label: "My Complaints",
-          onClick: () => navigate("Complaints"),
-        },
-      ],
+      style: commonStyle,
     },
     {
       key: "9",
       icon: <RateReviewOutlinedIcon />,
       label: "Feedback",
       onClick: () => navigate("TouristHistory"),
+      style: commonStyle,
     },
     {
       key: "10",
       icon: <CheckOutlined />,
       label: "Future Bookings",
       onClick: () => navigate("futureBookings"),
+      style: commonStyle,
     },
     {
       key: "11",
       icon: <CheckOutlined />,
       label: "Booking History",
       onClick: () => navigate("bookingHistory"),
+      style: commonStyle,
     },
     {
       key: "12",
       icon: <CheckOutlined />,
       label: "Bookmarked Plans",
       onClick: () => navigate("bookmarked"),
+      style: commonStyle,
     },
     {
       key: "13",
       icon: <HeartOutlined />,
       label: "Wishlist",
       onClick: () => navigate(`wishlist/${touristId}`),
+      style: commonStyle,
     },
     {
       key: "14",
       icon: <BookOutlined />,
       label: "Orders",
+      style: commonStyle,
      
       children: [
         {
@@ -178,18 +183,21 @@ const Tourist = () => {
           label: "Current Orders",
           icon: <BookOutlined />,
           onClick: () => navigate(`orders/${touristId}`),
+          style: commonStyle,
         },
         {
           key: "102",
           label: "Past Orders",
           icon: <BookOutlined />,
           onClick: () => navigate(`pastOrders/${touristId}`),
+          style: commonStyle,
         },
       ],
     },
     {
       key: "16",
       label: "Services",
+      style: commonStyle,
       icon: <ContainerOutlined />,
       children: [
         {
@@ -197,24 +205,28 @@ const Tourist = () => {
           label: "Services Bookings",
           icon: <CalendarOutlined />,
           onClick: () => navigate("services"),
+          style: commonStyle,
         },
         {
           key: "15",
           label: "Flights",
           icon: <FlightTakeoffIcon />,
           onClick: () => navigate("BookFlight"),
+          style: commonStyle,
         },
         {
           key: "18",
           label: "Hotels",
           icon: <HomeOutlined />,
           onClick: () => navigate("hotels"),
+          style: commonStyle,
         },
         {
           key: "19",
           label: "Transportation",
           icon: <CarOutlined />,
           onClick: () => navigate("transportations"),
+          style: commonStyle,
         },
       ],
     },
@@ -223,6 +235,7 @@ const Tourist = () => {
       icon: <QuestionCircleOutlined />,
       label: "Help",
       onClick: () => navigate("help"),
+      style: commonStyle,
       
     }
 

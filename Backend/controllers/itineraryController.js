@@ -321,6 +321,7 @@ exports.createSpecifiedItinerary = async (req, res) => {
       dropOff,
       tags,
       maxTourists,
+      pictures
     } = req.body;
     const guide = await Guide.findById(guideId);
     if (!guide) {
@@ -356,6 +357,7 @@ exports.createSpecifiedItinerary = async (req, res) => {
       hidden: false,
       active: true,
       tags,
+      pictures
     });
     //const newItinerary = new Itinerary(req.body);
 
@@ -680,3 +682,17 @@ exports.unhideItinerary = async (req, res) => {
   }
 };
 
+exports.uploadItineraryPictures = async (req, res) => {
+  try {
+    const itinerary = await Itinerary.findById(req.params.itineraryId);
+    const pictures = req.body.pictures;
+    if (!itinerary) {
+      return res.status(404).json({ message: "Itinerary not found" });
+    }
+    itinerary.pictures = pictures;
+    await itinerary.save();
+    res.status(200).json(itinerary);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};

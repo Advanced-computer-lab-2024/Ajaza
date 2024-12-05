@@ -30,6 +30,9 @@ const activitySchema = new mongoose.Schema({
     to: { type: String },
   },
   isFlagged: {type: Boolean, default: false},
+  pictures: [
+    { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Img" },
+  ],
 });
 
 // Create the model

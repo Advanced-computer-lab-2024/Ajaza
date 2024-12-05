@@ -5,6 +5,7 @@ import {
   PlusOutlined,
   MinusCircleOutlined,
   FlagOutlined,
+  InboxOutlined,
 } from "@ant-design/icons";
 import {
   Avatar,
@@ -21,6 +22,7 @@ import {
   Divider,
   Tag,
   Typography,
+  Upload,
 } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
@@ -28,8 +30,10 @@ import { jwtDecode } from "jwt-decode";
 import { apiUrl, Colors } from "./Common/Constants";
 import { Color } from "antd/es/color-picker";
 import LoadingSpinner from "./Common/LoadingSpinner";
+import dayjs from "dayjs";
 
 const { Option } = Select;
+const { Dragger } = Upload;
 
 const apiClient = axios.create({
   baseURL: apiUrl,
@@ -47,6 +51,7 @@ const Itineraries = () => {
   const [canEdit, setCanEdit] = useState(true);
   const [touristsData, setTouristsData] = useState([]);
   const { Title, Text } = Typography;
+  const [fileList, setFileList] = useState([]);
 
   const [form] = Form.useForm();
   const [options, setOptions] = useState([]);
@@ -125,6 +130,13 @@ const Itineraries = () => {
     }
   }, []);
 
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
+
   const createItinerary = async (values) => {
     try {
       console.log("Form Values:", values); // Debugging line
@@ -151,10 +163,28 @@ const Itineraries = () => {
         feedback: [],
       };
 
+      const formData = new FormData();
+      if (values.pictures && values.pictures.length > 0) {
+        for (let i = 0; i < values.pictures.length; i++) {
+          formData.append("pictures", values.pictures[i].originFileObj);
+        }
+      }
+
       const response = await apiClient.post(
         `/itinerary/createSpecifiedItinerary/${userid}`,
         newItinerary
       );
+
+      const picResponse = await apiClient.post(
+        `itinerary/uploadPhotos/${response.data._id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
       setItinerariesData([...itinerariesData, response.data]);
       message.success("Itinerary created successfully!");
       setIsModalVisible(false);
@@ -264,6 +294,9 @@ const Itineraries = () => {
 
     setIsModalVisible(true);
   };
+
+  const handleFileChange = ({ fileList: newFileList }) =>
+    setFileList(newFileList);
 
   const showModal = () => {
     setEditingItineraryId(null);
@@ -658,16 +691,30 @@ const Itineraries = () => {
 
             {/* Available date time entries */}
             <Form.List name="availableDateTime">
-              {(fields, { add, remove }) => (
-                <>
-                  {fields.map(({ key, fieldKey, name }) => (
-                    <div key={key} style={{ display: "flex", marginBottom: 8 }}>
-                      <Form.Item
-                        {...fieldKey}
-                        name={[name, "date"]}
-                        fieldKey={[fieldKey[0], "date"]}
-                        label="Available Date"
-                        rules={[{ required: true, message: "Missing date" }]}
+            {(fields, { add, remove }) => (
+    <>
+      {fields.map(({ key, fieldKey, name }) => (
+        <div key={key} style={{ display: "flex", marginBottom: 8 }}>
+          <Form.Item
+            {...fieldKey}
+            name={[name, "date"]}
+            fieldKey={[fieldKey[0], "date"]}
+            label="Available Date"
+            rules={[
+              { required: true, message: "Missing date" },
+              {
+                validator: (_, value) => {
+                  const today = dayjs().startOf("day");
+                  if (value && dayjs(value).isBefore(today)) {
+                    return Promise.reject(
+                      new Error("Itinerary date cannot be in the past")
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+            style={{ marginRight: 16 }} // Add margin to separate available date and available spots in the form
                       >
                         <Input type="date" />
                       </Form.Item>
@@ -697,8 +744,33 @@ const Itineraries = () => {
               )}
             </Form.List>
 
+            {!editingItineraryId && (
+              <Form.Item
+                label="Pictures"
+                name="pictures"
+                valuePropName="fileList"
+                getValueFromEvent={normFile}
+              >
+                <Dragger
+                  name="pictures"
+                  listType="text"
+                  fileList={fileList}
+                  onChange={handleFileChange}
+                  beforeUpload={() => false}
+                  maxCount={3}
+                >
+                  <p className="ant-upload-drag-icon">
+                    <InboxOutlined />
+                  </p>
+                  <p className="ant-upload-text">
+                    Click or drag file to this area to upload
+                  </p>
+                </Dragger>
+              </Form.Item>
+            )}
+
             <Form.Item>
-              <AntButton type="primary" htmlType="submit" style={{ marginTop: "10px" }}>
+              <AntButton type="primary" htmlType="submit" style={{ marginTop: "10px" , backgroundColor: "#1b696a"}}>
                 {editingItineraryId ? "Update Itinerary" : "Create Itinerary"}
               </AntButton>
             </Form.Item>

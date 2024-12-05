@@ -467,7 +467,7 @@ const SearchFilterSortContainer = ({
             }}
           >
             <a onClick={(e) => e.preventDefault()}>
-              <Space>
+              <Space style={{color: "#1b696a"}}>
                 Filter
                 <DownOutlined />
               </Space>
@@ -480,7 +480,7 @@ const SearchFilterSortContainer = ({
               selectable: true,
             }}
           >
-            <Typography.Link style={{ marginLeft: "30px" }}>
+            <Typography.Link style={{ marginLeft: "30px" , color:"#1b696a"}}>
               <Space>
                 Sort
                 <DownOutlined />

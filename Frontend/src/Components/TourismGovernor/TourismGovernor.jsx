@@ -30,6 +30,11 @@ const TourismGovernor = () => {
     }
   }, [navigate]);
 
+  const commonStyle = {
+    color: 'black', 
+    // backgroundColor: '#5b8b77'
+    };
+
   const sideBarItems = [
     // {
     //   key: "1",
@@ -48,12 +53,14 @@ const TourismGovernor = () => {
       icon: <CalendarOutlined />,
       label: "Venues",
       onClick: () => navigate("/governor/"),
+      style: commonStyle,
     },
     {
       key: "4",
       icon: <CalendarOutlined />,
       label: "Change Password",
       onClick: () => navigate("change-password"),
+      style: commonStyle,
     },
   ];
 

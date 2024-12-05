@@ -15,6 +15,7 @@ import {
   Dropdown,
   Row, 
   Col,
+  Tooltip,
 } from "antd";
 import {
   UserOutlined,
@@ -32,7 +33,9 @@ import { apiUrl, getSetNewToken } from "../Common/Constants";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useCurrency } from "../Tourist/CurrencyContext";
-
+import LogoutIcon from '@mui/icons-material/Logout';
+import SelectCurrency from "../Tourist/SelectCurrency";
+import CustomButton from "./CustomButton";
 const { Title } = Typography;
 
 const currencyRates = {
@@ -100,8 +103,11 @@ const Profile = () => {
   const [formDelivery] = Form.useForm();
   const [addresses, setAddresses] = useState([]);
   const navigate = useNavigate(); // useNavigate hook for programmatic navigation
-  const { currency } = useCurrency();
+  const { currency , setCurrency } = useCurrency();
   const [walletConverted, setWalletConverted] = useState(0);
+  const [points, setPoints] = useState(0);
+  const [wallet, setWallet] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -145,6 +151,10 @@ const Profile = () => {
     }
   }, [userDetails, currency]);
 
+
+  const handleCurrencyChange = (selectedCurrency) => {
+    setCurrency(selectedCurrency);
+  };
   // Handle saving profile changes
   const handleSave = async (values) => {
     try {
@@ -390,8 +400,10 @@ const Profile = () => {
         const response = await axios.get(
           `${apiUrl}tourist/touristReadProfile/${touristId}`
         );
-        const { preferredTags, preferredCategories } = response.data;
+        const { preferredTags, preferredCategories , wallet , points } = response.data;
         setPreferences({ preferredTags, preferredCategories });
+        setWallet(wallet);
+        setPoints(points);
       } catch (error) {
         console.error("Error fetching profile:", error);
       }
@@ -420,6 +432,21 @@ const Profile = () => {
     fetchTags();
     fetchCategories();
   }, []);
+
+  const redeemPoints = async () => {
+ 
+    try {
+      const response = await axios.patch(
+        `http://localhost:5000/tourist/redeemPoints/${touristId}`
+      );
+      const { wallet, points } = response.data;
+      setWallet(wallet);
+      setPoints(points);
+      message.success(response.data.message);
+    } catch (error) {
+      message.error(error.response?.data?.message || "Error redeeming points.");
+    }
+  };
 
   const handleTagsChange = async (tag) => {
     const updatedTags = preferences.preferredTags.includes(tag)
@@ -533,16 +560,25 @@ const Profile = () => {
     </Menu>
   );
 
+  const [hovered, setHovered] = useState(false);
+
+
   return (
     <>
       <Flex justify="left">
         <Button
           type="primary"
-          style={{ fontWeight: "bold" }}
+          style={{fontWeight: "bold",
+            color: hovered? "white" : "red",
+            //backgroundColor: "white",
+            backgroundColor: hovered ? "#ff6961" : "white",}}
           danger
           onClick={() => confirmLogOut()}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          icon={<LogoutIcon/>}
         >
-          Log out
+          Log Out
         </Button>
 
         <Button
@@ -571,6 +607,11 @@ const Profile = () => {
           isEditing && <CloseOutlined key="cancel" onClick={handleCancel} />,
         ]}
       >
+      <SelectCurrency
+         currency={currency}
+         onCurrencyChange={handleCurrencyChange}
+         style={{borderColor:"#1b696a", color:"#1b696a" , left: -240 , top: -20}}
+      />
         <Space direction="vertical" align="center" style={{ width: "100%" }}>
           {role === "tourist" && (
             <Avatar
@@ -888,7 +929,7 @@ const Profile = () => {
                           right: 20,
                           border: "none",
                           background: "none",
-                          color: "#1890ff",
+                          color: "#5b8b77",
                           fontSize: "16px",
                         }}
                         onClick={(e) => {
@@ -1048,6 +1089,7 @@ const Profile = () => {
               title="Add Delivery Address"
               visible={isModalVisible}
               onCancel={handleCancelDelivery}
+              style={{backgroundColor: '#1b696a'}}
               footer={null}
             >
               <Form
@@ -1105,7 +1147,7 @@ const Profile = () => {
                   <Input.TextArea rows={3} />
                 </Form.Item>
                 <Form.Item>
-                  <Button type="primary" htmlType="submit" block>
+                  <Button type="primary" htmlType="submit" style={{backgroundColor:"#1b696a"}} block>
                     Add Address
                   </Button>
                 </Form.Item>
@@ -1113,7 +1155,42 @@ const Profile = () => {
             </Modal>)}
         </Card>
         )}
-        <section id="addresses"><hr /></section>
+        {role === "tourist" && (  // Conditionally render this part if the role is "tourist"
+        <Card
+          style={{
+            width: "100%",
+            maxWidth: 600,
+            margin: "50px auto",
+            padding: "20px",
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <h2>Redeem Points</h2>
+          <p>Your current points: {points}</p>
+          <p>Your wallet balance: USD {wallet.toFixed(2)}</p>
+          {points < 10000 ? (
+            <Tooltip title="You must have at least 10000 points to redeem">
+              <span>
+                <CustomButton
+                  size="m"
+                  value="Redeem Points"
+                  onClick={redeemPoints}
+                  disabled
+                  loading={loading}
+                />
+              </span>
+            </Tooltip>
+          ) : (
+            <CustomButton
+              size="m"
+              value="Redeem Points"
+              onClick={redeemPoints}
+              disabled={false}
+              loading={loading}
+            />
+          )}
+        </Card>
+      )}
     </>
   );
 };

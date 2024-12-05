@@ -98,6 +98,10 @@ const AdminCustomLayout = ({ children }) => {
       navigate("/admin");
     } else if (key === "5") {
       navigate("/Admin/manage-activity-categories"); // New navigation for activity categories
+    }
+    else if(key === "210"){
+      navigate("/Admin/deletionRequests");
+
     } else if (key === "setting:1") {
       navigate("/Admin/add-Accounts");
     } else if (key === "setting:3") {
@@ -130,6 +134,10 @@ const AdminCustomLayout = ({ children }) => {
     }
   };
 
+  const commonStyle = {
+    color: 'black', 
+    };
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider
@@ -138,37 +146,48 @@ const AdminCustomLayout = ({ children }) => {
         collapsed={collapsed && !hover}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
+        style={{ backgroundColor: "#1b696a" }}
       >
         <div className="demo-logo-vertical" />
         <Menu
-          theme="dark"
+          //theme="dark"
           mode="inline"
           defaultSelectedKeys={[selectedMenuKey]}
           onClick={handleMenuClick}
-          style={{ transition: "all 0.3s ease" }}
-          items={[
+          style={{ transition: "all 0.3s ease" , backgroundColor: "#1b696a" , color:"black"}}
+          items={[ 
             {
               key: "5",
-              icon: <StarOutlined />,
+              icon: <StarOutlined style={{color:"black"}}/>,
               label: "Activity Categories",
+              style: commonStyle,
             },
             {
               key: "6",
-              icon: <UserOutlined />,
+              icon: <UserOutlined style={{color:"black"}}/>,
               label: "Accounts",
+              style: commonStyle,
 
               children: [
                 {
                   label: "Pending Accounts",
                   key: "setting:3",
+                  style: commonStyle,
                 },
                 {
                   label: "Add Accounts",
                   key: "setting:1",
+                  style: commonStyle,
                 },
                 {
                   label: "Accepted Accounts",
                   key: "setting:2",
+                  style: commonStyle,
+                },
+                {
+                   label: "Deletion Requests",
+                   key: "210",
+                   style: commonStyle,
                 },
               ],
             },
@@ -176,56 +195,67 @@ const AdminCustomLayout = ({ children }) => {
               key: "11",
               icon: <NumberOutlined />,
               label: "Preference Tags",
+              style: commonStyle,
             },
             {
               key: "74",
               icon: <TagsOutlined />,
               label: "PromoCode",
+              style: commonStyle,
             },
             {
               key: "44",
               icon: <TeamOutlined />,
               label: "User Stats",
+              style: commonStyle,
             },
             {
               key: "12",
               icon: <NumberOutlined />,
               label: "Products",
+              style: commonStyle,
             },
             {
               key: "13",
               icon: <NumberOutlined />,
               label: "My Products",
+              style: commonStyle,
             },
             {
               key: "15",
               icon: <NumberOutlined />,
               label: "Archived Products",
+              style: commonStyle,
             },
             {
               key: "14",
               icon: <StarOutlined />,
               label: "Change Password",
+              style: commonStyle,
             },
             {
               key: "96",
               icon: <CalendarOutlined />,
               label: "Itineraries",
+              style: commonStyle,
             },
             {
               key: "97",
               icon: <CalendarOutlined />,
               label: "Activities",
+              style: commonStyle,
             },
             {
               key: "99",
               icon: <ExclamationCircleOutlined />,
               label: "Complaints",
+              style: commonStyle,
             },
             {
               key:"100",
               icon:<FileOutlined />,
               label:"Sales Report",
+              style: commonStyle,
             }
           ]}
         />

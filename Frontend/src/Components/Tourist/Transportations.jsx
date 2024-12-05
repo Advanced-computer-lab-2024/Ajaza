@@ -266,7 +266,7 @@ const Transportations = () => {
               </Form.Item>
 
               <Form.Item>
-                <Button type="primary" htmlType="submit" loading={loading}>
+                <Button type="primary" htmlType="submit" loading={loading} style={{backgroundColor:"#1b696a"}}>
                   Search
                 </Button>
               </Form.Item>
@@ -282,11 +282,11 @@ const Transportations = () => {
       transportations?.length > 0 && !formVisible && ( // Render list if hotels are available and form is not visible
         <Card style={{ width: "100%", maxWidth: 600, margin: "20px auto", padding: "20px" }}>
           <Title level={4}>Available Transportations</Title>
-          <SelectCurrency
+          {/* <SelectCurrency
               currency={currency}
               onCurrencyChange={handleCurrencyChange}
               style={{ float: "right" , left:-700 , top: -70}}
-            />
+            /> */}
           <List
             itemLayout="vertical"
             dataSource={transportations}
@@ -305,7 +305,7 @@ const Transportations = () => {
                    Vehicle Seats: {transportation.vehicle_seats} <br />
                    End Address: {transportation.end_address_line} <br />
                 </div>
-                <Button type="link" onClick={() => handleViewDetails(transportation)}>
+                <Button type="link" style={{color:"#1b696a"}} onClick={() => handleViewDetails(transportation)}>
                   View Details
                 </Button>
               </List.Item>
@@ -334,7 +334,7 @@ const Transportations = () => {
           </>
         )}
         
-        <CustomButton value="Book" key="book" type="primary" onClick={handleBooking}/>
+        <CustomButton value="Book" key="book" type="primary" onClick={handleBooking} size={"s"}/>
       </Modal>
     </>
   );

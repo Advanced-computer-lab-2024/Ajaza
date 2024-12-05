@@ -4,6 +4,7 @@ import {
   DeleteOutlined,
   FlagOutlined,
   PlusOutlined,
+  InboxOutlined,
 } from "@ant-design/icons";
 import {
   InputNumber,
@@ -21,6 +22,7 @@ import {
   Divider,
   Typography,
   Rate,
+  Upload,
 } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
@@ -31,6 +33,7 @@ import dayjs from "dayjs";
 import { Colors } from "./Common/Constants";
 import LoadingSpinner from "./Common/LoadingSpinner";
 
+const { Dragger } = Upload;
 // Create an axios instance with default headers
 const apiClient = axios.create({
   baseURL: apiUrl,
@@ -49,6 +52,7 @@ const Activities = () => {
   const [form] = Form.useForm();
   const [selectedLocation, setSelectedLocation] = useState(null);
   const { Title, Text } = Typography;
+  const [fileList, setFileList] = useState([]);
 
   const token = localStorage.getItem("token");
   let decodedToken = null;
@@ -101,6 +105,16 @@ const Activities = () => {
     fetchTags();
   }, []);
 
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
+
+  const handleFileChange = ({ fileList: newFileList }) =>
+    setFileList(newFileList);
+
   const createActivity = async (values) => {
     try {
       const newActivity = {
@@ -119,10 +133,28 @@ const Activities = () => {
         transportation: values.transportation,
       };
 
+      const formData = new FormData();
+      if (values.pictures && values.pictures.length > 0) {
+        for (let i = 0; i < values.pictures.length; i++) {
+          formData.append("pictures", values.pictures[i].originFileObj);
+        }
+      }
+
       const response = await apiClient.post(
         `activity/createSpecifiedActivity/${userid}`,
         newActivity
       );
+
+      const picResponse = await apiClient.post(
+        `activity/uploadPhotos/${response.data._id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
       setActivitiesData([...activitiesData, response.data]);
       console.log("activity:", response.data);
       message.success("Activity created successfully!");
@@ -599,8 +631,33 @@ const Activities = () => {
             <InputNumber min={0} max={100} placeholder="Enter discount value" />
           </Form.Item>
 
+          {!editingActivityId && (
+            <Form.Item
+              label="Pictures"
+              name="pictures"
+              valuePropName="fileList"
+              getValueFromEvent={normFile}
+            >
+              <Dragger
+                name="pictures"
+                listType="text"
+                fileList={fileList}
+                onChange={handleFileChange}
+                beforeUpload={() => false}
+                maxCount={3}
+              >
+                <p className="ant-upload-drag-icon">
+                  <InboxOutlined />
+                </p>
+                <p className="ant-upload-text">
+                  Click or drag file to this area to upload
+                </p>
+              </Dragger>
+            </Form.Item>
+          )}
+
           <Form.Item>
-            <AntButton type="primary" htmlType="submit">
+            <AntButton type="primary" htmlType="submit" style={{backgroundColor:"#1b696a"}}>
               {editingActivityId ? "Save Changes" : "Create Activity"}
             </AntButton>
           </Form.Item>

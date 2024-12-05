@@ -42,6 +42,10 @@ const TourGuide = () => {
   if (token) {
     decodedToken = jwtDecode(token);
   }
+  const commonStyle = {
+    color: 'black', 
+    // backgroundColor: '#5b8b77'
+    };
 
   const sideBarItems = [
     {
@@ -51,6 +55,7 @@ const TourGuide = () => {
       onClick: () => {
         navigate("/guide/");
       },
+      style: commonStyle,
     },
     {
       key: "2",
@@ -59,6 +64,7 @@ const TourGuide = () => {
       onClick: () => {
         navigate("salesReport");
       },
+      style: commonStyle,
     },
     {
       key: "3",
@@ -67,6 +73,7 @@ const TourGuide = () => {
       onClick: () => {
         navigate("touristReport");
       },
+      style: commonStyle,
     }
   ];
 

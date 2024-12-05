@@ -73,7 +73,7 @@ function App() {
               path="/"
               element={
                 <AuthLayout>
-                  <LandingPage />
+                  <SignIn />
                 </AuthLayout>
               }
             />

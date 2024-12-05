@@ -159,7 +159,7 @@ const PastOrders = () => {
                         type="default"
                         icon={<BarsOutlined />}
                         onClick={() => handleDetailsView(order)}
-                        style={{ color: "blue" }}
+                        style={{ color: "#1b696a" }}
                       >
                         View Details
                       </Button>

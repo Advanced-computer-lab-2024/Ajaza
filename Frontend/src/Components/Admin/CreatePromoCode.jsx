@@ -18,7 +18,7 @@ import { apiUrl } from "../Common/Constants";
 
 const { Header, Content } = Layout;
 
-const items = [
+const menuItems = [
   { key: "1", label: "Promo Code" }
   
 ];
@@ -120,7 +120,7 @@ const CreatePromoCode = () => {
   
 
   <Form.Item>
-    <Button type="primary" htmlType="submit">
+    <Button type="primary" htmlType="submit" style={{backgroundColor:"#1b696a"}}>
       Add PromoCode
     </Button>
   </Form.Item>
@@ -155,20 +155,31 @@ const CreatePromoCode = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          backgroundColor:"#1b696a"
         }}
       >
         <div className="demo-logo" />
         <Menu
-          theme="dark"
+         className="promo-menu"
+          //theme="dark"
           mode="horizontal"
           defaultSelectedKeys={["1"]}
-          items={items}
+          items={menuItems.map((item) => ({
+            key: item.key,
+            label: item.label,
+            style: { 
+              paddingLeft: "20px",
+               paddingRight: "20px" ,
+               backgroundColor: "#1b696a",
+               color: "white",
+            }, }))}
           onClick={handleMenuClick}
           style={{
             flex: 0,
             display: "flex",
             justifyContent: "center",
             gap: "50px", // Add spacing between menu items
+            backgroundColor:"#1b696a" 
           }}
         />
       </Header>

@@ -377,7 +377,7 @@ const SearchFilterSortContainerEditCreate = ({
         }
       );
       setRefreshElements((prev) => !prev);
-      message.success("Product updated successfully!");
+      message.success("Product created successfully!");
       setIsModalVisible(false);
       form.resetFields();
       setEditingProductId(null);
@@ -482,7 +482,7 @@ const SearchFilterSortContainerEditCreate = ({
             >
               <a
                 onClick={(e) => e.preventDefault()}
-                style={{ marginLeft: "auto" }}
+                style={{ marginLeft: "auto" , color: "#1b696a" }}
               >
                 <Space>
                   Filter
@@ -498,7 +498,7 @@ const SearchFilterSortContainerEditCreate = ({
                 defaultSelectedKeys: ["3"],
               }}
             >
-              <Typography.Link style={{ marginLeft: "30px" }}>
+              <Typography.Link style={{ marginLeft: "30px" , color:"#1b696a" }}>
                 <Space>
                   Sort
                   <DownOutlined />
@@ -597,7 +597,7 @@ const SearchFilterSortContainerEditCreate = ({
               maxCount={1}
             >
               <p className="ant-upload-drag-icon">
-                <InboxOutlined />
+                <InboxOutlined style={{color:"#1b696a"}} />
               </p>
               <p className="ant-upload-text">
                 Click or drag file to this area to upload
@@ -606,7 +606,7 @@ const SearchFilterSortContainerEditCreate = ({
           </Form.Item>
 
           <Form.Item>
-            <AntButton type="primary" htmlType="submit">
+            <AntButton type="primary" htmlType="submit" style={{backgroundColor:"#1b696a"}}>
               {editingProductId ? "Save Changes" : "Create Product"}
             </AntButton>
           </Form.Item>

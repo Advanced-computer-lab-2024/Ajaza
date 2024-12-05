@@ -23,6 +23,11 @@ const Guest = () => {
   const [response, setResponse] = useState([]);
   const navigate = useNavigate();
 
+
+  const commonStyle = {
+    color: 'black', 
+    // backgroundColor: '#5b8b77'
+    };
   const sideBarItems = [
     {
       key: "1",
@@ -31,30 +36,35 @@ const Guest = () => {
       onClick: () => {
         navigate("/guest/");
       },
+      style: commonStyle,
     },
     {
       key: "2",
       icon: <CalendarOutlined />,
       label: "Itineraries",
       onClick: () => navigate("itineraries"),
+      style: commonStyle,
     },
     {
       key: "3",
       icon: <CalendarOutlined />,
       label: "Venues",
       onClick: () => navigate("venues"),
+      style: commonStyle,
     },
     {
       key: "4",
       icon: <ContainerOutlined />,
       label: "Activities",
       onClick: () => navigate("activities"),
+      style: commonStyle,
     },
     {
       key: "5",
       icon: <QuestionCircleOutlined />,
       label: "Help",
       onClick: () => navigate("help"),
+      style: commonStyle,
     }
   ];
   return (
