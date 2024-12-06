@@ -226,6 +226,8 @@ const HeaderInfo = ({
   });
   const navigate = useNavigate();
 
+  console.log(photos);
+
   // // //stripe
   // const stripe = useStripe();
   // const elements = useElements();
@@ -1095,59 +1097,51 @@ const HeaderInfo = ({
       </Flex>
 
       <Row style={{ marginBottom: "20px" }}>
-        {photos ? (
-          multiplePhotos ? (
-            <Col span={colSpan}>
-              <Carousel arrows infinite={true}>
-                {photos.map((photo, id) => {
-                  return (
-                    <div id={id}>
-                      <div id={id} style={contentStyle}>
-                        <img
-                          src={`/uploads/${photo}.jpg`}
-                          style={{
-                            width: "95%",
-                            height: "92%",
-                            margin: "0 auto",
-                            borderRadius: "20px",
-                          }}
-                          alt=""
-                        />
-                        {/* <div style={contentStyle}>adam</div> */}
-                      </div>
-                    </div>
-                  );
-                })}
-              </Carousel>
-            </Col>
-          ) : (
-            <Col span={colSpan}>
-              <Carousel arrows infinite={true}>
-                <div>
-                  <div style={contentStyle}>
-                    <img
-                      src={`/uploads/${photos}.jpg`}
-                      style={{
-                        width: "95%",
-                        height: "92%",
-                        margin: "0 auto",
-                        borderRadius: "20px",
-                      }}
-                      alt=""
-                    />
-                    {/* <div style={contentStyle}>adam</div> */}
-                  </div>
-                </div>
-              </Carousel>
-            </Col>
-          )
-        ) : location && type === "activity" ? (
-          // No photo and there is a location
-
+        {multiplePhotos ? (
           <Col span={colSpan}>
-            <MapView googleMapsLink={location} />
+            <Carousel arrows infinite={true}>
+              {photos.map((photo, id) => {
+                return (
+                  <div id={id}>
+                    <div id={id} style={contentStyle}>
+                      <img
+                        src={`/uploads/${photo}.jpg`}
+                        style={{
+                          width: "95%",
+                          height: "92%",
+                          margin: "0 auto",
+                          borderRadius: "20px",
+                        }}
+                        alt=""
+                      />
+                      {/* <div style={contentStyle}>adam</div> */}
+                    </div>
+                  </div>
+                );
+              })}
+            </Carousel>
           </Col>
-        ) : null}
+        ) : (
+          <Col span={colSpan}>
+            <Carousel arrows infinite={true}>
+              <div>
+                <div style={contentStyle}>
+                  <img
+                    src={`/uploads/${photos}.jpg`}
+                    style={{
+                      width: "95%",
+                      height: "92%",
+                      margin: "0 auto",
+                      borderRadius: "20px",
+                    }}
+                    alt=""
+                  />
+                  {/* <div style={contentStyle}>adam</div> */}
+                </div>
+              </div>
+            </Carousel>
+          </Col>
+        )}
 
         <Col span={24 - colSpan} style={{ padding: "0 20px" }}>
           <Flex justify={inPast ? "end" : "space-between"} align="center">
@@ -1178,16 +1172,35 @@ const HeaderInfo = ({
               decodedToken?.role == "seller" ||
               type == "venue" ? null : isSaved ? (
                 <HeartFilled
-                  style={{
-                    fontSize: "20px",
-                    color: Colors.warning,
-                    marginLeft: "15px",
-                  }}
+                  style={
+                    type == "product" && decodedToken?.role == "tourist"
+                      ? {
+                          fontSize: "20px",
+                          color: Colors.warning,
+                          marginLeft: "15px",
+                          position: "relative",
+                          right: "100px",
+                        }
+                      : {
+                          fontSize: "20px",
+                          color: Colors.warning,
+                          marginLeft: "15px",
+                        }
+                  }
                   onClick={unSave}
                 />
               ) : (
                 <HeartOutlined
-                  style={{ fontSize: "20px", marginLeft: "15px" }}
+                  style={
+                    type == "product" && decodedToken?.role == "tourist"
+                      ? {
+                          fontSize: "20px",
+                          marginLeft: "15px",
+                          position: "relative",
+                          right: "100px",
+                        }
+                      : { fontSize: "20px", marginLeft: "15px" }
+                  }
                   onClick={save}
                 />
               )}
@@ -1214,12 +1227,23 @@ const HeaderInfo = ({
                     <></>
                   ) : (
                     <ShareAltOutlined
-                      style={{
-                        fontSize: "20px",
-                        marginLeft: "15px",
-                        marginRight: "20px",
-                        cursor: "pointer",
-                      }}
+                      style={
+                        type == "product" && decodedToken?.role == "tourist"
+                          ? {
+                              fontSize: "20px",
+                              marginLeft: "15px",
+                              marginRight: "20px",
+                              cursor: "pointer",
+                              position: "relative",
+                              right: "100px",
+                            }
+                          : {
+                              fontSize: "20px",
+                              marginLeft: "15px",
+                              marginRight: "20px",
+                              cursor: "pointer",
+                            }
+                      }
                     />
                   )}
                 </Dropdown>
@@ -1554,7 +1578,7 @@ const HeaderInfo = ({
                 display: "-webkit-box",
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
-                WebkitLineClamp: 4, // Change this number to set max lines
+                WebkitLineClamp: 9, // Change this number to set max lines
                 textOverflow: "ellipsis",
               }}
             >
@@ -1569,6 +1593,11 @@ const HeaderInfo = ({
               </span>
             </div>
           ) : null}
+          {type == "activity" && (
+            <div style={{ width: "100%", height: "100%", marginTop: "30px" }}>
+              <MapView googleMapsLink={location} />
+            </div>
+          )}
         </Col>
       </Row>
     </>

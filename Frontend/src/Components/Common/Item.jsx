@@ -7,7 +7,8 @@ import { getAvgRating } from "./Constants";
 import LocationOpeningHours from "./LocationOpeningHours";
 import { camelCaseToNormalText } from "./Constants";
 import Timeline from "./Timeline";
-import FeedbacksSingle from "./FeedBacksSingle";
+import FeedbackMini from "./FeedbackMini";
+
 const Item = ({
   id,
   name,
@@ -119,7 +120,12 @@ const Item = ({
                   <Col
                     span={key == "availableDateTime" ? 16 : 8}
                     key={key}
-                    className={key}
+                    className={`${key} scrollModern`}
+                    style={{
+                      maxHeight: "270px",
+                      overflowY: "auto",
+                      overflowX: "hidden",
+                    }}
                   >
                     <h3>{camelCaseToNormalText(key)}</h3>
                     <Timeline key={key} timelineItems={value} fieldName={key} />
@@ -129,8 +135,8 @@ const Item = ({
             </Row>
           </Col>
           <Col span={24 - timelineFeedbackSpan}>
-            <h3 style={{ marginBottom: "0px" }}>Feedback</h3>
-            <FeedbacksSingle feedbacks={creatorFeedback} numOfItems={3} />
+            <h3 style={{ marginBottom: "0px" }}>{name} Feedback</h3>
+            <FeedbackMini feedbacks={creatorFeedback} numOfItems={3} />
           </Col>
         </Row>
       )}
@@ -146,7 +152,7 @@ const Item = ({
             style={{
               textAlign: "left",
               marginBottom: "-15px",
-              marginTop: "30px",
+              marginTop: "20px",
             }}
           >
             {creatorName} Feedback

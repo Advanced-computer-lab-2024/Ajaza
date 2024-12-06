@@ -17,7 +17,7 @@ import "./Feedbacks.css";
 import CustomButton from "./CustomButton";
 const contentStyle = {
   margin: 0,
-  height: "230px",
+  height: "200px",
   color: "#fff",
   lineHeight: "400px",
   textAlign: "center",
@@ -28,10 +28,10 @@ const contentStyle = {
 
 const titleStyle = {
   textAlign: "left",
-  paddingLeft: 40,
+  paddingLeft: 30,
   fontWeight: 700,
 };
-const Feedbacks = ({
+const FeedbackMini = ({
   feedbacks,
   setFeedbacks,
   writeReviewForm,
@@ -60,7 +60,8 @@ const Feedbacks = ({
         <Carousel
           arrows
           infinite={true}
-          style={{ marginTop: "30px", width: "100%" }}
+          style={{ marginTop: "30px", marginLeft: "20px" }}
+          className="feedbackMini"
         >
           {feedbacks
             ?.reduce((result, feedback, index) => {
@@ -92,12 +93,13 @@ const Feedbacks = ({
                         <div
                           style={{
                             position: "absolute",
-                            left: 20,
-                            top: 20,
+                            left: 15,
+                            top: 15,
                             height: 25,
                             width: 25,
                             display: "flex",
                             justifyContent: "center",
+                            alignItems: "center",
                             borderRadius: "50%",
                             backgroundColor: Colors.primary.default,
                           }}
@@ -106,7 +108,13 @@ const Feedbacks = ({
                             style={{ fontSize: 14, color: "white" }}
                           />
                         </div>
-                        <Flex style={{ fontSize: 16, marginBottom: 20 }}>
+                        <Flex
+                          style={{
+                            fontSize: 16,
+                            marginBottom: 20,
+                            alignItems: "center",
+                          }}
+                        >
                           <div style={titleStyle}>
                             {feedbackItem?.touristId?.username ? (
                               feedbackItem?.touristId?.username
@@ -119,7 +127,7 @@ const Feedbacks = ({
                             disabled
                             defaultValue={0}
                             value={feedbackItem.rating}
-                            style={{ marginLeft: "auto" }}
+                            style={{ marginLeft: "auto", fontSize: "16px" }}
                           />
                         </Flex>
 
@@ -178,4 +186,4 @@ const Feedbacks = ({
   );
 };
 
-export default Feedbacks;
+export default FeedbackMini;
