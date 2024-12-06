@@ -6,12 +6,11 @@ import axios from "axios";
 import CustomButton from "../Common/CustomButton";
 import CustomLayout from "../Common/CustomLayout";
 import { Form, Input } from "antd";
-import { DatePicker, Select, message , Card } from "antd";
+import { DatePicker, Select, message, Card } from "antd";
 import Profile from "../Common/Profile";
 import Plans from "../Tourist/Plans";
 import { jwtDecode } from "jwt-decode";
 import image from "../../Assets/Register.png";
-
 
 const CreateTourist = () => {
   const [touristData, setTouristData] = useState([]);
@@ -89,159 +88,149 @@ const CreateTourist = () => {
 
   return (
     <>
-
       <div
         style={{
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          //minHeight: "100vh",
-          minWidth: "100vw",
-          marginLeft: "-5vw",
-          marginRight: "-5vw",
-          marginTop: "-5vh",
-          backgroundImage: `url(${image})`, // Set the background image
-          backgroundSize: "cover", // Cover the entire screen
+          marginTop: "20px",
         }}
       >
-         <Card
-        style={{
-          width: 650,
-          height: 550,
-          background: "rgba(255, 255, 255, 0.60)", 
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", 
-          borderRadius: "10px", 
-          padding: "20px",
-          top: -65,
-          marginLeft: "-1vw",
-          marginTop: "100px",
-        }}
-      >
-      <div style={{ textAlign: "center", marginBottom: "15px" }}>
+        <Card
+          style={{
+            width: 650,
+            height: 550,
+            background: "rgba(255, 255, 255, 0.60)",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+            borderRadius: "10px",
+            padding: "20px",
+          }}
+        >
+          <div style={{ textAlign: "center", marginBottom: "15px" }}>
             <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>
               Registeration
             </h1>
-       </div>
-        <Form
-          name="basic"
-          style={{     
-            maxWidth: 600,
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center", 
-          }}
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-          autoComplete="off"
-          
-        >
-          <Form.Item
-            //label="Email"
-            name="email"
-            rules={[
-              { required: true, message: "Please input your email!" },
-              { type: "email", message: "Please enter a valid email!" },
-            ]}
-            style={{width: "80%"}}
+          </div>
+          <Form
+            name="basic"
+            style={{
+              maxWidth: 600,
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
+            autoComplete="off"
           >
-            <Input placeholder="Email"/>
-          </Form.Item>
+            <Form.Item
+              //label="Email"
+              name="email"
+              rules={[
+                { required: true, message: "Please input your email!" },
+                { type: "email", message: "Please enter a valid email!" },
+              ]}
+              style={{ width: "80%" }}
+            >
+              <Input placeholder="Email" />
+            </Form.Item>
 
-          <Form.Item
-            //label="Username"
-            name="username"
-            rules={[{ required: true, message: "Please input your username!" }]}
-            style={{width: "80%"}}
+            <Form.Item
+              //label="Username"
+              name="username"
+              rules={[
+                { required: true, message: "Please input your username!" },
+              ]}
+              style={{ width: "80%" }}
+            >
+              <Input placeholder="Username" />
+            </Form.Item>
 
-          >
-            <Input placeholder="Username"/>
-          </Form.Item>
+            <Form.Item
+              //label="Password"
+              name="password"
+              rules={[
+                { required: true, message: "Please input your password!" },
+                { validator: passwordStrengthValidator },
+              ]}
+              style={{ width: "80%" }}
+            >
+              <Input.Password placeholder="Password" />
+            </Form.Item>
 
-          <Form.Item
-            //label="Password"
-            name="password"
-            rules={[
-              { required: true, message: "Please input your password!" },
-              { validator: passwordStrengthValidator },
-            ]}
-            style={{width: "80%" }}
+            <Form.Item
+              //label="Mobile number"
+              name="mobile_number"
+              rules={[
+                { required: true, message: "Please input your mobile number!" },
+                { len: 13, message: "Mobile number must be 13 digits!" },
+                {
+                  pattern: /^\+20\d{10}$/,
+                  message: "Mobile number must start with +20",
+                },
+              ]}
+              style={{ width: "80%" }}
+            >
+              <Input placeholder="Mobile Number" />
+            </Form.Item>
 
-          >
-            <Input.Password placeholder="Password"/>
-          </Form.Item>
+            <Form.Item
+              //label="Nationality"
+              name="nationality"
+              rules={[
+                { required: true, message: "Please input your nationality!" },
+              ]}
+              style={{ width: "80%" }}
+            >
+              <Input placeholder="Nationality" />
+            </Form.Item>
 
-          <Form.Item
-            //label="Mobile number"
-            name="mobile_number"
-            rules={[
-              { required: true, message: "Please input your mobile number!" },
-              { len: 13, message: "Mobile number must be 13 digits!" },
-              {
-                pattern: /^\+20\d{10}$/,
-                message: "Mobile number must start with +20",
-              },
-            ]}
-            style={{width: "80%" }}
+            <Form.Item
+              //label="DOB"
+              name="dob"
+              rules={[
+                { required: true, message: "Please input your DOB!" },
+                {
+                  validator: (_, value) =>
+                    value && value.isAfter(new Date())
+                      ? Promise.reject(
+                          new Error("DOB cannot be in the future!")
+                        )
+                      : Promise.resolve(),
+                },
+              ]}
+              style={{ width: "100%" }}
+            >
+              <DatePicker placeholder="DOB" />
+            </Form.Item>
 
-          >
-            <Input placeholder="Mobile Number"/>
-          </Form.Item>
+            <Form.Item
+              //label="Occupation"
+              name="occupation"
+              rules={[
+                { required: true, message: "Please select your occupation!" },
+              ]}
+              style={{ width: "80%" }}
+            >
+              <Select placeholder="Select your occupation">
+                <Select.Option value="job">Job</Select.Option>
+                <Select.Option value="student">Student</Select.Option>
+              </Select>
+            </Form.Item>
 
-          <Form.Item
-            //label="Nationality"
-            name="nationality"
-            rules={[
-              { required: true, message: "Please input your nationality!" },
-            ]}
-            style={{width: "80%" }}
-          >
-            <Input placeholder="Nationality"/>
-          </Form.Item>
-
-          <Form.Item
-            //label="DOB"
-            name="dob"
-            rules={[
-              { required: true, message: "Please input your DOB!" },
-              {
-                validator: (_, value) =>
-                  value && value.isAfter(new Date())
-                    ? Promise.reject(new Error("DOB cannot be in the future!"))
-                    : Promise.resolve(),
-              },
-            ]}
-            style={{width: "100%"}}
-          >
-            <DatePicker placeholder="DOB"/>
-          </Form.Item>
-
-          <Form.Item
-            //label="Occupation"
-            name="occupation"
-            rules={[
-              { required: true, message: "Please select your occupation!" },
-            ]}
-            style={{width: "80%" }}
-          >
-            <Select placeholder="Select your occupation">
-              <Select.Option value="job">Job</Select.Option>
-              <Select.Option value="student">Student</Select.Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item>
-            <CustomButton
-              type="primary"
-              htmlType="submit"
-              value="Register"
-              size="s"
-              rounded={true}
-              loading={false}
-            ></CustomButton>
-          </Form.Item>
-        </Form>
+            <Form.Item>
+              <CustomButton
+                type="primary"
+                htmlType="submit"
+                value="Register"
+                size="s"
+                rounded={true}
+                loading={false}
+              ></CustomButton>
+            </Form.Item>
+          </Form>
         </Card>
       </div>
     </>

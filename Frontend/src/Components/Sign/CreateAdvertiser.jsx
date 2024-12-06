@@ -4,12 +4,12 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import Activities from "../Activities";
 import Itineraries from "../Itineraries";
 import { CalendarOutlined, UploadOutlined } from "@ant-design/icons";
-import { Form, Input, Upload, message , Card} from "antd";
+import { Form, Input, Upload, message, Card } from "antd";
 import CustomButton from "../Common/CustomButton";
 import axios from "axios";
 import SignIn from "./SignIn";
 import image from "../../Assets/Register.png";
-
+import { Colors } from "../Common/Constants";
 
 const CreateAdvertiser = () => {
   const [formData, setFormData] = useState({
@@ -108,7 +108,6 @@ const CreateAdvertiser = () => {
       // Display the success message
       message.success("Advertiser created successfully!");
 
-
       // Delay before navigate since the reload done by axios request is faster than the message display
       await new Promise((resolve) => setTimeout(resolve, 1000)); // 1-second delay
 
@@ -195,181 +194,179 @@ const CreateAdvertiser = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          minHeight: "100vh",
-          minWidth: "100vw",
-          marginLeft: "-5vw",
-          marginRight: "-5vw",
-          marginTop: "-5vh",
-          backgroundImage: `url(${image})`, // Set the background image
-          backgroundSize: "cover", // Cover the entire screen
+          marginTop: "20px",
         }}
       >
-     <Card
-        style={{
-          width: 600,
-          height: 400,
-          background: "rgba(255, 255, 255, 0.60)", 
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", 
-          borderRadius: "10px", 
-          padding: "20px",
-          top: -100,
-          marginLeft: "-1vw",
-          marginTop: "100px",
-        }}
-      >
-      <div style={{ textAlign: "center", marginBottom: "15px" }}>
-        <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>
-          Registeration
-        </h1>
-      </div>  
-        <Form
-          name="basic"
-          style={{ maxWidth: 600,
-             width: "100%",
-             display: "flex",
-             flexDirection: "column",
-             alignItems: "center",
-             justifyContent: "center", 
-            }}
-          autoComplete="off"
+        <Card
+          style={{
+            width: 600,
+            height: 400,
+            background: "rgba(255, 255, 255, 0.60)",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+            borderRadius: "10px",
+            padding: "20px",
+          }}
         >
-          {currentStep === 1 && (
-            <>
-              <Form.Item
-                //label="Email"
-                name="email"
-                rules={[
-                  { required: true, message: "Please input your email!" },
-                  { type: "email", message: "Please enter a valid email!" },
-                ]}
-                style={{width: "80%" }}
-              >
-                <Input
+          <div style={{ textAlign: "center", marginBottom: "15px" }}>
+            <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>
+              Registeration
+            </h1>
+          </div>
+          <Form
+            name="basic"
+            style={{
+              maxWidth: 600,
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            autoComplete="off"
+          >
+            {currentStep === 1 && (
+              <>
+                <Form.Item
+                  //label="Email"
                   name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="Email"
-                />
-              </Form.Item>
+                  rules={[
+                    { required: true, message: "Please input your email!" },
+                    { type: "email", message: "Please enter a valid email!" },
+                  ]}
+                  style={{ width: "80%" }}
+                >
+                  <Input
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="Email"
+                  />
+                </Form.Item>
 
-              <Form.Item
-                //label="Username"
-                name="username"
-                rules={[
-                  { required: true, message: "Please input your username!" },
-                ]}
-                style={{width: "80%" }}
-              >
-                <Input
+                <Form.Item
+                  //label="Username"
                   name="username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  placeholder="Username"
-                />
-              </Form.Item>
+                  rules={[
+                    { required: true, message: "Please input your username!" },
+                  ]}
+                  style={{ width: "80%" }}
+                >
+                  <Input
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    placeholder="Username"
+                  />
+                </Form.Item>
 
-              <Form.Item
-                //label="Password"
-                name="password"
-                rules={[
-                  { required: true, message: "Please input your password!" },
-                  { validator: passwordStrengthValidator },
-                ]}
-                style={{width: "80%" }}
-              >
-                <Input.Password
+                <Form.Item
+                  //label="Password"
                   name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="Password"
-                />
-              </Form.Item>
-
-              <Form.Item >
-                <CustomButton
-                  type="primary"
-                  onClick={nextStep}
-                  size="s"
-                  value={loading ? "" : "Next"}
-                  rounded={true}
-                  loading={loading}
-                />
-              </Form.Item>
-            </>
-          )}
-
-          {currentStep === 2 && (
-            <>
-              {/* Upload ID */}
-              <Form.Item
-                label="ID"
-                name="document1"
-                valuePropName="fileList"
-                getValueFromEvent={(e) => e.fileList}
-                extra="Upload your ID."
-              >
-                <Upload
-                  name="doc1"
-                  listType="text"
-                  beforeUpload={beforeUpload}
-                  maxCount={1}
-                  fileList={formData.document1}
-                  onChange={handleFileChange("document1")}
-                  accept="image/*" // Only accept image files
+                  rules={[
+                    { required: true, message: "Please input your password!" },
+                    { validator: passwordStrengthValidator },
+                  ]}
+                  style={{ width: "80%" }}
                 >
-                  <CustomButton
-                    icon={<UploadOutlined />}
-                    size="s"
-                    value="Upload"
+                  <Input.Password
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    placeholder="Password"
                   />
-                </Upload>
-              </Form.Item>
+                </Form.Item>
 
-              {/* Upload Taxation Registry Card */}
-              <Form.Item
-                label="Taxation Registry Card"
-                name="document2"
-                valuePropName="fileList"
-                getValueFromEvent={(e) => e.fileList}
-                extra="Upload your Taxation Registry Card."
-              >
-                <Upload
-                  name="doc2"
-                  listType="text"
-                  beforeUpload={beforeUpload}
-                  maxCount={1}
-                  fileList={formData.document2}
-                  onChange={handleFileChange("document2")}
-                  accept="image/*" // Only accept image files
+                <Form.Item>
+                  <CustomButton
+                    type="primary"
+                    onClick={nextStep}
+                    size="s"
+                    value={loading ? "" : "Next"}
+                    rounded={true}
+                    loading={loading}
+                  />
+                </Form.Item>
+              </>
+            )}
+
+            {currentStep === 2 && (
+              <>
+                {/* Upload ID */}
+                <Form.Item
+                  name="document1"
+                  valuePropName="fileList"
+                  getValueFromEvent={(e) => e.fileList}
+                  extra={
+                    <div style={{ color: Colors.grey[700] }}>
+                      Upload your ID
+                    </div>
+                  }
                 >
+                  <Upload
+                    name="doc1"
+                    listType="text"
+                    beforeUpload={beforeUpload}
+                    maxCount={1}
+                    fileList={formData.document1}
+                    onChange={handleFileChange("document1")}
+                    accept="image/*" // Only accept image files
+                  >
+                    <CustomButton
+                      icon={<UploadOutlined />}
+                      size="s"
+                      value="Upload"
+                    />
+                  </Upload>
+                </Form.Item>
+
+                {/* Upload Taxation Registry Card */}
+                <Form.Item
+                  name="document2"
+                  valuePropName="fileList"
+                  getValueFromEvent={(e) => e.fileList}
+                  extra={
+                    <div style={{ color: Colors.grey[700] }}>
+                      Upload your Taxation Registry Card
+                    </div>
+                  }
+                >
+                  <Upload
+                    name="doc2"
+                    listType="text"
+                    beforeUpload={beforeUpload}
+                    maxCount={1}
+                    fileList={formData.document2}
+                    onChange={handleFileChange("document2")}
+                    accept="image/*" // Only accept image files
+                  >
+                    <CustomButton
+                      icon={<UploadOutlined />}
+                      size="s"
+                      value="Upload"
+                    />
+                  </Upload>
+                </Form.Item>
+
+                <Form.Item>
                   <CustomButton
-                    icon={<UploadOutlined />}
+                    type="default"
+                    onClick={previousStep}
                     size="s"
-                    value="Upload"
+                    value="Previous"
+                    rounded={true}
                   />
-                </Upload>
-              </Form.Item>
 
-              <Form.Item >
-                <CustomButton
-                  type="default"
-                  onClick={previousStep}
-                  size="s"
-                  value="Previous"
-                  rounded={true}
-                />
-
-                <CustomButton
-                  type="primary"
-                  onClick={registerAdvertiser}
-                  size="s"
-                  value="Register"
-                  rounded={true}
-                />
-              </Form.Item>
-            </>
-          )}
-        </Form>
+                  <CustomButton
+                    type="primary"
+                    onClick={registerAdvertiser}
+                    size="s"
+                    value="Register"
+                    rounded={true}
+                  />
+                </Form.Item>
+              </>
+            )}
+          </Form>
         </Card>
       </div>
 
