@@ -1,207 +1,186 @@
-import React, { useState } from "react";
-import {
-  Breadcrumb,
-  Layout,
-  Menu,
-  theme,
-  Button,
-  Input,
-  Form,
-  message,
-  Slider,
-  InputNumber,
-  DatePicker,
-} from "antd";
-import axios from "axios"; // Import axios
-import AdminCustomLayout from "./AdminCustomLayout";
-import { apiUrl, Colors } from "../Common/Constants";
+import React, { useEffect, useState } from "react";
+import { Card, Button, Typography, Modal, Input, message, Form, InputNumber } from "antd";
+import { EditOutlined, DeleteOutlined, PlusOutlined, MinusOutlined } from "@ant-design/icons";
+import axios from "axios";
+import { apiUrl } from "../Common/Constants";
 
-const { Header, Content } = Layout;
-
-const menuItems = [{ key: "1", label: "Promo Code" }];
+const { Title } = Typography;
 
 const CreatePromoCode = () => {
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
+  const [promoCodes, setPromoCodes] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentPromoCode, setCurrentPromoCode] = useState(null);
+  const [updatedValue, setUpdatedValue] = useState("");
+  const [newPromoCode, setNewPromoCode] = useState({ code: "", value: null });
+  const [addingPromoCode, setAddingPromoCode] = useState(false);
 
-  const [selectedKey, setSelectedKey] = useState("1");
-  const [form] = Form.useForm();
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  useEffect(() => {
+    const fetchPromoCodes = async () => {
+      try {
+        const response = await axios.get(apiUrl + "Promocode");
+        setPromoCodes(response.data);
+      } catch (error) {
+        console.error(error);
+        message.error("Failed to load promo codes.");
+      }
+    };
 
-  const handleMenuClick = (e) => {
-    setSelectedKey(e.key);
-    setIsSubmitted(false);
-    setSuccessMessage("");
-    setErrorMessage("");
-    form.resetFields();
-  };
+    fetchPromoCodes();
+  }, []);
 
-  const handleFirstFormSubmit = async (values) => {
-    console.log("Form submitted:", values);
+  //const showUpdateModal = (promoCode) => {
+    //setCurrentPromoCode(promoCode);
+    //setUpdatedValue(promoCode.value * 100); 
+    //setIsModalVisible(true);
+  //};
+
+ // const handleUpdate = async () => {
+   // if (!updatedValue) {
+     // message.error("Please provide a value for the promo code.");
+     // return;
+    //}
+
+    //try {
+     // await axios.patch(apiUrl + `Promocode/${currentPromoCode._id}`, {
+       // value: updatedValue / 100,
+      //});
+
+      //const updatedPromoCodes = promoCodes.map((promo) =>
+        //promo._id === currentPromoCode._id
+         // ? { ...promo, value: updatedValue / 100 }
+          //: promo
+      //);
+      //setPromoCodes(updatedPromoCodes);
+      //setIsModalVisible(false);
+      //message.success("Promo code updated successfully!");
+    //} catch (error) {
+     // console.error(error);
+     // message.error("Failed to update promo code.");
+    //}
+  //};
+
+  const handleDelete = async (promoCodeId) => {
     try {
-      const response = await axios.post(apiUrl + "Promocode/createPromoCode", {
-        code: values.code,
-        value: values.value / 100,
-      });
-
-      if (response.status === 201) {
-        form.resetFields();
-        setIsSubmitted(true);
-        setErrorMessage("");
-        setSuccessMessage("Promocode created successfully!"); // Set success message
-        message.success("Promocode created successfully!");
-
-        // Hide success message after 2 seconds
-        setTimeout(() => {
-          setSuccessMessage("");
-        }, 2000);
-      }
+      await axios.delete(apiUrl + `Promocode/${promoCodeId}`);
+      const updatedPromoCodes = promoCodes.filter((promo) => promo._id !== promoCodeId);
+      setPromoCodes(updatedPromoCodes);
+      message.success("Promo code deleted successfully!");
     } catch (error) {
-      // Handle error response
-      if (error.response) {
-        // Request made and server responded
-        setErrorMessage(error.response.data.error || "Something went wrong");
-        message.error(error.response.data.error || "Submission failed");
-      } else {
-        // The request was made but no response was received
-        setErrorMessage("Network error, please try again later");
-        message.error("Network error, please try again later");
-      }
+      console.error(error);
+      message.error("Failed to delete promo code.");
     }
   };
 
-  const renderContent = () => {
-    switch (selectedKey) {
-      case "1":
-        return (
-          <div>
-            <Form
-              form={form}
-              layout="vertical"
-              onFinish={handleFirstFormSubmit}
-            >
-              <Form.Item
-                name="code"
-                label="Code"
-                rules={[{ required: true, message: "Please input code!" }]}
-              >
-                <Input placeholder="Code" />
-              </Form.Item>
+  const handleAddPromoCode = async () => {
+    if (!newPromoCode.code) {
+      message.error("Please provide both a promocode.");
+      return;
+    }
+    if (!newPromoCode.value) {
+      message.error("Please provide a value for the promocode.");
+      return;
+    }
 
-              <Form.Item
-                name="value"
-                label="Promocode Value (% Percentage)"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please input a number between 1 and 100!",
-                  },
-                ]}
-              >
-                <InputNumber
-                  min={1}
-                  max={100}
-                  placeholder="Enter a value"
-                  style={{ width: "100%" }}
-                  onKeyPress={(event) => {
-                    const charCode = event.which || event.keyCode;
-                    const charStr = String.fromCharCode(charCode);
-                    if (!/[0-9]/.test(charStr)) {
-                      event.preventDefault();
-                    }
-                  }}
-                />
-              </Form.Item>
+    try {
+      const response = await axios.post(apiUrl + "Promocode/createPromoCode", {
+        code: newPromoCode.code,
+        value: newPromoCode.value / 100,
+      });
 
-              <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  style={{ backgroundColor: Colors.primary.default }}
-                >
-                  Add PromoCode
-                </Button>
-              </Form.Item>
-            </Form>
-
-            {successMessage && (
-              <div style={{ marginTop: "20px", color: "green" }}>
-                {successMessage}
-              </div> // Display success message
-            )}
-            {errorMessage && (
-              <div style={{ marginTop: "20px", color: "red" }}>
-                {errorMessage}
-              </div>
-            )}
-          </div>
-        );
-
-      default:
-        return <div>Default Content</div>;
+      if (response.status === 201) {
+        setPromoCodes([...promoCodes, response.data]);
+        setNewPromoCode({ code: "", value: null });
+        setAddingPromoCode(false);
+        message.success("Promo code added successfully!");
+      }
+    } catch (error) {
+      console.error(error);
+      message.error("Failed to add promo code.");
     }
   };
 
   return (
-    <Layout>
-      <Header
+    <div>
+      <Title level={2} style={{ display: "inline-block" }}>
+        Promo Codes
+      </Title>
+
+      <div
         style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 1,
-          width: "100%",
+          marginTop: "16px",
+          marginBottom: "24px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: Colors.primary.default,
         }}
       >
-        <div className="demo-logo" />
-        <Menu
-          className="promo-menu"
-          //theme="dark"
-          mode="horizontal"
-          defaultSelectedKeys={["1"]}
-          items={menuItems.map((item) => ({
-            key: item.key,
-            label: item.label,
-            style: {
-              paddingLeft: "20px",
-              paddingRight: "20px",
-              backgroundColor: Colors.primary.default,
-              color: "white",
-            },
-          }))}
-          onClick={handleMenuClick}
-          style={{
-            flex: 0,
-            display: "flex",
-            justifyContent: "center",
-            gap: "50px", // Add spacing between menu items
-            backgroundColor: Colors.primary.default,
-          }}
-        />
-      </Header>
-      <Content
-        style={{
-          padding: "0 48px",
-        }}
-      >
-        <div
-          style={{
-            padding: 24,
-            minHeight: 380,
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
-          }}
+        {addingPromoCode && (
+          <div
+            style={{
+              marginRight: "8px",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <Input
+              value={newPromoCode.code}
+              onChange={(e) => setNewPromoCode({ ...newPromoCode, code: e.target.value })}
+              placeholder="Enter promo code"
+              style={{ width: "150px", marginRight: "8px" }}
+            />
+            <InputNumber
+              value={newPromoCode.value}
+              onChange={(value) => setNewPromoCode({ ...newPromoCode, value })}
+              placeholder="Value (%)"
+              min={1}
+              max={100}
+              style={{ width: "100px", marginRight: "8px" }}
+            />
+            <Button type="primary" onClick={handleAddPromoCode} style={{ backgroundColor: "#1b696a" }}>
+              Add
+            </Button>
+          </div>
+        )}
+
+        <Button
+          type="primary"
+          style={{ backgroundColor: "#1b696a" }}
+          icon={addingPromoCode ? <MinusOutlined /> : <PlusOutlined />}
+          onClick={() => setAddingPromoCode(!addingPromoCode)}
         >
-          {renderContent()}
-        </div>
-      </Content>
-    </Layout>
+          {addingPromoCode ? "Discard" : "Add Promo Code"}
+        </Button>
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "22% 22% 22% 22%",
+          gridGap: "4%",
+        }}
+      >
+        {promoCodes.map((promo) => (
+          <Card
+            key={promo._id}
+            title={promo.code}
+            extra={`${100-(promo.value * 100)}%`}
+            style={{ width: 300 }}
+          >
+          
+            <Button
+              type="text"
+              icon={<DeleteOutlined />}
+              onClick={() => handleDelete(promo._id)}
+              style={{
+                marginLeft: "8px",
+                color: "red",
+              }}
+            />
+          </Card>
+        ))}
+      </div>
+
+    </div>
   );
 };
 
