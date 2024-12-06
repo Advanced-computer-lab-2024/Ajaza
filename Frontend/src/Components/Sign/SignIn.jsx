@@ -5,12 +5,12 @@ import axios from "axios";
 import { Button, Form, Typography, message, Card } from "antd";
 import { Box } from "@mui/material";
 import image from "../../Assets/signinfinal.png";
+import plainImage from "../../Assets/Register.png";
 import { Colors } from "../Common/Constants";
 import CustomButton from "../Common/CustomButton";
 import { apiUrl } from "../Common/Constants";
 import { jwtDecode } from "jwt-decode";
 import LoadingSpinner from "../Common/LoadingSpinner";
-// import { Route, Routes, useNavigate } from "react-router-dom";
 
 const SignIn = () => {
   const [response, setResponse] = useState(null);
@@ -167,34 +167,45 @@ const SignIn = () => {
   };
 
   return (
-    <>
-      <Box
-        display="flex"
-        justifyContent="flex-start" // Align the items to the left
-        alignItems="center"
-        height="100vh"
+    <div
+      style={{
+        width: "100vw",
+        display: "grid",
+        gridTemplateColumns: "60% 40%",
+        height: "91vh  ",
+      }}
+    >
+      <div
         style={{
-          backgroundImage: `url(${image})`, // Set the background image
-          backgroundSize: "cover", // Cover the entire screen
-          backgroundPosition: "center", // Center the background image
-          paddingLeft: "20px", // Add some padding on the left for spacing
+          width: "100%",
+          height: "100%",
+          backgroundImage: `url(${image})`,
+          backgroundSize: "170% 100%",
+          backgroundPositionX: "0px",
+        }}
+      ></div>
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          backgroundImage: `url(${plainImage})`,
+          backgroundSize: "170% 100%",
+          backgroundPositionX: "0px",
         }}
       >
         <Card
-          title={<strong>User Login</strong>}
+          title={
+            <h2 style={{ fontWeight: "bold", textAlign: "center" }}>Sign In</h2>
+          }
           //bordered={false}
           style={{
-            width: 580,
-            height: 700,
+            width: "100%",
+            height: "100%",
             padding: "20px", // Padding inside the box
-            backgroundColor: "rgba(255, 255, 255, 0.75)", // Slight transparency
+            backgroundColor: "rgba(255, 255, 255, 0.85)", // Slight transparency
             textAlign: "left",
-            marginLeft: "919px",
-            marginTop: "-10px",
-            marginBottom: "27px",
-            borderColor: Colors.primary.default,
-            //top: 20.5,
-            borderRadius: 0,
+            borderRadius: "0px",
+
             alignContent: "center",
           }}
         >
@@ -207,6 +218,7 @@ const SignIn = () => {
             onFinishFailed={onFinishFailed}
             autoComplete="off"
             onKeyDown={handleKeyDown} // Add the onKeyDown event listener here
+            style={{ padding: "30px" }}
           >
             <Form.Item
               style={{ top: 90 }}
@@ -251,12 +263,12 @@ const SignIn = () => {
                 spinStyle={{ fontSize: "25px" }}
               />
             )}
-            <Form.Item shouldUpdate>
+            <Form.Item style={{ textAlign: "center" }} shouldUpdate>
               {() => (
                 <CustomButton
                   size="s"
-                  value={"Log in"}
-                  style={{ left: 60, width: 370 }}
+                  value={"Sign in"}
+                  style={{ width: "80%", margin: "auto 0" }}
                   onClick={() => signIn()}
                   disabled={
                     !clientReady ||
@@ -272,18 +284,19 @@ const SignIn = () => {
               <Typography.Text
                 style={{ marginBottom: "9px", display: "block" }}
               >
-                Don't have an account?
+                Don't have an account?{" "}
+                <Typography.Link
+                  onClick={handleSignUpClick}
+                  style={{
+                    color: Colors.primary.default,
+                    //margin: "0 0 20px 5px",
+                    textDecoration: "underline",
+                  }}
+                >
+                  Sign Up
+                </Typography.Link>
               </Typography.Text>
-              <Typography.Link
-                onClick={handleSignUpClick}
-                style={{
-                  color: Colors.primary.default,
-                  //margin: "0 0 20px 5px",
-                  textDecoration: "underline",
-                }}
-              >
-                SignUp
-              </Typography.Link>
+
               <Typography.Link
                 onClick={handleGuestClick}
                 style={{
@@ -299,8 +312,8 @@ const SignIn = () => {
             </Form.Item>
           </Form>
         </Card>
-      </Box>
-    </>
+      </div>
+    </div>
   );
 };
 

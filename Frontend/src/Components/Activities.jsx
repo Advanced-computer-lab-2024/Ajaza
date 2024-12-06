@@ -570,12 +570,11 @@ const Activities = () => {
               { required: true, message: "Please input the upper limit!" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  let lower = getFieldValue("lower");
-                  console.log("low", lower);
+                  let lower = parseInt(getFieldValue("lower"), 10); // Ensure it's an integer
                   if (
                     lower !== undefined &&
                     value !== undefined &&
-                    lower > value
+                    lower > parseInt(value, 10) // Convert 'value' as well
                   ) {
                     return Promise.reject(
                       new Error(
@@ -598,12 +597,11 @@ const Activities = () => {
               { required: true, message: "Please input the lower limit!" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  let upper = getFieldValue("upper");
-                  console.log("up", upper);
+                  let upper = parseInt(getFieldValue("upper"), 10); // Ensure it's an integer
                   if (
                     upper !== undefined &&
                     value !== undefined &&
-                    value > upper
+                    parseInt(value, 10) > upper // Convert 'value' as well
                   ) {
                     return Promise.reject(
                       new Error(
