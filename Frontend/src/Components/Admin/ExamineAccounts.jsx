@@ -230,7 +230,7 @@ const ExamineAccounts = () => {
       }}
     >
       <Title level={2} style={{ textAlign: "center", marginBottom: "20px" }}>
-        Accepting and Rejecting User Accounts
+        Pending Accounts
       </Title>
       <div
         style={{

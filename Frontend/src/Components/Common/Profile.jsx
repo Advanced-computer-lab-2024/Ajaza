@@ -564,33 +564,6 @@ const Profile = () => {
 
   return (
     <>
-      <Flex justify="left">
-        <Button
-          type="primary"
-          style={{
-            fontWeight: "bold",
-            color: hovered ? "white" : "red",
-            //backgroundColor: "white",
-            backgroundColor: hovered ? "#ff6961" : "white",
-          }}
-          danger
-          onClick={() => confirmLogOut()}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-          icon={<LogoutIcon />}
-        >
-          Log Out
-        </Button>
-
-        <Button
-          style={{ marginLeft: "auto" }}
-          type="primary"
-          danger
-          icon={<DeleteOutlined />}
-          onClick={() => confirmDelete()}
-        ></Button>
-      </Flex>
-
       <Card
         style={{
           width: "100%",
@@ -603,7 +576,28 @@ const Profile = () => {
           isEditing ? (
             <SaveOutlined key="save" onClick={() => form.submit()} />
           ) : (
-            !pending && <EditOutlined key="edit" onClick={handleEdit} />
+            !pending && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  position: "absolute",
+                  bottom: "-20px",
+                  left: "100%",
+                  transform: "translateX(-50%)",
+                }}
+              >
+                <EditOutlined
+                  key="edit"
+                  onClick={handleEdit}
+                  style={{
+                    fontSize: "24px",
+                    cursor: "pointer",
+                  }}
+                />
+              </div>
+            )
           ),
           isEditing && <CloseOutlined key="cancel" onClick={handleCancel} />,
         ]}

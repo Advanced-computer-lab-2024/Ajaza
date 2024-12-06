@@ -343,9 +343,10 @@ const Activities = () => {
                 style={{
                   minWidth: 370,
                   maxWidth: 370,
-                  maxHeight: 900,
+                  maxHeight: 700,
+                  minHeight: 700,
                   marginBottom: "8px",
-                  marginRight: "12px",
+                  marginRight: "14px",
                   border:
                     activity.isFlagged && activity.hidden
                       ? "3px solid red"
@@ -383,15 +384,34 @@ const Activities = () => {
                   }
                   description={
                     <div>
-                      <p>{activity.description}</p>
-
-                      <p>
+                      <p
+                        style={{
+                          overflow: "hidden", // Hides overflowing content
+                          textOverflow: "ellipsis", // Adds "..." at the end of the truncated text
+                          display: "-webkit-box", // Required for line clamping
+                          WebkitBoxOrient: "vertical", // Required for line clamping
+                          WebkitLineClamp: 3, // Number of lines to display
+                          maxHeight: "2.5em",
+                        }}
+                      >
+                        {activity.description}
+                      </p>
+                      <p
+                        style={{
+                          overflow: "hidden", // Hides overflowing content
+                          textOverflow: "ellipsis", // Adds "..." to the truncated text
+                          whiteSpace: "nowrap", // Prevents wrapping to a new line
+                        }}
+                      >
                         <Text strong>Location:</Text>{" "}
                         <a
                           href={activity.location}
                           target="_blank"
                           rel="noopener noreferrer"
-                          style={{ color: "#1890ff" }}
+                          style={{
+                            color: "#1890ff",
+                            textDecoration: "none",
+                          }}
                         >
                           {activity.location}
                         </a>
@@ -446,7 +466,6 @@ const Activities = () => {
                         </span>{" "}
                       </p>
 
-                      <Divider style={{ margin: "12px 0" }} />
                       <Rate value={avgRating} />
                     </div>
                   }
@@ -667,7 +686,7 @@ const Activities = () => {
             <AntButton
               type="primary"
               htmlType="submit"
-              style={{ backgroundColor: Colors.primary.default }}
+              style={{ backgroundColor: "#1b696a" }}
             >
               {editingActivityId ? "Save Changes" : "Create Activity"}
             </AntButton>

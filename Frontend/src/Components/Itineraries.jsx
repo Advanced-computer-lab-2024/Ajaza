@@ -371,7 +371,8 @@ const Itineraries = () => {
                 style={{
                   minWidth: 370,
                   maxWidth: 370,
-                  maxHeight: 900,
+                  maxHeight: 700,
+                  minHeight: 700,
                   marginBottom: "8px",
                   marginRight: "12px",
                   border:
@@ -412,7 +413,19 @@ const Itineraries = () => {
                   }
                   description={
                     <div>
-                      <p>{itinerary.description}</p>
+                      <p
+                        style={{
+                          overflow: "hidden", // Hides overflowing content
+                          textOverflow: "ellipsis", // Adds "..." to truncated text
+                          display: "-webkit-box", // Required for line clamping
+                          WebkitBoxOrient: "vertical", // Required for line clamping
+                          WebkitLineClamp: 3, // Number of lines to display
+                          lineHeight: "1.2em", // Ensure consistent line height
+                          maxHeight: "2.6em", // Adjust according to line height * line clamp
+                        }}
+                      >
+                        {itinerary.description}
+                      </p>
                       <p>
                         <Text strong>Price:</Text>{" "}
                         <span style={{ color: "#5b8b77" }}>
@@ -456,7 +469,15 @@ const Itineraries = () => {
                           </Tag>
                         )) || "None"}
                       </p>
-                      <p>
+                      <p
+                        style={{
+                          overflow: "hidden", // Hides overflowing content
+                          textOverflow: "ellipsis", // Adds "..." at the end of the truncated text
+                          display: "-webkit-box", // Enables multi-line truncation
+                          WebkitBoxOrient: "vertical", // Required for line clamping
+                          WebkitLineClamp: 1, // Limits the text to 2 lines
+                        }}
+                      >
                         <Text strong>Available Dates:</Text>{" "}
                         <span>
                           {itinerary.availableDateTime.length > 0
@@ -473,7 +494,15 @@ const Itineraries = () => {
                             : "No available dates"}
                         </span>
                       </p>
-                      <p>
+                      <p
+                        style={{
+                          overflow: "hidden", // Hides overflowing content
+                          textOverflow: "ellipsis", // Adds "..." at the end of the truncated text
+                          display: "-webkit-box", // Enables multi-line truncation
+                          WebkitBoxOrient: "vertical", // Required for line clamping
+                          WebkitLineClamp: 1, // Limits the text to 2 lines
+                        }}
+                      >
                         <Text strong>Timeline:</Text>{" "}
                         <span>
                           {itinerary.timeline.length > 0
@@ -486,6 +515,7 @@ const Itineraries = () => {
                             : "No timeline available"}
                         </span>
                       </p>
+
                       <p>
                         <Text strong>Flagged:</Text>{" "}
                         <span
@@ -496,7 +526,6 @@ const Itineraries = () => {
                           {itinerary.isFlagged ? "Yes" : "No"}
                         </span>
                       </p>
-                      <Divider style={{ margin: "12px 0" }} />
                     </div>
                   }
                 />
