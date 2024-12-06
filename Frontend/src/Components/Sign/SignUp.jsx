@@ -8,6 +8,7 @@ import CreateSeller from "./CreateSeller";
 import CreateAdvertiser from "./CreateAdvertiser";
 import image from "../../Assets/login.jpg";
 import { Box } from "@mui/material";
+import { Colors } from "../Common/Constants";
 
 const { Header, Content } = Layout;
 
@@ -45,11 +46,14 @@ const SignUp = () => {
     const selectedRole = menuItems.find((item) => item.key === e.key);
     if (selectedRole) {
       setRole(selectedRole.role);
-      const navigatePath = selectedRole.role === "tourist" ? "/auth/signup" : `/auth/signup/${selectedRole.key}`;
+      const navigatePath =
+        selectedRole.role === "tourist"
+          ? "/auth/signup"
+          : `/auth/signup/${selectedRole.key}`;
       navigate(navigatePath);
     }
   };
-  
+
   return (
     <Layout>
       <Header
@@ -61,7 +65,7 @@ const SignUp = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#1b696a",   
+          backgroundColor: Colors.primary.default,
         }}
       >
         <Menu
@@ -71,27 +75,27 @@ const SignUp = () => {
           items={menuItems.map((item) => ({
             key: item.key,
             label: item.label,
-            style: { 
+            style: {
               paddingLeft: "20px",
-               paddingRight: "20px" ,
-               backgroundColor: "#1b696a",
-               color: "white",
+              paddingRight: "20px",
+              backgroundColor: Colors.primary.default,
+              color: "white",
             },
           }))}
           onClick={handleMenuClick}
           style={{
             display: "flex",
             justifyContent: "center",
-            width: "100%",              // Take full width of the header
+            width: "100%", // Take full width of the header
             maxWidth: "800px",
-            backgroundColor: "#1b696a",
+            backgroundColor: Colors.primary.default,
           }}
         />
       </Header>
       <Content
         style={{
           padding: "0 48px",
-          backgroundColor: "#1b696a",
+          backgroundColor: Colors.primary.default,
         }}
       >
         <div
@@ -100,7 +104,7 @@ const SignUp = () => {
             minHeight: 380,
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
-            backgroundColor:"#1b696a",
+            backgroundColor: Colors.primary.default,
           }}
         >
           <Routes>

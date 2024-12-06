@@ -82,17 +82,18 @@ const CustomLayout = ({
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-  if (token) {
-    const decodedToken = jwtDecode(token);
-    setUser(decodedToken.userDetails);
-    
-    // Add a check to ensure userDetails and notifications exist
-    const unseenNotifications = decodedToken.userDetails?.notifications?.filter(
-      (notification) => !notification.seen
-    ) || []; // Provide an empty array as fallback
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      setUser(decodedToken.userDetails);
 
-    setNotifications(unseenNotifications);
-    notificationsRef.current = unseenNotifications;
+      // Add a check to ensure userDetails and notifications exist
+      const unseenNotifications =
+        decodedToken.userDetails?.notifications?.filter(
+          (notification) => !notification.seen
+        ) || []; // Provide an empty array as fallback
+
+      setNotifications(unseenNotifications);
+      notificationsRef.current = unseenNotifications;
       setNavBarItems(
         <Flex justify="center" style={{ width: "100%", position: "relative" }}>
           <div id="logo" style={{ position: "relative", right: 40, bottom: 3 }}>
@@ -189,26 +190,25 @@ const CustomLayout = ({
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider
-      
         trigger={null}
         collapsible
         collapsed={collapsed && !hover}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         style={{
-          backgroundColor: '#1b696a', 
+          backgroundColor: "#2e9c9e",
         }}
       >
         <div className="demo-logo-vertical" />
         <Menu
-         //theme="dark"
+          //theme="dark"
           mode="inline"
           defaultSelectedKeys={[selectedKey]}
           items={sideBarItems}
           onClick={handleMenuClick}
           style={{
-            backgroundColor: '#1b696a', 
-            color:"black",
+            backgroundColor: "#2e9c9e",
+            color: "black",
           }}
         />
       </Sider>
@@ -230,15 +230,13 @@ const CustomLayout = ({
               fontSize: "16px",
               width: 64,
               height: 64,
-       
-           
             }}
           />
           {guest ? guestNavBarItems : navBarItems}
         </Header>
         <Content
           style={{
-            margin: "24px 16px",
+            margin: "40px 40px",
             padding: 24,
             minHeight: 280,
             background: colorBgContainer,

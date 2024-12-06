@@ -11,7 +11,7 @@ import {
   Menu,
 } from "antd";
 import { BarsOutlined } from "@ant-design/icons";
-import { apiUrl } from "../Common/Constants";
+import { apiUrl, Colors } from "../Common/Constants";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -134,7 +134,7 @@ const Orders = () => {
                           type="default"
                           icon={<BarsOutlined />}
                           onClick={() => handleDetailsView(order)}
-                          style={{ color: "#1b696a" }}
+                          style={{ color: Colors.primary.default }}
                         >
                           View Details
                         </Button>

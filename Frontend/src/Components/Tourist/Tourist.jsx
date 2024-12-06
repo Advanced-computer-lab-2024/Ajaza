@@ -80,8 +80,8 @@ const Tourist = () => {
   }, [navigate]);
 
   const commonStyle = {
-  color: 'black', 
-  // backgroundColor: '#5b8b77'
+    color: "black",
+    // backgroundColor: '#5b8b77'
   };
 
   const sideBarItems = [
@@ -123,18 +123,12 @@ const Tourist = () => {
       style: commonStyle,
     },
     {
-      key: "6",
-      icon: <RedeemIcon />,
-      label: "Redeem Points",
-      onClick: () => navigate("redeemPoints"),
-      style: commonStyle,
-    },
-    {
-      key: "18",
+      key: "8",
       label: "My Complaints",
       style: commonStyle,
       icon: <ReportGmailerrorredOutlinedIcon />,
       style: commonStyle,
+      onClick: () => navigate("complaints"),
     },
     {
       key: "9",
@@ -144,19 +138,28 @@ const Tourist = () => {
       style: commonStyle,
     },
     {
-      key: "10",
+      key: "1011",
       icon: <CheckOutlined />,
-      label: "Future Bookings",
-      onClick: () => navigate("futureBookings"),
+      label: "Bookings",
       style: commonStyle,
+      children: [
+        {
+          key: "10",
+          icon: <CheckOutlined />,
+          label: "Future Bookings",
+          onClick: () => navigate("futureBookings"),
+          style: commonStyle,
+        },
+        {
+          key: "11",
+          icon: <CheckOutlined />,
+          label: "Booking History",
+          onClick: () => navigate("bookingHistory"),
+          style: commonStyle,
+        },
+      ],
     },
-    {
-      key: "11",
-      icon: <CheckOutlined />,
-      label: "Booking History",
-      onClick: () => navigate("bookingHistory"),
-      style: commonStyle,
-    },
+
     {
       key: "12",
       icon: <CheckOutlined />,
@@ -176,7 +179,7 @@ const Tourist = () => {
       icon: <BookOutlined />,
       label: "Orders",
       style: commonStyle,
-     
+
       children: [
         {
           key: "101",
@@ -236,8 +239,7 @@ const Tourist = () => {
       label: "Help",
       onClick: () => navigate("help"),
       style: commonStyle,
-      
-    }
+    },
 
     // TODO put them in nested like current and past bookings ---- products,wishlist,orders
   ];
@@ -251,8 +253,7 @@ const Tourist = () => {
         <Route path="change-password" element={<ChangePasswordForm />} />
         <Route path="itineraries" element={<Itineraries />} />
         <Route path="itineraries/:id" element={<Itinerary />} />
-        <Route path="help" element={<Help/>} />
-
+        <Route path="help" element={<Help />} />
 
         <Route path="venues" element={<Venues />} />
         <Route path="venues/:id" element={<Venue />} />
@@ -261,7 +262,7 @@ const Tourist = () => {
 
         <Route path="products" element={<Products />} />
         <Route path="products/:id" element={<Product />} />
-        <Route path ="cart/:id" element={<Cart />} />
+        <Route path="cart/:id" element={<Cart />} />
         <Route path="redeemPoints" element={<RedeemPoints />} />
         <Route path="fileComplaint" element={<FileComplaint />} />
         <Route path="complaints" element={<Complaints />} />
@@ -272,11 +273,11 @@ const Tourist = () => {
         <Route path="orders/:id" element={<Orders />} />
         <Route path="orders/:touristId/:date" element={<OrderDetails />} />
 
-
         <Route path="pastOrders/:id" element={<PastOrders />} />
-        <Route path="pastOrders/:touristId/:date" element={<PastOrderDetails />} />
-
-
+        <Route
+          path="pastOrders/:touristId/:date"
+          element={<PastOrderDetails />}
+        />
 
         <Route path="auth/signin" element={<SignIn />} />
 

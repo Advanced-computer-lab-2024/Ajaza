@@ -13,7 +13,7 @@ import {
   Flex,
   Menu,
   Dropdown,
-  Row, 
+  Row,
   Col,
   Tooltip,
 } from "antd";
@@ -29,11 +29,11 @@ import {
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import "./Profile.css";
-import { apiUrl, getSetNewToken } from "../Common/Constants";
+import { apiUrl, getSetNewToken, Colors } from "../Common/Constants";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useCurrency } from "../Tourist/CurrencyContext";
-import LogoutIcon from '@mui/icons-material/Logout';
+import LogoutIcon from "@mui/icons-material/Logout";
 import SelectCurrency from "../Tourist/SelectCurrency";
 import CustomButton from "./CustomButton";
 const { Title } = Typography;
@@ -103,7 +103,7 @@ const Profile = () => {
   const [formDelivery] = Form.useForm();
   const [addresses, setAddresses] = useState([]);
   const navigate = useNavigate(); // useNavigate hook for programmatic navigation
-  const { currency , setCurrency } = useCurrency();
+  const { currency, setCurrency } = useCurrency();
   const [walletConverted, setWalletConverted] = useState(0);
   const [points, setPoints] = useState(0);
   const [wallet, setWallet] = useState(0);
@@ -146,11 +146,12 @@ const Profile = () => {
 
   useEffect(() => {
     if (userDetails?.wallet !== undefined && currency) {
-      const convertedValue = (userDetails.wallet * (currencyRates[currency] || 1)).toFixed(2);
+      const convertedValue = (
+        userDetails.wallet * (currencyRates[currency] || 1)
+      ).toFixed(2);
       setWalletConverted(convertedValue);
     }
   }, [userDetails, currency]);
-
 
   const handleCurrencyChange = (selectedCurrency) => {
     setCurrency(selectedCurrency);
@@ -262,7 +263,6 @@ const Profile = () => {
   };
 
   const handleAddAddress = async (values) => {
-
     const response = await axios.post(
       `${apiUrl}tourist/address/${userDetails._id}`,
       values,
@@ -273,7 +273,7 @@ const Profile = () => {
       }
     );
 
-    if(response.status == 200) {
+    if (response.status == 200) {
       const newToken = response.data.token;
 
       // Check if newToken is valid
@@ -289,10 +289,10 @@ const Profile = () => {
       setResponse(decodedToken);
       setUserDetails(decodedToken.userDetails); // Update the local profile data
 
-      message.success("Delivery address added successfully");  
+      message.success("Delivery address added successfully");
       setAddresses([...addresses, values]);
     } else {
-      message.error("An error has occurred. Please try again later.")
+      message.error("An error has occurred. Please try again later.");
     }
 
     formDelivery.resetFields();
@@ -400,7 +400,8 @@ const Profile = () => {
         const response = await axios.get(
           `${apiUrl}tourist/touristReadProfile/${touristId}`
         );
-        const { preferredTags, preferredCategories , wallet , points } = response.data;
+        const { preferredTags, preferredCategories, wallet, points } =
+          response.data;
         setPreferences({ preferredTags, preferredCategories });
         setWallet(wallet);
         setPoints(points);
@@ -434,7 +435,6 @@ const Profile = () => {
   }, []);
 
   const redeemPoints = async () => {
- 
     try {
       const response = await axios.patch(
         `http://localhost:5000/tourist/redeemPoints/${touristId}`
@@ -562,21 +562,22 @@ const Profile = () => {
 
   const [hovered, setHovered] = useState(false);
 
-
   return (
     <>
       <Flex justify="left">
         <Button
           type="primary"
-          style={{fontWeight: "bold",
-            color: hovered? "white" : "red",
+          style={{
+            fontWeight: "bold",
+            color: hovered ? "white" : "red",
             //backgroundColor: "white",
-            backgroundColor: hovered ? "#ff6961" : "white",}}
+            backgroundColor: hovered ? "#ff6961" : "white",
+          }}
           danger
           onClick={() => confirmLogOut()}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
-          icon={<LogoutIcon/>}
+          icon={<LogoutIcon />}
         >
           Log Out
         </Button>
@@ -607,11 +608,16 @@ const Profile = () => {
           isEditing && <CloseOutlined key="cancel" onClick={handleCancel} />,
         ]}
       >
-      <SelectCurrency
-         currency={currency}
-         onCurrencyChange={handleCurrencyChange}
-         style={{borderColor:"#1b696a", color:"#1b696a" , left: -240 , top: -20}}
-      />
+        <SelectCurrency
+          currency={currency}
+          onCurrencyChange={handleCurrencyChange}
+          style={{
+            borderColor: Colors.primary.default,
+            color: Colors.primary.default,
+            left: -240,
+            top: -20,
+          }}
+        />
         <Space direction="vertical" align="center" style={{ width: "100%" }}>
           {role === "tourist" && (
             <Avatar
@@ -979,7 +985,10 @@ const Profile = () => {
                     {userDetails.nationality && (
                       <div>
                         <strong>Nationality: </strong>
-                        <span>{userDetails.nationality.charAt(0).toUpperCase()+ userDetails.nationality.slice(1)}</span>
+                        <span>
+                          {userDetails.nationality.charAt(0).toUpperCase() +
+                            userDetails.nationality.slice(1)}
+                        </span>
                       </div>
                     )}
                     {userDetails.dob && (
@@ -1004,8 +1013,8 @@ const Profile = () => {
                       <div>
                         <strong>Wallet: </strong>
                         <span>
-                    {walletConverted} {currency}
-                  </span>
+                          {walletConverted} {currency}
+                        </span>
                       </div>
                     )}
                     {userDetails.totalPoints !== undefined && (
@@ -1055,87 +1064,126 @@ const Profile = () => {
             boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Space direction="vertical" align="center" style={{ width: "100%" }}></Space>
-            <h3 style={{ textAlign: "center", flex: 1, margin: 0 }}>Delivery Addresses</h3>
-            <Button type="primary" icon="+" onClick={showModal} style={{ marginBottom: 0 }}>
-            Add Address
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Space
+              direction="vertical"
+              align="center"
+              style={{ width: "100%" }}
+            ></Space>
+            <h3 style={{ textAlign: "center", flex: 1, margin: 0 }}>
+              Delivery Addresses
+            </h3>
+            <Button
+              type="primary"
+              icon="+"
+              onClick={showModal}
+              style={{ marginBottom: 0 }}
+            >
+              Add Address
             </Button>
           </div>
           <hr />
           {addresses !== undefined && (
-                        <Row gutter={[16, 16]}>
-                        {userDetails.deliveryAddresses.map((address, index) => (
-                          <Col xs={84} sm={12} md={8} key={index}>
-                            <Card
-                              title={`${address.city}, ${address.country}`}
-                              bordered={true}
-                              hoverable
-                            >
-                              <p><strong>Area:</strong> {address.area}</p>
-                              <p><strong>Street:</strong> {address.street}</p>
-                              <p><strong>House:</strong> {address.house}</p>
-                              <p><strong>Apartment:</strong> {address.app}</p>
-                              <p><strong>Description:</strong> {address.desc}</p>
-                            </Card>
-                          </Col>
-                        ))}
-                      </Row>
-                      
-                      )}
-              {isModalVisible && (
-
+            <Row gutter={[16, 16]}>
+              {userDetails.deliveryAddresses.map((address, index) => (
+                <Col xs={84} sm={12} md={8} key={index}>
+                  <Card
+                    title={`${address.city}, ${address.country}`}
+                    bordered={true}
+                    hoverable
+                  >
+                    <p>
+                      <strong>Area:</strong> {address.area}
+                    </p>
+                    <p>
+                      <strong>Street:</strong> {address.street}
+                    </p>
+                    <p>
+                      <strong>House:</strong> {address.house}
+                    </p>
+                    <p>
+                      <strong>Apartment:</strong> {address.app}
+                    </p>
+                    <p>
+                      <strong>Description:</strong> {address.desc}
+                    </p>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          )}
+          {isModalVisible && (
             <Modal
               title="Add Delivery Address"
               visible={isModalVisible}
               onCancel={handleCancelDelivery}
-              style={{backgroundColor: '#1b696a'}}
+              style={{ backgroundColor: "#1b696a" }}
               footer={null}
             >
-              <Form
-                form={form}
-                layout="vertical"
-                onFinish={handleAddAddress}
-              >
+              <Form form={form} layout="vertical" onFinish={handleAddAddress}>
                 <Form.Item
                   label="Country"
                   name="country"
-                  rules={[{ required: true, message: "Please input the country!" }]}
+                  rules={[
+                    { required: true, message: "Please input the country!" },
+                  ]}
                 >
                   <Input />
                 </Form.Item>
                 <Form.Item
                   label="City"
                   name="city"
-                  rules={[{ required: true, message: "Please input the city!" }]}
+                  rules={[
+                    { required: true, message: "Please input the city!" },
+                  ]}
                 >
                   <Input />
                 </Form.Item>
                 <Form.Item
                   label="Area"
                   name="area"
-                  rules={[{ required: true, message: "Please input the area!" }]}
+                  rules={[
+                    { required: true, message: "Please input the area!" },
+                  ]}
                 >
                   <Input />
                 </Form.Item>
                 <Form.Item
                   label="Street"
                   name="street"
-                  rules={[{ required: true, message: "Please input the street!" }]}
+                  rules={[
+                    { required: true, message: "Please input the street!" },
+                  ]}
                 >
                   <Input />
                 </Form.Item>
                 <Form.Item
                   label="House Number"
                   name="house"
-                  rules={[{ required: true, message: "Please input the house number!" }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please input the house number!",
+                    },
+                  ]}
                 >
                   <InputNumber min={1} style={{ width: "100%" }} />
                 </Form.Item>
                 <Form.Item
                   label="Apartment Number"
                   name="app"
-                  rules={[{ required: true, message: "Please input the apartment number!" }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please input the apartment number!",
+                    },
+                  ]}
                 >
                   <InputNumber min={1} style={{ width: "100%" }} />
                 </Form.Item>
@@ -1147,45 +1195,53 @@ const Profile = () => {
                   <Input.TextArea rows={3} />
                 </Form.Item>
                 <Form.Item>
-                  <Button type="primary" htmlType="submit" style={{backgroundColor:"#1b696a"}} block>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    style={{ backgroundColor: Colors.primary.default }}
+                    block
+                  >
                     Add Address
                   </Button>
                 </Form.Item>
               </Form>
-            </Modal>)}
+            </Modal>
+          )}
         </Card>
-        )}
-        <Card style={{
-            width: "100%",
-            maxWidth: 600,
-            margin: "50px auto",
-            padding: "20px",
-            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-          }}>
-        <h2>Redeem Points</h2>
-      <p>Your current points: {points}</p>
-      <p>Your wallet balance: USD {wallet.toFixed(2)}</p>
-      {points < 10000 ? (
-        <Tooltip title="You must have at least 10000 points to redeem">
-          <span>
-            <CustomButton
-              size="m"
-              value="Redeem Points"
-              onClick={redeemPoints}
-              disabled
-              loading={loading}
-            />
-          </span>
-        </Tooltip>
-      ) : (
-        <CustomButton
-          size="m"
-          value="Redeem Points"
-          onClick={redeemPoints}
-          disabled={false}
-          loading={loading}
-        />
       )}
+      <Card
+        style={{
+          width: "100%",
+          maxWidth: 600,
+          margin: "50px auto",
+          padding: "20px",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        <h2>Redeem Points</h2>
+        <p>Your current points: {points}</p>
+        <p>Your wallet balance: USD {wallet.toFixed(2)}</p>
+        {points < 10000 ? (
+          <Tooltip title="You must have at least 10000 points to redeem">
+            <span>
+              <CustomButton
+                size="m"
+                value="Redeem Points"
+                onClick={redeemPoints}
+                disabled
+                loading={loading}
+              />
+            </span>
+          </Tooltip>
+        ) : (
+          <CustomButton
+            size="m"
+            value="Redeem Points"
+            onClick={redeemPoints}
+            disabled={false}
+            loading={loading}
+          />
+        )}
       </Card>
     </>
   );

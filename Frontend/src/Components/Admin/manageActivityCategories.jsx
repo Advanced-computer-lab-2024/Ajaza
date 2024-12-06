@@ -7,7 +7,7 @@ import {
   PlusOutlined,
   MinusOutlined,
 } from "@ant-design/icons";
-import { apiUrl } from "../Common/Constants";
+import { apiUrl, Colors } from "../Common/Constants";
 import { jwtDecode } from "jwt-decode";
 
 const { Title } = Typography;
@@ -141,7 +141,11 @@ const ManageActivityCategories = () => {
               placeholder="Enter new category name"
               style={{ width: "200px", marginRight: "8px" }}
             />
-            <Button type="primary" onClick={handleAddCategory} style={{backgroundColor:"#1b696a"}}>
+            <Button
+              type="primary"
+              onClick={handleAddCategory}
+              style={{ backgroundColor: Colors.primary.default }}
+            >
               Add
             </Button>
           </div>
@@ -149,7 +153,7 @@ const ManageActivityCategories = () => {
 
         <Button
           type="primary"
-          style={{backgroundColor: "#1b696a"}}
+          style={{ backgroundColor: Colors.primary.default }}
           icon={addingCategory ? <MinusOutlined /> : <PlusOutlined />}
           onClick={() => setAddingCategory(!addingCategory)}
         >

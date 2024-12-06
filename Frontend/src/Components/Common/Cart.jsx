@@ -13,7 +13,7 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { apiUrl, getSetNewToken } from "../Common/Constants";
+import { apiUrl, getSetNewToken, Colors } from "../Common/Constants";
 import { useCurrency } from "../Tourist/CurrencyContext";
 import { MinusOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
@@ -504,9 +504,9 @@ export const Cart = () => {
                 <Button
                   onClick={handleApplyPromo}
                   style={{
-                    backgroundColor: "#1b696a",
+                    backgroundColor: Colors.primary.default,
                     color: "white",
-                    borderColor: "#1b696a",
+                    borderColor: Colors.primary.default,
                   }}
                 >
                   Apply

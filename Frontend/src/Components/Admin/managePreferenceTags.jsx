@@ -7,7 +7,7 @@ import {
   PlusOutlined,
   MinusOutlined,
 } from "@ant-design/icons";
-import { apiUrl } from "../Common/Constants";
+import { apiUrl, Colors } from "../Common/Constants";
 import Admin from "./Admin";
 import { jwtDecode } from "jwt-decode";
 
@@ -148,7 +148,7 @@ const ManagePreferenceTags = () => {
           type="primary"
           icon={addingtag ? <MinusOutlined /> : <PlusOutlined />}
           onClick={() => setAddingtag(!addingtag)}
-          style={{backgroundColor: "#1b696a"}}
+          style={{ backgroundColor: Colors.primary.default }}
         >
           {addingtag ? "Close Tag" : "Add Tag"}
         </Button>

@@ -5,6 +5,7 @@ import axios from "axios";
 import { apiUrl } from "../Common/Constants";
 import { Card, Button, Input, message, Timeline, Radio } from "antd";
 import { Color } from "antd/es/color-picker";
+import { Colors } from "../Common/Constants";
 
 const token = localStorage.getItem("token");
 
@@ -37,7 +38,6 @@ const ComplaintRepliesTimeline = ({ complaint }) => {
               children: reply.text,
             })) || []
           }
-        
         />
       </Card>
     </>
@@ -133,7 +133,10 @@ const ComplaintDetails = () => {
             <Button
               type="primary"
               onClick={handleAccept}
-              style={{ marginRight: 10 , backgroundColor:"#1b696a"}}
+              style={{
+                marginRight: 10,
+                backgroundColor: Colors.primary.default,
+              }}
             >
               Resolve
             </Button>
@@ -143,7 +146,7 @@ const ComplaintDetails = () => {
       <br />
       <br />
       <h3>Replies:</h3>
-      <ComplaintRepliesTimeline complaint={complaint}  />
+      <ComplaintRepliesTimeline complaint={complaint} />
 
       {/* Text Box and Send Button for reply */}
       <div style={{ marginTop: "20px" }}>
@@ -156,7 +159,7 @@ const ComplaintDetails = () => {
         <Button
           type="primary"
           onClick={handleSendReply}
-          style={{ marginTop: "10px" , backgroundColor:"#1b696a"}}
+          style={{ marginTop: "10px", backgroundColor: Colors.primary.default }}
         >
           Send Reply
         </Button>

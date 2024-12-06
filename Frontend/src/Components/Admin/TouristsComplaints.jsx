@@ -11,7 +11,7 @@ import {
   Menu,
 } from "antd";
 import { BarsOutlined } from "@ant-design/icons";
-import { apiUrl } from "../Common/Constants";
+import { apiUrl, Colors } from "../Common/Constants";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import ComplaintDetails from "./ComplaintDetails";
@@ -207,7 +207,7 @@ const TouristsComplaints = () => {
             position: "absolute",
             top: 0,
             right: 0,
-            backgroundColor: "#1b696a", // Blue color
+            backgroundColor: Colors.primary.default, // Blue color
             color: "white", // White text
             marginTop: "20px", // Push it down a bit from the top
             marginRight: "300px", // Add some space from the right edge
@@ -227,7 +227,7 @@ const TouristsComplaints = () => {
             right: 0,
             marginTop: "20px", // Push it down a bit from the top
             marginRight: "20px", // Add some space from the right edge
-            backgroundColor: "#1b696a",
+            backgroundColor: Colors.primary.default,
           }}
         >
           Sort by Date ({isDescending ? "Newest First" : "Oldest First"})
@@ -296,7 +296,10 @@ const TouristsComplaints = () => {
                 <Button
                   type="primary"
                   onClick={handleSendReply}
-                  style={{ marginTop: "10px" , backgroundColor: "#1b696a" }}
+                  style={{
+                    marginTop: "10px",
+                    backgroundColor: Colors.primary.default,
+                  }}
                 >
                   Send Reply
                 </Button>
@@ -304,81 +307,79 @@ const TouristsComplaints = () => {
             </div>
           ) : (
             <Row
-            gutter={[
-              complaints.length <= 3 ? 120 : 16, // Adjust horizontal spacing for 3 cards
-              16, // Keep vertical gutter consistent
-            ]}
-            justify={complaints.length === 3 ? "space-around" : "center"} // Adjust justification for 3 cards
-          >
-            {complaints.length > 0 ? (
-              <>
-                {complaints.map((complaint) => (
-                  <Col
-                    span={8}
-                    key={complaint._id}
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      marginBottom: complaints.length === 2 ? "40px" : "20px", // Extra bottom margin for two cards
-                    }}
-                    onClick={() => handleDetailsView(complaint)}
-                  >
-                    <Card
-                      title={`Title: ${complaint.title}`}
-                      bordered={false}
+              gutter={[
+                complaints.length <= 3 ? 120 : 16, // Adjust horizontal spacing for 3 cards
+                16, // Keep vertical gutter consistent
+              ]}
+              justify={complaints.length === 3 ? "space-around" : "center"} // Adjust justification for 3 cards
+            >
+              {complaints.length > 0 ? (
+                <>
+                  {complaints.map((complaint) => (
+                    <Col
+                      span={8}
+                      key={complaint._id}
                       style={{
-                        width: "300px",
-                        minHeight: "200px",
                         display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "space-between",
-                        boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                        justifyContent: "center",
+                        marginBottom: complaints.length === 2 ? "40px" : "20px", // Extra bottom margin for two cards
                       }}
+                      onClick={() => handleDetailsView(complaint)}
                     >
-                      <p>
-                        <strong>Status: </strong> {complaint.status}
-                      </p>
-                      <p>
-                        <strong>Date: </strong>{" "}
-                        {new Date(complaint.date).toLocaleDateString()}
-                      </p>
-                      <Button
-                        type="default"
-                        icon={<BarsOutlined />}
-                        onClick={() => handleDetailsView(complaint)}
-                        style={{ color: "#1b696a" }}
+                      <Card
+                        title={`Title: ${complaint.title}`}
+                        bordered={false}
+                        style={{
+                          width: "300px",
+                          minHeight: "200px",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                        }}
                       >
-                        View Details
-                      </Button>
-                    </Card>
-                  </Col>
-                ))}
-                {/* Add filler columns to maintain consistent spacing */}
-                {complaints.length % 3 !== 0 &&
-                  Array.from(
-                    { length: 3 - (complaints.length % 3) },
-                    (_, index) => (
-                      <Col
-                        span={8}
-                        key={`filler-${index}`}
-                        style={{ visibility: "hidden" }}
-                      >
-                        <Card
-                          bordered={false}
-                          style={{ width: "300px", minHeight: "200px" }}
-                        />
-                      </Col>
-                    )
-                  )}
-              </>
-            ) : (
-              <Col span={24} style={{ textAlign: "center" }}>
-                <p>No complaints found.</p>
-              </Col>
-            )}
-          </Row>
-          
-          
+                        <p>
+                          <strong>Status: </strong> {complaint.status}
+                        </p>
+                        <p>
+                          <strong>Date: </strong>{" "}
+                          {new Date(complaint.date).toLocaleDateString()}
+                        </p>
+                        <Button
+                          type="default"
+                          icon={<BarsOutlined />}
+                          onClick={() => handleDetailsView(complaint)}
+                          style={{ color: Colors.primary.default }}
+                        >
+                          View Details
+                        </Button>
+                      </Card>
+                    </Col>
+                  ))}
+                  {/* Add filler columns to maintain consistent spacing */}
+                  {complaints.length % 3 !== 0 &&
+                    Array.from(
+                      { length: 3 - (complaints.length % 3) },
+                      (_, index) => (
+                        <Col
+                          span={8}
+                          key={`filler-${index}`}
+                          style={{ visibility: "hidden" }}
+                        >
+                          <Card
+                            bordered={false}
+                            style={{ width: "300px", minHeight: "200px" }}
+                          />
+                        </Col>
+                      )
+                    )}
+                </>
+              ) : (
+                <Col span={24} style={{ textAlign: "center" }}>
+                  <p>No complaints found.</p>
+                </Col>
+              )}
+            </Row>
           )}
         </>
       )}

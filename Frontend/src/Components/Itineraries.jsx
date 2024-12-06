@@ -23,6 +23,7 @@ import {
   Tag,
   Typography,
   Upload,
+  Empty,
 } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
@@ -95,7 +96,7 @@ const Itineraries = () => {
       setItinerariesData(response.data);
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Please try again.";
-      message.error(`Failed to fetch itinerary,${errorMessage}`);
+      message.error(`${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -346,6 +347,8 @@ const Itineraries = () => {
 
         {loading ? (
           <LoadingSpinner />
+        ) : itinerariesData.length == 0 ? (
+          <Empty />
         ) : (
           <Space
             direction="horizontal"
@@ -401,7 +404,7 @@ const Itineraries = () => {
                         fontWeight: "600",
                         marginBottom: "10px",
                         fontSize: "18px",
-                        color: "#1b696a", // You can customize this color as needed
+                        color: Colors.primary.default, // You can customize this color as needed
                       }}
                     >
                       {itinerary.name}
@@ -445,7 +448,7 @@ const Itineraries = () => {
                         {itinerary.tags?.map((tagId) => (
                           <Tag
                             key={tagId}
-                            color="#1b696a"
+                            color={Colors.primary.default}
                             style={{ margin: "3px" }}
                           >
                             {tags.find((tag) => tag._id === tagId)?.tag ||
@@ -691,30 +694,32 @@ const Itineraries = () => {
 
             {/* Available date time entries */}
             <Form.List name="availableDateTime">
-            {(fields, { add, remove }) => (
-    <>
-      {fields.map(({ key, fieldKey, name }) => (
-        <div key={key} style={{ display: "flex", marginBottom: 8 }}>
-          <Form.Item
-            {...fieldKey}
-            name={[name, "date"]}
-            fieldKey={[fieldKey[0], "date"]}
-            label="Available Date"
-            rules={[
-              { required: true, message: "Missing date" },
-              {
-                validator: (_, value) => {
-                  const today = dayjs().startOf("day");
-                  if (value && dayjs(value).isBefore(today)) {
-                    return Promise.reject(
-                      new Error("Itinerary date cannot be in the past")
-                    );
-                  }
-                  return Promise.resolve();
-                },
-              },
-            ]}
-            style={{ marginRight: 16 }} // Add margin to separate available date and available spots in the form
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, fieldKey, name }) => (
+                    <div key={key} style={{ display: "flex", marginBottom: 8 }}>
+                      <Form.Item
+                        {...fieldKey}
+                        name={[name, "date"]}
+                        fieldKey={[fieldKey[0], "date"]}
+                        label="Available Date"
+                        rules={[
+                          { required: true, message: "Missing date" },
+                          {
+                            validator: (_, value) => {
+                              const today = dayjs().startOf("day");
+                              if (value && dayjs(value).isBefore(today)) {
+                                return Promise.reject(
+                                  new Error(
+                                    "Itinerary date cannot be in the past"
+                                  )
+                                );
+                              }
+                              return Promise.resolve();
+                            },
+                          },
+                        ]}
+                        style={{ marginRight: 16 }} // Add margin to separate available date and available spots in the form
                       >
                         <Input type="date" />
                       </Form.Item>
@@ -770,7 +775,14 @@ const Itineraries = () => {
             )}
 
             <Form.Item>
-              <AntButton type="primary" htmlType="submit" style={{ marginTop: "10px" , backgroundColor: "#1b696a"}}>
+              <AntButton
+                type="primary"
+                htmlType="submit"
+                style={{
+                  marginTop: "10px",
+                  backgroundColor: Colors.primary.default,
+                }}
+              >
                 {editingItineraryId ? "Update Itinerary" : "Create Itinerary"}
               </AntButton>
             </Form.Item>

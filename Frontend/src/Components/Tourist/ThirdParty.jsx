@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { message, Card, Tabs, Row, Col } from "antd";
 import axios from "axios";
-import { apiUrl } from "../Common/Constants";
+import { apiUrl, Colors } from "../Common/Constants";
 import { jwtDecode } from "jwt-decode";
 import SelectCurrency from "./SelectCurrency";
 import { useCurrency } from "./CurrencyContext";
@@ -120,7 +120,7 @@ const ThirdParty = () => {
             currency={currency}
             onCurrencyChange={handleCurrencyChange}
           /> */}
-        </Col>  
+        </Col>
       </Row>
 
       <div
@@ -132,7 +132,11 @@ const ThirdParty = () => {
       >
         <Tabs
           defaultActiveKey="1"
-          style={{ marginBottom: 20, color: "#1b696a", textAlign: "center" }}
+          style={{
+            marginBottom: 20,
+            color: Colors.primary.default,
+            textAlign: "center",
+          }}
         >
           <TabPane tab="Flights" key="1">
             {loading ? (

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { apiUrl } from "../Common/Constants";
+import { apiUrl, Colors } from "../Common/Constants";
 import { Card, Button, Input, message, Timeline, Radio } from "antd";
 
 // Define ComplaintRepliesTimeline as a separate component
@@ -15,8 +15,7 @@ const ComplaintRepliesTimeline = ({ complaint }) => {
 
   return (
     <>
-    <Card
-        
+      <Card
         bordered={false}
         style={{
           width: "100%",
@@ -24,23 +23,24 @@ const ComplaintRepliesTimeline = ({ complaint }) => {
           boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
         }}
       >
-     
-      <Timeline
-        mode={mode}
-        items={
-          complaint.replies?.map((reply) => ({
-            label: (reply.name === "Admin" ? "Admin:" : "You:") + "  " + new Date(reply.date).toLocaleDateString(),
-            children: reply.text,
-          })) || []
-        }
-      />
+        <Timeline
+          mode={mode}
+          items={
+            complaint.replies?.map((reply) => ({
+              label:
+                (reply.name === "Admin" ? "Admin:" : "You:") +
+                "  " +
+                new Date(reply.date).toLocaleDateString(),
+              children: reply.text,
+            })) || []
+          }
+        />
       </Card>
     </>
   );
 };
 
 const TouristSelectedComplaint = () => {
-                                                                   
   const { id } = useParams(); // Get the complaint ID from the URL
   const [complaint, setComplaint] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -50,7 +50,7 @@ const TouristSelectedComplaint = () => {
   const fetchComplaintDetails = async () => {
     try {
       const response = await axios.get(`${apiUrl}complaint/${id}`);
-      
+
       const complaint = {
         ...response.data,
         status: response.data.pending ? "pending" : "resolved", // Add the 'status' based on 'pending'
@@ -66,7 +66,6 @@ const TouristSelectedComplaint = () => {
   useEffect(() => {
     fetchComplaintDetails();
   }, [id]); // Fetch new complaint data whenever the ID changes
-
 
   if (loading) {
     return <div>Loading...</div>;
@@ -94,9 +93,8 @@ const TouristSelectedComplaint = () => {
       await axios.post(apiUrl + `complaint/replies/${complaint._id}`, {
         text: reply,
         name: touristUsername,
-        
       });
-     
+
       setReply(""); // Clear the input field after sending
       message.success("Reply sent successfully!");
       fetchComplaintDetails();
@@ -121,11 +119,9 @@ const TouristSelectedComplaint = () => {
         <p>Body: {complaint.body}</p>
         <p>Date: {new Date(complaint.date).toLocaleDateString()}</p>
         <p>Status: {complaint.status}</p>
-
-       
       </Card>
-      <br/>
-      <br/>
+      <br />
+      <br />
       <h3>Replies:</h3>
       <ComplaintRepliesTimeline complaint={complaint} />
 
@@ -140,7 +136,7 @@ const TouristSelectedComplaint = () => {
         <Button
           type="primary"
           onClick={handleSendReply}
-          style={{ marginTop: "10px" , backgroundColor: "#1b696a" }}
+          style={{ marginTop: "10px", backgroundColor: Colors.primary.default }}
         >
           Send Reply
         </Button>
@@ -148,5 +144,5 @@ const TouristSelectedComplaint = () => {
     </div>
   );
 };
-// unnecessary coment 
+// unnecessary coment
 export default TouristSelectedComplaint;

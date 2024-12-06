@@ -24,7 +24,7 @@ import {
 import ArchiveIcon from "@mui/icons-material/Archive";
 import Search from "./Search";
 import { DownOutlined, InboxOutlined } from "@ant-design/icons";
-import { apiUrl } from "./Constants";
+import { apiUrl, Colors } from "./Constants";
 import axios from "axios";
 import CustomButton from "./CustomButton";
 
@@ -482,7 +482,7 @@ const SearchFilterSortContainerEditCreate = ({
             >
               <a
                 onClick={(e) => e.preventDefault()}
-                style={{ marginLeft: "auto" , color: "#1b696a" }}
+                style={{ marginLeft: "auto", color: Colors.primary.default }}
               >
                 <Space>
                   Filter
@@ -498,7 +498,9 @@ const SearchFilterSortContainerEditCreate = ({
                 defaultSelectedKeys: ["3"],
               }}
             >
-              <Typography.Link style={{ marginLeft: "30px" , color:"#1b696a" }}>
+              <Typography.Link
+                style={{ marginLeft: "30px", color: Colors.primary.default }}
+              >
                 <Space>
                   Sort
                   <DownOutlined />
@@ -597,7 +599,7 @@ const SearchFilterSortContainerEditCreate = ({
               maxCount={1}
             >
               <p className="ant-upload-drag-icon">
-                <InboxOutlined style={{color:"#1b696a"}} />
+                <InboxOutlined style={{ color: Colors.primary.default }} />
               </p>
               <p className="ant-upload-text">
                 Click or drag file to this area to upload
@@ -606,7 +608,11 @@ const SearchFilterSortContainerEditCreate = ({
           </Form.Item>
 
           <Form.Item>
-            <AntButton type="primary" htmlType="submit" style={{backgroundColor:"#1b696a"}}>
+            <AntButton
+              type="primary"
+              htmlType="submit"
+              style={{ backgroundColor: Colors.primary.default }}
+            >
               {editingProductId ? "Save Changes" : "Create Product"}
             </AntButton>
           </Form.Item>
