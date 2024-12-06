@@ -55,7 +55,7 @@ const SignUp = () => {
   };
 
   return (
-    <Layout>
+    <Layout style={{ overflowX: "hidden" }}>
       <Header
         style={{
           position: "sticky",

@@ -20,6 +20,7 @@ import {
   InputNumber,
   Switch,
   Divider,
+  Flex,
   Tag,
   Typography,
   Upload,
@@ -368,6 +369,17 @@ const Itineraries = () => {
                     onClick={() => deleteItinerary(itinerary._id)}
                   />,
                 ]}
+                cover={
+                  itinerary.pictures?.length != 0 ? (
+                    <Flex justify="center">
+                      <img
+                        alt={itinerary.pictures[0]}
+                        style={{ height: "150px", width: "80%" }}
+                        src={`/uploads/${itinerary.pictures[0]}.jpg`}
+                      />
+                    </Flex>
+                  ) : null
+                }
                 style={{
                   minWidth: 370,
                   maxWidth: 370,
