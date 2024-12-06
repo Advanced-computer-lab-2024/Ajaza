@@ -95,7 +95,7 @@ const Notifications = () => {
                         size="s"
                         rounded={true}
                         style={{
-                          backgroundColor: "#1b696a",
+                          backgroundColor: Colors.primary.default,
                           color: "#fff",
                           border: "1px solid #4caf50",
                         }}
@@ -108,7 +108,7 @@ const Notifications = () => {
                         size="s"
                         rounded={true}
                         style={{
-                          backgroundColor: "#1b696a",
+                          backgroundColor: Colors.primary.default,
                           color: "#fff",
                           border: "1px solid #4caf50",
                         }}

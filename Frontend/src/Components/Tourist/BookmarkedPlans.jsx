@@ -38,7 +38,7 @@ const BookmarkedPlans = () => {
     title: "name",
     extra: "price",
     rating: "avgRating",
-    photo: "photo",
+    photo: "pictures",
     discounts: "discounts",
   };
 

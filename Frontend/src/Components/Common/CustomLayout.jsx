@@ -141,14 +141,14 @@ const CustomLayout = ({
           onOk: async () => {
             try {
               // console.log(`${apiUrl}${role}/requestDeletion/${userDetails._id}`);
-    
+
               const response = await axios.patch(
                 `${apiUrl}${role}/requestDeletion/${userDetails._id}`
               );
-    
+
               navigate("/");
               localStorage.removeItem("token");
-    
+
               message.success("Deletion Request Sent!");
             } catch (error) {
               message.error(error?.response?.data?.message);
@@ -156,33 +156,40 @@ const CustomLayout = ({
           },
         });
       };
-    
+
       const menu = (
-        <div style={{ marginTop: "10px"}}>
-        <Menu>
-          <Menu.Item key="1" onClick={() => navigate(`/${decodedToken.role}/profile`)}
-            style={{  textAlign: "center" }}>
-            View Profile
-          </Menu.Item>
-          <Menu.Item key="2" onClick={confirmLogOut} style={{  textAlign: "center",color: "red" }}>
-            Log Out
-          </Menu.Item>
-          <Menu.Item key="3" style={{ textAlign: "center", padding: 0 }}>
-            <Button
-              type="primary"
-              danger
-              onClick={confirmDelete}
-              style={{
-                width: "100%", 
-              }}
+        <div style={{ marginTop: "10px" }}>
+          <Menu>
+            <Menu.Item
+              key="1"
+              onClick={() => navigate(`/${decodedToken.role}/profile`)}
+              style={{ textAlign: "center" }}
             >
-              Delete Profile
-            </Button>
-          </Menu.Item>
-        </Menu>
+              View Profile
+            </Menu.Item>
+            <Menu.Item
+              key="2"
+              onClick={confirmLogOut}
+              style={{ textAlign: "center", color: "red" }}
+            >
+              Log Out
+            </Menu.Item>
+            <Menu.Item key="3" style={{ textAlign: "center", padding: 0 }}>
+              <Button
+                type="primary"
+                danger
+                onClick={confirmDelete}
+                style={{
+                  width: "100%",
+                }}
+              >
+                Delete Profile
+              </Button>
+            </Menu.Item>
+          </Menu>
         </div>
       );
-      
+
       const notificationMenu = (
         <Menu
           style={{
@@ -303,22 +310,27 @@ const CustomLayout = ({
                 style={{ marginLeft: "20px" }}
               />
             )}
-            {decodedToken.role !== "governor" && decodedToken.role !== "admin" && (
-              <Dropdown
-              overlay={menu}
-              trigger={["click"]}
-              placement="bottomCenter" 
-              getPopupContainer={(trigger) => trigger.parentNode} 
-              overlayStyle={{
-                marginTop: "5px",
-              }}
-            >
-              <UserOutlined
-                className="hover"
-                style={{ fontSize: "20px", marginLeft: "30px", cursor: "pointer" }}
-              />
-            </Dropdown>
-            )}
+            {decodedToken.role !== "governor" &&
+              decodedToken.role !== "admin" && (
+                <Dropdown
+                  overlay={menu}
+                  trigger={["click"]}
+                  placement="bottomCenter"
+                  getPopupContainer={(trigger) => trigger.parentNode}
+                  overlayStyle={{
+                    marginTop: "5px",
+                  }}
+                >
+                  <UserOutlined
+                    className="hover"
+                    style={{
+                      fontSize: "20px",
+                      marginLeft: "30px",
+                      cursor: "pointer",
+                    }}
+                  />
+                </Dropdown>
+              )}
             {(decodedToken.role == "governor" ||
               decodedToken.role == "admin") && (
               <div
@@ -350,12 +362,10 @@ const CustomLayout = ({
       if (response.status === 200) {
         console.log("Notifications marked as seen successfully");
         await getSetNewToken(userid, role);
-        const updatedNotifications = allnotifications.map(
-          (notification) => ({
-            ...notification,
-            seen: true,
-          })
-        );
+        const updatedNotifications = allnotifications.map((notification) => ({
+          ...notification,
+          seen: true,
+        }));
         setAllNotifications(updatedNotifications);
         setUnseenNotifications([]); // Reset the unseen notifications count
         UnseennotificationsRef.current = [];
@@ -406,7 +416,7 @@ const CustomLayout = ({
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         style={{
-          backgroundColor: "#1b696a",
+          backgroundColor: "#2e9c9e",
         }}
       >
         <div className="demo-logo-vertical" />
@@ -417,7 +427,7 @@ const CustomLayout = ({
           items={sideBarItems}
           onClick={handleMenuClick}
           style={{
-            backgroundColor: "#1b696a",
+            backgroundColor: "#2e9c9e",
             color: "black",
           }}
         />
@@ -446,7 +456,7 @@ const CustomLayout = ({
         </Header>
         <Content
           style={{
-            margin: "24px 16px",
+            margin: "40px 40px",
             padding: 24,
             minHeight: 280,
             background: colorBgContainer,

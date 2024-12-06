@@ -4,61 +4,71 @@
   height: 100vh;
 }
 
-.ant-menu-item-selected{
-  background-color: #40e0d0 !important;
+.ant-menu-item-selected {
+  background-color: var(--primary-color-active) !important;
 }
 
 .signup-item .ant-menu-item-selected {
-  background-color: #1b696a !important;
+  background-color: var(--primary-color) !important;
 }
 
 .admin-menu .ant-menu-item-selected {
-  background-color: #1b696a !important;
+  background-color: var(--primary-color) !important;
 }
 
 .promo-menu .ant-menu-item-selected {
-  background-color: #1b696a !important;
+  background-color: var(--primary-color) !important;
 }
 
-.ant-menu-submenu-arrow{
+.ant-menu-submenu-arrow {
   color: black;
 }
 
-.ant-menu-title-content{
-  color: black
+.ant-menu-title-content {
+  color: black;
 }
 
-.ant-tabs-nav-wrap{
-  color:#1b696a
+.ant-tabs-nav-wrap {
+  color: var(--primary-color);
 }
 
-.ant-tabs-nav-list{
-  color: #1b696a;
+.ant-tabs-nav-list {
+  color: var(--primary-color);
 }
 
-.ant-tabs-tab.ant-tabs-tab-active{
-  color: #1b696a;
+.ant-tabs-tab.ant-tabs-tab-active {
+  color: var(--primary-color);
 }
 
-.ant-tabs-tab-btn{
-  color: #1b696a;
+.ant-tabs-tab-btn {
+  color: var(--primary-color);
 }
 
-.ant-tabs-nav-operations.ant-tabs-nav-operations-hidden{
-  color: #1b696a;
+.ant-tabs-nav-operations.ant-tabs-nav-operations-hidden {
+  color: var(--primary-color);
 }
 
-.ant-tabs-ink-bar.ant-tabs-ink-bar-animated{
-  color: #1b696a;
+.ant-tabs-ink-bar.ant-tabs-ink-bar-animated {
+  color: var(--primary-color);
 }
-.ant-tabs-nav-more{
-  color: #1b696a;
+.ant-tabs-nav-more {
+  color: var(--primary-color);
 }
 
-.anticon.anticon-ellipsis{
-  color: #1b696a;
+.anticon.anticon-ellipsis {
+  color: var(--primary-color);
 }
 
 .ant-modal-footer .ant-btn-primary {
-  background-color: #1b696a !important;
+  background-color: var(--primary-color) !important;
+}
+
+:where(.css-dev-only-do-not-override-5wsri9).ant-menu-light
+  .ant-menu-submenu-selected
+  > .ant-menu-submenu-title,
+:where(.css-dev-only-do-not-override-5wsri9).ant-menu-light
+  > .ant-menu
+  .ant-menu-submenu-selected
+  > .ant-menu-submenu-title {
+  color: var(--primary-color-active);
 }

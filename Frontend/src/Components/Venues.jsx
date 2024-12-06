@@ -434,7 +434,7 @@ const Venues = () => {
                         fontWeight: "600",
                         marginBottom: "10px",
                         fontSize: "18px",
-                        color: "#1b696a", // Customize this color as needed
+                        color: Colors.primary.default, // Customize this color as needed
                       }}
                     >
                       {venue.name}
@@ -509,7 +509,7 @@ const Venues = () => {
                     {venue.tags.map((tag, index) => (
                       <Tag
                         key={index}
-                        color="#1b696a"
+                        color={Colors.primary.default}
                         style={{ margin: "3px", display: "inline-block" }}
                       >
                         {tag}

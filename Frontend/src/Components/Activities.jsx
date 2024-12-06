@@ -23,6 +23,7 @@ import {
   Typography,
   Rate,
   Upload,
+  Empty,
 } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
@@ -318,7 +319,7 @@ const Activities = () => {
 
       {loading ? (
         <LoadingSpinner />
-      ) : (
+      ) : activitiesData.length > 0 ? (
         <Space
           direction="horizontal"
           size="middle"
@@ -375,7 +376,7 @@ const Activities = () => {
                         fontWeight: "600",
                         marginBottom: "10px",
                         fontSize: "18px",
-                        color: "#1b696a", // You can customize this color as needed
+                        color: Colors.primary.default, // You can customize this color as needed
                       }}
                     >
                       {activity.name}
@@ -435,7 +436,7 @@ const Activities = () => {
                         {activity.tags.map((tagId) => (
                           <Tag
                             key={tagId}
-                            color="#1b696a"
+                            color={Colors.primary.default}
                             style={{ margin: "3px" }}
                           >
                             {tags.find((tag) => tag._id === tagId)?.tag ||
@@ -457,7 +458,9 @@ const Activities = () => {
                       <p>
                         <Text strong>Flagged:</Text>{" "}
                         <span
-                          style={{ color: activity.isFlagged ? "red" : "#555" }}
+                          style={{
+                            color: activity.isFlagged ? "red" : "#555",
+                          }}
                         >
                           {activity.isFlagged ? "Yes" : "No"}
                         </span>{" "}
@@ -471,6 +474,8 @@ const Activities = () => {
             );
           })}
         </Space>
+      ) : (
+        <Empty description="Create your activity" />
       )}
 
       <Modal

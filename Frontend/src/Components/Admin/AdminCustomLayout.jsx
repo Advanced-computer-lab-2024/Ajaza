@@ -98,10 +98,8 @@ const AdminCustomLayout = ({ children }) => {
       navigate("/admin");
     } else if (key === "5") {
       navigate("/Admin/manage-activity-categories"); // New navigation for activity categories
-    }
-    else if(key === "210"){
+    } else if (key === "210") {
       navigate("/Admin/deletionRequests");
-
     } else if (key === "setting:1") {
       navigate("/Admin/add-Accounts");
     } else if (key === "setting:3") {
@@ -118,16 +116,13 @@ const AdminCustomLayout = ({ children }) => {
       navigate("products");
     } else if (key == "13") {
       navigate("myProducts");
-    } else if(key == "74"){
+    } else if (key == "74") {
       navigate("/Admin/promocode");
-    }
-    else if(key == "100"){
+    } else if (key == "100") {
       navigate("/Admin/report");
-    }
-    else if(key == "44"){
+    } else if (key == "44") {
       navigate("/Admin/numberOfUsers");
-    }
-    else if (key == "14") {
+    } else if (key == "14") {
       navigate("change-password");
     } else if (key == "15") {
       navigate("archive");
@@ -135,8 +130,8 @@ const AdminCustomLayout = ({ children }) => {
   };
 
   const commonStyle = {
-    color: 'black', 
-    };
+    color: "black",
+  };
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -146,7 +141,7 @@ const AdminCustomLayout = ({ children }) => {
         collapsed={collapsed && !hover}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
-        style={{ backgroundColor: "#1b696a" }}
+        style={{ backgroundColor: Colors.primary.default }}
       >
         <div className="demo-logo-vertical" />
         <Menu
@@ -154,17 +149,21 @@ const AdminCustomLayout = ({ children }) => {
           mode="inline"
           defaultSelectedKeys={[selectedMenuKey]}
           onClick={handleMenuClick}
-          style={{ transition: "all 0.3s ease" , backgroundColor: "#1b696a" , color:"black"}}
-          items={[ 
+          style={{
+            transition: "all 0.3s ease",
+            backgroundColor: Colors.primary.default,
+            color: "black",
+          }}
+          items={[
             {
               key: "5",
-              icon: <StarOutlined style={{color:"black"}}/>,
+              icon: <StarOutlined style={{ color: "black" }} />,
               label: "Activity Categories",
               style: commonStyle,
             },
             {
               key: "6",
-              icon: <UserOutlined style={{color:"black"}}/>,
+              icon: <UserOutlined style={{ color: "black" }} />,
               label: "Accounts",
               style: commonStyle,
 
@@ -185,9 +184,9 @@ const AdminCustomLayout = ({ children }) => {
                   style: commonStyle,
                 },
                 {
-                   label: "Deletion Requests",
-                   key: "210",
-                   style: commonStyle,
+                  label: "Deletion Requests",
+                  key: "210",
+                  style: commonStyle,
                 },
               ],
             },
@@ -252,11 +251,11 @@ const AdminCustomLayout = ({ children }) => {
               style: commonStyle,
             },
             {
-              key:"100",
-              icon:<FileOutlined />,
-              label:"Sales Report",
+              key: "100",
+              icon: <FileOutlined />,
+              label: "Sales Report",
               style: commonStyle,
-            }
+            },
           ]}
         />
       </Sider>

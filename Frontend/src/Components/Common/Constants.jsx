@@ -15,9 +15,9 @@ export const Colors = {
     50: "#f7f7f7",
   },
   primary: {
-    default: "#1b696a",
-    light: "#5b8b77",
-    lighter: "#a9f1d3",
+    default: "#2c898a",
+    light: "#33999b",
+    lighter: "#3ca9ab",
   },
   warning: "#ff4545",
   warningDark: "#cc0b38",
@@ -122,15 +122,15 @@ export const convertDateToString = (datetimeString) => {
   // Format the date into a readable format
   const options = {
     year: "numeric",
-    month: "long",
+    month: "short",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    timeZoneName: "short",
+    timeZoneName: undefined,
   };
 
   // Convert to a readable string
-  const readableDate = date.toLocaleString("en-US", options);
+  const readableDate = date.toLocaleString("en-GB", options);
 
   return readableDate;
 };

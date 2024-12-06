@@ -12,7 +12,6 @@ import { jwtDecode } from "jwt-decode";
 import LoadingSpinner from "../Common/LoadingSpinner";
 // import { Route, Routes, useNavigate } from "react-router-dom";
 
-
 const SignIn = () => {
   const [response, setResponse] = useState(null);
   const [feedbackMessage, setFeedbackMessage] = useState("");
@@ -160,12 +159,12 @@ const SignIn = () => {
 
   const handleSignUpClick = () => {
     navigate("/auth/signup");
-    };
+  };
 
-    const handleGuestClick = () => {
-      localStorage.removeItem("token");
-      navigate("/guest");
-    };
+  const handleGuestClick = () => {
+    localStorage.removeItem("token");
+    navigate("/guest");
+  };
 
   return (
     <>
@@ -193,12 +192,10 @@ const SignIn = () => {
             marginLeft: "919px",
             marginTop: "-10px",
             marginBottom: "27px",
-            borderColor:"#1b696a",
+            borderColor: Colors.primary.default,
             //top: 20.5,
             borderRadius: 0,
-            alignContent : "center",
-            
-        
+            alignContent: "center",
           }}
         >
           <Form
@@ -210,13 +207,13 @@ const SignIn = () => {
             onFinishFailed={onFinishFailed}
             autoComplete="off"
             onKeyDown={handleKeyDown} // Add the onKeyDown event listener here
-            
           >
-            <Form.Item style={{top: 90}}
+            <Form.Item
+              style={{ top: 90 }}
               name="username"
               rules={[
                 { required: true, message: "Please input your username!" },
-              ]} 
+              ]}
             >
               <Input placeholder="Username" />
             </Form.Item>
@@ -231,7 +228,7 @@ const SignIn = () => {
             </Form.Item>
 
             {!forgotPasswordLoading ? (
-              <Form.Item >
+              <Form.Item>
                 <Typography.Link
                   href="/forgot-password"
                   onClick={info}
@@ -271,35 +268,36 @@ const SignIn = () => {
                 />
               )}
             </Form.Item>
-            <Form.Item style={{textAlign:"center" }}>
-            <Typography.Text style={{ marginBottom: '9px', display: 'block' }}>
-                  Don't have an account?
-                </Typography.Text>
-                <Typography.Link
-                  onClick={handleSignUpClick}
-                  style={{
-                    color: Colors.primary.default,
-                    //margin: "0 0 20px 5px",
-                    textDecoration: "underline",
-                  }}
-                >
-                  SignUp
-                </Typography.Link>
-                <Typography.Link
-                  onClick={handleGuestClick}
-                  style={{
-                    color: Colors.primary.default,
-                    //margin: "0 0 20px 5px",
-                    textDecoration: "underline",
-                     marginBottom: '9px', display: 'block'
-                  }}
-                >
-                  Continue as Guest
-                </Typography.Link>
-              </Form.Item>
-
+            <Form.Item style={{ textAlign: "center" }}>
+              <Typography.Text
+                style={{ marginBottom: "9px", display: "block" }}
+              >
+                Don't have an account?
+              </Typography.Text>
+              <Typography.Link
+                onClick={handleSignUpClick}
+                style={{
+                  color: Colors.primary.default,
+                  //margin: "0 0 20px 5px",
+                  textDecoration: "underline",
+                }}
+              >
+                SignUp
+              </Typography.Link>
+              <Typography.Link
+                onClick={handleGuestClick}
+                style={{
+                  color: Colors.primary.default,
+                  //margin: "0 0 20px 5px",
+                  textDecoration: "underline",
+                  marginBottom: "9px",
+                  display: "block",
+                }}
+              >
+                Continue as Guest
+              </Typography.Link>
+            </Form.Item>
           </Form>
-
         </Card>
       </Box>
     </>
