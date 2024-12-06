@@ -412,6 +412,7 @@ exports.deleteSpecificActivity = async (req, res) => {
     }
 
     activity.hidden = true;
+    activity.isFlagged = false; //new
     await activity.save();
 
     res.status(200).json({ message: "Activity is now marked as hidden." });

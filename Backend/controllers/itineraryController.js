@@ -516,6 +516,7 @@ exports.deleteSpecificItinerary = async (req, res) => {
     }
 
     itinerary.hidden = true; //mark as hidden
+    itinerary.isFlagged = false; //new
     await itinerary.save();
 
     res
