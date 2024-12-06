@@ -19,6 +19,7 @@ import { MinusOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 import CustomButton from "./CustomButton";
 import StripeContainer from "./StripeContainer";
+import PlusMinusPill from "./PlusMinusPill";
 import "./Cart.css";
 export const Cart = () => {
   const navigate = useNavigate();
@@ -154,6 +155,7 @@ export const Cart = () => {
     };
 
     calculateTotalPrice();
+    console.log("shaker", cartItems);
   }, [cartItems]);
 
   const handleIncrement = async (productId) => {
@@ -354,36 +356,50 @@ export const Cart = () => {
                     className="cart-image"
                   />
                 )}
-                <div className="cart-text">
-                  <Text strong>{item.name}</Text> {/* Name */}
+                <div className="cart-text" style={{ marginLeft: "10px"}}>
+                  <div style={{ marginBottom: "5px" }}>
+                    <Text strong>{item.name}</Text>
+                  </div>
                   <Text className="cart-price">
-                    Price:{" "}
-                    {(
-                      item.quantity *
-                      item.price *
-                      currencyRates[currency]
-                    ).toFixed(2)}{" "}
-                    {currency}
-                  </Text>{" "}
-                  {/* Price */}
+                    <strong>Price:</strong>{" "}
+                    <strong>
+                      {(
+                        item.quantity *
+                        item.price *
+                        currencyRates[currency]
+                      ).toFixed(2)}{" "}
+                      {currency}
+                    </strong>
+                  </Text>
+
+                  {/* Stock Information */}
+                  {item.stock > 0 && (
+                    <div
+                      style={{
+                        marginTop: "8px",
+                        color: "green",
+                        alignSelf: "flex-start",
+                        fontSize: "13px",
+                      }}
+                    >
+                      In stock
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="cart-actions">
-                <Button
-                  icon={<MinusOutlined />}
-                  onClick={() => handleDecrement(item.productId)}
-                />
-                <Text className="cart-quantity">{item.quantity}</Text>
-                <Button
-                  icon={<PlusOutlined />}
-                  onClick={() => handleIncrement(item.productId)}
-                />
-                <Button
-                  icon={<DeleteOutlined />}
-                  danger
-                  onClick={() => handleRemoveItem(item.productId)}
+                <PlusMinusPill
+                  quantity={item.quantity}
+                  handlePlus={() => handleIncrement(item.productId)}
+                  handleMinus={() => handleDecrement(item.productId)}
+                  handleDelete={() => handleRemoveItem(item.productId)}
+                  style={{
+                    position: "relative",
+                    top: 0,
+                    right: 0,
+                  }}
                 />
               </div>
             </div>
