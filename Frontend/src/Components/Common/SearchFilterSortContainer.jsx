@@ -210,6 +210,7 @@ const SearchFilterSortContainer = ({
   isLoading,
 }) => {
   const [displayedElements, setDisplayedElements] = useState(null);
+  const [isEmpty, setIsEmpty] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [sortField, setSortField] = useState(null);
   const [sortAsc, setSortAsc] = useState(true);
@@ -297,15 +298,6 @@ const SearchFilterSortContainer = ({
   //   setDisplayedElements(temp);
   // }, [sortAsc]);
   useEffect(() => {
-    console.log({
-      searchValue,
-      sortField,
-      sortAsc,
-      filterField,
-      filterCriteria,
-      filterFn,
-    });
-
     let temp = filterSearchArray(elements, searchValue, searchFields);
     temp = sortElements(temp, sortField, sortAsc);
     if (filterCriteria && filterField && filterFn) {
@@ -320,9 +312,14 @@ const SearchFilterSortContainer = ({
   useEffect(() => {
     handleOk();
   }, [currency]);
-  // useEffect(() => {
-  //   console.log(displayedElements);
-  // }, [displayedElements]);
+
+  useEffect(() => {
+    if (displayedElements?.length == 0) {
+      setIsEmpty(true);
+    } else {
+      setIsEmpty(false);
+    }
+  }, [displayedElements]);
 
   const sortItems = [
     {
@@ -501,7 +498,7 @@ const SearchFilterSortContainer = ({
         </Flex>
       </Flex>
       {!isLoading ? (
-        displayedElements?.length > 0 ? (
+        !isEmpty ? (
           <Row gutter={[horizontalGap, verticalGap]}>
             {displayedElements?.map((element, index) => {
               const mappedProps = mapPropsToValues(element, propMapping);
@@ -523,10 +520,10 @@ const SearchFilterSortContainer = ({
               );
             })}
           </Row>
-        ) : (
-          <Empty />
-        )
+        ) : // <Empty />
+        null
       ) : (
+        // null
         <LoadingSpinner />
       )}
       <Modal

@@ -21,11 +21,11 @@ const Itinerary = () => {
     setCurrency(newCurrency);
   };
   const [currencyRates] = useState({
-    AED: 3.6725 ,
-    ARS: 1004.0114 ,
+    AED: 3.6725,
+    ARS: 1004.0114,
     AUD: 1.5348,
-    BDT: 110.50,
-    BHD: 0.3760,
+    BDT: 110.5,
+    BHD: 0.376,
     BND: 1.3456,
     BRL: 5.8149,
     CAD: 1.3971,
@@ -40,33 +40,33 @@ const Itinerary = () => {
     GBP: 0.7943,
     HKD: 7.7825,
     HUF: 392.6272,
-    IDR: 15911.8070,
+    IDR: 15911.807,
     ILS: 3.7184,
     INR: 84.5059,
     JPY: 154.4605,
-    KRW: 1399.3230,
+    KRW: 1399.323,
     KWD: 0.3077,
     LKR: 291.0263,
-    MAD: 10.50,
+    MAD: 10.5,
     MXN: 20.4394,
     MYR: 4.4704,
     NOK: 11.0668,
     NZD: 1.7107,
-    OMR: 0.3850,
+    OMR: 0.385,
     PHP: 58.9091,
     PKR: 279.0076,
     PLN: 4.1476,
-    QAR: 3.6400,
+    QAR: 3.64,
     RUB: 101.2963,
-    SAR: 3.7500,
-    SEK: 11.0630,
+    SAR: 3.75,
+    SEK: 11.063,
     SGD: 1.3456,
     THB: 34.7565,
     TRY: 34.5345,
     TWD: 32.5602,
-    UAH: 36.90,
-    USD : 1,
-    VND: 24000.00,
+    UAH: 36.9,
+    USD: 1,
+    VND: 24000.0,
     ZAR: 18.0887,
   });
 
@@ -130,6 +130,7 @@ const Itinerary = () => {
         <Item
           id={itinerary._id}
           name={itinerary.name}
+          photos={itinerary?.pictures}
           feedbacks={itinerary.feedback}
           setFeedback={handleFeedbackUpdate}
           timelineItems={timelineItems}

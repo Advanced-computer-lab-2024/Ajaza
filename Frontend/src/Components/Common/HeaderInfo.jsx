@@ -32,7 +32,6 @@ import { jwtDecode } from "jwt-decode";
 
 import MapView from "./MapView";
 import { convertDateToString, camelCaseToNormalText } from "./Constants";
-import Timeline from "./Timeline";
 import StripeContainer from "./StripeContainer";
 import { Dropdown } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -82,7 +81,6 @@ const HeaderInfo = ({
   language,
   pickUp,
   dropOff,
-  timelineItems,
   accessibility,
   avgRating,
   colSpan,
@@ -1096,11 +1094,11 @@ const HeaderInfo = ({
         </div>
       </Flex>
 
-      <Row>
+      <Row style={{ marginBottom: "20px" }}>
         {photos ? (
           multiplePhotos ? (
             <Col span={colSpan}>
-              <Carousel arrows infinite={true} style={{ marginBottom: "50px" }}>
+              <Carousel arrows infinite={true}>
                 {photos.map((photo, id) => {
                   return (
                     <div id={id}>
@@ -1149,23 +1147,6 @@ const HeaderInfo = ({
           <Col span={colSpan}>
             <MapView googleMapsLink={location} />
           </Col>
-        ) : timelineItems ? (
-          <Col span={colSpan} style={{ marginTop: "50px" }}>
-            <Row justify="center">
-              {Object.entries(timelineItems).map(([key, value]) => {
-                return (
-                  <Col
-                    span={key == "availableDateTime" ? 16 : 8}
-                    key={key}
-                    className={key}
-                  >
-                    <h3>{camelCaseToNormalText(key)}</h3>
-                    <Timeline key={key} timelineItems={value} fieldName={key} />
-                  </Col>
-                );
-              })}
-            </Row>
-          </Col>
         ) : null}
 
         <Col span={24 - colSpan} style={{ padding: "0 20px" }}>
@@ -1182,13 +1163,13 @@ const HeaderInfo = ({
                   style={{
                     fontSize: "20px",
                     color: Colors.grey[800],
-                    marginLeft: "20px",
+                    marginLeft: "15px",
                   }}
                   onClick={removeNotification}
                 />
               ) : (
                 <BellOutlined
-                  style={{ fontSize: "20px", marginLeft: "20px" }}
+                  style={{ fontSize: "20px", marginLeft: "15px" }}
                   onClick={addNotification}
                 />
               )}
@@ -1200,13 +1181,13 @@ const HeaderInfo = ({
                   style={{
                     fontSize: "20px",
                     color: Colors.warning,
-                    marginLeft: "20px",
+                    marginLeft: "15px",
                   }}
                   onClick={unSave}
                 />
               ) : (
                 <HeartOutlined
-                  style={{ fontSize: "20px", marginLeft: "20px" }}
+                  style={{ fontSize: "20px", marginLeft: "15px" }}
                   onClick={save}
                 />
               )}
@@ -1235,7 +1216,7 @@ const HeaderInfo = ({
                     <ShareAltOutlined
                       style={{
                         fontSize: "20px",
-                        marginLeft: "20px",
+                        marginLeft: "15px",
                         marginRight: "20px",
                         cursor: "pointer",
                       }}
@@ -1289,6 +1270,7 @@ const HeaderInfo = ({
                       width: "120px",
                       backgroundColor: Colors.warning,
                       fontWeight: "bold",
+                      marginLeft: "-5px",
                     }}
                     value={"Cancel Booking"}
                     onClick={cancelBookingItem}

@@ -39,7 +39,7 @@ import SignUp from "./Components/Sign/SignUp";
 import AuthLayout from "./Components/Sign/AuthLayout";
 import Tourist from "./Components/Tourist/Tourist";
 import Seller from "./Components/Seller/Seller";
-import { Flex, Layout, theme } from "antd";
+import { Flex, Layout, theme, ConfigProvider } from "antd";
 import TourGuide from "./Components/TourGuide/TourGuide";
 import Advertiser from "./Components/Advertiser/Advertiser";
 import TourismGovernor from "./Components/TourismGovernor/TourismGovernor";
@@ -65,55 +65,63 @@ function App() {
   const role = params.get("role");
 
   return (
-    <div className="App">
-      <Layout>
-        <Content>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <AuthLayout>
-                  <SignIn />
-                </AuthLayout>
-              }
-            />
-            <Route
-              path="auth/*"
-              element={
-                <AuthLayout>
-                  <Routes>
-                    <Route path="signin" element={<SignIn />} />
-                    <Route path="signup/*" element={<SignUp />} />
-                    <Route
-                      path="terms-and-conditions"
-                      element={<TermsAndConditions />}
-                    />
-                    <Route
-                      path="signin/forgot-password"
-                      element={<ForgotPassword />}
-                    />
-                  </Routes>
-                </AuthLayout>
-              }
-            />
-            <Route path="/tourist/*" element={<Tourist />} />
-            <Route path="/guide/*" element={<TourGuide />} />
-            <Route path="/advertiser/*" element={<Advertiser />} />
-            <Route path="/admin/*" element={<Admin />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/governor/*" element={<TourismGovernor />} />
-            <Route path="/seller/*" element={<Seller />} />
-            <Route path="/guest/*" element={<Guest />} />
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: Colors.primary.default, // Replace with your color
+        },
+      }}
+    >
+      <div className="App">
+        <Layout>
+          <Content>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <AuthLayout>
+                    <SignIn />
+                  </AuthLayout>
+                }
+              />
+              <Route
+                path="auth/*"
+                element={
+                  <AuthLayout>
+                    <Routes>
+                      <Route path="signin" element={<SignIn />} />
+                      <Route path="signup/*" element={<SignUp />} />
+                      <Route
+                        path="terms-and-conditions"
+                        element={<TermsAndConditions />}
+                      />
+                      <Route
+                        path="signin/forgot-password"
+                        element={<ForgotPassword />}
+                      />
+                    </Routes>
+                  </AuthLayout>
+                }
+              />
+              <Route path="/tourist/*" element={<Tourist />} />
+              <Route path="/guide/*" element={<TourGuide />} />
+              <Route path="/advertiser/*" element={<Advertiser />} />
+              <Route path="/admin/*" element={<Admin />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/notifications" element={<Notifications />} />
+              <Route path="/governor/*" element={<TourismGovernor />} />
+              <Route path="/seller/*" element={<Seller />} />
+              <Route path="/guest/*" element={<Guest />} />
 
-            {/* here */}
-            {/* Tourist registration page */}
+              {/* here */}
+              {/* Tourist registration page */}
 
-            {/* Advertiser registration page */}
-          </Routes>
-        </Content>
-      </Layout>
-    </div>
+              {/* Advertiser registration page */}
+            </Routes>
+          </Content>
+        </Layout>
+      </div>
+    </ConfigProvider>
   );
 }
 

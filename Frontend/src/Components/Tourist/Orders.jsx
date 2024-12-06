@@ -9,11 +9,13 @@ import {
   message,
   Input,
   Menu,
+  Empty,
 } from "antd";
 import { BarsOutlined } from "@ant-design/icons";
 import { apiUrl, Colors } from "../Common/Constants";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import LoadingSpinner from "../Common/LoadingSpinner";
 
 const { Title } = Typography;
 
@@ -83,7 +85,7 @@ const Orders = () => {
       </Title>
 
       {loading ? (
-        <div>Loading...</div>
+        <LoadingSpinner />
       ) : (
         <>
           {/* If a complaint is selected, show it in a large card */}
@@ -161,7 +163,7 @@ const Orders = () => {
                 </>
               ) : (
                 <Col span={24} style={{ textAlign: "center" }}>
-                  <p>No orders found.</p>
+                  <Empty />
                 </Col>
               )}
             </Row>

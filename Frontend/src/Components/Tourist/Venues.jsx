@@ -95,6 +95,7 @@ const Venues = () => {
     navigate(element["_id"]);
   };
   const [combinedElements, setCombinedElements] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
   // propName:fieldName
   const propMapping = {
@@ -183,6 +184,7 @@ const Venues = () => {
         });
 
         setCombinedElements(combinedArray);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -234,6 +236,7 @@ const Venues = () => {
         sortFields={sortFields}
         filterFields={filterFields}
         cardOnclick={cardOnclick}
+        isLoading={isLoading}
       />
     </div>
   );
