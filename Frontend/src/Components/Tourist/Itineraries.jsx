@@ -7,6 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import SelectCurrency from "./SelectCurrency";
 import { useNavigate } from "react-router-dom";
 import { useCurrency } from "./CurrencyContext";
+import FrigadeProvider from "../Guest/FrigadeProvider1";
 
 const token = localStorage.getItem("token");
 let decodedToken = null;
@@ -286,6 +287,7 @@ const Itineraries = () => {
   }, [currency]);
 
   return (
+  <FrigadeProvider>
     <div>
       <div
         style={{
@@ -315,6 +317,7 @@ const Itineraries = () => {
         isLoading={isLoading}
       />
     </div>
+    </FrigadeProvider>
   );
 };
 
