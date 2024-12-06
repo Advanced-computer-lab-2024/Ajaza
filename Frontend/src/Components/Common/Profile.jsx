@@ -25,6 +25,7 @@ import {
   DeleteOutlined,
   MailOutlined,
   WarningFilled,
+  PlusOutlined,
 } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
@@ -563,492 +564,676 @@ const Profile = () => {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <>
-      <Card
-        style={{
-          width: "100%",
-          maxWidth: 600,
-          margin: "50px auto",
-          padding: "20px",
-          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-        }}
-        actions={[
-          isEditing ? (
-            <SaveOutlined key="save" onClick={() => form.submit()} />
-          ) : (
-            !pending && (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  position: "absolute",
-                  bottom: "-20px",
-                  left: "100%",
-                  transform: "translateX(-50%)",
-                }}
-              >
-                <EditOutlined
-                  key="edit"
-                  onClick={handleEdit}
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "45% 45%",
+        gridGap: "10%",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <Card
+          style={{
+            width: "100%",
+            maxWidth: 600,
+            margin: "50px auto",
+            padding: "20px",
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+            height: "fit-content",
+          }}
+          actions={
+            isEditing
+              ? [
+                  <SaveOutlined key="save" onClick={() => form.submit()} />,
+                  <CloseOutlined key="cancel" onClick={handleCancel} />,
+                ]
+              : !pending && [
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <EditOutlined
+                      key="edit"
+                      onClick={handleEdit}
+                      style={{
+                        fontSize: "24px",
+                        cursor: "pointer",
+                      }}
+                    />
+                  </div>,
+                ]
+          }
+        >
+          <SelectCurrency
+            currency={currency}
+            onCurrencyChange={handleCurrencyChange}
+            style={{
+              borderColor: Colors.primary.default,
+              color: Colors.primary.default,
+              left: -240,
+              top: -20,
+            }}
+          />
+          <Space direction="vertical" align="center" style={{ width: "100%" }}>
+            {role === "tourist" && (
+              <Avatar
+                size={120}
+                icon={<UserOutlined />}
+                style={{ backgroundColor: "#87d068" }}
+              />
+            )}
+            {role === "seller" && (
+              <div>
+                <img
+                  src={logo}
+                  alt="Logo"
                   style={{
-                    fontSize: "24px",
-                    cursor: "pointer",
+                    width: "100px",
+                    height: "100px",
+                    borderRadius: "50%",
                   }}
                 />
               </div>
-            )
-          ),
-          isEditing && <CloseOutlined key="cancel" onClick={handleCancel} />,
-        ]}
-      >
-        <SelectCurrency
-          currency={currency}
-          onCurrencyChange={handleCurrencyChange}
-          style={{
-            borderColor: Colors.primary.default,
-            color: Colors.primary.default,
-            left: -240,
-            top: -20,
-          }}
-        />
-        <Space direction="vertical" align="center" style={{ width: "100%" }}>
-          {role === "tourist" && (
-            <Avatar
-              size={120}
-              icon={<UserOutlined />}
-              style={{ backgroundColor: "#87d068" }}
-            />
-          )}
-          {role === "seller" && (
-            <div>
-              <img
-                src={logo}
-                alt="Logo"
-                style={{ width: "100px", height: "100px", borderRadius: "50%" }}
-              />
-            </div>
-          )}
-          {role === "advertiser" && (
-            <div>
-              <img
-                src={logo}
-                alt="Logo"
-                style={{ width: "100px", height: "100px", borderRadius: "50%" }}
-              />
-            </div>
-          )}
-          {role === "guide" && photo && (
-            <div>
-              <img
-                src={photo}
-                alt="Photo"
-                style={{ width: "100px", height: "100px", borderRadius: "50%" }}
-              />
-            </div>
-          )}
-          {isEditing ? (
-            <Form
-              form={form}
-              layout="vertical"
-              initialValues={form.getFieldsValue()}
-              onFinish={handleSave}
-              style={{ width: "100%" }}
-            >
-              {/* Form fields for advertiser */}
-              {role === "advertiser" && (
-                <>
-                  <Form.Item name="email" label="Email">
-                    <Input />
-                  </Form.Item>
-                  <Form.Item name="link" label="Link">
-                    <Input />
-                  </Form.Item>
-                  <Form.Item
-                    name="hotline"
-                    label="Hotline"
-                    rules={[
-                      {
-                        pattern: /^\d+$/,
-                        message: "Enter valid hotline",
-                      },
-                    ]}
-                  >
-                    <Input />
-                  </Form.Item>
-                  <Form.Item>
-                    <Button
-                      name="Change Password"
-                      style={{ width: 150 }}
-                      onClick={() => navigate("/advertiser/change-password")} // Redirect to password change page
-                    >
-                      Change Password
-                    </Button>
-                  </Form.Item>
-                  {/* Company Profile fields */}
-                  <Form.Item
-                    name="companyProfile.name"
-                    label="Company Profile Name"
-                  >
-                    <Input />
-                  </Form.Item>
-                  <Form.Item
-                    name="companyProfile.desc"
-                    label="Company Profile Description"
-                  >
-                    <Input />
-                  </Form.Item>
-                  <Form.Item
-                    name="companyProfile.location"
-                    label="Company Profile Location"
-                  >
-                    <Input />
-                  </Form.Item>
-                </>
-              )}
-
-              {/* Form fields for guide */}
-              {role === "guide" && (
-                <>
-                  <Form.Item name="email" label="Email">
-                    <Input />
-                  </Form.Item>
-                  <Form.Item
-                    name="mobile"
-                    label="Mobile"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please input your mobile number!",
-                      },
-                      { len: 13, message: "Mobile number must be 13 digits!" },
-                      {
-                        pattern: /^\+20\d{10}$/,
-                        message: "Mobile number must start with +20",
-                      },
-                    ]}
-                  >
-                    <Input />
-                  </Form.Item>
-                  <Form.Item
-                    name="yearsOfExperience"
-                    label="Years of Experience"
-                  >
-                    <Input type="number" />
-                  </Form.Item>
-                  <Form.Item name="previousWork" label="Previous Work">
-                    <Input.TextArea />
-                  </Form.Item>
-                  <Form.Item>
-                    <Button
-                      name="Change Password"
-                      style={{ width: 150 }}
-                      onClick={() => navigate("/guide/change-password")} // Redirect to password change page
-                    >
-                      Change Password
-                    </Button>
-                  </Form.Item>
-                </>
-              )}
-
-              {/* Form fields for tourist */}
-              {role === "tourist" && (
-                <>
-                  <Form.Item name="email" label="Email">
-                    <Input />
-                  </Form.Item>
-                  <Form.Item
-                    name="mobile"
-                    label="Mobile"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please input your mobile number!",
-                      },
-                      { len: 13, message: "Mobile number must be 13 digits!" },
-                      {
-                        pattern: /^\+20\d{10}$/,
-                        message: "Mobile number must start with +20",
-                      },
-                    ]}
-                  >
-                    <Input />
-                  </Form.Item>
-                  <Form.Item name="nationality" label="Nationality">
-                    <Input />
-                  </Form.Item>
-                  <Form.Item name="occupation" label="Occupation">
-                    <Input />
-                  </Form.Item>
-                  <div>
-                    <div>
-                      <Form.Item>
-                        <Button
-                          name="Change Password"
-                          style={{ width: 150 }}
-                          onClick={() => navigate("/tourist/change-password")} // Redirect to password change page
-                        >
-                          Change Password
-                        </Button>
-                      </Form.Item>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* Form fields for seller */}
-              {role === "seller" && (
-                <>
-                  <Form.Item name="name" label="Name">
-                    <Input />
-                  </Form.Item>
-                  <Form.Item name="desc" label="Description">
-                    <Input />
-                  </Form.Item>
-                  <Form.Item>
-                    <Button
-                      name="Change Password"
-                      style={{ width: 150 }}
-                      onClick={() => navigate("/seller/change-password")} // Redirect to password change page
-                    >
-                      Change Password
-                    </Button>
-                  </Form.Item>
-                </>
-              )}
-              {/*Form fields for governor */}
-              {role === "governor" && (
-                <>
-                  <Form.Item name="name" label="Name">
-                    <Input />
-                  </Form.Item>
-                  <Form.Item name="desc" label="Description">
-                    <Input />
-                  </Form.Item>
-                  <Form.Item>
-                    <Button
-                      name="Change Password"
-                      style={{ width: 150 }}
-                      onClick={() => navigate("/governor/change-password")} // Redirect to password change page
-                    >
-                      Change Password
-                    </Button>
-                  </Form.Item>
-                </>
-              )}
-              {/*Form fields for admin */}
-              {role === "admin" && (
-                <>
-                  <Form.Item name="name" label="Name">
-                    <Input />
-                  </Form.Item>
-                  <Form.Item name="desc" label="Description">
-                    <Input />
-                  </Form.Item>
-                  <Form.Item>
-                    <Button
-                      name="Change Password"
-                      style={{ width: 150 }}
-                      onClick={() => navigate("/admin/change-password")} // Redirect to password change page
-                    >
-                      Change Password
-                    </Button>
-                  </Form.Item>
-                </>
-              )}
-            </Form>
-          ) : (
-            // Display profile details (non-edit view)
-            userDetails && (
+            )}
+            {role === "advertiser" && (
               <div>
-                {role === "guide" && (
-                  <>
-                    <a href="image">
-                      <EditOutlined />
-                    </a>
-                    <Title level={2}>{userDetails.username}</Title>
-                    <div>
-                      <strong>Email: </strong>
-                      <span>{userDetails.email}</span>
-                    </div>
-                    {userDetails.mobile && (
-                      <div>
-                        <strong>Mobile: </strong>
-                        <span>{userDetails.mobile}</span>
-                      </div>
-                    )}
-                    {userDetails.yearsOfExperience && (
-                      <div>
-                        <strong>Years of Experience: </strong>
-                        <span>{userDetails.yearsOfExperience}</span>
-                      </div>
-                    )}
-                    {Array.isArray(userDetails.previousWork) &&
-                      userDetails.previousWork.length > 0 && (
-                        <div>
-                          <strong>Previous Work: </strong>
-                          <span>{userDetails.previousWork.join(", ")}</span>
-                        </div>
-                      )}
-                  </>
-                )}
+                <img
+                  src={logo}
+                  alt="Logo"
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    borderRadius: "50%",
+                  }}
+                />
+              </div>
+            )}
+            {role === "guide" && photo && (
+              <div>
+                <img
+                  src={photo}
+                  alt="Photo"
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    borderRadius: "50%",
+                  }}
+                />
+              </div>
+            )}
+            {isEditing ? (
+              <Form
+                form={form}
+                layout="vertical"
+                initialValues={form.getFieldsValue()}
+                onFinish={handleSave}
+                style={{ width: "100%" }}
+              >
+                {/* Form fields for advertiser */}
                 {role === "advertiser" && (
                   <>
-                    <a href="image">
-                      <EditOutlined />
-                    </a>
-                    <Title level={2}>{userDetails.username}</Title>
-                    <div>
-                      <strong>Email: </strong>
-                      <span>{userDetails.email}</span>
-                    </div>
-                    <div>
-                      <strong>Link: </strong>
-                      <span>{userDetails.link}</span>
-                    </div>
-                    <div>
-                      <strong>Hotline: </strong>
-                      <span>{userDetails.hotline}</span>
-                    </div>
+                    <Form.Item name="email" label="Email">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item name="link" label="Link">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item
+                      name="hotline"
+                      label="Hotline"
+                      rules={[
+                        {
+                          pattern: /^\d+$/,
+                          message: "Enter valid hotline",
+                        },
+                      ]}
+                    >
+                      <Input />
+                    </Form.Item>
+                    <Form.Item>
+                      <Button
+                        name="Change Password"
+                        style={{ width: 150 }}
+                        onClick={() => navigate("/advertiser/change-password")} // Redirect to password change page
+                      >
+                        Change Password
+                      </Button>
+                    </Form.Item>
+                    {/* Company Profile fields */}
+                    <Form.Item
+                      name="companyProfile.name"
+                      label="Company Profile Name"
+                    >
+                      <Input />
+                    </Form.Item>
+                    <Form.Item
+                      name="companyProfile.desc"
+                      label="Company Profile Description"
+                    >
+                      <Input />
+                    </Form.Item>
+                    <Form.Item
+                      name="companyProfile.location"
+                      label="Company Profile Location"
+                    >
+                      <Input />
+                    </Form.Item>
                   </>
                 )}
+
+                {/* Form fields for guide */}
+                {role === "guide" && (
+                  <>
+                    <Form.Item name="email" label="Email">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item
+                      name="mobile"
+                      label="Mobile"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please input your mobile number!",
+                        },
+                        {
+                          len: 13,
+                          message: "Mobile number must be 13 digits!",
+                        },
+                        {
+                          pattern: /^\+20\d{10}$/,
+                          message: "Mobile number must start with +20",
+                        },
+                      ]}
+                    >
+                      <Input />
+                    </Form.Item>
+                    <Form.Item
+                      name="yearsOfExperience"
+                      label="Years of Experience"
+                    >
+                      <Input type="number" />
+                    </Form.Item>
+                    <Form.Item name="previousWork" label="Previous Work">
+                      <Input.TextArea />
+                    </Form.Item>
+                    <Form.Item>
+                      <Button
+                        name="Change Password"
+                        style={{ width: 150 }}
+                        onClick={() => navigate("/guide/change-password")} // Redirect to password change page
+                      >
+                        Change Password
+                      </Button>
+                    </Form.Item>
+                  </>
+                )}
+
+                {/* Form fields for tourist */}
                 {role === "tourist" && (
                   <>
-                    {/* Preferences Menu */}
-                    <Dropdown
-                      overlay={preferencesMenu}
-                      onOpenChange={handleOpenChange}
-                      trigger={["click"]}
-                      open={dropdownOpen}
-                      //onOpenChange={(open) => setDropdownOpen(open)}
+                    <Form.Item name="email" label="Email">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item
+                      name="mobile"
+                      label="Mobile"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Please input your mobile number!",
+                        },
+                        {
+                          len: 13,
+                          message: "Mobile number must be 13 digits!",
+                        },
+                        {
+                          pattern: /^\+20\d{10}$/,
+                          message: "Mobile number must start with +20",
+                        },
+                      ]}
                     >
-                      <Button
-                        style={{
-                          position: "absolute",
-                          top: 20,
-                          right: 20,
-                          border: "none",
-                          background: "none",
-                          color: "#5b8b77",
-                          fontSize: "16px",
-                        }}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setDropdownOpen(!dropdownOpen);
-                        }}
-                      >
-                        View and Edit Preferences
-                      </Button>
-                    </Dropdown>
-                    {userDetails && userDetails.badge && (
-                      <div style={{ marginTop: "10px" }}>
-                        {userDetails.badge === 1 && (
-                          <img
-                            src="http://localhost:3000/1.jpg"
-                            alt="Bronze Badge"
-                            style={{ width: "50px", height: "50px" }}
-                          />
-                        )}
-                        {userDetails.badge === 2 && (
-                          <img
-                            src="http://localhost:3000/2.jpg"
-                            alt="Silver Badge"
-                            style={{ width: "50px", height: "50px" }}
-                          />
-                        )}
-                        {userDetails.badge === 3 && (
-                          <img
-                            src="http://localhost:3000/3.jpg"
-                            alt="Gold Badge"
-                            style={{ width: "50px", height: "50px" }}
-                          />
-                        )}
-                      </div>
-                    )}
-                    <Title level={2}>{userDetails.username}</Title>
+                      <Input />
+                    </Form.Item>
+                    <Form.Item name="nationality" label="Nationality">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item name="occupation" label="Occupation">
+                      <Input />
+                    </Form.Item>
                     <div>
-                      <strong>Email: </strong>
-                      <span>{userDetails.email}</span>
+                      <div>
+                        <Form.Item>
+                          <Button
+                            name="Change Password"
+                            style={{ width: 150 }}
+                            onClick={() => navigate("/tourist/change-password")} // Redirect to password change page
+                          >
+                            Change Password
+                          </Button>
+                        </Form.Item>
+                      </div>
                     </div>
-                    {userDetails.mobile && (
-                      <div>
-                        <strong>Mobile: </strong>
-                        <span>{userDetails.mobile}</span>
-                      </div>
-                    )}
-                    {userDetails.nationality && (
-                      <div>
-                        <strong>Nationality: </strong>
-                        <span>
-                          {userDetails.nationality.charAt(0).toUpperCase() +
-                            userDetails.nationality.slice(1)}
-                        </span>
-                      </div>
-                    )}
-                    {userDetails.dob && (
-                      <div>
-                        <strong>Date of Birth: </strong>
-                        <span>{formatDate(userDetails.dob)}</span>
-                      </div>
-                    )}
-                    {userDetails.occupation && (
-                      <div>
-                        <strong>Occupation: </strong>
-                        <span>{userDetails.occupation}</span>
-                      </div>
-                    )}
-                    {userDetails.joined && (
-                      <div>
-                        <strong>Joined: </strong>
-                        <span>{formatDate(userDetails.joined)}</span>
-                      </div>
-                    )}
-                    {userDetails.wallet !== undefined && (
-                      <div>
-                        <strong>Wallet: </strong>
-                        <span>
-                          {walletConverted} {currency}
-                        </span>
-                      </div>
-                    )}
-                    {userDetails.totalPoints !== undefined && (
-                      <div>
-                        <strong>Points: </strong>
-                        <span>{userDetails.points || 0}</span>
-                      </div>
-                    )}
                   </>
                 )}
+
+                {/* Form fields for seller */}
                 {role === "seller" && (
                   <>
-                    <a href="image">
-                      <EditOutlined />
-                    </a>
-                    <Title level={2}>{userDetails.username}</Title>
-                    <div>
-                      <strong>Email: </strong>
-                      <span>{userDetails.email}</span>
-                    </div>
-                    {userDetails.name && (
-                      <div>
-                        <strong>Name: </strong>
-                        <span>{userDetails.name}</span>
-                      </div>
-                    )}
-                    {userDetails.desc && (
-                      <div>
-                        <strong>Description: </strong>
-                        <span>{userDetails.desc}</span>
-                      </div>
-                    )}
+                    <Form.Item name="name" label="Name">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item name="desc" label="Description">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item>
+                      <Button
+                        name="Change Password"
+                        style={{ width: 150 }}
+                        onClick={() => navigate("/seller/change-password")} // Redirect to password change page
+                      >
+                        Change Password
+                      </Button>
+                    </Form.Item>
                   </>
                 )}
-              </div>
-            )
-          )}
-        </Space>
-      </Card>
-      {role === "tourist" && (
+                {/*Form fields for governor */}
+                {role === "governor" && (
+                  <>
+                    <Form.Item name="name" label="Name">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item name="desc" label="Description">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item>
+                      <Button
+                        name="Change Password"
+                        style={{ width: 150 }}
+                        onClick={() => navigate("/governor/change-password")} // Redirect to password change page
+                      >
+                        Change Password
+                      </Button>
+                    </Form.Item>
+                  </>
+                )}
+                {/*Form fields for admin */}
+                {role === "admin" && (
+                  <>
+                    <Form.Item name="name" label="Name">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item name="desc" label="Description">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item>
+                      <Button
+                        name="Change Password"
+                        style={{ width: 150 }}
+                        onClick={() => navigate("/admin/change-password")} // Redirect to password change page
+                      >
+                        Change Password
+                      </Button>
+                    </Form.Item>
+                  </>
+                )}
+              </Form>
+            ) : (
+              // Display profile details (non-edit view)
+              userDetails && (
+                <div>
+                  {role === "guide" && (
+                    <>
+                      <a href="image">
+                        <EditOutlined />
+                      </a>
+                      <Title level={2}>{userDetails.username}</Title>
+                      <div>
+                        <strong>Email: </strong>
+                        <span>{userDetails.email}</span>
+                      </div>
+                      {userDetails.mobile && (
+                        <div>
+                          <strong>Mobile: </strong>
+                          <span>{userDetails.mobile}</span>
+                        </div>
+                      )}
+                      {userDetails.yearsOfExperience && (
+                        <div>
+                          <strong>Years of Experience: </strong>
+                          <span>{userDetails.yearsOfExperience}</span>
+                        </div>
+                      )}
+                      {Array.isArray(userDetails.previousWork) &&
+                        userDetails.previousWork.length > 0 && (
+                          <div>
+                            <strong>Previous Work: </strong>
+                            <span>{userDetails.previousWork.join(", ")}</span>
+                          </div>
+                        )}
+                    </>
+                  )}
+                  {role === "advertiser" && (
+                    <>
+                      <a href="image">
+                        <EditOutlined />
+                      </a>
+                      <Title level={2}>{userDetails.username}</Title>
+                      <div>
+                        <strong>Email: </strong>
+                        <span>{userDetails.email}</span>
+                      </div>
+                      <div>
+                        <strong>Link: </strong>
+                        <span>{userDetails.link}</span>
+                      </div>
+                      <div>
+                        <strong>Hotline: </strong>
+                        <span>{userDetails.hotline}</span>
+                      </div>
+                    </>
+                  )}
+                  {role === "tourist" && (
+                    <>
+                      {/* Preferences Menu */}
+                      <Dropdown
+                        overlay={preferencesMenu}
+                        onOpenChange={handleOpenChange}
+                        trigger={["click"]}
+                        open={dropdownOpen}
+                        //onOpenChange={(open) => setDropdownOpen(open)}
+                      >
+                        <Button
+                          style={{
+                            position: "absolute",
+                            top: 20,
+                            right: 20,
+                            border: "none",
+                            background: "none",
+                            color: "#5b8b77",
+                            fontSize: "16px",
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setDropdownOpen(!dropdownOpen);
+                          }}
+                        >
+                          View and Edit Preferences
+                        </Button>
+                      </Dropdown>
+                      {userDetails && userDetails.badge && (
+                        <div style={{ marginTop: "10px" }}>
+                          {userDetails.badge === 1 && (
+                            <img
+                              src="http://localhost:3000/1.jpg"
+                              alt="Bronze Badge"
+                              style={{ width: "50px", height: "50px" }}
+                            />
+                          )}
+                          {userDetails.badge === 2 && (
+                            <img
+                              src="http://localhost:3000/2.jpg"
+                              alt="Silver Badge"
+                              style={{ width: "50px", height: "50px" }}
+                            />
+                          )}
+                          {userDetails.badge === 3 && (
+                            <img
+                              src="http://localhost:3000/3.jpg"
+                              alt="Gold Badge"
+                              style={{ width: "50px", height: "50px" }}
+                            />
+                          )}
+                        </div>
+                      )}
+                      <Title level={2}>{userDetails.username}</Title>
+                      <div>
+                        <strong>Email: </strong>
+                        <span>{userDetails.email}</span>
+                      </div>
+                      {userDetails.mobile && (
+                        <div>
+                          <strong>Mobile: </strong>
+                          <span>{userDetails.mobile}</span>
+                        </div>
+                      )}
+                      {userDetails.nationality && (
+                        <div>
+                          <strong>Nationality: </strong>
+                          <span>
+                            {userDetails.nationality.charAt(0).toUpperCase() +
+                              userDetails.nationality.slice(1)}
+                          </span>
+                        </div>
+                      )}
+                      {userDetails.dob && (
+                        <div>
+                          <strong>Date of Birth: </strong>
+                          <span>{formatDate(userDetails.dob)}</span>
+                        </div>
+                      )}
+                      {userDetails.occupation && (
+                        <div>
+                          <strong>Occupation: </strong>
+                          <span>{userDetails.occupation}</span>
+                        </div>
+                      )}
+                      {userDetails.joined && (
+                        <div>
+                          <strong>Joined: </strong>
+                          <span>{formatDate(userDetails.joined)}</span>
+                        </div>
+                      )}
+                      {userDetails.wallet !== undefined && (
+                        <div>
+                          <strong>Wallet: </strong>
+                          <span>
+                            {walletConverted} {currency}
+                          </span>
+                        </div>
+                      )}
+                      {userDetails.totalPoints !== undefined && (
+                        <div>
+                          <strong>Points: </strong>
+                          <span>{userDetails.points || 0}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {role === "seller" && (
+                    <>
+                      <a href="image">
+                        <EditOutlined />
+                      </a>
+                      <Title level={2}>{userDetails.username}</Title>
+                      <div>
+                        <strong>Email: </strong>
+                        <span>{userDetails.email}</span>
+                      </div>
+                      {userDetails.name && (
+                        <div>
+                          <strong>Name: </strong>
+                          <span>{userDetails.name}</span>
+                        </div>
+                      )}
+                      {userDetails.desc && (
+                        <div>
+                          <strong>Description: </strong>
+                          <span>{userDetails.desc}</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )
+            )}
+          </Space>
+        </Card>
+      </div>
+      <div>
+        {role === "tourist" && (
+          <Card
+            style={{
+              width: "100%",
+              maxWidth: 600,
+              margin: "50px auto",
+              padding: "20px",
+              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Space
+                direction="vertical"
+                align="center"
+                style={{ width: "100%" }}
+              ></Space>
+              <h3 style={{ textAlign: "center", flex: 1, margin: 0 }}>
+                Delivery Addresses
+              </h3>
+              <Button
+                style={{
+                  backgroundColor: Colors.primary.default,
+                  border: "none",
+                  position: "absolute",
+                  right: "25px",
+                }}
+                icon={<PlusOutlined style={{ color: "white" }} />}
+                rounded={true}
+                onClick={showModal}
+              />
+            </div>
+            <hr />
+            {addresses !== undefined &&
+              userDetails?.deliveryAddresses?.length > 0 && (
+                <Row gutter={[16, 16]}>
+                  {userDetails.deliveryAddresses.map((address, index) => {
+                    return (
+                      <Col xs={84} sm={12} md={8} key={index}>
+                        <Card
+                          title={`${address.city}, ${address.country}`}
+                          bordered={true}
+                          hoverable
+                        >
+                          <p>
+                            <strong>Area:</strong> {address.area}
+                          </p>
+                          <p>
+                            <strong>Street:</strong> {address.street}
+                          </p>
+                          <p>
+                            <strong>House:</strong> {address.house}
+                          </p>
+                          <p>
+                            <strong>Apartment:</strong> {address.app}
+                          </p>
+                          <p>
+                            <strong>Description:</strong> {address.desc}
+                          </p>
+                        </Card>
+                      </Col>
+                    );
+                  })}
+                </Row>
+              )}
+            {isModalVisible && (
+              <Modal
+                title="Add Delivery Address"
+                visible={isModalVisible}
+                onCancel={handleCancelDelivery}
+                style={{ backgroundColor: "#1b696a" }}
+                footer={null}
+              >
+                <Form form={form} layout="vertical" onFinish={handleAddAddress}>
+                  <Form.Item
+                    label="Country"
+                    name="country"
+                    rules={[
+                      { required: true, message: "Please input the country!" },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    label="City"
+                    name="city"
+                    rules={[
+                      { required: true, message: "Please input the city!" },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    label="Area"
+                    name="area"
+                    rules={[
+                      { required: true, message: "Please input the area!" },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    label="Street"
+                    name="street"
+                    rules={[
+                      { required: true, message: "Please input the street!" },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    label="House Number"
+                    name="house"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input the house number!",
+                      },
+                    ]}
+                  >
+                    <InputNumber min={1} style={{ width: "100%" }} />
+                  </Form.Item>
+                  <Form.Item
+                    label="Apartment Number"
+                    name="app"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input the apartment number!",
+                      },
+                    ]}
+                  >
+                    <InputNumber min={1} style={{ width: "100%" }} />
+                  </Form.Item>
+                  <Form.Item
+                    label="Description"
+                    name="desc"
+                    rules={[{ required: false }]}
+                  >
+                    <Input.TextArea rows={3} />
+                  </Form.Item>
+                  <Form.Item>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      style={{ backgroundColor: Colors.primary.default }}
+                      block
+                    >
+                      Add Address
+                    </Button>
+                  </Form.Item>
+                </Form>
+              </Modal>
+            )}
+          </Card>
+        )}
         <Card
           style={{
             width: "100%",
@@ -1058,186 +1243,33 @@ const Profile = () => {
             boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Space
-              direction="vertical"
-              align="center"
-              style={{ width: "100%" }}
-            ></Space>
-            <h3 style={{ textAlign: "center", flex: 1, margin: 0 }}>
-              Delivery Addresses
-            </h3>
-            <Button
-              type="primary"
-              icon="+"
-              onClick={showModal}
-              style={{ marginBottom: 0 }}
-            >
-              Add Address
-            </Button>
-          </div>
-          <hr />
-          {addresses !== undefined && (
-            <Row gutter={[16, 16]}>
-              {userDetails.deliveryAddresses.map((address, index) => (
-                <Col xs={84} sm={12} md={8} key={index}>
-                  <Card
-                    title={`${address.city}, ${address.country}`}
-                    bordered={true}
-                    hoverable
-                  >
-                    <p>
-                      <strong>Area:</strong> {address.area}
-                    </p>
-                    <p>
-                      <strong>Street:</strong> {address.street}
-                    </p>
-                    <p>
-                      <strong>House:</strong> {address.house}
-                    </p>
-                    <p>
-                      <strong>Apartment:</strong> {address.app}
-                    </p>
-                    <p>
-                      <strong>Description:</strong> {address.desc}
-                    </p>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          )}
-          {isModalVisible && (
-            <Modal
-              title="Add Delivery Address"
-              visible={isModalVisible}
-              onCancel={handleCancelDelivery}
-              style={{ backgroundColor: "#1b696a" }}
-              footer={null}
-            >
-              <Form form={form} layout="vertical" onFinish={handleAddAddress}>
-                <Form.Item
-                  label="Country"
-                  name="country"
-                  rules={[
-                    { required: true, message: "Please input the country!" },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  label="City"
-                  name="city"
-                  rules={[
-                    { required: true, message: "Please input the city!" },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  label="Area"
-                  name="area"
-                  rules={[
-                    { required: true, message: "Please input the area!" },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  label="Street"
-                  name="street"
-                  rules={[
-                    { required: true, message: "Please input the street!" },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  label="House Number"
-                  name="house"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please input the house number!",
-                    },
-                  ]}
-                >
-                  <InputNumber min={1} style={{ width: "100%" }} />
-                </Form.Item>
-                <Form.Item
-                  label="Apartment Number"
-                  name="app"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please input the apartment number!",
-                    },
-                  ]}
-                >
-                  <InputNumber min={1} style={{ width: "100%" }} />
-                </Form.Item>
-                <Form.Item
-                  label="Description"
-                  name="desc"
-                  rules={[{ required: false }]}
-                >
-                  <Input.TextArea rows={3} />
-                </Form.Item>
-                <Form.Item>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    style={{ backgroundColor: Colors.primary.default }}
-                    block
-                  >
-                    Add Address
-                  </Button>
-                </Form.Item>
-              </Form>
-            </Modal>
+          <h2>Redeem Points</h2>
+          <p>Your current points: {points}</p>
+          <p>Your wallet balance: USD {wallet.toFixed(2)}</p>
+          {points < 10000 ? (
+            <Tooltip title="You must have at least 10000 points to redeem">
+              <span>
+                <CustomButton
+                  size="m"
+                  value="Redeem Points"
+                  onClick={redeemPoints}
+                  disabled
+                  loading={loading}
+                />
+              </span>
+            </Tooltip>
+          ) : (
+            <CustomButton
+              size="m"
+              value="Redeem Points"
+              onClick={redeemPoints}
+              disabled={false}
+              loading={loading}
+            />
           )}
         </Card>
-      )}
-      <Card
-        style={{
-          width: "100%",
-          maxWidth: 600,
-          margin: "50px auto",
-          padding: "20px",
-          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-        }}
-      >
-        <h2>Redeem Points</h2>
-        <p>Your current points: {points}</p>
-        <p>Your wallet balance: USD {wallet.toFixed(2)}</p>
-        {points < 10000 ? (
-          <Tooltip title="You must have at least 10000 points to redeem">
-            <span>
-              <CustomButton
-                size="m"
-                value="Redeem Points"
-                onClick={redeemPoints}
-                disabled
-                loading={loading}
-              />
-            </span>
-          </Tooltip>
-        ) : (
-          <CustomButton
-            size="m"
-            value="Redeem Points"
-            onClick={redeemPoints}
-            disabled={false}
-            loading={loading}
-          />
-        )}
-      </Card>
-    </>
+      </div>
+    </div>
   );
 };
 
