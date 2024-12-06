@@ -10,7 +10,6 @@ import CustomButton from "../Common/CustomButton";
 import { apiUrl } from "../Common/Constants";
 import { jwtDecode } from "jwt-decode";
 import LoadingSpinner from "../Common/LoadingSpinner";
-// import { Route, Routes, useNavigate } from "react-router-dom";
 
 const SignIn = () => {
   const [response, setResponse] = useState(null);
@@ -167,113 +166,108 @@ const SignIn = () => {
   };
 
   return (
-    <>
-      <Box
-        display="flex"
-        justifyContent="flex-start" // Align the items to the left
-        alignItems="center"
-        height="100vh"
+    <div
+      style={{
+        width: "100vw",
+        display: "grid",
+        gridTemplateColumns: "60% 40%",
+        height: "91vh  ",
+      }}
+    >
+      <div
         style={{
-          backgroundImage: `url(${image})`, // Set the background image
-          backgroundSize: "cover", // Cover the entire screen
-          backgroundPosition: "center", // Center the background image
-          paddingLeft: "20px", // Add some padding on the left for spacing
+          width: "100%",
+          height: "100%",
+          backgroundImage: `url(${image})`,
+          backgroundSize: "170% 100%",
+          backgroundPositionX: "0px",
+        }}
+      ></div>
+      <Card
+        title={
+          <h2 style={{ fontWeight: "bold", textAlign: "center" }}>Sign In</h2>
+        }
+        //bordered={false}
+        style={{
+          width: "100%",
+          height: "100%",
+          padding: "20px", // Padding inside the box
+          backgroundColor: "rgba(255, 255, 255, 0.75)", // Slight transparency
+          textAlign: "left",
+          borderRadius: "0px",
+
+          alignContent: "center",
         }}
       >
-        <Card
-          title={<strong>User Login</strong>}
-          //bordered={false}
-          style={{
-            width: 580,
-            height: 700,
-            padding: "20px", // Padding inside the box
-            backgroundColor: "rgba(255, 255, 255, 0.75)", // Slight transparency
-            textAlign: "left",
-            marginLeft: "919px",
-            marginTop: "-10px",
-            marginBottom: "27px",
-            borderColor: Colors.primary.default,
-            //top: 20.5,
-            borderRadius: 0,
-            alignContent: "center",
-          }}
+        <Form
+          form={form}
+          name="basic"
+          layout="vertical" // Ensures the form fields stack vertically
+          initialValues={{ remember: true }}
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+          autoComplete="off"
+          onKeyDown={handleKeyDown} // Add the onKeyDown event listener here
+          style={{ padding: "30px" }}
         >
-          <Form
-            form={form}
-            name="basic"
-            layout="vertical" // Ensures the form fields stack vertically
-            initialValues={{ remember: true }}
-            onFinish={onFinish}
-            onFinishFailed={onFinishFailed}
-            autoComplete="off"
-            onKeyDown={handleKeyDown} // Add the onKeyDown event listener here
+          <Form.Item
+            style={{ top: 90 }}
+            name="username"
+            rules={[{ required: true, message: "Please input your username!" }]}
           >
-            <Form.Item
-              style={{ top: 90 }}
-              name="username"
-              rules={[
-                { required: true, message: "Please input your username!" },
-              ]}
-            >
-              <Input placeholder="Username" />
-            </Form.Item>
+            <Input placeholder="Username" />
+          </Form.Item>
 
-            <Form.Item
-              name="password"
-              rules={[
-                { required: true, message: "Please input your password!" },
-              ]}
-            >
-              <Input.Password placeholder="Password" />
-            </Form.Item>
+          <Form.Item
+            name="password"
+            rules={[{ required: true, message: "Please input your password!" }]}
+          >
+            <Input.Password placeholder="Password" />
+          </Form.Item>
 
-            {!forgotPasswordLoading ? (
-              <Form.Item>
-                <Typography.Link
-                  href="/forgot-password"
-                  onClick={info}
-                  style={{
-                    color: Colors.primary.default,
-                    margin: "0 0 20px 5px",
-                    textDecoration: "underline",
-                  }}
-                >
-                  Forgot password?
-                </Typography.Link>
-              </Form.Item>
-            ) : (
-              <LoadingSpinner
-                containerStyle={{
-                  marginTop: "0px",
-                  justifyContent: "center",
-                  marginBottom: "16px",
+          {!forgotPasswordLoading ? (
+            <Form.Item>
+              <Typography.Link
+                href="/forgot-password"
+                onClick={info}
+                style={{
+                  color: Colors.primary.default,
+                  margin: "0 0 20px 5px",
+                  textDecoration: "underline",
                 }}
-                spinStyle={{ fontSize: "25px" }}
+              >
+                Forgot password?
+              </Typography.Link>
+            </Form.Item>
+          ) : (
+            <LoadingSpinner
+              containerStyle={{
+                marginTop: "0px",
+                justifyContent: "center",
+                marginBottom: "16px",
+              }}
+              spinStyle={{ fontSize: "25px" }}
+            />
+          )}
+          <Form.Item style={{ textAlign: "center" }} shouldUpdate>
+            {() => (
+              <CustomButton
+                size="s"
+                value={"Sign in"}
+                style={{ width: "80%", margin: "auto 0" }}
+                onClick={() => signIn()}
+                disabled={
+                  !clientReady ||
+                  !form.isFieldsTouched(true) ||
+                  !!form.getFieldsError().filter(({ errors }) => errors.length)
+                    .length
+                }
               />
             )}
-            <Form.Item shouldUpdate>
-              {() => (
-                <CustomButton
-                  size="s"
-                  value={"Log in"}
-                  style={{ left: 60, width: 370 }}
-                  onClick={() => signIn()}
-                  disabled={
-                    !clientReady ||
-                    !form.isFieldsTouched(true) ||
-                    !!form
-                      .getFieldsError()
-                      .filter(({ errors }) => errors.length).length
-                  }
-                />
-              )}
-            </Form.Item>
-            <Form.Item style={{ textAlign: "center" }}>
-              <Typography.Text
-                style={{ marginBottom: "9px", display: "block" }}
-              >
-                Don't have an account?
-              </Typography.Text>
+          </Form.Item>
+          <Form.Item style={{ textAlign: "center" }}>
+            <Typography.Text style={{ marginBottom: "9px", display: "block" }}>
+              Don't have an account?{" "}
               <Typography.Link
                 onClick={handleSignUpClick}
                 style={{
@@ -282,25 +276,26 @@ const SignIn = () => {
                   textDecoration: "underline",
                 }}
               >
-                SignUp
+                Sign Up
               </Typography.Link>
-              <Typography.Link
-                onClick={handleGuestClick}
-                style={{
-                  color: Colors.primary.default,
-                  //margin: "0 0 20px 5px",
-                  textDecoration: "underline",
-                  marginBottom: "9px",
-                  display: "block",
-                }}
-              >
-                Continue as Guest
-              </Typography.Link>
-            </Form.Item>
-          </Form>
-        </Card>
-      </Box>
-    </>
+            </Typography.Text>
+
+            <Typography.Link
+              onClick={handleGuestClick}
+              style={{
+                color: Colors.primary.default,
+                //margin: "0 0 20px 5px",
+                textDecoration: "underline",
+                marginBottom: "9px",
+                display: "block",
+              }}
+            >
+              Continue as Guest
+            </Typography.Link>
+          </Form.Item>
+        </Form>
+      </Card>
+    </div>
   );
 };
 
