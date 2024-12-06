@@ -5,3 +5,20 @@
 .myCard .ant-card-body {
   padding: 0 !important;
 }
+
+
+.myCard {
+  border-radius: 8px;
+}
+
+.myCard.success {
+  border: 2px solid green;
+}
+
+.myCard.warning {
+  border: 2px solid orange;
+}
+
+.myCard.error {
+  border: 2px solid red;
+}

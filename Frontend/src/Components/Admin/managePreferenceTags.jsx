@@ -155,31 +155,40 @@ const ManagePreferenceTags = () => {
       </div>
 
       <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", // Dynamic grid for smaller cards
+    gridGap: "16px", // Reduced gap for tighter layout
+  }}
+>
+  {categories.map((tag) => (
+    <Card
+      key={tag._id}
+      title={tag.tag}
+      style={{
+        width: "200px", // Reduced card width
+        textAlign: "center",
+        margin: "auto", // Center cards within grid cells
+      }}
+    >
+      <Button
+        type="text"
+        icon={<EditOutlined />}
+        onClick={() => showUpdateModal(tag)}
+      />
+      <Button
+        type="text"
+        icon={<DeleteOutlined />}
+        onClick={() => handleDelete(tag._id)}
         style={{
-          display: "grid",
-          gridTemplateColumns: "22% 22% 22% 22%",
-          gridGap: "4%",
+          marginLeft: "8px",
+          color: "red",
         }}
-      >
-        {categories.map((tag) => (
-          <Card key={tag._id} title={tag.tag} style={{ width: 300 }}>
-            <Button
-              type="text"
-              icon={<EditOutlined />}
-              onClick={() => showUpdateModal(tag)}
-            />
-            <Button
-              type="text"
-              icon={<DeleteOutlined />}
-              onClick={() => handleDelete(tag._id)}
-              style={{
-                marginLeft: "8px",
-                color: "red",
-              }}
-            />
-          </Card>
-        ))}
-      </div>
+      />
+    </Card>
+  ))}
+</div>
+
 
       <Modal
         title="Update Preference Tag"
