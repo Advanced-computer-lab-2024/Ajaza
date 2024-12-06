@@ -5,6 +5,7 @@ import axios from "axios";
 import { Button, Form, Typography, message, Card } from "antd";
 import { Box } from "@mui/material";
 import image from "../../Assets/signinfinal.png";
+import plainImage from "../../Assets/Register.png";
 import { Colors } from "../Common/Constants";
 import CustomButton from "../Common/CustomButton";
 import { apiUrl } from "../Common/Constants";
@@ -183,118 +184,135 @@ const SignIn = () => {
           backgroundPositionX: "0px",
         }}
       ></div>
-      <Card
-        title={
-          <h2 style={{ fontWeight: "bold", textAlign: "center" }}>Sign In</h2>
-        }
-        //bordered={false}
+      <div
         style={{
           width: "100%",
           height: "100%",
-          padding: "20px", // Padding inside the box
-          backgroundColor: "rgba(255, 255, 255, 0.75)", // Slight transparency
-          textAlign: "left",
-          borderRadius: "0px",
-
-          alignContent: "center",
+          backgroundImage: `url(${plainImage})`,
+          backgroundSize: "170% 100%",
+          backgroundPositionX: "0px",
         }}
       >
-        <Form
-          form={form}
-          name="basic"
-          layout="vertical" // Ensures the form fields stack vertically
-          initialValues={{ remember: true }}
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-          autoComplete="off"
-          onKeyDown={handleKeyDown} // Add the onKeyDown event listener here
-          style={{ padding: "30px" }}
+        <Card
+          title={
+            <h2 style={{ fontWeight: "bold", textAlign: "center" }}>Sign In</h2>
+          }
+          //bordered={false}
+          style={{
+            width: "100%",
+            height: "100%",
+            padding: "20px", // Padding inside the box
+            backgroundColor: "rgba(255, 255, 255, 0.85)", // Slight transparency
+            textAlign: "left",
+            borderRadius: "0px",
+
+            alignContent: "center",
+          }}
         >
-          <Form.Item
-            style={{ top: 90 }}
-            name="username"
-            rules={[{ required: true, message: "Please input your username!" }]}
+          <Form
+            form={form}
+            name="basic"
+            layout="vertical" // Ensures the form fields stack vertically
+            initialValues={{ remember: true }}
+            onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
+            autoComplete="off"
+            onKeyDown={handleKeyDown} // Add the onKeyDown event listener here
+            style={{ padding: "30px" }}
           >
-            <Input placeholder="Username" />
-          </Form.Item>
-
-          <Form.Item
-            name="password"
-            rules={[{ required: true, message: "Please input your password!" }]}
-          >
-            <Input.Password placeholder="Password" />
-          </Form.Item>
-
-          {!forgotPasswordLoading ? (
-            <Form.Item>
-              <Typography.Link
-                href="/forgot-password"
-                onClick={info}
-                style={{
-                  color: Colors.primary.default,
-                  margin: "0 0 20px 5px",
-                  textDecoration: "underline",
-                }}
-              >
-                Forgot password?
-              </Typography.Link>
+            <Form.Item
+              style={{ top: 90 }}
+              name="username"
+              rules={[
+                { required: true, message: "Please input your username!" },
+              ]}
+            >
+              <Input placeholder="Username" />
             </Form.Item>
-          ) : (
-            <LoadingSpinner
-              containerStyle={{
-                marginTop: "0px",
-                justifyContent: "center",
-                marginBottom: "16px",
-              }}
-              spinStyle={{ fontSize: "25px" }}
-            />
-          )}
-          <Form.Item style={{ textAlign: "center" }} shouldUpdate>
-            {() => (
-              <CustomButton
-                size="s"
-                value={"Sign in"}
-                style={{ width: "80%", margin: "auto 0" }}
-                onClick={() => signIn()}
-                disabled={
-                  !clientReady ||
-                  !form.isFieldsTouched(true) ||
-                  !!form.getFieldsError().filter(({ errors }) => errors.length)
-                    .length
-                }
+
+            <Form.Item
+              name="password"
+              rules={[
+                { required: true, message: "Please input your password!" },
+              ]}
+            >
+              <Input.Password placeholder="Password" />
+            </Form.Item>
+
+            {!forgotPasswordLoading ? (
+              <Form.Item>
+                <Typography.Link
+                  href="/forgot-password"
+                  onClick={info}
+                  style={{
+                    color: Colors.primary.default,
+                    margin: "0 0 20px 5px",
+                    textDecoration: "underline",
+                  }}
+                >
+                  Forgot password?
+                </Typography.Link>
+              </Form.Item>
+            ) : (
+              <LoadingSpinner
+                containerStyle={{
+                  marginTop: "0px",
+                  justifyContent: "center",
+                  marginBottom: "16px",
+                }}
+                spinStyle={{ fontSize: "25px" }}
               />
             )}
-          </Form.Item>
-          <Form.Item style={{ textAlign: "center" }}>
-            <Typography.Text style={{ marginBottom: "9px", display: "block" }}>
-              Don't have an account?{" "}
+            <Form.Item style={{ textAlign: "center" }} shouldUpdate>
+              {() => (
+                <CustomButton
+                  size="s"
+                  value={"Sign in"}
+                  style={{ width: "80%", margin: "auto 0" }}
+                  onClick={() => signIn()}
+                  disabled={
+                    !clientReady ||
+                    !form.isFieldsTouched(true) ||
+                    !!form
+                      .getFieldsError()
+                      .filter(({ errors }) => errors.length).length
+                  }
+                />
+              )}
+            </Form.Item>
+            <Form.Item style={{ textAlign: "center" }}>
+              <Typography.Text
+                style={{ marginBottom: "9px", display: "block" }}
+              >
+                Don't have an account?{" "}
+                <Typography.Link
+                  onClick={handleSignUpClick}
+                  style={{
+                    color: Colors.primary.default,
+                    //margin: "0 0 20px 5px",
+                    textDecoration: "underline",
+                  }}
+                >
+                  Sign Up
+                </Typography.Link>
+              </Typography.Text>
+
               <Typography.Link
-                onClick={handleSignUpClick}
+                onClick={handleGuestClick}
                 style={{
                   color: Colors.primary.default,
                   //margin: "0 0 20px 5px",
                   textDecoration: "underline",
+                  marginBottom: "9px",
+                  display: "block",
                 }}
               >
-                Sign Up
+                Continue as Guest
               </Typography.Link>
-            </Typography.Text>
-
-            <Typography.Link
-              onClick={handleGuestClick}
-              style={{
-                color: Colors.primary.default,
-                //margin: "0 0 20px 5px",
-                textDecoration: "underline",
-                marginBottom: "9px",
-                display: "block",
-              }}
-            >
-              Continue as Guest
-            </Typography.Link>
-          </Form.Item>
-        </Form>
-      </Card>
+            </Form.Item>
+          </Form>
+        </Card>
+      </div>
     </div>
   );
 };

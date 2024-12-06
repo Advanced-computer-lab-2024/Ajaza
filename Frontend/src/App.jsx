@@ -50,6 +50,7 @@ import CustomCard from "./Components/Card";
 import CreateTourist from "./Components/Sign/CreateTourist";
 import CreateSeller from "./Components/Sign/CreateSeller";
 import { CurrencyProvider } from "./Components/Tourist/CurrencyContext";
+import Landing from "./Components/LandingPage";
 const { Header, Footer, Sider, Content } = Layout;
 
 function App() {
@@ -80,7 +81,7 @@ function App() {
                 path="/"
                 element={
                   <AuthLayout>
-                    <SignIn />
+                    <LandingPage />
                   </AuthLayout>
                 }
               />
