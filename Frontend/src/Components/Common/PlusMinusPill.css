@@ -1,0 +1,4 @@
+.plusMinusIcon:hover {
+  background-color: var(--grey-100);
+  cursor: pointer;
+}
