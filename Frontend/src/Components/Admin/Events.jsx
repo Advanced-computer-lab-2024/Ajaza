@@ -282,6 +282,8 @@ const Events = () => {
         /> */}
       </div>
       <SearchFilterSortContainer
+
+
         cardComponent={BasicCard}
         elements={combinedElements}
         propMapping={propMapping}

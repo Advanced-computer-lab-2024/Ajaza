@@ -162,35 +162,40 @@ const ManageActivityCategories = () => {
       </div>
 
       <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", // Adjusted to fit smaller cards dynamically
+    gridGap: "16px", // Adjust gap between cards
+  }}
+>
+  {categories.map((category) => (
+    <Card
+      key={category._id}
+      title={category.category}
+      style={{
+        width: "200px", // Reduced card width
+        textAlign: "center",
+        margin: "auto", // Center cards within the grid cells
+      }}
+    >
+      <Button
+        type="text"
+        icon={<EditOutlined />}
+        onClick={() => showUpdateModal(category)}
+      />
+      <Button
+        type="text"
+        icon={<DeleteOutlined />}
+        onClick={() => handleDelete(category._id)}
         style={{
-          display: "grid",
-          gridTemplateColumns: "22% 22% 22% 22%",
-          gridGap: "4%",
+          marginLeft: "8px",
+          color: "red",
         }}
-      >
-        {categories.map((category) => (
-          <Card
-            key={category._id}
-            title={category.category}
-            style={{ width: 300 }}
-          >
-            <Button
-              type="text"
-              icon={<EditOutlined />}
-              onClick={() => showUpdateModal(category)}
-            />
-            <Button
-              type="text"
-              icon={<DeleteOutlined />}
-              onClick={() => handleDelete(category._id)}
-              style={{
-                marginLeft: "8px",
-                color: "red",
-              }}
-            />
-          </Card>
-        ))}
-      </div>
+      />
+    </Card>
+  ))}
+</div>
+
 
       <Modal
         title="Update Category"

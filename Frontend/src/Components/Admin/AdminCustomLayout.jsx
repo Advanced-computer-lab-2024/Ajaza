@@ -173,11 +173,11 @@ const AdminCustomLayout = ({ children }) => {
                   key: "setting:3",
                   style: commonStyle,
                 },
-                {
-                  label: "Add Accounts",
-                  key: "setting:1",
-                  style: commonStyle,
-                },
+                //{
+                 // label: "Add Accounts",
+               //   key: "setting:1",
+               //   style: commonStyle,
+              //  },
                 {
                   label: "Accepted Accounts",
                   key: "setting:2",
