@@ -5,7 +5,9 @@ import HeaderInfo from "./HeaderInfo";
 import { jwtDecode } from "jwt-decode";
 import { getAvgRating } from "./Constants";
 import LocationOpeningHours from "./LocationOpeningHours";
-
+import { camelCaseToNormalText } from "./Constants";
+import Timeline from "./Timeline";
+import FeedbacksSingle from "./FeedBacksSingle";
 const Item = ({
   id,
   name,
@@ -49,6 +51,8 @@ const Item = ({
   const [avgRating, setAvgRating] = useState(null);
   const [colSpan, setColSpan] = useState(16);
 
+  const timelineFeedbackSpan = 9;
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -89,7 +93,6 @@ const Item = ({
         language={language}
         pickUp={pickUp}
         dropOff={dropOff}
-        timelineItems={timelineItems}
         accessibility={accessibility}
         avgRating={avgRating}
         colSpan={colSpan}
@@ -107,6 +110,30 @@ const Item = ({
           openingHours={openingHours}
         />
       ) : null}
+      {timelineItems && (
+        <Row style={{ marginTop: "10px" }}>
+          <Col span={timelineFeedbackSpan}>
+            <Row justify="center">
+              {Object.entries(timelineItems).map(([key, value]) => {
+                return (
+                  <Col
+                    span={key == "availableDateTime" ? 16 : 8}
+                    key={key}
+                    className={key}
+                  >
+                    <h3>{camelCaseToNormalText(key)}</h3>
+                    <Timeline key={key} timelineItems={value} fieldName={key} />
+                  </Col>
+                );
+              })}
+            </Row>
+          </Col>
+          <Col span={24 - timelineFeedbackSpan}>
+            <h3 style={{ marginBottom: "0px" }}>Feedback</h3>
+            <FeedbacksSingle feedbacks={creatorFeedback} numOfItems={3} />
+          </Col>
+        </Row>
+      )}
       <Feedbacks
         writeReviewForm={writeReviewForm}
         onSubmitWriteReview={onSubmitWriteReview}

@@ -72,3 +72,11 @@
   > .ant-menu-submenu-title {
   color: var(--primary-color-active);
 }
+
+.ant-menu-submenu-selected .ant-menu-submenu-title .ant-menu-item-icon {
+  color: var(--primary-color-active);
+}
+
+.ant-menu-submenu-selected .ant-menu-submenu-title .ant-menu-submenu-arrow {
+  color: var(--primary-color-active);
+}

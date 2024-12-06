@@ -90,6 +90,7 @@ const currencyRates = {
 const Activities = () => {
   const navigate = useNavigate();
   const [combinedElements, setCombinedElements] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   // propName:fieldName
   const propMapping = {
     title: "name",
@@ -266,6 +267,7 @@ const Activities = () => {
           return { ...element, avgRating: getAvgRating(element.feedback) };
         });
         setCombinedElements(combinedArray);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -301,6 +303,7 @@ const Activities = () => {
         sortFields={sortFields}
         filterFields={filterFields}
         cardOnclick={cardOnclick}
+        isLoading={isLoading}
       />
     </div>
     </FrigadeProvider>
