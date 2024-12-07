@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@ant-design/icons": "^5.5.1",
+    "@antv/g2plot": "^2.4.32",
     "@emotion/styled": "^11.13.5",
     "@frigade/react": "^2.6.3",
     "@mui/icons-material": "^6.1.10",
