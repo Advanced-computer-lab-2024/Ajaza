@@ -279,12 +279,7 @@ const Profile = () => {
     try {
       const response = await axios.patch(
         `${apiUrl}tourist/address/${userDetails._id}`,
-        address,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        address
       );
       console.log(response);
 
@@ -306,12 +301,14 @@ const Profile = () => {
         setResponse(decodedToken);
         setUserDetails(decodedToken.userDetails); // Update the local profile data
 
-        message.success("Delivery address added successfully");
+        message.success("Delivery address removed successfully");
         setAddresses(decodedToken.userDetails.deliveryAddresses);
       } else {
         message.error("An error has occurred. Please try again later.");
       }
-    } catch (error) {}
+    } catch (error) {
+      message.error("An error has occurred. Please try again later.");
+    }
   };
 
   const handleAddAddress = async (values) => {

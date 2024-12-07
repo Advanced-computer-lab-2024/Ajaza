@@ -1721,7 +1721,11 @@ exports.getSavedEvents = async (req, res) => {
     }
 
     let activities = tourist.activityBookmarks;
-    let itineraries = tourist.itineraryBookmarks;
+
+    const now = new Date();
+    let itineraries = tourist.itineraryBookmarks.filter((itinerary) => 
+      itinerary.availableDateTime.some((dateTime) => new Date(dateTime.date) > now)
+    );
     console.log("yemken", activities, itineraries);
 
     res.status(200).json({ activities: activities, itineraries: itineraries });
