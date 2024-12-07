@@ -486,12 +486,13 @@ export const Cart = () => {
                       {item.quantity}x {item.name}
                     </strong>
                     <p style={{ margin: "5px 0", fontSize: "14px" }}>
-                      Price: ${item.price.toFixed(2)}
+                      Price: {currency}{(item.price *
+                        currencyRates[currency]).toFixed(2)}
                     </p>
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <p style={{ margin: 0, fontWeight: "bold" }}>
-                      Total: ${(item.quantity * item.price).toFixed(2)}
+                      Total: {currency}{(item.quantity * (item.price * currencyRates[currency])).toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -506,7 +507,7 @@ export const Cart = () => {
                     marginRight: "10px",
                   }}
                 >
-                  ${price.toFixed(2)}
+                  {currency}{(price * currencyRates[currency]).toFixed(2)}
                 </span>
               )}
               <span
@@ -515,7 +516,7 @@ export const Cart = () => {
                   fontWeight: "bold",
                 }}
               >
-                ${(price * promo).toFixed(2)}
+                {currency}{(price * currencyRates[currency] * promo).toFixed(2)}
               </span>
             </h4>
           </div>

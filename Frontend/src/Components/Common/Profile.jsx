@@ -317,12 +317,7 @@ const Profile = () => {
   const handleAddAddress = async (values) => {
     const response = await axios.post(
       `${apiUrl}tourist/address/${userDetails._id}`,
-      values,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      values
     );
 
     if (response.status == 200) {
@@ -618,7 +613,7 @@ const Profile = () => {
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "45% 45%",
+        gridTemplateColumns: role !== "tourist" ? "1fr" : "45% 45%",
         gridGap: "10%",
         marginTop: "20px",
       }}
@@ -659,16 +654,18 @@ const Profile = () => {
                 ]
           }
         >
-          <SelectCurrency
-            currency={currency}
-            onCurrencyChange={handleCurrencyChange}
-            style={{
-              borderColor: Colors.primary.default,
-              color: Colors.primary.default,
-              left: -240,
-              top: -20,
-            }}
-          />
+          {role === "tourist" && (
+            <SelectCurrency
+              currency={currency}
+              onCurrencyChange={handleCurrencyChange}
+              style={{
+                borderColor: Colors.primary.default,
+                color: Colors.primary.default,
+                left: -240,
+                top: -20,
+              }}
+            />
+          )}
           <Space direction="vertical" align="center" style={{ width: "100%" }}>
             {role === "tourist" && (
               <Avatar
@@ -1337,49 +1334,48 @@ const Profile = () => {
             )}
           </Card>
         )}
-        <Card
-          style={{
-            width: "100%",
-            maxWidth: 600,
-            margin: "20px auto 0 auto",
-            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-          }}
-        >
-          <h2>Redeem Points</h2>
-          <div style={{ fontSize: "18px" }}>
-            <strong>Points:</strong> {points}
-          </div>
-          <div style={{ fontSize: "18px" }}>
-            <strong>Balance:</strong> {wallet.toFixed(2)}
-          </div>
-          {points < 10000 ? (
-            <Tooltip title="You must have at least 10000 points to redeem">
-              <span>
-                <CustomButton
-                  size="s"
-                  value="Redeem Points"
-                  onClick={redeemPoints}
-                  disabled
-                  loading={loading}
-                  style={{
-                    width: "160px",
-                    height: "50px",
-                    fontSize: "18px",
-                    fontWeight: "bold",
-                  }}
-                />
-              </span>
-            </Tooltip>
-          ) : (
-            <CustomButton
-              size="m"
-              value="Redeem Points"
-              onClick={redeemPoints}
-              disabled={false}
-              loading={loading}
-            />
-          )}
-        </Card>
+        {role === "tourist" && (
+          <Card
+            style={{
+              width: "100%",
+              maxWidth: 600,
+              margin: "20px auto 0 auto",
+              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            <h2>Redeem Points</h2>
+            <div style={{ fontSize: "18px" }}>
+              <strong>Points:</strong> {points}
+            </div>
+            {points < 10000 ? (
+              <Tooltip title="You must have at least 10000 points to redeem">
+                <span>
+                  <CustomButton
+                    size="s"
+                    value="Redeem Points"
+                    onClick={redeemPoints}
+                    disabled
+                    loading={loading}
+                    style={{
+                      width: "160px",
+                      height: "50px",
+                      fontSize: "18px",
+                      fontWeight: "bold",
+                    }}
+                  />
+                </span>
+              </Tooltip>
+            ) : (
+              <CustomButton
+                size="m"
+                value="Redeem Points"
+                onClick={redeemPoints}
+                disabled={false}
+                loading={loading}
+              />
+            )}
+          </Card>
+        )}
       </div>
     </div>
   );

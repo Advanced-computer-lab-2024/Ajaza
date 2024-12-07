@@ -172,7 +172,7 @@ const SignIn = () => {
         width: "100vw",
         display: "grid",
         gridTemplateColumns: "60% 40%",
-        height: "91vh  ",
+        height: "100vh  ",
       }}
     >
       <div

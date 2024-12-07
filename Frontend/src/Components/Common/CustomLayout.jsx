@@ -140,10 +140,8 @@ const CustomLayout = ({
           icon: <WarningFilled style={{ color: "#ff4d4f" }} />,
           onOk: async () => {
             try {
-              // console.log(`${apiUrl}${role}/requestDeletion/${userDetails._id}`);
-              
               const response = await axios.patch(
-                `${apiUrl}${decodedToken.role}/requestDeletion/${userDetails._id}`
+                `${apiUrl}${decodedToken?.role}/requestDeletion/${userDetails._id}`
               );
 
               navigate("/");
