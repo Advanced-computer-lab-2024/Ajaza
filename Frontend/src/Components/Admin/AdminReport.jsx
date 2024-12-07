@@ -651,21 +651,6 @@ useEffect(() => {
 
 
 
-useEffect(() => {
-  const handleResize = () => {
-    if (chartRef1.current && data.product?.length) columnChart1?.render();
-    if (chartRef2.current && data.activity?.length) columnChart2?.render();
-    if (chartRef3.current && data.itinerary?.length) columnChart3?.render();
-  };
-
-  window.addEventListener('resize', handleResize);
-  return () => window.removeEventListener('resize', handleResize);
-}, [data]);
-
-
-
-
-
   return (
     <div>
       <h2>Admin Sales Report</h2>
