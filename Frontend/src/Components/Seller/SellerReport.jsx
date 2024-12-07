@@ -250,7 +250,15 @@ const SellerReport = () => {
             },
             xAxis: {
                 label: {
-                    autoRotate: true,
+                    autoRotate: false,
+                    style: {
+                        textAlign: 'center',
+                        width: 100, // Set fixed width for label container
+                    },
+                    formatter: (text) => {
+                        // Split text by spaces and join with newlines
+                        return text.split(' ').join('\n');
+                    },
                 },
             },
             meta: {
