@@ -120,8 +120,6 @@ const AdminCustomLayout = ({ children }) => {
       navigate("/Admin/promocode");
     } else if (key == "100") {
       navigate("/Admin/report");
-    } else if (key == "44") {
-      navigate("/Admin/numberOfUsers");
     } else if (key == "14") {
       navigate("change-password");
     } else if (key == "15") {
@@ -202,12 +200,12 @@ const AdminCustomLayout = ({ children }) => {
               label: "PromoCode",
               style: commonStyle,
             },
-            {
-              key: "44",
-              icon: <TeamOutlined />,
-              label: "User Stats",
-              style: commonStyle,
-            },
+            // {
+            //   key: "44",
+            //   icon: <TeamOutlined />,
+            //   label: "User Stats",
+            //   style: commonStyle,
+            // },
             {
               key: "12",
               icon: <NumberOutlined />,
