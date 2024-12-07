@@ -659,6 +659,7 @@ const Profile = () => {
                 ]
           }
         >
+          {role === "tourist" &&
           <SelectCurrency
             currency={currency}
             onCurrencyChange={handleCurrencyChange}
@@ -669,6 +670,7 @@ const Profile = () => {
               top: -20,
             }}
           />
+        }
           <Space direction="vertical" align="center" style={{ width: "100%" }}>
             {role === "tourist" && (
               <Avatar
@@ -1337,6 +1339,7 @@ const Profile = () => {
             )}
           </Card>
         )}
+        {role === "tourist" &&
         <Card
           style={{
             width: "100%",
@@ -1377,6 +1380,7 @@ const Profile = () => {
             />
           )}
         </Card>
+        }
       </div>
     </div>
   );
