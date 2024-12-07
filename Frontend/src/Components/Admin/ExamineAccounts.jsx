@@ -17,6 +17,8 @@ import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import LoadingSpinner from "../Common/LoadingSpinner";
 import Search from "../Common/Search";
+import NumberOfUsers from "./NumberOfUsers";
+
 const { Title } = Typography;
 
 const ExamineAccounts = () => {
@@ -229,6 +231,17 @@ const ExamineAccounts = () => {
         padding: "20px",
       }}
     >
+    <div style={{ 
+      display: "flex", 
+      justifyContent: "center", 
+      width: "100%", 
+      maxWidth: "800px",  // Control overall width
+      transform: "scale(0.9)",  // Scale down by 10%
+      transformOrigin: "top center",  // Scale from top center
+      marginBottom: "0px"  // Adjust margin to account for scaling
+    }}>
+      <NumberOfUsers />
+    </div>
       <Title level={2} style={{ textAlign: "center", marginBottom: "20px" }}>
         Pending Accounts
       </Title>
