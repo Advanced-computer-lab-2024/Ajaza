@@ -99,7 +99,7 @@ const Itineraries = () => {
       );
       setItinerariesData(response.data);
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Please try again.";
+      const errorMessage = error.response?.data?.message || "Error: Please try again.";
       message.error(`${errorMessage}`);
     } finally {
       setLoading(false);
