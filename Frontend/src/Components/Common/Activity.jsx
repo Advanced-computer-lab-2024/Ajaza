@@ -4,14 +4,35 @@ import { Form } from "antd";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { apiUrl } from "./Constants";
+import { jwtDecode } from "jwt-decode";
 import LoadingSpinner from "./LoadingSpinner";
 import SelectCurrency from "../Tourist/SelectCurrency";
 import { useCurrency } from "../Tourist/CurrencyContext";
+import * as Frigade from "@frigade/react";
+import CustomButton from "../Common/CustomButton";
+import { Button } from "antd";
+
+const token = localStorage.getItem("token");
+let decodedToken = null;
+let role = null;
+if (token) {
+  decodedToken = jwtDecode(token);
+  role = decodedToken?.role; // Extract the role from the token
+
+}
+console.log("acti role nour", role);
+const userid = decodedToken ? decodedToken.userId : null;
+
 const Activity = () => {
   const { id } = useParams();
   const [activity, setActivity] = useState(null);
   const [advertiser, setAdvertiser] = useState(null);
   const { currency, setCurrency } = useCurrency();
+
+  const { Tour, useFrigade } = Frigade; // Access Tour and useFrigade from Frigade default export
+
+  const { flowStatus, resetFlow } = useFrigade(); // Importing flow management functions
+  const [showFrigade, setShowFrigade] = useState(false);
 
   const handleCurrencyChange = (newCurrency) => {
     setCurrency(newCurrency);
@@ -104,7 +125,40 @@ const Activity = () => {
   if (!activity) {
     return <LoadingSpinner />;
   }
+  const renderFrigadeProvider = () => {
+    if (role === null) {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_k40qeJxX" />
+        </Frigade.Provider>
+      );
+    } else if (role === "tourist") {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_iZeCx2HTYA5gWBiS1if7cRp5H63bhGN3sYG8Ue4I8qEN72Y5l7ZTh5BeEmMvrt05"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_9GyY5ygE" />
+        </Frigade.Provider>
+      );
+    }
+  }
 
+  const handleShowFrigade = () => {
+    if (flowStatus === "ENDED") {
+      resetFlow(); // Reset the flow to start from the first step
+    }
+    setShowFrigade(false); // Temporarily hide Frigade to force re-render
+    setTimeout(() => {
+      setShowFrigade(true); // Show Frigade after resetting
+    }, 0);
+  };
+  
   const convertedLowerPrice = activity
     ? (activity.lower * currencyRates[currency]).toFixed(2)
     : 0;
@@ -113,6 +167,21 @@ const Activity = () => {
     : 0;
   return (
     <>
+    <Button
+      id="nour2"
+  style={{
+    
+    right: "0",          // Aligns it to the maximum right
+    top: "0",            // Optional: Aligns it to the top of its container
+    margin: "16px",      // Adds some spacing from the edges (adjust as needed)
+    padding: "1px",      // Makes the button tiny
+    fontSize: "0.1rem",  // Reduces the text size to be almost invisible
+    border: "none",      // Removes border (optional)
+    background: "transparent", // Makes the background transparent (optional)
+    color: "transparent", // Hides the text color (optional)
+    cursor: "default",   // Makes it less clickable-looking
+  }}
+/>
       {/* <SelectCurrency
         currency={currency}
         onCurrencyChange={handleCurrencyChange}
