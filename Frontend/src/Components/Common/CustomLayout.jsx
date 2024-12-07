@@ -141,9 +141,9 @@ const CustomLayout = ({
           onOk: async () => {
             try {
               // console.log(`${apiUrl}${role}/requestDeletion/${userDetails._id}`);
-
+              
               const response = await axios.patch(
-                `${apiUrl}${role}/requestDeletion/${userDetails._id}`
+                `${apiUrl}${decodedToken.role}/requestDeletion/${userDetails._id}`
               );
 
               navigate("/");
