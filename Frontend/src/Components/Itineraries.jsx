@@ -34,6 +34,7 @@ import { Color } from "antd/es/color-picker";
 import LoadingSpinner from "./Common/LoadingSpinner";
 import dayjs from "dayjs";
 import "./Itineraries.css";
+import {getSetNewToken} from "./Common/Constants"
 
 const { Option } = Select;
 const { Dragger } = Upload;
@@ -92,6 +93,7 @@ const Itineraries = () => {
 
   const fetchItineraries = async () => {
     try {
+      getSetNewToken(userid, "guide");
       const response = await apiClient.get(
         `/itinerary/readItinerariesOfGuide/${userid}`
       );

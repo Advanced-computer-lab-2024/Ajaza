@@ -34,6 +34,7 @@ import MapComponent from "./Common/Map";
 import dayjs from "dayjs";
 import { Colors } from "./Common/Constants";
 import LoadingSpinner from "./Common/LoadingSpinner";
+import {getSetNewToken} from "./Common/Constants"
 
 const { Dragger } = Upload;
 // Create an axios instance with default headers
@@ -65,6 +66,7 @@ const Activities = () => {
 
   const fetchActivities = async () => {
     try {
+      getSetNewToken(userid, "advertiser");
       const response = await apiClient.get(`activity/readActivities/${userid}`);
       setActivitiesData(response.data);
     } catch (error) {
