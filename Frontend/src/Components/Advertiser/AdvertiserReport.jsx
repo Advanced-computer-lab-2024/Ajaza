@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Table, message, DatePicker } from 'antd';
 import { jwtDecode } from "jwt-decode";
 import axios from 'axios';
 import moment from 'moment';
 import { FilterOutlined } from '@ant-design/icons';
+import { Column } from '@antv/g2plot';
 
 const { RangePicker } = DatePicker;
 
@@ -18,6 +19,8 @@ const AdvertiserReport = () => {
         dateRange: null,
         filterMode: 'date',
     });
+    const chartRef = useRef(null);
+
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -163,6 +166,7 @@ const AdvertiserReport = () => {
             title: 'Activity Name',
             dataIndex: 'activityName',
             key: 'activityName',
+            align: 'center',
             filters: uniqueActivityNames.map(name => ({ text: name, value: name })), // Add activity name filter options
             filterSearch: true, // Enable search functionality in the filter
             filterMultiple: true, // Allow multiple selections in the filter
@@ -172,6 +176,7 @@ const AdvertiserReport = () => {
             title: 'Activity Date',
             dataIndex: 'activityDate',
             key: 'activityDate',
+            align: 'center',
             filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
                 <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <RangePicker
@@ -203,6 +208,7 @@ const AdvertiserReport = () => {
             title: 'Price',
             dataIndex: 'price',
             key: 'price',
+            align: 'center',
             render: (text) => `$${text.toFixed(2)}`,
             sorter: (a, b) => a.price - b.price, // Enable sorting by price
         },
@@ -210,48 +216,102 @@ const AdvertiserReport = () => {
             title: 'Category',
             dataIndex: 'category',
             key: 'category',
+            align: 'center',
         }
     ];
+
+
+    useEffect(() => {
+        if (!salesData?.length || !chartRef.current) return;
+    
+        // Aggregate data by activity
+        const chartData = salesData.reduce((acc, curr) => {
+            const existing = acc.find(item => item.activity === curr.activityName);
+            if (existing) {
+                existing.sales += curr.price;
+            } else {
+                acc.push({
+                    activity: curr.activityName,
+                    sales: curr.price,
+                });
+            }
+            return acc;
+        }, []);
+    
+        // Initialize chart
+        const columnChart = new Column(chartRef.current, {
+            data: chartData,
+            xField: 'activity',
+            yField: 'sales',
+            label: {
+                position: 'middle',
+                style: {
+                    fill: '#FFFFFF',
+                },
+            },
+            xAxis: {
+                label: {
+                    autoRotate: true,
+                },
+            },
+            meta: {
+                sales: {
+                    alias: 'Total Sales ($)',
+                    formatter: (v) => `$${v.toFixed(2)}`
+                }
+            }
+        });
+    
+        columnChart.render();
+    
+        return () => columnChart.destroy();
+    }, [salesData]);
+
 
     return (
         <div>
             <h2>Advertiser Sales Report</h2>
-
             <p>Total Sales: <strong>${totalSales.toFixed(2)}</strong></p>
-
-        <Table
-        columns={columns}
-        dataSource={salesData}
-        loading={loading}
-        rowKey={(record) => record.key || record.activityName}
-        onChange={(pagination, filters, sorter) => {
-        // Extract the filters for activity names and date range
-        const activityNames = filters.activityName || []; // Activity name filter values
-        const dateRange = filters.dateRange || null; // Date range filter values
-
-        // Construct the new filters state
-        const newFilters = {
-            activityNames: activityNames.length > 0 ? activityNames : filters.activityNames || [],
-            dateRange: dateRange ? dateRange : filters.dateRange || null,
-            filterMode: filters.filterMode || 'date', // Ensure filter mode persists
-        };
-
-        // Update the filter state
-        setFilters((prev) => ({
-            ...prev,
-            activityNames: newFilters.activityNames, // Update activity names filter
-            dateRange: newFilters.dateRange, // Update date range filter
-        }));
-
-        // Apply both filters at once (activity names and date range)
-        const filteredData = applyFilters(originalSalesData, newFilters);
-
-        // Update the sales data and total sales after applying filters
-        setSalesData(filteredData);
-        const newTotalSales = filteredData.reduce((sum, item) => sum + item.price, 0);
-        setTotalSales(newTotalSales); // Recalculate total sales
-    }}
-/>
+            <div style={{ display: 'flex', gap: '20px' }}>
+                <div style={{ flex: 1 }}>
+                    <Table
+                        columns={columns}
+                        dataSource={salesData}
+                        loading={loading}
+                        rowKey={(record) => record.key || record.activityName}
+                        onChange={(pagination, filters, sorter) => {
+                            // Extract the filters for activity names and date range
+                            const activityNames = filters.activityName || [];
+                            const dateRange = filters.dateRange || null;
+    
+                            // Construct the new filters state
+                            const newFilters = {
+                                activityNames: activityNames.length > 0 ? activityNames : filters.activityNames || [],
+                                dateRange: dateRange ? dateRange : filters.dateRange || null,
+                                filterMode: filters.filterMode || 'date',
+                            };
+    
+                            // Update the filter state
+                            setFilters((prev) => ({
+                                ...prev,
+                                activityNames: newFilters.activityNames,
+                                dateRange: newFilters.dateRange,
+                            }));
+    
+                            // Apply both filters at once
+                            const filteredData = applyFilters(originalSalesData, newFilters);
+    
+                            // Update the sales data and total sales
+                            setSalesData(filteredData);
+                            const newTotalSales = filteredData.reduce((sum, item) => sum + item.price, 0);
+                            setTotalSales(newTotalSales);
+                        }}
+                    />
+                </div>
+                <div style={{ flex: 1, minHeight: '400px' }}>
+                    <div ref={chartRef} />
+                </div>
+            </div>
         </div>
     );
 };
