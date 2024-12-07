@@ -116,15 +116,28 @@ const BasicCard = ({
     )}`;
   };
 
-  const convertedPrice =
-    typeof extra === "string" && extra.includes("-")
-      ? convertAndApplyDiscountToRange(extra)
-      : applyDiscount(Number(extra));
-
-  const originalPrice =
-    typeof extra === "string" && extra.includes("-")
-      ? convertPriceRange(extra)
-      : convertPrice(Number(extra));
+  const convertedPrice = (() => {
+    if (typeof extra === "string" && extra.includes("-")) {
+     
+      return convertAndApplyDiscountToRange(extra);
+    }
+    else {
+      return convertPrice(extra);
+    }
+    return extra; 
+  })();
+  
+  const originalPrice = (() => {
+    if (typeof extra === "string" && extra.includes("-")) {
+      
+      return convertPriceRange(extra);
+    }
+   else{
+   
+      return convertPrice(extra);
+    }
+    return extra; 
+  })();
 
   useEffect(() => {
     if (dateTime) {

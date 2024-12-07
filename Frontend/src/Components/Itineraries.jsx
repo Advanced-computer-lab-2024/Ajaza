@@ -33,6 +33,8 @@ import { apiUrl, Colors } from "./Common/Constants";
 import { Color } from "antd/es/color-picker";
 import LoadingSpinner from "./Common/LoadingSpinner";
 import dayjs from "dayjs";
+import "./Itineraries.css";
+import {getSetNewToken} from "./Common/Constants"
 
 const { Option } = Select;
 const { Dragger } = Upload;
@@ -91,6 +93,7 @@ const Itineraries = () => {
 
   const fetchItineraries = async () => {
     try {
+      getSetNewToken(userid, "guide");
       const response = await apiClient.get(
         `/itinerary/readItinerariesOfGuide/${userid}`
       );
@@ -383,8 +386,8 @@ const Itineraries = () => {
                 style={{
                   minWidth: 370,
                   maxWidth: 370,
-                  maxHeight: 700,
-                  minHeight: 700,
+                  maxHeight: 760,
+                  minHeight: 760,
                   marginBottom: "8px",
                   marginRight: "12px",
                   border:
@@ -483,19 +486,26 @@ const Itineraries = () => {
                       </p>
                       <p
                         style={{
-                          overflow: "hidden", // Hides overflowing content
-                          textOverflow: "ellipsis", // Adds "..." at the end of the truncated text
-                          display: "-webkit-box", // Enables multi-line truncation
-                          WebkitBoxOrient: "vertical", // Required for line clamping
-                          WebkitLineClamp: 1, // Limits the text to 2 lines
+                          display: "flex",
+                          overflowX: "auto", // Allows horizontal scrolling
+                          whiteSpace: "nowrap", // Prevent wrapping of text to the next line
+                          width: "100%", // Ensures it takes up full width
+                          position: "relative", // For positioning the gradient fade (optional)
                         }}
                       >
                         <Text strong>Available Dates:</Text>{" "}
-                        <span>
+                        <div
+                          style={{
+                            marginLeft: "3px",
+                            display: "flex",
+                            flexWrap: "nowrap", // Prevent wrapping of items
+                            alignItems: "center", // Align items in the middle
+                          }}
+                        >
                           {itinerary.availableDateTime.length > 0
                             ? itinerary.availableDateTime
                                 .map(
-                                  (dateEntry) =>
+                                  (dateEntry, index) =>
                                     `${new Date(
                                       dateEntry.date
                                     ).toLocaleDateString()} (Spots: ${
@@ -504,19 +514,26 @@ const Itineraries = () => {
                                 )
                                 .join(", ")
                             : "No available dates"}
-                        </span>
+                        </div>
                       </p>
                       <p
                         style={{
-                          overflow: "hidden", // Hides overflowing content
-                          textOverflow: "ellipsis", // Adds "..." at the end of the truncated text
-                          display: "-webkit-box", // Enables multi-line truncation
-                          WebkitBoxOrient: "vertical", // Required for line clamping
-                          WebkitLineClamp: 1, // Limits the text to 2 lines
+                          display: "flex",
+                          overflowX: "auto", // Allows horizontal scrolling
+                          whiteSpace: "nowrap", // Prevent wrapping of text to the next line
+                          width: "100%", // Ensures it takes up full width
+                          position: "relative", // Limits the text to 2 lines
                         }}
                       >
                         <Text strong>Timeline:</Text>{" "}
-                        <span>
+                        <div
+                          style={{
+                            marginLeft: "3px",
+                            display: "flex",
+                            flexWrap: "nowrap", // Prevent wrapping of items
+                            alignItems: "center", // Align items in the middle
+                          }}
+                        >
                           {itinerary.timeline.length > 0
                             ? itinerary.timeline
                                 .map(
@@ -525,7 +542,7 @@ const Itineraries = () => {
                                 )
                                 .join(", ")
                             : "No timeline available"}
-                        </span>
+                        </div>
                       </p>
 
                       <p>

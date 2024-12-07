@@ -618,7 +618,7 @@ const Profile = () => {
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "45% 45%",
+        gridTemplateColumns: role !== "tourist" ? "1fr" : "45% 45%",
         gridGap: "10%",
         marginTop: "20px",
       }}
@@ -659,6 +659,7 @@ const Profile = () => {
                 ]
           }
         >
+          {role === "tourist" &&
           <SelectCurrency
             currency={currency}
             onCurrencyChange={handleCurrencyChange}
@@ -669,6 +670,7 @@ const Profile = () => {
               top: -20,
             }}
           />
+        }
           <Space direction="vertical" align="center" style={{ width: "100%" }}>
             {role === "tourist" && (
               <Avatar
@@ -1337,6 +1339,7 @@ const Profile = () => {
             )}
           </Card>
         )}
+        {role === "tourist" &&
         <Card
           style={{
             width: "100%",
@@ -1348,9 +1351,6 @@ const Profile = () => {
           <h2>Redeem Points</h2>
           <div style={{ fontSize: "18px" }}>
             <strong>Points:</strong> {points}
-          </div>
-          <div style={{ fontSize: "18px" }}>
-            <strong>Balance:</strong> {wallet.toFixed(2)}
           </div>
           {points < 10000 ? (
             <Tooltip title="You must have at least 10000 points to redeem">
@@ -1380,6 +1380,7 @@ const Profile = () => {
             />
           )}
         </Card>
+        }
       </div>
     </div>
   );
