@@ -40,9 +40,6 @@ const { Dragger } = Upload;
 // Create an axios instance with default headers
 const apiClient = axios.create({
   baseURL: apiUrl,
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`, // Set the token from localStorage
-  },
 });
 
 const Activities = () => {

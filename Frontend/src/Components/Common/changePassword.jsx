@@ -69,11 +69,6 @@ const ChangePasswordForm = () => {
           oldPassword: values.oldPassword,
           newPassword: values.newPassword,
           role: role,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
 

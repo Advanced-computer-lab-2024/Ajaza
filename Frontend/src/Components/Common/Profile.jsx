@@ -196,12 +196,7 @@ const Profile = () => {
       // Make API request to update profile
       const apiResponse = await axios.patch(
         `${apiUrl}${urlExtension}`,
-        updatedProfile,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        updatedProfile
       );
 
       // Extract the new JWT token from the API response

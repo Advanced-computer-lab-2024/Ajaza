@@ -41,9 +41,6 @@ const { Dragger } = Upload;
 
 const apiClient = axios.create({
   baseURL: apiUrl,
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
 });
 
 const Itineraries = () => {

@@ -203,7 +203,7 @@ const CreateTourist = () => {
               ]}
               style={{ width: "100%" }}
             >
-              <DatePicker placeholder="DOB" />
+              <DatePicker placeholder="Date of Birth" style={{ width: "80%" }}/>
             </Form.Item>
 
             <Form.Item
