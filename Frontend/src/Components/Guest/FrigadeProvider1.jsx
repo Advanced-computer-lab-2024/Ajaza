@@ -32,7 +32,7 @@ const FrigadeProvider = ({ children }) => {
             onError={(error) => console.error("Frigade Error:", error)}
 
         >
-           {userId && <Frigade.Announcement flowId="flow_tijsqurK" />}
+           {userId && <Frigade.Tour flowId="flow_CHZzYUZG"/>}
     {children}
   </Frigade.Provider>
     );
