@@ -618,7 +618,7 @@ const Profile = () => {
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "45% 45%",
+        gridTemplateColumns: role !== "tourist" ? "1fr" : "45% 45%",
         gridGap: "10%",
         marginTop: "20px",
       }}
