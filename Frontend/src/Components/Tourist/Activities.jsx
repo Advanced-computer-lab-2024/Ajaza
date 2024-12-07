@@ -320,8 +320,9 @@ const Activities = () => {
   return (
     <div >
       <Button
+      id="nour2"
   style={{
-    id:"nour2",
+    
     right: "0",          // Aligns it to the maximum right
     top: "0",            // Optional: Aligns it to the top of its container
     margin: "16px",      // Adds some spacing from the edges (adjust as needed)
