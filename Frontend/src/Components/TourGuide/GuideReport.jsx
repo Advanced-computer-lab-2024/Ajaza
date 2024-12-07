@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Table, message, DatePicker } from "antd";
 import { jwtDecode } from "jwt-decode"; // Corrected import
 import axios from "axios";
 import moment from "moment";
 import { FilterOutlined } from "@ant-design/icons";
+import { Column } from '@antv/g2plot';
 
 const { RangePicker } = DatePicker;
 
@@ -18,6 +19,7 @@ const GuideReport = () => {
     dateRange: null,
     filterMode: 'date',
   });
+  const chartRef = useRef(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -152,6 +154,7 @@ const GuideReport = () => {
       title: 'Itinerary Name',
       dataIndex: 'itineraryName',
       key: 'itineraryName',
+      align: 'center',
       filters: uniqueItineraryNames.map((name) => ({ text: name, value: name })),
       filterSearch: true,
       filterMultiple: true,
@@ -161,6 +164,7 @@ const GuideReport = () => {
       title: 'Itinerary Date',
       dataIndex: 'bookingDate',
       key: 'bookingDate',
+      align: 'center',
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
         <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
           <RangePicker
@@ -192,6 +196,7 @@ const GuideReport = () => {
       title: 'Price',
       dataIndex: 'price',
       key: 'price',
+      align: 'center',
       render: (text) => `$${text.toFixed(2)}`,
       sorter: (a, b) => a.price - b.price, 
     },
@@ -199,56 +204,112 @@ const GuideReport = () => {
       title: 'Language',
       dataIndex: 'language',
       key: 'language',
+      align: 'center',
     },
     {
       title: 'Accessibility',
       dataIndex: 'accessibility',
       key: 'accessibility',
+      align: 'center',
     },
   ];
 
-  return (
-    <div>
+  useEffect(() => {
+    if (!salesData?.length || !chartRef.current) return;
+
+    // Aggregate data by itinerary
+    const chartData = salesData.reduce((acc, curr) => {
+        const existing = acc.find(item => item.itinerary === curr.itineraryName);
+        if (existing) {
+            existing.sales += curr.price;
+        } else {
+            acc.push({
+                itinerary: curr.itineraryName,
+                sales: curr.price,
+            });
+        }
+        return acc;
+    }, []);
+
+    // Initialize chart
+    const columnChart = new Column(chartRef.current, {
+        data: chartData,
+        xField: 'itinerary',
+        yField: 'sales',
+        label: {
+            position: 'middle',
+            style: {
+                fill: '#FFFFFF',
+            },
+        },
+        xAxis: {
+            label: {
+                autoRotate: false,
+                style: {
+                  textAlign: 'center',
+                  width: 100, // Set fixed width for label container
+              },
+              formatter: (text) => {
+                  // Split text by spaces and join with newlines
+                  return text.split(' ').join('\n');
+              },
+            },
+        },
+        meta: {
+            sales: {
+                alias: 'Total Sales ($)',
+                formatter: (v) => `$${v.toFixed(2)}`
+            }
+        }
+    });
+
+    columnChart.render();
+
+    return () => columnChart.destroy();
+}, [salesData]);
+
+
+
+return (
+  <div>
       <h2>Guide Sales Report</h2>
       <p>Total Sales: <strong>${totalSales.toFixed(2)}</strong></p>
-      <Table
-  columns={columns}
-  dataSource={salesData}
-  loading={loading}
-  rowKey={(record) => record.key || record.itineraryName}
-  onChange={(pagination, filters, sorter) => {
-    // Extract filters
-    const itineraryNames = filters.itineraryName || []; // Itinerary name filter values
-    const dateRange = filters.dateRange || null; // Date range filter values
+      <div style={{ display: 'flex', gap: '20px' }}>
+          <div style={{ flex: 1 }}>
+              <Table
+                  columns={columns}
+                  dataSource={salesData}
+                  loading={loading}
+                  rowKey={(record) => record.key || record.itineraryName}
+                  onChange={(pagination, filters, sorter) => {
+                      const itineraryNames = filters.itineraryName || [];
+                      const dateRange = filters.dateRange || null;
 
-    // Construct the new filters state
-    const newFilters = {
-      itineraryNames: itineraryNames.length > 0 ? itineraryNames : filters.itineraryNames || [],
-      dateRange: dateRange ? dateRange : filters.dateRange || null,
-      filterMode: filters.filterMode || "date", // Ensure filter mode persists
-    };
+                      const newFilters = {
+                          itineraryNames: itineraryNames.length > 0 ? itineraryNames : filters.itineraryNames || [],
+                          dateRange: dateRange ? dateRange : filters.dateRange || null,
+                          filterMode: filters.filterMode || "date",
+                      };
 
-    // Update the filter state
-    setFilters((prev) => ({
-      ...prev,
-      itineraryNames: newFilters.itineraryNames, // Update itinerary names filter
-      dateRange: newFilters.dateRange, // Update date range filter
-    }));
+                      setFilters((prev) => ({
+                          ...prev,
+                          itineraryNames: newFilters.itineraryNames,
+                          dateRange: newFilters.dateRange,
+                      }));
 
-    // Apply both filters
-    const filteredData = applyFilters(originalSalesData, newFilters);
-
-    // Update sales data
-    setSalesData(filteredData);
-
-    // Recalculate total sales
-    const newTotalSales = filteredData.reduce((sum, item) => sum + item.price, 0);
-    setTotalSales(newTotalSales);
-  }}
-/>
-
-    </div>
-  );
+                      const filteredData = applyFilters(originalSalesData, newFilters);
+                      setSalesData(filteredData);
+                      const newTotalSales = filteredData.reduce((sum, item) => sum + item.price, 0);
+                      setTotalSales(newTotalSales);
+                  }}
+              />
+          </div>
+          <div style={{ flex: 1, minHeight: '400px' }}>
+              <div ref={chartRef} />
+          </div>
+      </div>
+  </div>
+);
 };
 
 export default GuideReport;

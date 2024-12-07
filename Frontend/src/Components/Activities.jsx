@@ -24,6 +24,7 @@ import {
   Rate,
   Upload,
   Empty,
+  Flex,
 } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
@@ -330,6 +331,17 @@ const Activities = () => {
             return (
               <Card
                 key={activity._id}
+                cover={
+                  activity.pictures?.length != 0 ? (
+                    <Flex justify="center">
+                      <img
+                        alt={activity.pictures[0]}
+                        style={{ height: "150px", width: "80%" }}
+                        src={`/uploads/${activity.pictures[0]}.jpg`}
+                      />
+                    </Flex>
+                  ) : null
+                }
                 actions={[
                   <EditOutlined
                     key="edit"

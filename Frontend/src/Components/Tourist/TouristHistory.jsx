@@ -25,6 +25,38 @@ const TouristHistory = () => {
     }
   }, []);
 
+  const handleFeedbackSubmit = async () => {
+    try {
+      const response = await axios.get(
+        `${apiUrl}tourist/history/getHistory/${touristId}`
+      );
+      console.log("response", response);
+      setHistory(response.data);
+      const guideIds = response.data.guides.map((guide) => guide.guideId);
+      setGuideId(guideIds);
+      console.log("guide ids", guideIds);
+      const activityIds = response.data.activities.map(
+        (activity) => activity.activityId
+      );
+      setActivityId(activityIds);
+      console.log("activity ids", activityIds);
+      const itineraryIds = response.data.itineraries.map(
+        (itinerary) => itinerary.itineraryId
+      );
+      setItineraryId("itinerary ids", itineraryIds);
+      console.log("itinerary ids", itineraryIds);
+      const productIds = response.data.products.map(
+        (product) => product.productId
+      );
+      setProductId("product ids", productIds);
+      console.log("product ids", productIds);
+    } catch (error) {
+      console.error("Failed to fetch history:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const fetchHistory = async () => {
       try {
@@ -73,12 +105,12 @@ const TouristHistory = () => {
     <div>
       <h2 style={{ marginBottom: "30px" }}>My History</h2>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
-        {history.activities.map((activity) => (
+        {history.activities.filter((activity) => activity.gaveFeedback === false).map((activity) => (
           <Card
             key={activity.activityId}
             title={activity.name}
             style={{
-              width: "300px",
+              width: "315px",
               boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
             }}
           >
@@ -94,18 +126,18 @@ const TouristHistory = () => {
                 touristId={touristId}
                 id={activity.activityId}
                 name={activity.name}
-                onSubmit={() => {}}
+                onSubmit={handleFeedbackSubmit}
               />
             )}
           </Card>
         ))}
 
-        {history.itineraries.map((itinerary) => (
+        {history.itineraries.filter((activity) => activity.gaveFeedback === false).map((itinerary) => (
           <Card
             key={itinerary.itineraryId}
             title={itinerary.name}
             style={{
-              width: "250px",
+              width: "315px",
             }}
           >
             <p>
@@ -120,17 +152,17 @@ const TouristHistory = () => {
                 touristId={touristId}
                 id={itinerary.itineraryId}
                 name={itinerary.name}
-                onSubmit={() => {}}
+                onSubmit={handleFeedbackSubmit}
               />
             )}
           </Card>
         ))}
 
-        {history.guides.map((guide) => (
+        {history.guides.filter((activity) => activity.gaveFeedback === false).map((guide) => (
           <Card
             key={guide.guideId}
             title={`Guide: ${guide.name}`}
-            style={{ width: "250px" }}
+            style={{ width: "315px" }}
           >
             {guide.gaveFeedback ? (
               <p>Thanks for your feedback!</p>
@@ -140,18 +172,18 @@ const TouristHistory = () => {
                 touristId={touristId}
                 id={guide.guideId}
                 name={guide.name}
-                onSubmit={() => {}}
+                onSubmit={handleFeedbackSubmit}
               />
             )}
           </Card>
         ))}
 
-        {history.products.map((product) => (
+        {history.products.filter((activity) => activity.gaveFeedback === false).map((product) => (
           <Card
             key={product.productId}
             title={product.name}
             style={{
-              width: "250px",
+              width: "315px",
             }}
           >
             <p>
@@ -166,7 +198,7 @@ const TouristHistory = () => {
                 touristId={touristId}
                 id={product.productId}
                 name={product.name}
-                onSubmit={() => {}}
+                onSubmit={handleFeedbackSubmit}
               />
             )}
           </Card>

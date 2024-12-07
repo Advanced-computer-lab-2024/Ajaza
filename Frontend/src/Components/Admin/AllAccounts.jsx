@@ -6,21 +6,33 @@ import {
   Typography,
   message,
   Input,
+  Form,
+  Empty,
   Button,
+  Modal,
+  Select,
   Tooltip,
 } from "antd";
-import { SearchOutlined, DeleteOutlined } from "@ant-design/icons"; // Import the Delete icon
-import { apiUrl } from "../Common/Constants";
+import {
+  SearchOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+} from "@ant-design/icons"; // Import the Delete icon
+import { apiUrl, Colors } from "../Common/Constants";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import SearchFilterSortContainer from "../Common/SearchFilterSortContainer";
 import Search from "../Common/Search";
+import LoadingSpinner from "../Common/LoadingSpinner";
+import CustomButton from "../Common/CustomButton";
 const { Title } = Typography;
 
 const AllAccounts = () => {
   const [allAccounts, setAllAccounts] = useState([]); // Store all accounts
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [searchValue, setSearchValue] = useState("");
   const [isHovered, setIsHovered] = useState(false); // State to manage hover effect

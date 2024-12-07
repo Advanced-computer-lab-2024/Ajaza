@@ -165,46 +165,43 @@ const NumberOfUsers = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#f0f2f5', padding: '20px' }}>
+    <div style={{ width: '100%', maxWidth: '500px' }}>
       <Card
         style={{
-          width: '80%',
-          maxWidth: '900px',
+          width: '100%',
           textAlign: 'center',
-          boxShadow: '0 6px 15px rgba(0, 0, 0, 0.2)',
-          padding: '40px',
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+          padding: '15px',
         }}
       >
-        <Title level={2} style={{ fontSize: '36px', marginBottom: '30px' }}>
+        <Title level={2} style={{ fontSize: '24px', marginBottom: '20px' }}>
           User Statistics
         </Title>
-
-        {/* Date Picker for month selection */}
+  
         <DatePicker.MonthPicker
-          
           onChange={onMonthChange}
-          style={{ marginBottom: '30px', fontSize: '18px', padding: '10px', width: '100%' }}
+          style={{ 
+            marginBottom: '20px', 
+            width: '100%',
+            maxWidth: '400px'
+          }}
           placeholder="Select month"
         />
-
-        <Row gutter={[32, 32]} justify="center" style={{ marginTop: '20px' }}>
+  
+        <Row gutter={[16, 16]} justify="center">
           <Col span={12}>
             <Statistic
-              title={<span style={{ fontSize: '20px' }}>Total Users</span>}
+              title={<span style={{ fontSize: '16px' }}>Total Users</span>}
               value={users}
-              valueStyle={{ color: '#3f8600', fontSize: '36px' }}
+              valueStyle={{ color: '#3f8600', fontSize: '24px' }}
               suffix="users"
             />
           </Col>
           <Col span={12}>
             <Statistic
-              title={
-                <span style={{ fontSize: '20px' }}>
-                  New Users in {moment(selectedMonth, 'YYYY-MM').format('MMMM YYYY')}
-                </span>
-              }
+              title={<span style={{ fontSize: '16px' }}>New Users in {moment(selectedMonth, 'YYYY-MM').format('MMM YYYY')}</span>}
               value={newuser}
-              valueStyle={{ color: '#cf1322', fontSize: '36px' }}
+              valueStyle={{ color: '#cf1322', fontSize: '24px' }}
               suffix="users"
             />
           </Col>

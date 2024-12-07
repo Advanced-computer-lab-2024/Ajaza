@@ -232,16 +232,22 @@ const Hotels = () => {
   return (
     <>
       {formVisible && ( // Render form conditionally based on formVisible state
+        <div style={{ display: "flex", height: "80vh" }}>
         <Card
           style={{
-            width: "100%",
             maxWidth: 600,
             margin: "50px auto",
-            padding: "20px",
+            marginTop: "0px",
             boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+            width: "60%",
+            padding: "20px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "80vh",
           }}
         >
-          <h1>Search for Hotels</h1>
+          <h1>Search for Hotels</h1><br />
           <Space direction="vertical" align="center" style={{ width: "100%" }}>
             <Form
               name="basic"
@@ -255,7 +261,7 @@ const Hotels = () => {
                 label="Select City"
                 rules={[{ required: true, message: "Please select a city!" }]}
               >
-                <Select placeholder="Choose a city">
+                <Select placeholder="Choose a city" style={{ width: "300px"}}>
                   {cityOptions.map((city) => (
                     <Option key={city.value} value={city.value}>
                       {city.label}
@@ -272,6 +278,7 @@ const Hotels = () => {
               >
                 <DatePicker
                   format="YYYY-MM-DD"
+                  style={{ width: "300px"}}
                   disabledDate={disablePastDates}
                   placeholder="Select a start date"
                   onChange={(date) => setFirstDate(date)}
@@ -303,6 +310,7 @@ const Hotels = () => {
               >
                 <DatePicker
                   format="YYYY-MM-DD"
+                  style={{ width: "300px"}}
                   disabledDate={disableDatesAfterFirstDate}
                   placeholder="Select an end date"
                 />
@@ -315,7 +323,7 @@ const Hotels = () => {
                 <InputNumber
                   min={1}
                   placeholder="Enter a number"
-                  style={{ width: "100%" }}
+                  style={{ width: "300px" }}
                 />
               </Form.Item>
 
@@ -324,7 +332,7 @@ const Hotels = () => {
                   type="primary"
                   htmlType="submit"
                   loading={loading}
-                  style={{ backgroundColor: Colors.primary.default }}
+                  style={{ backgroundColor: Colors.primary.default, width: "300px"}}
                 >
                   Search
                 </Button>
@@ -332,6 +340,42 @@ const Hotels = () => {
             </Form>
           </Space>
         </Card>
+        <div
+        style={{
+          width: "40%",
+          background: "url(/hotel.jpg) no-repeat center center",
+          backgroundSize: "cover",
+          height: "80vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          color: "white", // To make the text stand out
+          padding: "20px",
+          borderRadius: "15px",
+          position: "relative",
+        }}
+      >
+        <div
+        style={{
+          textAlign: "left",  // Align the text to the left
+          maxWidth: "50%",
+          position: "absolute",  // Position it absolutely inside its parent
+          top: "20px",  // Add some space from the top
+          right: "20px",  // Add some space from the left
+          backgroundColor: "#319899",  // Background color
+          color: "white",  // Text color to contrast with the background
+          padding: "20px",  // Padding for some space around the content
+          borderRadius: "10px",  // Rounded corners for the background container
+          boxShadow: "0 4px 15px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        <h1 style={{ fontSize: "36px", fontWeight: "bold" }}>Plan Your Next Stay</h1>
+        <p style={{ fontSize: "16px", lineHeight: "1.6" }}>
+          Experience luxury. Meet new people and have unforgettable memories with our hotel booking services.
+        </p>
+      </div>
+        </div>
+      </div>
       )}
       {loading ? (
         <div style={{ textAlign: "center", marginTop: 20 }}>

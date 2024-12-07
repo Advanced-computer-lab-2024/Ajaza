@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Table, message, DatePicker } from 'antd';
 import { jwtDecode } from "jwt-decode";
 import axios from 'axios';
 import moment from 'moment';
 import { FilterOutlined } from '@ant-design/icons';
+import { Column } from '@antv/g2plot';
 
 const { RangePicker } = DatePicker;
 
@@ -18,6 +19,7 @@ const SellerReport = () => {
         dateRange: null,
         filterMode: 'date',
     });
+    const chartRef = useRef(null);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -157,6 +159,7 @@ const SellerReport = () => {
             title: 'Product Name',
             dataIndex: 'productName',
             key: 'productName',
+            align: 'center',
             filters: uniqueProductNames.map(name => ({ text: name, value: name })),
             filterSearch: true,
             filterMultiple: true,
@@ -166,6 +169,7 @@ const SellerReport = () => {
             title: 'Order Date',
             dataIndex: 'orderDate',
             key: 'orderDate',
+            align: 'center',
             filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
                 <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <RangePicker
@@ -197,11 +201,13 @@ const SellerReport = () => {
             title: 'Quantity',
             dataIndex: 'quantity',
             key: 'quantity',
+            align: 'center',
         },
         {
             title: 'Price',
             dataIndex: 'price',
             key: 'price',
+            align: 'center',
             render: (text) => `$${text.toFixed(2)}`,
             sorter: (a, b) => a.price - b.price, // Enable sorting by price
         },
@@ -209,14 +215,73 @@ const SellerReport = () => {
             title: 'Total Revenue',
             dataIndex: 'totalRevenue',
             key: 'totalRevenue',
+            align: 'center',
             render: (text) => `$${text.toFixed(2)}`,
         },
     ];
+
+    useEffect(() => {
+        if (!salesData?.length || !chartRef.current) return;
+    
+        // Aggregate data by activity
+        const chartData = salesData.reduce((acc, curr) => {
+            const existing = acc.find(item => item.product === curr.productName);
+            if (existing) {
+                existing.sales += curr.price;
+            } else {
+                acc.push({
+                    product: curr.productName,
+                    sales: curr.price,
+                });
+            }
+            return acc;
+        }, []);
+    
+        // Initialize chart
+        const columnChart = new Column(chartRef.current, {
+            data: chartData,
+            xField: 'product',
+            yField: 'sales',
+            label: {
+                position: 'middle',
+                style: {
+                    fill: '#FFFFFF',
+                },
+            },
+            xAxis: {
+                label: {
+                    autoRotate: false,
+                    style: {
+                        textAlign: 'center',
+                        width: 100, // Set fixed width for label container
+                    },
+                    formatter: (text) => {
+                        // Split text by spaces and join with newlines
+                        return text.split(' ').join('\n');
+                    },
+                },
+            },
+            meta: {
+                sales: {
+                    alias: 'Total Sales ($)',
+                    formatter: (v) => `$${v.toFixed(2)}`
+                }
+            }
+        });
+    
+        columnChart.render();
+    
+        return () => columnChart.destroy();
+    }, [salesData]);
+
+
 
     return (
         <div>
             <h2>Seller Sales Report</h2>
             <p>Total Sales: <strong>${totalSales.toFixed(2)}</strong></p>
+            <div style={{ display: 'flex', gap: '20px' }}>
+                <div style={{ flex: 1 }}>
             <Table
                 columns={columns}
                 dataSource={salesData}
@@ -245,6 +310,11 @@ const SellerReport = () => {
                     setTotalSales(newTotalSales);
                 }}
             />
+                </div>
+                <div style={{ flex: 1, minHeight: '400px' }}>
+                    <div ref={chartRef} />
+                </div>
+            </div>
         </div>
     );
 };

@@ -134,6 +134,8 @@ const BasicCard = ({
 
   return (
     <Card
+
+    
       title={<div onClick={onClick}>{title}</div>}
       extra={
         <div style={{ position: "relative" }}>

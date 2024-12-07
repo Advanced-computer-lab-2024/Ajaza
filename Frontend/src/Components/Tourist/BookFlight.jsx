@@ -69,7 +69,8 @@ export const BookFlight = () => {
 
     const handleCurrencyChange = (newCurrency) => {
       setCurrency(newCurrency);
-    };    const [touristId, setTouristId] = useState(null);
+    };    
+    const [touristId, setTouristId] = useState(null);
     const [wallet, setWallet] = useState(0);
 
     useEffect(() => {

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import { Table, Tabs, message, DatePicker } from 'antd';
 import { jwtDecode } from "jwt-decode";
 import axios from 'axios';
 import moment from 'moment';
 import { FilterOutlined } from '@ant-design/icons';
+import { Column } from '@antv/g2plot';
 
 const { TabPane } = Tabs;
 const { RangePicker } = DatePicker;
@@ -26,6 +27,9 @@ const AdminReport = () => {
     dateRange: null,
     filterMode: 'date',
   });
+  const chartRef1 = useRef(null);
+  const chartRef2 = useRef(null);
+  const chartRef3 = useRef(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -311,6 +315,7 @@ const AdminReport = () => {
       title: 'Product Name',
       dataIndex: 'productName',
       key: 'productName',
+      align: 'center',
       filters: uniqueProductNames.map(name => ({ text: name, value: name })),
       filterSearch: true,
       filterMultiple: true,
@@ -320,6 +325,7 @@ const AdminReport = () => {
       title: 'Order Date',
       dataIndex: 'orderDate',
       key: 'orderDate',
+      align: 'center',
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
         <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
           <RangePicker
@@ -347,8 +353,8 @@ const AdminReport = () => {
         <FilterOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
       ),
     },
-    { title: 'Quantity', dataIndex: 'quantity', key: 'quantity' },
-    { title: 'Price', dataIndex: 'price', key: 'price', render: (text) => `$${text.toFixed(2)}`, sorter: (a, b) => a.price - b.price },
+    { title: 'Quantity', dataIndex: 'quantity', key: 'quantity', align: 'center', },
+    { title: 'Price', dataIndex: 'price', key: 'price', align: 'center', render: (text) => `$${text.toFixed(2)}`, sorter: (a, b) => a.price - b.price },
   ];
 
   const activityColumns = [
@@ -356,6 +362,7 @@ const AdminReport = () => {
       title: 'Activity Name',
       dataIndex: 'activityName',
       key: 'activityName',
+      align: 'center',
       filters: uniqueActivityNames.map(name => ({ text: name, value: name })),
       filterSearch: true,
       filterMultiple: true,
@@ -365,6 +372,7 @@ const AdminReport = () => {
       title: 'Activity Date',
       dataIndex: 'activityDate',
       key: 'activityDate',
+      align: 'center',
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
         <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
           <RangePicker
@@ -392,8 +400,8 @@ const AdminReport = () => {
         <FilterOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
       ),
     },
-    { title: 'Price', dataIndex: 'price', key: 'price', render: (text) => `$${text.toFixed(2)}`, sorter: (a, b) => a.price - b.price },
-    { title: 'Commission', dataIndex: 'commission', key: 'commission', render: (text) => `$${text.toFixed(2)}` },
+    { title: 'Price', dataIndex: 'price', key: 'price',align: 'center', render: (text) => `$${text.toFixed(2)}`, sorter: (a, b) => a.price - b.price },
+    { title: 'Commission', dataIndex: 'commission', key: 'commission',align: 'center', render: (text) => `$${text.toFixed(2)}` },
   ];
 
   const itineraryColumns = [
@@ -401,6 +409,7 @@ const AdminReport = () => {
       title: 'Itinerary Name',
       dataIndex: 'itineraryName',
       key: 'itineraryName',
+      align: 'center',
       filters: uniqueItineraryNames.map(name => ({ text: name, value: name })),
       filterSearch: true,
       filterMultiple: true,
@@ -410,6 +419,7 @@ const AdminReport = () => {
       title: 'Itinerary Date',
       dataIndex: 'bookingDate',
       key: 'bookingDate',
+      align: 'center',
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
         <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
           <RangePicker
@@ -437,18 +447,235 @@ const AdminReport = () => {
         <FilterOutlined style={{ color: filtered ? '#1890ff' : undefined }} />
       ),
     },
-    { title: 'Price', dataIndex: 'price', key: 'price', render: (text) => `$${text.toFixed(2)}`, sorter: (a, b) => a.price - b.price },
-    { title: 'Commission', dataIndex: 'commission', key: 'commission', render: (text) => `$${text.toFixed(2)}` },
+    { title: 'Price', dataIndex: 'price', key: 'price', align: 'center', render: (text) => `$${text.toFixed(2)}`, sorter: (a, b) => a.price - b.price },
+    { title: 'Commission', dataIndex: 'commission', key: 'commission', align: 'center', render: (text) => `$${text.toFixed(2)}` },
   ];
+
+
+
+
+
+
+  useEffect(() => {
+    if (!data.product?.length || !chartRef1.current) return;
+
+    // Aggregate data by product
+    const chartData = data.product.reduce((acc, curr) => {
+        const existing = acc.find(item => item.product === curr.productName);
+        if (existing) {
+            existing.sales += curr.price;
+        } else {
+            acc.push({
+                product: curr.productName,
+                sales: curr.price,
+            });
+        }
+        return acc;
+    }, []);
+
+    // Initialize chart
+    const columnChart1 = new Column(chartRef1.current, {
+        data: chartData,
+        xField: 'product',
+        yField: 'sales',
+        label: {
+            position: 'middle',
+            style: {
+                fill: '#FFFFFF',
+            },
+        },
+        xAxis: {
+            label: {
+                autoRotate: false,  // Prevent rotation
+                style: {
+                  textAlign: 'center',
+                  width: 100, // Set fixed width for label container
+              },
+              formatter: (text) => {
+                  // Split text by spaces and join with newlines
+                  return text.split(' ').join('\n');
+              },
+            },
+        },
+        meta: {
+            sales: {
+                alias: 'Total Sales ($)',
+                formatter: (v) => `$${v.toFixed(2)}`
+            }
+        }
+    });
+
+    columnChart1.render();
+
+    return () => columnChart1.destroy();
+}, [data.product]);
+
+
+
+useEffect(() => {
+  if (!data.activity?.length || !chartRef2.current) return;
+
+  // Aggregate data by activity
+  const chartData = data.activity.reduce((acc, curr) => {
+    const existing = acc.find(item => item.activity === curr.activityName);
+    if (existing) {
+      existing.commission += curr.commission;
+    } else {
+      acc.push({
+        activity: curr.activityName,
+        commission: curr.commission, // Changed from sales to commission
+      });
+    }
+    return acc;
+  }, []);
+
+  // Initialize chart
+const columnChart2 = new Column(chartRef2.current, {
+  data: chartData,
+  xField: 'activity',
+  yField: 'commission',
+  label: {
+    position: 'middle',
+    style: {
+      fill: '#FFFFFF',
+    },
+    formatter: (v) => `$${v.commission.toFixed(2)}`,
+  },
+  xAxis: {
+    label: {
+      autoRotate: false,  // Prevent rotation
+      autoHide: false,
+      autoEllipsis: false,
+      style: {
+        textAlign: 'center',
+        width: 100, // Set fixed width for label container
+      },
+      formatter: (text) => {
+        // Split text by spaces and join with newlines
+        return text.split(' ').join('\n');
+      },
+    },
+    margin: 50, // Increased margin for multiline labels
+  },
+  // Add padding to give more space for labels
+  padding: [30, 30, 100, 50], // [top, right, bottom, left]
+  yAxis: {
+    label: {
+      formatter: (v) => `$${v}`,
+    },
+  },
+  meta: {
+    activity: {
+      alias: 'Activity Name',
+    },
+    commission: {
+      alias: 'Commission ($)',
+      formatter: (v) => `$${v.toFixed(2)}`
+    }
+  }
+});
+
+  columnChart2.render();
+
+  return () => columnChart2.destroy();
+}, [data.activity]);
+
+
+
+useEffect(() => {
+  if (!data.itinerary?.length || !chartRef3.current) return;
+
+  // Aggregate data by itinerary
+  const chartData = data.itinerary.reduce((acc, curr) => {
+    const existing = acc.find(item => item.itinerary === curr.itineraryName);
+    if (existing) {
+      existing.commission += curr.commission;
+    } else {
+      acc.push({
+        itinerary: curr.itineraryName,
+        commission: curr.commission,
+      });
+    }
+    return acc;
+  }, []);
+
+  // Initialize chart
+  const columnChart3 = new Column(chartRef3.current, {
+    data: chartData,
+    xField: 'itinerary',
+    yField: 'commission',
+    label: {
+      position: 'middle',
+      style: {
+        fill: '#FFFFFF',
+      },
+      formatter: (v) => `$${v.commission.toFixed(2)}`,
+    },
+    xAxis: {
+      label: {
+        autoRotate: false,  // Prevent rotation
+        autoHide: true,
+        autoEllipsis: true,
+        style: {
+          textAlign: 'center',
+          width: 100, // Set fixed width for label container
+      },
+      formatter: (text) => {
+          // Split text by spaces and join with newlines
+          return text.split(' ').join('\n');
+      },
+        
+      },
+    },
+    yAxis: {
+      label: {
+        formatter: (v) => `$${v}`,
+      },
+    },
+    meta: {
+      itinerary: {
+        alias: 'Itinerary Name',
+      },
+      commission: {
+        alias: 'Commission ($)',
+        formatter: (v) => `$${v.toFixed(2)}`
+      }
+    }
+  });
+
+  columnChart3.render();
+
+  return () => columnChart3.destroy();
+}, [data.itinerary]);
+
+
+
+
+useEffect(() => {
+  const handleResize = () => {
+    if (chartRef1.current && data.product?.length) columnChart1?.render();
+    if (chartRef2.current && data.activity?.length) columnChart2?.render();
+    if (chartRef3.current && data.itinerary?.length) columnChart3?.render();
+  };
+
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, [data]);
+
+
+
+
 
   return (
     <div>
       <h2>Admin Sales Report</h2>
-      <Tabs defaultActiveKey="product" centered>
+      <Tabs defaultActiveKey="product" centered destroyInactiveTabPane={false}>
 
         <TabPane tab="Products" key="product">
           <p><strong>Product Sales:</strong> ${totals.productSales.toFixed(2)}</p>
           <p><strong>Total Sales + Commissions:</strong> ${totals.totalSales.toFixed(2)}</p>
+          <div style={{ display: 'flex', gap: '20px' }}>
+          <div style={{ flex: 1 }}>
           <Table
             columns={productColumns}
             dataSource={data.product}
@@ -457,6 +684,7 @@ const AdminReport = () => {
             onChange={(pagination, filters, sorter) => {
               const productNames = filters.productName || [];
               const dateRange = filters.dateRange || null;
+              
 
               const newFilters = {
                 productNames: productNames.length > 0 ? productNames : filters.productNames || [],
@@ -483,11 +711,18 @@ const AdminReport = () => {
               }));
             }}
           />
+                          </div>
+                <div style={{ flex: 1, minHeight: '400px' }}>
+                    <div ref={chartRef1} />
+                </div>
+            </div>
         </TabPane>
 
         <TabPane tab="Activities" key="activity">
           <p><strong>Activity Commission:</strong> ${totals.activityBookingsCommission.toFixed(2)}</p>
           <p><strong>Total Sales + Commissions:</strong> ${totals.totalSales.toFixed(2)}</p>
+          <div style={{ display: 'flex', gap: '20px' }}>
+          <div style={{ flex: 1 }}>
           <Table
             columns={activityColumns}
             dataSource={data.activity}
@@ -517,11 +752,18 @@ const AdminReport = () => {
             }));
           }}
           />
+            </div>
+                <div style={{ flex: 1, minHeight: '400px' }}>
+                    <div ref={chartRef2} />
+                </div>
+            </div>
         </TabPane>
 
         <TabPane tab="Itineraries" key="itinerary">
           <p><strong>Itinerary Commission:</strong> ${totals.itineraryBookingsCommission.toFixed(2)}</p>
           <p><strong>Total Sales + Commissions:</strong> ${totals.totalSales.toFixed(2)}</p>
+          <div style={{ display: 'flex', gap: '20px' }}>
+          <div style={{ flex: 1 }}>
           <Table
             columns={itineraryColumns}
             dataSource={data.itinerary}
@@ -551,6 +793,12 @@ const AdminReport = () => {
             }));
           }}
           />
+
+        </div>
+                <div style={{ flex: 1, minHeight: '400px' }}>
+                    <div ref={chartRef3} />
+                </div>
+            </div>
         </TabPane>
 
       </Tabs>
