@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   TagsOutlined,
@@ -14,21 +14,128 @@ import {
   BellFilled,
   FileOutlined,
 } from "@ant-design/icons";
-import { Button, Layout, Menu, theme, Flex, message, Modal } from "antd";
+import {
+  Button,
+  Layout,
+  Menu,
+  theme,
+  Flex,
+  message,
+  Modal,
+  Typography,
+  Dropdown,
+} from "antd";
 import IconFloatButton from "../Common/IconFloatButton";
-import { Colors } from "../Common/Constants";
-
+import { apiUrl, Colors, getSetNewToken } from "../Common/Constants";
 import image from "../../Assets/logo-cropped.svg";
 import { useAdminMenuKey } from "./AdminMenuKeyContext";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import CustomButton from "../Common/CustomButton";
 
+const { Title } = Typography;
 const { Header, Sider, Content } = Layout;
 
 const AdminCustomLayout = ({ children }) => {
   const { selectedMenuKey, updateSelectedMenuKey } = useAdminMenuKey();
   const navigate = useNavigate();
   //  const [user, setUser] = useState("");
+  const [userid, setUserid] = useState();
+  const [role, setRole] = useState();
+  const [Unseennotifications, setUnseenNotifications] = useState([]);
+  const [allnotifications, setAllNotifications] = useState([]);
+  const UnseennotificationsRef = useRef([]);
+  const [isOpen, setIsOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
   const [hover, setHover] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      setUserid(decodedToken.userDetails._id);
+      setRole(decodedToken.role);
+      setAllNotifications(decodedToken.userDetails.notifications);
+      const unseenNotifications =
+        decodedToken.userDetails?.notifications?.filter(
+          (notification) => !notification.seen
+        ) || [];
+      UnseennotificationsRef.current = unseenNotifications;
+      setUnseenNotifications(unseenNotifications);
+    }
+  }, [isOpen]);
+
+  const notificationMenu = (
+    <Menu
+      style={{
+        maxHeight: 500,
+        overflowY: "auto",
+        width: 300,
+        padding: "10px",
+      }}
+    >
+      <div className="notification-header" style={{ marginBottom: "15px" }}>
+        <Title level={3}>Notifications</Title>
+        <p>Keep track of all your updates and messages here.</p>
+      </div>
+      {allnotifications.length > 0 ? (
+        [...allnotifications].reverse().map((notification) => (
+          <Menu.Item key={notification._id} style={{ padding: 0 }}>
+            <div
+              className={`notification-item ${
+                notification.seen ? "seen" : "unseen"
+              }`}
+              style={{
+                padding: "10px",
+                borderRadius: "8px",
+                backgroundColor: notification.seen ? "#f0f0f0" : "#d4f8d4", // Light green for unseen
+                marginBottom: "10px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "100%",
+                textAlign: "left",
+              }}
+            >
+              <div className="notification-text" style={{ flex: 1 }}>
+                {notification.text}
+              </div>
+              {/* Show button if activityId or itineraryId exists */}
+              {(notification.activityId || notification.itineraryId) && (
+                <CustomButton
+                  size="xs"
+                  rounded={true}
+                  style={{
+                    backgroundColor: "#1b696a",
+                    color: "#fff",
+                    border: "1px solid #4caf50",
+                  }}
+                  value={
+                    notification.activityId ? "View Activity" : "View Itinerary"
+                  }
+                  onClick={() => {
+                    if (notification.activityId) {
+                      navigate(
+                        `/tourist/activities/${notification.activityId}`
+                      );
+                    } else if (notification.itineraryId) {
+                      navigate(
+                        `/tourist/itineraries/${notification.itineraryId}`
+                      );
+                    }
+                  }}
+                />
+              )}
+            </div>
+          </Menu.Item>
+        ))
+      ) : (
+        <Menu.Item disabled style={{ textAlign: "center" }}>
+          <strong>No notifications available</strong>
+        </Menu.Item>
+      )}
+    </Menu>
+  );
 
   const confirmLogOut = async (id) => {
     Modal.confirm({
@@ -52,13 +159,7 @@ const AdminCustomLayout = ({ children }) => {
       style={{ width: "100%", position: "relative" }}
     >
       <div id="logo" style={{ position: "relative", right: 40, bottom: 3 }}>
-        <img
-          src={image}
-          alt="Ajaza Logo"
-          style={{
-            width: "58px",
-          }}
-        />
+        <img src={image} alt="Ajaza Logo" style={{ width: "58px" }} />
       </div>
       <Flex
         align={"center"}
@@ -70,7 +171,22 @@ const AdminCustomLayout = ({ children }) => {
           margin: "auto 0",
         }}
       >
-        <IconFloatButton icon={BellFilled} badge={{ count: 5 }} />
+        <Dropdown
+          overlay={notificationMenu}
+          trigger={["click"]}
+          onVisibleChange={(visible) => {
+            if (visible) {
+              setIsOpen(visible);
+            }
+          }}
+        >
+          <div onClick={(e) => e.preventDefault()}>
+            <IconFloatButton
+              icon={BellFilled}
+              badge={{ count: UnseennotificationsRef.current.length }}
+            />
+          </div>
+        </Dropdown>
         <div
           className="hover"
           style={{
@@ -90,6 +206,37 @@ const AdminCustomLayout = ({ children }) => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  const markNotificationsAsSeen = async (userid) => {
+    console.log("Marking notifications as seen for user:", userid);
+    try {
+      const response = await axios.post(
+        `${apiUrl}tourist/seeNotifications/${userid}`,
+        {} 
+      );
+      if (response.status === 200) {
+        console.log("Notifications marked as seen successfully");
+        await getSetNewToken(userid, "admin");
+        const updatedNotifications = allnotifications.map((notification) => ({
+          ...notification,
+          seen: true,
+        }));
+        setAllNotifications(updatedNotifications);
+        setUnseenNotifications([]); // Reset the unseen notifications count
+        UnseennotificationsRef.current = [];
+      }
+    } catch (error) {
+      console.error("Error marking notifications as seen:", error.message);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      markNotificationsAsSeen(userid).finally(() => {
+        setIsOpen(false); // Reset isOpen to false
+      });
+    }
+  }, [isOpen, userid]);
 
   const handleMenuClick = ({ key }) => {
     updateSelectedMenuKey(key);
@@ -172,10 +319,10 @@ const AdminCustomLayout = ({ children }) => {
                   style: commonStyle,
                 },
                 //{
-                 // label: "Add Accounts",
-               //   key: "setting:1",
-               //   style: commonStyle,
-              //  },
+                // label: "Add Accounts",
+                //   key: "setting:1",
+                //   style: commonStyle,
+                //  },
                 {
                   label: "Accepted Accounts",
                   key: "setting:2",
