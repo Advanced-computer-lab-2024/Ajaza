@@ -1815,17 +1815,16 @@ exports.getOrderByDate = async (req, res) => {
     const touristId = req.params.id;
     const date = req.body.date;
 
-    const tourist = await Tourist.findById(touristId)
-      .populate({
-        path: 'orders.products.productId'
-      });
-    
-    if(!tourist) {
-      return res.status(404).json({error: "Tourist not Found"});
+    const tourist = await Tourist.findById(touristId).populate({
+      path: "orders.products.productId",
+    });
+
+    if (!tourist) {
+      return res.status(404).json({ error: "Tourist not Found" });
     }
     let order;
-    for(let i = 0; i< tourist.orders.length;i++) {
-      if(tourist.orders[i].date.toISOString() === date) {
+    for (let i = 0; i < tourist.orders.length; i++) {
+      if (tourist.orders[i].date.toISOString() === date) {
         order = tourist.orders[i];
       }
     }
@@ -1833,9 +1832,9 @@ exports.getOrderByDate = async (req, res) => {
     return res.status(200).json(order);
   } catch (error) {
     console.log(error);
-    res.status(500).json({error: "Internal error"});
+    res.status(500).json({ error: "Internal error" });
   }
-}
+};
 
 exports.cancelOrder = async (req, res) => {
   try {
@@ -1849,7 +1848,9 @@ exports.cancelOrder = async (req, res) => {
       return res.status(404).json({ message: "Tourist not Found" });
     }
 
-    const order = tourist.orders.find(item => item.date.toISOString() === date);
+    const order = tourist.orders.find(
+      (item) => item.date.toISOString() === date
+    );
 
     for (const item of order.products) {
       const product = await Product.findById(item.productId);
@@ -1905,6 +1906,59 @@ exports.addDeliveryAddress = async (req, res) => {
     return res
       .status(200)
       .json({ message: "Address added successfully", token });
+  } catch (error) {
+    console.log("error");
+    res.status(500).json({ message: "Internal error" });
+  }
+};
+
+exports.removeDeliveryAddress = async (req, res) => {
+  try {
+    const touristId = req.params.id;
+    const { country, city, area, street, house, app, desc } = req.body;
+    console.log(req.body);
+
+    const address = { country, city, area, street, house, app, desc };
+
+    const tourist = await Tourist.findById(touristId);
+
+    if (!tourist) {
+      console.log("not found");
+      return res.status(404).json({ message: "Tourist not Found" });
+    }
+
+    tourist.deliveryAddresses = tourist.deliveryAddresses.filter(
+      (deliveryAddress) => {
+        if (
+          deliveryAddress?.country == address?.country &&
+          deliveryAddress?.city == address?.city &&
+          deliveryAddress?.area == address?.area &&
+          deliveryAddress?.street == address?.street &&
+          deliveryAddress?.house == address?.house &&
+          deliveryAddress?.app == address?.app
+        ) {
+          return false;
+        }
+        console.log("not here");
+
+        return true;
+      }
+    );
+    await tourist.save();
+
+    const token = jwt.sign(
+      {
+        userId: tourist._id,
+        role: "tourist",
+        userDetails: tourist,
+      }, // Include user data in the token
+      process.env.JWT_SECRET, // Use the environment variable
+      { expiresIn: "1h" }
+    );
+
+    return res
+      .status(200)
+      .json({ message: "Address removed successfully", token });
   } catch (error) {
     console.log("error");
     res.status(500).json({ message: "Internal error" });
@@ -2272,11 +2326,9 @@ exports.checkout = async (req, res) => {
     refreshCart(touristId);
 
     if (!tourist || tourist.cart.length <= 0) {
-      return res
-        .status(400)
-        .json({
-          message: "Cart refreshed, cart is now empty: cannot place order",
-        });
+      return res.status(400).json({
+        message: "Cart refreshed, cart is now empty: cannot place order",
+      });
     }
 
     const validCartItems = [];
@@ -2339,7 +2391,9 @@ exports.checkout = async (req, res) => {
 
     await tourist.save();
 
-    return res.status(200).json({ message: "Order created successfully!", order });
+    return res
+      .status(200)
+      .json({ message: "Order created successfully!", order });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal error" });
@@ -2414,7 +2468,7 @@ exports.seeNotifications = async (req, res) => {
 // Count tourist by month and year
 exports.countTouristsByMonth = async (req, res) => {
   try {
-    const { date } = req.query; 
+    const { date } = req.query;
 
     if (!date) {
       return res.status(400).json({ message: "Date is required" });
@@ -2425,9 +2479,25 @@ exports.countTouristsByMonth = async (req, res) => {
       return res.status(400).json({ message: "Invalid date format" });
     }
 
-    const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1, 0, 0, 0, 0); // Set time to 00:00:00
-    const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0, 23, 59, 59, 999); // Set time to 23:59:59
-    
+    const startOfMonth = new Date(
+      parsedDate.getFullYear(),
+      parsedDate.getMonth(),
+      1,
+      0,
+      0,
+      0,
+      0
+    ); // Set time to 00:00:00
+    const endOfMonth = new Date(
+      parsedDate.getFullYear(),
+      parsedDate.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999
+    ); // Set time to 23:59:59
+
     const count = await Tourist.countDocuments({
       joined: { $gte: startOfMonth, $lt: endOfMonth },
     });
@@ -2444,7 +2514,9 @@ exports.getTouristsRequestingDeletion = async (req, res) => {
     const tourists = await Tourist.find({ requestingDeletion: true });
 
     if (!tourists.length) {
-      return res.status(404).json({ message: 'No tourists requesting deletion found' });
+      return res
+        .status(404)
+        .json({ message: "No tourists requesting deletion found" });
     }
 
     res.status(200).json(tourists);

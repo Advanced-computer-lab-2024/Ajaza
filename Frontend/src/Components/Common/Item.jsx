@@ -47,6 +47,7 @@ const Item = ({
   handleFlagClick,
   currency,
   creatorFeedback,
+  productCurrentQuantity,
 }) => {
   const [user, setUser] = useState(null);
   const [avgRating, setAvgRating] = useState(null);
@@ -102,6 +103,7 @@ const Item = ({
         isFlagged={isFlagged}
         handleFlagClick={handleFlagClick}
         currency={currency}
+        productCurrentQuantity={productCurrentQuantity}
       />
 
       {type == "venue" ? (

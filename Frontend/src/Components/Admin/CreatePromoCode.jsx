@@ -1,6 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Typography, Modal, Input, message, Form, InputNumber } from "antd";
-import { EditOutlined, DeleteOutlined, PlusOutlined, MinusOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Button,
+  Typography,
+  Modal,
+  Input,
+  message,
+  Form,
+  InputNumber,
+} from "antd";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  MinusOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 import axios from "axios";
 import { apiUrl } from "../Common/Constants";
 
@@ -29,40 +44,42 @@ const CreatePromoCode = () => {
   }, []);
 
   //const showUpdateModal = (promoCode) => {
-    //setCurrentPromoCode(promoCode);
-    //setUpdatedValue(promoCode.value * 100); 
-    //setIsModalVisible(true);
+  //setCurrentPromoCode(promoCode);
+  //setUpdatedValue(promoCode.value * 100);
+  //setIsModalVisible(true);
   //};
 
- // const handleUpdate = async () => {
-   // if (!updatedValue) {
-     // message.error("Please provide a value for the promo code.");
-     // return;
-    //}
+  // const handleUpdate = async () => {
+  // if (!updatedValue) {
+  // message.error("Please provide a value for the promo code.");
+  // return;
+  //}
 
-    //try {
-     // await axios.patch(apiUrl + `Promocode/${currentPromoCode._id}`, {
-       // value: updatedValue / 100,
-      //});
+  //try {
+  // await axios.patch(apiUrl + `Promocode/${currentPromoCode._id}`, {
+  // value: updatedValue / 100,
+  //});
 
-      //const updatedPromoCodes = promoCodes.map((promo) =>
-        //promo._id === currentPromoCode._id
-         // ? { ...promo, value: updatedValue / 100 }
-          //: promo
-      //);
-      //setPromoCodes(updatedPromoCodes);
-      //setIsModalVisible(false);
-      //message.success("Promo code updated successfully!");
-    //} catch (error) {
-     // console.error(error);
-     // message.error("Failed to update promo code.");
-    //}
+  //const updatedPromoCodes = promoCodes.map((promo) =>
+  //promo._id === currentPromoCode._id
+  // ? { ...promo, value: updatedValue / 100 }
+  //: promo
+  //);
+  //setPromoCodes(updatedPromoCodes);
+  //setIsModalVisible(false);
+  //message.success("Promo code updated successfully!");
+  //} catch (error) {
+  // console.error(error);
+  // message.error("Failed to update promo code.");
+  //}
   //};
 
   const handleDelete = async (promoCodeId) => {
     try {
       await axios.delete(apiUrl + `Promocode/${promoCodeId}`);
-      const updatedPromoCodes = promoCodes.filter((promo) => promo._id !== promoCodeId);
+      const updatedPromoCodes = promoCodes.filter(
+        (promo) => promo._id !== promoCodeId
+      );
       setPromoCodes(updatedPromoCodes);
       message.success("Promo code deleted successfully!");
     } catch (error) {
@@ -111,7 +128,7 @@ const CreatePromoCode = () => {
           marginBottom: "24px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "end",
         }}
       >
         {addingPromoCode && (
@@ -124,7 +141,9 @@ const CreatePromoCode = () => {
           >
             <Input
               value={newPromoCode.code}
-              onChange={(e) => setNewPromoCode({ ...newPromoCode, code: e.target.value })}
+              onChange={(e) =>
+                setNewPromoCode({ ...newPromoCode, code: e.target.value })
+              }
               placeholder="Enter promo code"
               style={{ width: "150px", marginRight: "8px" }}
             />
@@ -136,37 +155,37 @@ const CreatePromoCode = () => {
               max={100}
               style={{ width: "100px", marginRight: "8px" }}
             />
-            <Button type="primary" onClick={handleAddPromoCode} style={{ backgroundColor: "#1b696a" }}>
-              Add
-            </Button>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleAddPromoCode}
+              style={{ backgroundColor: "#1b696a" }}
+            ></Button>
           </div>
         )}
 
         <Button
           type="primary"
           style={{ backgroundColor: "#1b696a" }}
-          icon={addingPromoCode ? <MinusOutlined /> : <PlusOutlined />}
+          icon={addingPromoCode ? <CloseOutlined /> : <PlusOutlined />}
           onClick={() => setAddingPromoCode(!addingPromoCode)}
-        >
-          {addingPromoCode ? "Discard" : "Add Promo Code"}
-        </Button>
+        ></Button>
       </div>
 
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "22% 22% 22% 22%",
-          gridGap: "4%",
+          gridTemplateColumns: "15% 15% 15% 15% 15% 15%",
+          gridGap: "2%",
+          gridRowGap: "15px",
         }}
       >
         {promoCodes.map((promo) => (
           <Card
             key={promo._id}
             title={promo.code}
-            extra={`${100-(promo.value * 100)}%`}
-            style={{ width: 300 }}
+            extra={`${100 - promo.value * 100}%`}
           >
-          
             <Button
               type="text"
               icon={<DeleteOutlined />}
@@ -179,7 +198,6 @@ const CreatePromoCode = () => {
           </Card>
         ))}
       </div>
-
     </div>
   );
 };

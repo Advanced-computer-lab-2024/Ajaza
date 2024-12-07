@@ -6,6 +6,7 @@ import {
   DeleteOutlined,
   PlusOutlined,
   MinusOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import { apiUrl, Colors } from "../Common/Constants";
 import { jwtDecode } from "jwt-decode";
@@ -124,7 +125,7 @@ const ManageActivityCategories = () => {
           marginBottom: "24px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "end",
         }}
       >
         {addingCategory && (
@@ -143,59 +144,48 @@ const ManageActivityCategories = () => {
             />
             <Button
               type="primary"
+              icon={<PlusOutlined />}
               onClick={handleAddCategory}
               style={{ backgroundColor: Colors.primary.default }}
-            >
-              Add
-            </Button>
+            ></Button>
           </div>
         )}
 
         <Button
           type="primary"
           style={{ backgroundColor: Colors.primary.default }}
-          icon={addingCategory ? <MinusOutlined /> : <PlusOutlined />}
+          icon={addingCategory ? <CloseOutlined /> : <PlusOutlined />}
           onClick={() => setAddingCategory(!addingCategory)}
-        >
-          {addingCategory ? "Close Category" : "Add Category"}
-        </Button>
+        ></Button>
       </div>
 
       <div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", // Adjusted to fit smaller cards dynamically
-    gridGap: "16px", // Adjust gap between cards
-  }}
->
-  {categories.map((category) => (
-    <Card
-      key={category._id}
-      title={category.category}
-      style={{
-        width: "200px", // Reduced card width
-        textAlign: "center",
-        margin: "auto", // Center cards within the grid cells
-      }}
-    >
-      <Button
-        type="text"
-        icon={<EditOutlined />}
-        onClick={() => showUpdateModal(category)}
-      />
-      <Button
-        type="text"
-        icon={<DeleteOutlined />}
-        onClick={() => handleDelete(category._id)}
         style={{
-          marginLeft: "8px",
-          color: "red",
+          display: "grid",
+          gridTemplateColumns: "15% 15% 15% 15% 15% 15%",
+          gridGap: "2%",
+          gridRowGap: "15px",
         }}
-      />
-    </Card>
-  ))}
-</div>
-
+      >
+        {categories.map((category) => (
+          <Card key={category._id} title={category.category}>
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => showUpdateModal(category)}
+            />
+            <Button
+              type="text"
+              icon={<DeleteOutlined />}
+              onClick={() => handleDelete(category._id)}
+              style={{
+                marginLeft: "8px",
+                color: "red",
+              }}
+            />
+          </Card>
+        ))}
+      </div>
 
       <Modal
         title="Update Category"

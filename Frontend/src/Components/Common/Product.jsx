@@ -109,13 +109,18 @@ const Product = () => {
   useEffect(() => {
     if (touristId && product) {
       const fetchCartData = async () => {
+        console.log("here");
+
         try {
           const response = await axios.get(
             `${apiUrl}tourist/cart/${touristId}`
           );
-          const cartItem = response.data.find(
-            (item) => item.productId === product._id
-          );
+          console.log(response);
+
+          const cartItem = response.data.find((item) => {
+            return item.productId._id === product._id;
+          });
+
           if (cartItem) {
             setQuantity(cartItem.quantity);
           }
@@ -243,7 +248,7 @@ const Product = () => {
               value={"Add to Cart"}
               size={"s"}
               //style={{ position: 'relative', top: 60, left: -105, zIndex: 10 }}
-              style={{ position: "absolute", top: 60, right: 7, zIndex: 10 }}
+              style={{ position: "absolute", top: 63.5, right: 7, zIndex: 10 }}
               onClick={handleAddToCart}
             />
           ) : (
@@ -301,7 +306,7 @@ const Product = () => {
             // </div>
             <PlusMinusPill
               quantity={quantity}
-              style={{ position: "absolute", top: 75, right: 25, zIndex: 10 }}
+              style={{ position: "absolute", top: 72, right: 15, zIndex: 10 }}
               handleDelete={handleRemoveFromCart}
               handleMinus={handleDecrement}
               handlePlus={handleIncrement}
@@ -327,6 +332,7 @@ const Product = () => {
         feedbacks={product?.feedback}
         type={"product"}
         currency={currency}
+        productCurrentQuantity={quantity}
       />
 
       {/*<div style={{ display: "flex", alignItems: "center", marginTop: "20px" }}>

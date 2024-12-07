@@ -3,22 +3,24 @@ import React, { useState } from "react";
 import { Colors } from "./Constants";
 import "./PlusMinusPill.css";
 
-const height = 35;
-const iconStyle = {
-  display: "flex",
-  justifyContent: "center",
-  borderRadius: "50%",
-  height: height,
-  width: height,
-};
-
 const PlusMinusPill = ({
   handlePlus,
   handleMinus,
   handleDelete,
   quantity,
   style,
+  containerHeight = 42,
+  iconSize = 16,
 }) => {
+  const height = containerHeight;
+  const iconStyle = {
+    display: "flex",
+    justifyContent: "center",
+    borderRadius: "50%",
+    height: height,
+    width: height,
+    fontSize: iconSize,
+  };
   return (
     <div
       style={{
@@ -27,9 +29,10 @@ const PlusMinusPill = ({
         alignItems: "center",
         border: "1px solid",
         borderColor: Colors.grey[100],
-        borderRadius: "20px",
-        width: "90px",
+        borderRadius: "25px",
+        width: height * 2.5,
         height: height,
+        fontSize: "17px",
         ...style,
       }}
     >

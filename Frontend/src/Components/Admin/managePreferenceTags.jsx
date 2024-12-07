@@ -6,6 +6,7 @@ import {
   DeleteOutlined,
   PlusOutlined,
   MinusOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import { apiUrl, Colors } from "../Common/Constants";
 import Admin from "./Admin";
@@ -121,7 +122,7 @@ const ManagePreferenceTags = () => {
           marginBottom: "24px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "end",
         }}
       >
         {addingtag && (
@@ -138,57 +139,49 @@ const ManagePreferenceTags = () => {
               placeholder="Enter new tag name"
               style={{ width: "200px", marginRight: "8px" }}
             />
-            <Button type="primary" onClick={handleAddtag}>
-              Add
-            </Button>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleAddtag}
+            ></Button>
           </div>
         )}
 
         <Button
           type="primary"
-          icon={addingtag ? <MinusOutlined /> : <PlusOutlined />}
+          icon={addingtag ? <CloseOutlined /> : <PlusOutlined />}
           onClick={() => setAddingtag(!addingtag)}
           style={{ backgroundColor: Colors.primary.default }}
-        >
-          {addingtag ? "Close Tag" : "Add Tag"}
-        </Button>
+        ></Button>
       </div>
 
       <div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", // Dynamic grid for smaller cards
-    gridGap: "16px", // Reduced gap for tighter layout
-  }}
->
-  {categories.map((tag) => (
-    <Card
-      key={tag._id}
-      title={tag.tag}
-      style={{
-        width: "200px", // Reduced card width
-        textAlign: "center",
-        margin: "auto", // Center cards within grid cells
-      }}
-    >
-      <Button
-        type="text"
-        icon={<EditOutlined />}
-        onClick={() => showUpdateModal(tag)}
-      />
-      <Button
-        type="text"
-        icon={<DeleteOutlined />}
-        onClick={() => handleDelete(tag._id)}
         style={{
-          marginLeft: "8px",
-          color: "red",
+          display: "grid",
+          gridTemplateColumns: "15% 15% 15% 15% 15% 15%",
+          gridGap: "2%",
+          gridRowGap: "15px",
         }}
-      />
-    </Card>
-  ))}
-</div>
-
+      >
+        {categories.map((tag) => (
+          <Card key={tag._id} title={tag.tag}>
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              onClick={() => showUpdateModal(tag)}
+            />
+            <Button
+              type="text"
+              icon={<DeleteOutlined />}
+              onClick={() => handleDelete(tag._id)}
+              style={{
+                marginLeft: "8px",
+                color: "red",
+              }}
+            />
+          </Card>
+        ))}
+      </div>
 
       <Modal
         title="Update Preference Tag"

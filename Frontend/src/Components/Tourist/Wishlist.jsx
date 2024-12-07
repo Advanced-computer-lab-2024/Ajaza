@@ -4,12 +4,19 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import SearchFilterSortContainer from "../Common/SearchFilterSortContainer";
 import BasicCard from "../Common/BasicCard";
-import { apiUrl, comparePriceRange, getAvgRating } from "../Common/Constants";
+import {
+  apiUrl,
+  Colors,
+  comparePriceRange,
+  getAvgRating,
+} from "../Common/Constants";
 import SelectCurrency from "./SelectCurrency";
 import { useCurrency } from "./CurrencyContext";
 import LoadingSpinner from "../Common/LoadingSpinner";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import { Empty, Space, message } from "antd";
+import PlusMinusPill from "../Common/PlusMinusPill";
+
 const Wishlist = () => {
   const navigate = useNavigate();
   //const { touristId } = useParams(); // Get touristId from the URL
@@ -172,7 +179,6 @@ const Wishlist = () => {
         comparePriceRange(filterCriteria, element),
     },
   });
-  const [isInCart, setIsInCart] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const locationUrl = useLocation();
   const [userid, setUserid] = useState(null);
@@ -217,10 +223,34 @@ const Wishlist = () => {
       if (newToken) {
         localStorage.setItem("token", newToken); // Store the new token
         // console.log("Updated token:", newToken);
+        // const decTemp = jwtDecode(newToken);
+        // setDecodedToken(decTemp);
+        // setUserid(decTemp?.userId);
+        // console.log(newToken);
+        console.log("new token fetched successfully");
+      }
+    } catch (error) {
+      console.error("Error getting new token:", error);
+      message.error("Failed to refresh token. Please try again.");
+    }
+  };
+
+  const getNewTokenAndUpdate = async () => {
+    try {
+      const response = await axios.post(`${apiUrl}api/auth/generate-token`, {
+        id: userid,
+        role: decodedToken.role,
+      });
+
+      const { token: newToken } = response.data;
+
+      if (newToken) {
+        localStorage.setItem("token", newToken); // Store the new token
+        console.log("Updated token:", newToken);
         const decTemp = jwtDecode(newToken);
         setDecodedToken(decTemp);
         setUserid(decTemp?.userId);
-        // console.log(newToken);
+        console.log(newToken);
         console.log("new token fetched successfully");
       }
     } catch (error) {
@@ -237,6 +267,62 @@ const Wishlist = () => {
     stock,
     ...props
   }) => {
+    const [quantity, setQuantity] = useState(0);
+    const increaseQuantity = async () => {
+      try {
+        if (quantity != element?.stock) {
+          const response = await axios.post(
+            `${apiUrl}tourist/cart/plus/${userid}`,
+            { productId: id }
+          );
+          message.success(response.data.message);
+          setQuantity((prevQuantity) => prevQuantity + 1);
+          await getNewToken();
+        } else {
+          message.warning("Cannot add more items, reached the stock limit");
+        }
+      } catch (error) {
+        console.error("Error incrementing quantity:", error);
+        message.error("Failed to increment quantity");
+      }
+    };
+
+    const decreaseQuantity = async () => {
+      try {
+        const response = await axios.post(
+          `${apiUrl}tourist/cart/minus/${userid}`,
+          { productId: id }
+        );
+        message.success(response.data.message);
+        setQuantity((prevQuantity) => prevQuantity - 1);
+        await getNewToken();
+      } catch (error) {
+        console.error("Error decrementing quantity:", error);
+        message.error("Failed to decrement quantity");
+      }
+    };
+
+    const handleRemoveItem = async () => {
+      try {
+        //console.log("mimiiii", productId);
+        await axios.post(`${apiUrl}tourist/cart/remove/${userid}`, {
+          productId: id,
+        });
+        setQuantity(0);
+        await getNewToken();
+        console.log(wishlist);
+
+        setWishlist((prevWishlist) =>
+          prevWishlist.filter((product) => product._id !== id)
+        );
+
+        message.success("Item removed from cart");
+      } catch (error) {
+        console.error("Error removing item from cart:", error);
+        message.error("Failed to remove item from cart");
+      }
+    };
+
     const addToCartFromWishlist = async () => {
       const productId = id;
       const stockNo = stock;
@@ -245,11 +331,7 @@ const Wishlist = () => {
           console.error("Tourist ID or Product ID is missing!");
           return;
         }
-        if (quantity <= 0) {
-          message.error("Please choose quantity");
-          return;
-        }
-        if (stockNo < quantity) {
+        if (stockNo < 1) {
           message.error("Quantity chosen is more than stock limit");
           return;
         }
@@ -258,15 +340,13 @@ const Wishlist = () => {
           {
             touristId: userid,
             productId,
-            quantity,
+            quantity: 1,
           }
         );
+        console.log(response);
 
         if (response.status === 200) {
-          setWishlist((prevWishlist) =>
-            prevWishlist.filter((product) => product._id !== productId)
-          );
-          setIsInCart(true);
+          setQuantity(1);
           await getNewToken();
           message.success("Item added to cart");
         }
@@ -277,110 +357,63 @@ const Wishlist = () => {
         );
       }
     };
-    const [quantity, setQuantity] = useState(0);
-    const increaseQuantity = () => {
-      setQuantity((prevQuantity) => prevQuantity + 1);
-    };
 
-    const decreaseQuantity = () => {
-      setQuantity((prevQuantity) => (prevQuantity > 0 ? prevQuantity - 1 : 0));
-    };
-    console.log("quantity is:", quantity); // Debugging
+    useEffect(() => {
+      console.log(quantity);
+    }, [quantity]);
 
     return (
-      <div style={{ position: "relative" }}>
+      <div className="wishlistCard" style={{ position: "relative" }}>
         {/* Render the BasicCard */}
         <BasicCard element={element} propMapping={propMapping} {...props} />
 
         {/* Render the Cart Icon */}
-        <div
-          style={{
-            position: "absolute",
-            top: "10px",
-            left: "10px",
-            cursor: "pointer",
-          }}
-          onClick={addToCartFromWishlist} // Pass quantity along with element
-        >
-          <ShoppingCartOutlined
+        {quantity == 0 ? (
+          <div
             style={{
-              marginLeft: "10px",
-              fontSize: "20px",
-              color: "green",
+              position: "absolute",
+              top: "12px",
+              left: "20px",
               cursor: "pointer",
             }}
-          />
-        </div>
-
-        {/* Quantity Adjustment Section */}
-        <div
-          style={{
-            position: "absolute",
-            top: "30px",
-            left: "5px",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <button
-            onClick={decreaseQuantity}
-            style={{
-              width: "10px",
-              height: "15px",
-              borderRadius: "2px",
-              border: "none",
-              backgroundColor: "#ddd",
-              cursor: "pointer",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              padding: "0", // Reset padding
-            }}
+            onClick={addToCartFromWishlist} // Pass quantity along with element
           >
-            <span
+            <ShoppingCartOutlined
+              className="cartIcon"
               style={{
-                position: "relative",
-                top: "-2px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: "10px",
+                fontSize: "18px",
+                cursor: "pointer",
+                width: "35px",
+                height: "35px",
+                border: "1px solid",
+                borderColor: Colors.grey[100],
               }}
-            >
-              -
-            </span>
-          </button>
-
-          <span
+            />
+          </div>
+        ) : (
+          <div
             style={{
-              margin: "0 10px",
-              fontSize: "16px",
-              fontWeight: "bold",
-            }}
-          >
-            {quantity}
-          </span>
-          <button
-            onClick={increaseQuantity}
-            style={{
-              width: "10px",
-              height: "15px",
-              borderRadius: "2px",
-              border: "none",
-              backgroundColor: "#ddd",
-              cursor: "pointer",
+              position: "absolute",
+              top: "10px",
+              left: "7 px",
               display: "flex",
-              justifyContent: "center",
               alignItems: "center",
-              padding: "0", // Reset padding
             }}
           >
-            <span
-              style={{
-                position: "relative",
-                top: "-2px",
-              }}
-            >
-              +
-            </span>
-          </button>
-        </div>
+            <PlusMinusPill
+              handlePlus={increaseQuantity}
+              handleMinus={decreaseQuantity}
+              quantity={quantity}
+              handleDelete={handleRemoveItem}
+              containerHeight={35}
+              iconSize={14}
+            />
+          </div>
+        )}
       </div>
     );
   };

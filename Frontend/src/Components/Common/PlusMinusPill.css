@@ -2,3 +2,12 @@
   background-color: var(--grey-100);
   cursor: pointer;
 }
+
+.wishlistCard .cartIcon svg {
+  position: relative;
+  right: 1px;
+}
+
+.wishlistCard .cartIcon:hover {
+  background-color: var(--grey-50);
+}

@@ -197,22 +197,27 @@ const CreateTourGuide = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          marginTop: "20px",
+          marginTop: "80px",
         }}
       >
         <Card
           style={{
             width: 600,
-            height: 400,
             background: "rgba(255, 255, 255, 0.60)",
             boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
             borderRadius: "10px",
-            padding: "20px",
           }}
         >
           <div style={{ textAlign: "center", marginBottom: "15px" }}>
-            <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>
-              Registeration
+            <h1
+              style={{
+                fontSize: "24px",
+                fontWeight: "bold",
+                marginTop: "15px",
+                marginBottom: "20px",
+              }}
+            >
+              Registration
             </h1>
           </div>
           <Form
@@ -279,7 +284,7 @@ const CreateTourGuide = () => {
                   />
                 </Form.Item>
 
-                <Form.Item>
+                <Form.Item style={{ marginBottom: 0 }}>
                   <CustomButton
                     type="primary"
                     onClick={nextStep}
@@ -300,7 +305,7 @@ const CreateTourGuide = () => {
                   valuePropName="fileList"
                   getValueFromEvent={(e) => e.fileList}
                   extra={
-                    <div style={{ color: Colors.grey[700] }}>
+                    <div style={{ color: Colors.grey[800] }}>
                       Upload your ID
                     </div>
                   }
@@ -328,7 +333,7 @@ const CreateTourGuide = () => {
                   valuePropName="fileList"
                   getValueFromEvent={(e) => e.fileList}
                   extra={
-                    <div style={{ color: Colors.grey[700] }}>
+                    <div style={{ color: Colors.grey[800] }}>
                       Upload your certificates
                     </div>
                   }
@@ -350,7 +355,7 @@ const CreateTourGuide = () => {
                   </Upload>
                 </Form.Item>
 
-                <Form.Item>
+                <Form.Item style={{ marginBottom: 0 }}>
                   <CustomButton
                     type="default"
                     onClick={previousStep}
