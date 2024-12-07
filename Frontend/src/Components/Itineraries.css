@@ -1,0 +1,7 @@
+p::-webkit-scrollbar {
+    display: none; /* Hide scrollbar */
+  }
+  p {
+    -ms-overflow-style: none; /* For Internet Explorer */
+    scrollbar-width: none; /* For Firefox */
+  }

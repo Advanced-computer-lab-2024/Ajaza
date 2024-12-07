@@ -355,8 +355,8 @@ const Activities = () => {
                 style={{
                   minWidth: 370,
                   maxWidth: 370,
-                  maxHeight: 700,
-                  minHeight: 700,
+                  maxHeight: 760,
+                  minHeight: 760,
                   marginBottom: "8px",
                   marginRight: "14px",
                   border:

@@ -1,0 +1,7 @@
+.tags-container::-webkit-scrollbar {
+    display: none; /* Hide scrollbar */
+  }
+  .tags-container {
+    -ms-overflow-style: none; /* For Internet Explorer */
+    scrollbar-width: none; /* For Firefox */
+  }
