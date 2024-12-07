@@ -1349,9 +1349,6 @@ const Profile = () => {
           <div style={{ fontSize: "18px" }}>
             <strong>Points:</strong> {points}
           </div>
-          <div style={{ fontSize: "18px" }}>
-            <strong>Balance:</strong> {wallet.toFixed(2)}
-          </div>
           {points < 10000 ? (
             <Tooltip title="You must have at least 10000 points to redeem">
               <span>
