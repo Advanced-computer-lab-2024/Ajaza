@@ -136,7 +136,7 @@ const BasicCard = ({
     <Card
 
     
-      title={<div onClick={onClick}>{title}</div>}
+      title={<div id ="test"onClick={onClick}>{title}</div>}
       extra={
         <div style={{ position: "relative" }}>
           {`${getCurrencySymbol(currency)}${convertedPrice}`}
