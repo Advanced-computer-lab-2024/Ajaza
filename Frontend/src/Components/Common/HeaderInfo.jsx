@@ -88,6 +88,7 @@ const HeaderInfo = ({
   isFlagged,
   handleFlagClick,
   currency,
+  productCurrentQuantity,
 }) => {
   const [multiplePhotos, setMultiplePhotos] = useState(false);
 
@@ -806,6 +807,10 @@ const HeaderInfo = ({
 
     if (type == "product") {
       // add to wishlist logic
+      if (productCurrentQuantity > 0) {
+        message.warning(`${name} is already in cart`);
+        return;
+      }
       try {
         const response = await axios.post(`${apiUrl}tourist/add-to-wishlist`, {
           touristId: userid,
@@ -1313,12 +1318,23 @@ const HeaderInfo = ({
                 visible={isModalVisible}
                 onOk={handleOk}
                 onCancel={handleCancel}
-                okText="Pay & Book by wallet"
+                okText="  Book by wallet"
                 okButtonProps={{
                   style: {
                     display: paymentMethod === "card" ? "none" : "inline-block",
                   },
                 }}
+                cancelButtonProps={
+                  paymentMethod === "card"
+                    ? {
+                        style: {
+                          position: "absolute",
+                          right: "150px",
+                          bottom: "31.5px",
+                        },
+                      }
+                    : {}
+                }
               >
                 <div>
                   {/* Select Date (For Itinerary) */}
@@ -1346,27 +1362,18 @@ const HeaderInfo = ({
                       defaultValue={discountedPriceUpper}
                       style={{ width: "100%", marginBottom: 10 }}
                     >
-                      <Option
-                        value={discountedPriceLower}
-                        style={{ color: "#cd7f32", fontWeight: "bold" }}
-                      >
+                      <Option value={discountedPriceLower} style={{}}>
                         Bronze Tier: {currencySymbol}
                         {discountedPriceLower.toFixed(2)}
                       </Option>
                       {priceUpper !== priceLower && (
-                        <Option
-                          value={discountedMiddlePrice}
-                          style={{ color: "#c0c0c0", fontWeight: "bold" }}
-                        >
+                        <Option value={discountedMiddlePrice} style={{}}>
                           Silver Tier: {currencySymbol}
                           {discountedMiddlePrice.toFixed(2)}
                         </Option>
                       )}
                       {priceUpper !== priceLower && (
-                        <Option
-                          value={discountedPriceUpper}
-                          style={{ color: "#ffd700", fontWeight: "bold" }}
-                        >
+                        <Option value={discountedPriceUpper} style={{}}>
                           Gold Tier: {currencySymbol}
                           {discountedPriceUpper.toFixed(2)}
                         </Option>
@@ -1377,30 +1384,46 @@ const HeaderInfo = ({
                   {/* Promo Code Input */}
                   <div style={{ marginTop: "15px" }}>
                     <h6>Promo code</h6>
-                    <Input
-                      type="text"
-                      placeholder="Enter promo code"
-                      value={promoCode}
-                      onChange={handleInputChange}
-                    />
-                    {promo === 1 && (
-                      <Button
-                        onClick={handleApplyPromo}
-                        style={{ marginTop: "5px", marginBottom: "8px" }}
-                      >
-                        Apply
-                      </Button>
-                    )}
-                    {promo !== 1 && (
-                      <Button
-                        onClick={handleRemovePromo}
-                        style={{ marginTop: "5px", marginBottom: "8px" }}
-                      >
-                        Cancel
-                      </Button>
-                    )}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                      }}
+                    >
+                      <Input
+                        type="text"
+                        placeholder="Enter promo code"
+                        value={promoCode}
+                        onChange={handleInputChange}
+                      />
+                      {promo === 1 && (
+                        <Button
+                          onClick={handleApplyPromo}
+                          style={{
+                            backgroundColor: Colors.primary.default,
+                            color: "white",
+                            borderColor: Colors.primary.default,
+                          }}
+                        >
+                          Apply
+                        </Button>
+                      )}
+                      {promo !== 1 && (
+                        <Button
+                          onClick={handleRemovePromo}
+                          style={{
+                            backgroundColor: Colors.warning,
+                            color: "white",
+                            borderColor: Colors.warning,
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  <h4>
+                  <h4 style={{ marginTop: "15px" }}>
                     Price:{" "}
                     {promo !== 1 && (
                       <span
@@ -1420,7 +1443,7 @@ const HeaderInfo = ({
                   </h4>
 
                   {/* Payment Method */}
-                  <div style={{ marginTop: 20 }}>
+                  <div style={{ marginTop: 15 }}>
                     <Radio.Group
                       value={paymentMethod}
                       onChange={(e) => setPaymentMethod(e.target.value)}
@@ -1433,7 +1456,7 @@ const HeaderInfo = ({
                   {/* Wallet Balance */}
                   {paymentMethod === "wallet" &&
                     decodedToken?.userDetails?.wallet && (
-                      <p>
+                      <p style={{ marginTop: "15px" }}>
                         <strong>Current balance: </strong>
                         {decodedToken.userDetails.wallet.toFixed(2)}
                       </p>

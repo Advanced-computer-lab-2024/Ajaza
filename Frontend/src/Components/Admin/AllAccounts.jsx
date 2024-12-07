@@ -21,7 +21,7 @@ const AllAccounts = () => {
   const [allAccounts, setAllAccounts] = useState([]); // Store all accounts
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [searchValue, setSearchValue] = useState("");
   const [isHovered, setIsHovered] = useState(false); // State to manage hover effect
 
@@ -104,7 +104,6 @@ const AllAccounts = () => {
         });
 
         const combinedArray = [
-          
           ...tourists,
           ...sellers,
           ...guides,
@@ -120,10 +119,6 @@ const AllAccounts = () => {
     }
   };
 
-  
-
-  
- 
   // Handle delete account
   const handleDelete = async (accountId, accountType) => {
     console.log(accountType + " ali" + accountId);
@@ -165,7 +160,6 @@ const AllAccounts = () => {
     }
   };
 
-
   useEffect(() => {
     if (searchValue) {
       const filteredAccounts = allAccounts.filter((account) =>
@@ -189,22 +183,25 @@ const AllAccounts = () => {
         padding: "20px",
       }}
     >
-   
       <div style={{ flex: 1 }}>
-     
-    
         <Title level={2} style={{ textAlign: "center", marginBottom: "20px" }}>
           Accepted Accounts
         </Title>
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-         <Search
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: "20px",
+          }}
+        >
+          <Search
             activateHover={false}
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             style={{ width: "600px" }}
             inputStyleParam={{ paddingLeft: "40px" }}
           />
-          </div>
+        </div>
 
         {loading ? (
           <div> Loading...</div>
@@ -213,12 +210,12 @@ const AllAccounts = () => {
             {accounts.length > 0 ? (
               accounts.map((account) => (
                 <Col
-                  span={8}
+                  span={4}
                   key={account._id}
                   style={{ marginBottom: "16px" }}
                 >
-                  <Card title={account.username} bordered={false}>
-                    <p>Account Type: {account.type}</p>
+                  <Card title={account.username}>
+                    <p>Type: {account.type}</p>
                     <Button
                       type="default"
                       icon={<DeleteOutlined />} // Use the delete icon here
@@ -236,13 +233,8 @@ const AllAccounts = () => {
               </Col>
             )}
           </Row>
-
         )}
       </div>
-      
-
-      
-      
     </div>
   );
 };

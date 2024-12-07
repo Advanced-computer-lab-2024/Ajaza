@@ -16,6 +16,7 @@ import {
   Row,
   Col,
   Tooltip,
+  Empty,
 } from "antd";
 import {
   UserOutlined,
@@ -261,6 +262,56 @@ const Profile = () => {
   const handleCancelDelivery = () => {
     formDelivery.resetFields();
     setIsModalVisible(false);
+  };
+
+  const removeAddress = async (
+    country,
+    city,
+    area,
+    street,
+    house,
+    app,
+    desc
+  ) => {
+    const address = { country, city, area, street, house, app, desc };
+    console.log(address); // there exists addresses here
+
+    try {
+      const response = await axios.patch(
+        `${apiUrl}tourist/address/${userDetails._id}`,
+        address,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(response);
+
+      if (response.status == 200) {
+        const newToken = response.data.token;
+
+        // Check if newToken is valid
+        if (!newToken || typeof newToken !== "string") {
+          throw new Error("Invalid token returned from API");
+        }
+
+        // Update the token in localStorage
+        localStorage.setItem("token", newToken);
+
+        // Decode the new token and update user details locally
+        const decodedToken = jwtDecode(newToken);
+        console.log(decodedToken);
+
+        setResponse(decodedToken);
+        setUserDetails(decodedToken.userDetails); // Update the local profile data
+
+        message.success("Delivery address added successfully");
+        setAddresses(decodedToken.userDetails.deliveryAddresses);
+      } else {
+        message.error("An error has occurred. Please try again later.");
+      }
+    } catch (error) {}
   };
 
   const handleAddAddress = async (values) => {
@@ -569,6 +620,7 @@ const Profile = () => {
         display: "grid",
         gridTemplateColumns: "45% 45%",
         gridGap: "10%",
+        marginTop: "20px",
       }}
     >
       <div style={{ display: "flex", alignItems: "center" }}>
@@ -576,7 +628,7 @@ const Profile = () => {
           style={{
             width: "100%",
             maxWidth: 600,
-            margin: "50px auto",
+            margin: "0 auto",
             padding: "20px",
             boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
             height: "fit-content",
@@ -1078,9 +1130,9 @@ const Profile = () => {
             style={{
               width: "100%",
               maxWidth: 600,
-              margin: "50px auto",
-              padding: "20px",
+              margin: "0 auto",
               boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+              height: "370px",
             }}
           >
             <div
@@ -1103,7 +1155,10 @@ const Profile = () => {
                   backgroundColor: Colors.primary.default,
                   border: "none",
                   position: "absolute",
-                  right: "25px",
+                  right: "30px",
+                  top: "35px",
+                  width: "25px",
+                  height: "25px",
                 }}
                 icon={<PlusOutlined style={{ color: "white" }} />}
                 rounded={true}
@@ -1112,43 +1167,91 @@ const Profile = () => {
             </div>
             <hr />
             {addresses !== undefined &&
-              userDetails?.deliveryAddresses?.length > 0 && (
-                <Row gutter={[16, 16]}>
-                  {userDetails.deliveryAddresses.map((address, index) => {
-                    return (
-                      <Col xs={84} sm={12} md={8} key={index}>
-                        <Card
-                          title={`${address.city}, ${address.country}`}
-                          bordered={true}
-                          hoverable
-                        >
-                          <p>
-                            <strong>Area:</strong> {address.area}
-                          </p>
-                          <p>
-                            <strong>Street:</strong> {address.street}
-                          </p>
-                          <p>
-                            <strong>House:</strong> {address.house}
-                          </p>
-                          <p>
-                            <strong>Apartment:</strong> {address.app}
-                          </p>
-                          <p>
-                            <strong>Description:</strong> {address.desc}
-                          </p>
-                        </Card>
-                      </Col>
-                    );
-                  })}
-                </Row>
-              )}
+            userDetails?.deliveryAddresses?.length > 0 ? (
+              <div
+                className="scrollModern"
+                style={{ display: "flex", overflowX: "auto", width: "100%" }}
+              >
+                {userDetails.deliveryAddresses.map((address, index) => {
+                  return (
+                    <Card
+                      title={`${address.city}, ${address.country}`}
+                      bordered={true}
+                      style={{
+                        width: "220px",
+                        marginRight: "20px",
+                        flexShrink: 0,
+                      }}
+                      extra={
+                        <Button
+                          style={{
+                            position: "absolute",
+                            top: "15px",
+                            right: "15px",
+                            width: "25px",
+                            height: "25px",
+                          }}
+                          icon={<DeleteOutlined style={{ fontSize: "15px" }} />}
+                          danger
+                          onClick={() =>
+                            removeAddress(
+                              address?.country,
+                              address?.city,
+                              address?.area,
+                              address?.street,
+                              address?.house,
+                              address?.app,
+                              address?.desc
+                            )
+                          }
+                        />
+                      }
+                    >
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong>Area:</strong> {address.area}
+                      </div>
+                      <div
+                        style={{
+                          whiteSpace: "nowrap",
+                          textOverflow: "ellipsis",
+                          overflow: "hidden",
+                          marginBottom: "8px",
+                        }}
+                      >
+                        <strong>Street:</strong> {address.street}
+                      </div>
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong>House:</strong> {address.house}
+                      </div>
+                      <div style={{ marginBottom: "8px" }}>
+                        <strong>Apartment:</strong> {address.app}
+                      </div>
+                      <div
+                        style={{
+                          marginBottom: "8px",
+                          whiteSpace: "nowrap",
+                          textOverflow: "ellipsis",
+                          overflow: "hidden",
+                          marginBottom: "8px",
+                        }}
+                      >
+                        <strong>Description:</strong> {address.desc}
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            ) : (
+              <Empty
+                description="No Delivery Addresses"
+                style={{ marginTop: "50px" }}
+              />
+            )}
             {isModalVisible && (
               <Modal
                 title="Add Delivery Address"
                 visible={isModalVisible}
                 onCancel={handleCancelDelivery}
-                style={{ backgroundColor: "#1b696a" }}
                 footer={null}
               >
                 <Form form={form} layout="vertical" onFinish={handleAddAddress}>
@@ -1238,23 +1341,32 @@ const Profile = () => {
           style={{
             width: "100%",
             maxWidth: 600,
-            margin: "50px auto",
-            padding: "20px",
+            margin: "20px auto 0 auto",
             boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
           }}
         >
           <h2>Redeem Points</h2>
-          <p>Your current points: {points}</p>
-          <p>Your wallet balance: USD {wallet.toFixed(2)}</p>
+          <div style={{ fontSize: "18px" }}>
+            <strong>Points:</strong> {points}
+          </div>
+          <div style={{ fontSize: "18px" }}>
+            <strong>Balance:</strong> {wallet.toFixed(2)}
+          </div>
           {points < 10000 ? (
             <Tooltip title="You must have at least 10000 points to redeem">
               <span>
                 <CustomButton
-                  size="m"
+                  size="s"
                   value="Redeem Points"
                   onClick={redeemPoints}
                   disabled
                   loading={loading}
+                  style={{
+                    width: "160px",
+                    height: "50px",
+                    fontSize: "18px",
+                    fontWeight: "bold",
+                  }}
                 />
               </span>
             </Tooltip>

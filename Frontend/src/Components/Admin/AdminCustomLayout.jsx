@@ -199,7 +199,7 @@ const AdminCustomLayout = ({ children }) => {
             {
               key: "74",
               icon: <TagsOutlined />,
-              label: "PromoCode",
+              label: "Promo Codes",
               style: commonStyle,
             },
             {

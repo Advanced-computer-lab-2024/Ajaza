@@ -6,6 +6,7 @@ import {
   DeleteOutlined,
   PlusOutlined,
   MinusOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import { apiUrl, Colors } from "../Common/Constants";
 import { jwtDecode } from "jwt-decode";
@@ -124,7 +125,7 @@ const ManageActivityCategories = () => {
           marginBottom: "24px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "end",
         }}
       >
         {addingCategory && (
@@ -143,37 +144,31 @@ const ManageActivityCategories = () => {
             />
             <Button
               type="primary"
+              icon={<PlusOutlined />}
               onClick={handleAddCategory}
               style={{ backgroundColor: Colors.primary.default }}
-            >
-              Add
-            </Button>
+            ></Button>
           </div>
         )}
 
         <Button
           type="primary"
           style={{ backgroundColor: Colors.primary.default }}
-          icon={addingCategory ? <MinusOutlined /> : <PlusOutlined />}
+          icon={addingCategory ? <CloseOutlined /> : <PlusOutlined />}
           onClick={() => setAddingCategory(!addingCategory)}
-        >
-          {addingCategory ? "Close Category" : "Add Category"}
-        </Button>
+        ></Button>
       </div>
 
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "22% 22% 22% 22%",
-          gridGap: "4%",
+          gridTemplateColumns: "15% 15% 15% 15% 15% 15%",
+          gridGap: "2%",
+          gridRowGap: "15px",
         }}
       >
         {categories.map((category) => (
-          <Card
-            key={category._id}
-            title={category.category}
-            style={{ width: 300 }}
-          >
+          <Card key={category._id} title={category.category}>
             <Button
               type="text"
               icon={<EditOutlined />}

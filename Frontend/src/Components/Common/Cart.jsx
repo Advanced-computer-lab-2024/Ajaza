@@ -356,7 +356,7 @@ export const Cart = () => {
                     className="cart-image"
                   />
                 )}
-                <div className="cart-text" style={{ marginLeft: "10px"}}>
+                <div className="cart-text" style={{ marginLeft: "10px" }}>
                   <div style={{ marginBottom: "5px" }}>
                     <Text strong>{item.name}</Text>
                   </div>
@@ -431,17 +431,30 @@ export const Cart = () => {
             display: paymentMethod === "card" ? "none" : "inline-block",
           },
         }}
+        style={
+          paymentMethod === "card" ? { paddingBottom: "-100px !important" } : {}
+        }
         cancelText="Cancel"
+        cancelButtonProps={
+          paymentMethod === "card"
+            ? {
+                style: {
+                  position: "absolute",
+                  right: "140px",
+                  bottom: "31.5px",
+                },
+              }
+            : {}
+        }
       >
         <div
           style={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            height: "50px",
           }}
         >
-          <div style={{ textAlign: "center", marginTop: "20px" }}>
+          <div style={{ textAlign: "center" }}>
             <h1>Checkout</h1>
             <Divider />
           </div>
@@ -452,7 +465,8 @@ export const Cart = () => {
               Order Summary
             </h6>
             <div
-              style={{ maxHeight: "200px", overflowY: "auto", padding: "10px" }}
+              className="scrollModern"
+              style={{ maxHeight: "200px", overflowY: "auto" }}
             >
               {cartItems.map((item, index) => (
                 <div
@@ -532,9 +546,9 @@ export const Cart = () => {
                 <Button
                   onClick={handleRemovePromo}
                   style={{
-                    backgroundColor: "#cc0b38",
+                    backgroundColor: Colors.warning,
                     color: "white",
-                    borderColor: "#cc0b38",
+                    borderColor: Colors.warning,
                   }}
                 >
                   Cancel
@@ -572,7 +586,7 @@ export const Cart = () => {
           <a
             onClick={navigateToSection}
             style={{
-              color: "blue",
+              color: Colors.primary.default,
               textDecoration: "underline",
               cursor: "pointer",
             }}
@@ -599,7 +613,7 @@ export const Cart = () => {
         </div>
         {/* Wallet Balance */}
         {paymentMethod === "wallet" && decodedToken?.userDetails?.wallet && (
-          <p>
+          <p style={{ marginTop: "10px" }}>
             <strong>Current balance: </strong>
             {decodedToken.userDetails.wallet.toFixed(2)} USD
           </p>
