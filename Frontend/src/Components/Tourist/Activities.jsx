@@ -283,17 +283,7 @@ const Activities = () => {
   }, []);
 
   const renderFrigadeProvider = () => {
-    if (role === null) {
-      return (
-        <Frigade.Provider
-          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
-          userId={userid}
-          onError={(error) => console.error("Frigade Error:", error)}
-        >
-          <Frigade.Tour flowId="flow_k40qeJxX" />
-        </Frigade.Provider>
-      );
-    } else if (role === "tourist") {
+if (role === "tourist") {
       return (
         <Frigade.Provider
           apiKey="api_public_iZeCx2HTYA5gWBiS1if7cRp5H63bhGN3sYG8Ue4I8qEN72Y5l7ZTh5BeEmMvrt05"
@@ -319,21 +309,7 @@ const Activities = () => {
 
   return (
     <div >
-      <Button
-      id="nour2"
-  style={{
-    
-    right: "0",          // Aligns it to the maximum right
-    top: "0",            // Optional: Aligns it to the top of its container
-    margin: "16px",      // Adds some spacing from the edges (adjust as needed)
-    padding: "1px",      // Makes the button tiny
-    fontSize: "0.1rem",  // Reduces the text size to be almost invisible
-    border: "none",      // Removes border (optional)
-    background: "transparent", // Makes the background transparent (optional)
-    color: "transparent", // Hides the text color (optional)
-    cursor: "default",   // Makes it less clickable-looking
-  }}
-/>
+      
 
             <CustomButton size={"s"} value={"Help"} onClick={handleShowFrigade} style={{ marginBottom: "16px" }}/>
             {showFrigade && renderFrigadeProvider()}
