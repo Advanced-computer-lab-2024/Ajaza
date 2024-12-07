@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Table, message, DatePicker } from 'antd';
 import { jwtDecode } from 'jwt-decode'; // Fixing import as per package usage
 import axios from 'axios';
 import moment from 'moment';
 import { FilterOutlined } from '@ant-design/icons';
+import { Column } from '@antv/g2plot';
 
 const { RangePicker } = DatePicker;
 
@@ -17,6 +18,7 @@ const GuidTourReport = () => {
         dateRange: null,
         filterMode: 'date',
     });
+    const chartRef = useRef(null);
 
     useEffect(() => {
         const token = localStorage.getItem("token"); // Replace with your token source
@@ -135,21 +137,25 @@ const GuidTourReport = () => {
             title: 'Tourist Username',
             dataIndex: 'touristUserName',
             key: 'touristUserName',
+            align: 'center',
         },
         {
             title: 'Date of Birth',
             dataIndex: 'touristDOB',
             key: 'touristDOB',
+            align: 'center',
         },
         {
             title: 'Nationality',
             dataIndex: 'touristNationality',
             key: 'touristNationality',
+            align: 'center',
         },
         {
             title: 'Itinerary Date',
             dataIndex: 'bookingDate',
             key: 'bookingDate',
+            align: 'center',
             filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
                 <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <RangePicker
@@ -172,19 +178,72 @@ const GuidTourReport = () => {
             title: 'Itinerary Name',
             dataIndex: 'itineraryName',
             key: 'itineraryName',
+            align: 'center',
         },
     ];
+    
+    useEffect(() => {
+        if (!salesData?.length || !chartRef.current) return;
+    
+        // Aggregate tourist count by itinerary
+        const chartData = salesData.reduce((acc, curr) => {
+            const existing = acc.find(item => item.itinerary === curr.itineraryName);
+            if (existing) {
+                existing.touristCount += 1;  // Increment tourist count
+            } else {
+                acc.push({
+                    itinerary: curr.itineraryName,
+                    touristCount: 1,
+                });
+            }
+            return acc;
+        }, []);
+    
+        // Initialize chart
+        const columnChart = new Column(chartRef.current, {
+            data: chartData,
+            xField: 'itinerary',
+            yField: 'touristCount',
+            label: {
+                position: 'middle',
+                style: {
+                    fill: '#FFFFFF',
+                },
+            },
+            xAxis: {
+                label: {
+                    autoRotate: true,
+                },
+            },
+            meta: {
+                touristCount: {
+                    alias: 'Number of Tourists',
+                }
+            }
+        });
+    
+        columnChart.render();
+    
+        return () => columnChart.destroy();
+    }, [salesData]);
 
     return (
         <div>
             <h2>Guide Tourists Report</h2>
-            <p>Total Number of Tourists: <strong>{totalTourists}</strong></p> {/* Display total tourists */}
-            <Table
-                columns={columns}
-                dataSource={salesData} // Pass the sales data to the table
-                loading={loading}
-                rowKey={(record) => record.key}
-            />
+            <p>Total Number of Tourists: <strong>{totalTourists}</strong></p>
+            <div style={{ display: 'flex', gap: '20px' }}>
+                <div style={{ flex: 1 }}>
+                    <Table
+                        columns={columns}
+                        dataSource={salesData}
+                        loading={loading}
+                        rowKey={(record) => record.key}
+                    />
+                </div>
+                <div style={{ flex: 1, minHeight: '400px' }}>
+                    <div ref={chartRef} />
+                </div>
+            </div>
         </div>
     );
 };
