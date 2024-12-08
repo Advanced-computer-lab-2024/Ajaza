@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useCurrency } from "./CurrencyContext";
 import * as Frigade from "@frigade/react";
 import CustomButton from "../Common/CustomButton";
+import { getSetNewToken } from "../Common/Constants";
 import { Button } from "antd";
 
 const token = localStorage.getItem("token");
