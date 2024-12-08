@@ -11,14 +11,12 @@ import * as Frigade from "@frigade/react";
 import CustomButton from "../Common/CustomButton";
 import { Button } from "antd";
 
-
 const token = localStorage.getItem("token");
 let decodedToken = null;
 let role = null;
 if (token) {
   decodedToken = jwtDecode(token);
   role = decodedToken?.role; // Extract the role from the token
-
 }
 console.log("itin role nour", role);
 const userid = decodedToken ? decodedToken.userId : null;
@@ -116,7 +114,6 @@ const Itineraries = () => {
 
   const { flowStatus, resetFlow } = useFrigade(); // Importing flow management functions
   const [showFrigade, setShowFrigade] = useState(false);
-
 
   const handleCurrencyChange = (newCurrency) => {
     setCurrency(newCurrency);
@@ -247,7 +244,9 @@ const Itineraries = () => {
     const fetchData = async () => {
       try {
         const [itineraryResponse, tagResponse] = await Promise.all([
-          axios.get(`${apiUrl}itinerary/notHidden`),
+          axios.get(
+            `${apiUrl}itinerary/${role === "admin" ? "admin" : "notHidden"}`
+          ),
           axios.get(`${apiUrl}tag`),
         ]);
         let itineraries = itineraryResponse.data;
@@ -319,8 +318,7 @@ const Itineraries = () => {
           <Frigade.Tour flowId="flow_skhaNY2m" />
         </Frigade.Provider>
       );
-    }
-    else {
+    } else {
       return (
         <Frigade.Provider
           apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
@@ -331,7 +329,7 @@ const Itineraries = () => {
         </Frigade.Provider>
       );
     }
-  }
+  };
 
   const handleShowFrigade = () => {
     if (flowStatus === "ENDED") {
@@ -342,30 +340,9 @@ const Itineraries = () => {
       setShowFrigade(true); // Show Frigade after resetting
     }, 0);
   };
-  
 
   return (
     <div>
-           
-      {/* <CustomButton size={"s"} value={"Hint"} onClick={handleShowFrigade} style={{ marginBottom: "16px" }}/>
-      
-      {showFrigade && renderFrigadeProvider()} */}
-     <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "16px",
-        }}
-      >
-        {/* <SelectCurrency
-          basePrice={null}
-          currency={currency}
-          onCurrencyChange={handleCurrencyChange}
-          style={{ left: 1000, top: 55 }}
-        /> */}
-      </div>
       <SearchFilterSortContainer
         cardComponent={BasicCard}
         elements={combinedElements}
@@ -378,7 +355,6 @@ const Itineraries = () => {
         cardOnclick={cardOnclick}
         isLoading={isLoading}
       />
-    </div>
     </div>
   );
 };
