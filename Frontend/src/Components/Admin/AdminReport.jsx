@@ -21,15 +21,28 @@ const AdminReport = () => {
     itineraryBookingsCommission: 0,
   });
   const [filters, setFilters] = useState({
-    productNames: [],
-    activityNames: [],
-    itineraryNames: [],
-    dateRange: null,
-    filterMode: 'date',
+    product: {
+      productNames: [],
+      dateRange: null,
+      filterMode: 'date',
+    },
+    activity: {
+      activityNames: [], 
+      dateRange: null,
+      filterMode: 'date',
+    },
+    itinerary: {
+      itineraryNames: [],
+      dateRange: null,
+      filterMode: 'date',
+    }
   });
   const chartRef1 = useRef(null);
   const chartRef2 = useRef(null);
   const chartRef3 = useRef(null);
+  const [activeTabKey, setActiveTabKey] = useState('product'); // State variable to track active tab
+  const [renderChart, setRenderChart] = useState(false);
+
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -207,18 +220,25 @@ const AdminReport = () => {
       filterMode: filterMode,
     };
 
-    setFilters(newFilters);
+    setFilters(prevFilters => ({
+      ...prevFilters,
+      [type]: {
+        ...prevFilters[type],
+        dateRange: adjustedDates,
+        filterMode: filterMode,
+      }
+    }));
 
     const filteredData = applyFilters(originalData[type], {
-      ...newFilters,
+      ...filters[type],
       dateRange: adjustedDates 
         ? adjustedDates.map(date => date.format("MM-DD-YYYY"))
         : null
     }, type);
-
-    setData((prevData) => ({
+  
+    setData(prevData => ({
       ...prevData,
-      [type]: filteredData,
+      [type]: filteredData
     }));
 
     if (type === 'product') {
@@ -254,17 +274,19 @@ const AdminReport = () => {
   };
 
   const resetFilters = (type) => {
-    setFilters({
-      productNames: [],
-      activityNames: [],
-      itineraryNames: [],
-      dateRange: null,
-      filterMode: 'date',
-    });
-    setData((prevData) => ({
-      ...prevData,
-      [type]: originalData[type],
-    }));
+    setFilters(prevFilters => ({
+      ...prevFilters,
+      [type]: {
+        productNames: [],
+        activityNames: [],
+        itineraryNames: [],
+        dateRange: null,
+        filterMode: 'date',
+      }}));
+      setData(prevData => ({
+        ...prevData,
+        [type]: originalData[type],
+      }));
     if (type === 'product') {
       const newProductSales = originalData.product.reduce((sum, item) => sum + item.total, 0);
       setTotals((prevTotals) => ({
@@ -304,6 +326,18 @@ const AdminReport = () => {
       totalSales: productSales + activityCommissions + itineraryCommissions,
     }));
   };
+
+
+  const clearDateFilter = (type) => {
+    setFilters(prevFilters => ({
+      ...prevFilters,
+      [type]: {
+        ...prevFilters[type],
+        dateRange: null,
+        filterMode: 'date'
+      }
+    }));
+  };
   
 
   const uniqueProductNames = [...new Set(originalData.product.map(item => item.productName))];
@@ -326,7 +360,7 @@ const AdminReport = () => {
       dataIndex: 'orderDate',
       key: 'orderDate',
       align: 'center',
-      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
+      filterDropdown: ({ setSelectedKeys, confirm }) => (
         <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
           <RangePicker
             onChange={(dates) => {
@@ -334,7 +368,7 @@ const AdminReport = () => {
               confirm();
               handleDateRangeChange(dates, 'date', 'product');
             }}
-            value={filters.filterMode === 'date' ? filters.dateRange : null}
+            value={filters.product.filterMode === 'date' ? filters.product.dateRange : null}
             style={{ marginBottom: 8, display: 'block' }}
           />
           <RangePicker
@@ -344,7 +378,7 @@ const AdminReport = () => {
               confirm();
               handleDateRangeChange(dates, 'month', 'product');
             }}
-            value={filters.filterMode === 'month' ? filters.dateRange : null}
+            value={filters.product.filterMode === 'month' ? filters.product.dateRange : null}
             style={{ display: 'block' }}
           />
         </div>
@@ -381,7 +415,7 @@ const AdminReport = () => {
               confirm();
               handleDateRangeChange(dates, 'date', 'activity');
             }}
-            value={filters.filterMode === 'date' ? filters.dateRange : null}
+            value={filters.activity.filterMode === 'date' ? filters.activity.dateRange : null}
             style={{ marginBottom: 8, display: 'block' }}
           />
           <RangePicker
@@ -391,7 +425,7 @@ const AdminReport = () => {
               confirm();
               handleDateRangeChange(dates, 'month', 'activity');
             }}
-            value={filters.filterMode === 'month' ? filters.dateRange : null}
+            value={filters.activity.filterMode === 'month' ? filters.activity.dateRange : null}
             style={{ display: 'block' }}
           />
         </div>
@@ -428,7 +462,7 @@ const AdminReport = () => {
               confirm();
               handleDateRangeChange(dates, 'date', 'itinerary');
             }}
-            value={filters.filterMode === 'date' ? filters.dateRange : null}
+            value={filters.itinerary.filterMode === 'date' ? filters.itinerary.dateRange : null}
             style={{ marginBottom: 8, display: 'block' }}
           />
           <RangePicker
@@ -438,7 +472,7 @@ const AdminReport = () => {
               confirm();
               handleDateRangeChange(dates, 'month', 'itinerary');
             }}
-            value={filters.filterMode === 'month' ? filters.dateRange : null}
+            value={filters.itinerary.filterMode === 'month' ? filters.itinerary.dateRange : null}
             style={{ display: 'block' }}
           />
         </div>
@@ -456,205 +490,150 @@ const AdminReport = () => {
 
 
 
-  useEffect(() => {
-    if (!data.product?.length || !chartRef1.current) return;
-
-    // Aggregate data by product
-    const chartData = data.product.reduce((acc, curr) => {
-        const existing = acc.find(item => item.product === curr.productName);
-        if (existing) {
-            existing.sales += curr.price;
-        } else {
-            acc.push({
-                product: curr.productName,
-                sales: curr.price,
-            });
-        }
-        return acc;
-    }, []);
-
-    // Initialize chart
-    const columnChart1 = new Column(chartRef1.current, {
-        data: chartData,
-        xField: 'product',
-        yField: 'sales',
+useEffect(() => {
+    if (activeTabKey === 'product' && chartRef1.current) {
+      const columnChart1 = new Column(chartRef1.current, {
+        data: data.product,
+        xField: 'productName',
+        yField: 'total',
         label: {
-            position: 'middle',
-            style: {
-                fill: '#FFFFFF',
-            },
+          position: 'middle',
+          style: {
+            fill: '#FFFFFF',
+          },
+          formatter: (v) => `$${v.total.toFixed(2)}`,
         },
         xAxis: {
-            label: {
-                autoRotate: false,  // Prevent rotation
-                style: {
-                  textAlign: 'center',
-                  width: 100, // Set fixed width for label container
-              },
-              formatter: (text) => {
-                  // Split text by spaces and join with newlines
-                  return text.split(' ').join('\n');
-              },
+          label: {
+            autoRotate: false,
+            autoHide: true,
+            autoEllipsis: true,
+            style: {
+              textAlign: 'center',
+              width: 100,
             },
+            formatter: (text) => text.split(' ').join('\n'),
+          },
+        },
+        yAxis: {
+          label: {
+            formatter: (v) => `$${v}`,
+          },
         },
         meta: {
-            sales: {
-                alias: 'Total Sales ($)',
-                formatter: (v) => `$${v.toFixed(2)}`
-            }
-        }
-    });
-
-    columnChart1.render();
-
-    return () => columnChart1.destroy();
-}, [data.product]);
-
-
-
-useEffect(() => {
-  if (!data.activity?.length || !chartRef2.current) return;
-
-  // Aggregate data by activity
-  const chartData = data.activity.reduce((acc, curr) => {
-    const existing = acc.find(item => item.activity === curr.activityName);
-    if (existing) {
-      existing.commission += curr.commission;
-    } else {
-      acc.push({
-        activity: curr.activityName,
-        commission: curr.commission, // Changed from sales to commission
+          productName: {
+            alias: 'Product Name',
+          },
+          total: {
+            alias: 'Total Sales ($)',
+            formatter: (v) => `$${v.toFixed(2)}`,
+          },
+        },
       });
-    }
-    return acc;
-  }, []);
 
-  // Initialize chart
-const columnChart2 = new Column(chartRef2.current, {
-  data: chartData,
-  xField: 'activity',
-  yField: 'commission',
-  label: {
-    position: 'middle',
-    style: {
-      fill: '#FFFFFF',
-    },
-    formatter: (v) => `$${v.commission.toFixed(2)}`,
-  },
-  xAxis: {
-    label: {
-      autoRotate: false,  // Prevent rotation
-      autoHide: false,
-      autoEllipsis: false,
-      style: {
-        textAlign: 'center',
-        width: 100, // Set fixed width for label container
-      },
-      formatter: (text) => {
-        // Split text by spaces and join with newlines
-        return text.split(' ').join('\n');
-      },
-    },
-    margin: 50, // Increased margin for multiline labels
-  },
-  // Add padding to give more space for labels
-  padding: [30, 30, 100, 50], // [top, right, bottom, left]
-  yAxis: {
-    label: {
-      formatter: (v) => `$${v}`,
-    },
-  },
-  meta: {
-    activity: {
-      alias: 'Activity Name',
-    },
-    commission: {
-      alias: 'Commission ($)',
-      formatter: (v) => `$${v.toFixed(2)}`
-    }
-  }
-});
+      columnChart1.render();
 
-  columnChart2.render();
-
-  return () => columnChart2.destroy();
-}, [data.activity]);
-
-
-
-useEffect(() => {
-  if (!data.itinerary?.length || !chartRef3.current) return;
-
-  // Aggregate data by itinerary
-  const chartData = data.itinerary.reduce((acc, curr) => {
-    const existing = acc.find(item => item.itinerary === curr.itineraryName);
-    if (existing) {
-      existing.commission += curr.commission;
-    } else {
-      acc.push({
-        itinerary: curr.itineraryName,
-        commission: curr.commission,
+      return () => columnChart1.destroy();
+    } else if (activeTabKey === 'activity' && chartRef2.current) {
+      const columnChart2 = new Column(chartRef2.current, {
+        data: data.activity,
+        xField: 'activityName',
+        yField: 'commission',
+        label: {
+          position: 'middle',
+          style: {
+            fill: '#FFFFFF',
+          },
+          formatter: (v) => `$${v.commission.toFixed(2)}`,
+        },
+        xAxis: {
+          label: {
+            autoRotate: false,
+            autoHide: true,
+            autoEllipsis: true,
+            style: {
+              textAlign: 'center',
+              width: 100,
+            },
+            formatter: (text) => text.split(' ').join('\n'),
+          },
+        },
+        yAxis: {
+          label: {
+            formatter: (v) => `$${v}`,
+          },
+        },
+        meta: {
+          activityName: {
+            alias: 'Activity Name',
+          },
+          commission: {
+            alias: 'Commission ($)',
+            formatter: (v) => `$${v.toFixed(2)}`,
+          },
+        },
       });
+
+      columnChart2.render();
+
+      return () => columnChart2.destroy();
+    } else if (activeTabKey === 'itinerary' && chartRef3.current) {
+      const columnChart3 = new Column(chartRef3.current, {
+        data: data.itinerary,
+        xField: 'itineraryName',
+        yField: 'commission',
+        label: {
+          position: 'middle',
+          style: {
+            fill: '#FFFFFF',
+          },
+          formatter: (v) => `$${v.commission.toFixed(2)}`,
+        },
+        xAxis: {
+          label: {
+            autoRotate: false,
+            autoHide: true,
+            autoEllipsis: true,
+            style: {
+              textAlign: 'center',
+              width: 100,
+            },
+            formatter: (text) => text.split(' ').join('\n'),
+          },
+        },
+        yAxis: {
+          label: {
+            formatter: (v) => `$${v}`,
+          },
+        },
+        meta: {
+          itineraryName: {
+            alias: 'Itinerary Name',
+          },
+          commission: {
+            alias: 'Commission ($)',
+            formatter: (v) => `$${v.toFixed(2)}`,
+          },
+        },
+      });
+
+      columnChart3.render();
+
+      return () => columnChart3.destroy();
     }
-    return acc;
-  }, []);
-
-  // Initialize chart
-  const columnChart3 = new Column(chartRef3.current, {
-    data: chartData,
-    xField: 'itinerary',
-    yField: 'commission',
-    label: {
-      position: 'middle',
-      style: {
-        fill: '#FFFFFF',
-      },
-      formatter: (v) => `$${v.commission.toFixed(2)}`,
-    },
-    xAxis: {
-      label: {
-        autoRotate: false,  // Prevent rotation
-        autoHide: true,
-        autoEllipsis: true,
-        style: {
-          textAlign: 'center',
-          width: 100, // Set fixed width for label container
-      },
-      formatter: (text) => {
-          // Split text by spaces and join with newlines
-          return text.split(' ').join('\n');
-      },
-        
-      },
-    },
-    yAxis: {
-      label: {
-        formatter: (v) => `$${v}`,
-      },
-    },
-    meta: {
-      itinerary: {
-        alias: 'Itinerary Name',
-      },
-      commission: {
-        alias: 'Commission ($)',
-        formatter: (v) => `$${v.toFixed(2)}`
-      }
-    }
-  });
-
-  columnChart3.render();
-
-  return () => columnChart3.destroy();
-}, [data.itinerary]);
+  }, [activeTabKey, data, renderChart]);
 
 
 
+const handleTabChange = (key) => {
+  setActiveTabKey(key);
+  setRenderChart((prev) => !prev); // Toggle the renderChart state to force re-render
+};
 
 return (
   <div>
     <h2>Admin Sales Report</h2>
-    <Tabs defaultActiveKey="product" centered destroyInactiveTabPane={false}>
+    <Tabs defaultActiveKey="product" centered destroyInactiveTabPane={false} onChange={handleTabChange} >
 
       <TabPane tab="Products" key="product">
         <p><strong>Product Sales:</strong> ${totals.productSales.toFixed(2)}</p>
@@ -677,21 +656,29 @@ return (
               rowKey={(record) => record.key || record.productName}
               onChange={(pagination, filters, sorter) => {
                 const productNames = filters.productName || [];
-                const dateRange = filters.dateRange || null;
+                
+                if (productNames.length > 0) {
+                  clearDateFilter('product');
+                }
 
                 const newFilters = {
-                  productNames: productNames.length > 0 ? productNames : filters.productNames || [],
-                  dateRange: dateRange ? dateRange : filters.dateRange || null,
-                  filterMode: filters.filterMode || 'date',
+                  ...filters.product,
+                  productNames: productNames.length > 0 ? productNames : [],
                 };
 
-                setFilters((prev) => ({
+                setFilters(prev => ({
                   ...prev,
-                  productNames: newFilters.productNames,
-                  dateRange: newFilters.dateRange,
+                  product: {
+                    ...prev.product,
+                    productNames: newFilters.productNames,
+                  }
                 }));
 
                 const filteredData = applyFilters(originalData.product, newFilters, 'product');
+                setData(prevData => ({
+                  ...prevData,
+                  product: filteredData
+                }));
 
                 setData((prevData) => ({
                   ...prevData,
@@ -735,21 +722,28 @@ return (
               rowKey={(record) => record.key || record.activityName}
               onChange={(pagination, filters, sorter) => {
                 const activityNames = filters.activityName || [];
-                const dateRange = filters.dateRange || null;
 
+                if (activityNames.length > 0) {
+                  clearDateFilter('activity');
+                }
                 const newFilters = {
-                  activityNames: activityNames.length > 0 ? activityNames : filters.activityNames || [],
-                  dateRange: dateRange ? dateRange : filters.dateRange || null,
-                  filterMode: filters.filterMode || 'date',
+                ...filters.activity,
+                activityNames: activityNames.length > 0 ? activityNames : [],
                 };
 
-                setFilters((prev) => ({
+                setFilters(prev => ({
                   ...prev,
-                  activityNames: newFilters.activityNames,
-                  dateRange: newFilters.dateRange,
+                  activity: {
+                    ...prev.activity,
+                    activityNames: newFilters.activityNames,
+                  }
                 }));
 
                 const filteredData = applyFilters(originalData.activity, newFilters, 'activity');
+                setData(prevData => ({
+                  ...prevData,
+                  activity: filteredData
+                }));
 
                 setData((prevData) => ({
                   ...prevData,
@@ -788,26 +782,29 @@ return (
               rowKey={(record) => record.key || record.itineraryName}
               onChange={(pagination, filters, sorter) => {
                 const itineraryNames = filters.itineraryName || [];
-                const dateRange = filters.dateRange || null;
+
+                if (itineraryNames.length > 0) {
+                  clearDateFilter('itinerary');
+                }
 
                 const newFilters = {
-                  itineraryNames: itineraryNames.length > 0 ? itineraryNames : filters.itineraryNames || [],
-                  dateRange: dateRange ? dateRange : filters.dateRange || null,
-                  filterMode: filters.filterMode || 'date',
-                };
+                    ...filters.itinerary,
+                    itineraryNames: itineraryNames.length > 0 ? itineraryNames : [],
+                  };
 
-                setFilters((prev) => ({
-                  ...prev,
-                  itineraryNames: newFilters.itineraryNames,
-                  dateRange: newFilters.dateRange,
-                }));
+                  setFilters(prev => ({
+                    ...prev,
+                    itinerary: {
+                      ...prev.itinerary,
+                      itineraryNames: newFilters.itineraryNames,
+                    }
+                  }));
 
-                const filteredData = applyFilters(originalData.itinerary, newFilters, 'itinerary');
-
-                setData((prevData) => ({
-                  ...prevData,
-                  itinerary: filteredData,
-                }));
+                  const filteredData = applyFilters(originalData.itinerary, newFilters, 'itinerary');
+                  setData(prevData => ({
+                    ...prevData,
+                    itinerary: filteredData
+                  }));
               }}
             />
           </div>
