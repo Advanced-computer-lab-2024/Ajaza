@@ -9,13 +9,13 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
+import CustomButton from "./CustomButton";
 import axios from "axios";
 import "./Profile.css";
 import { useNavigate } from "react-router-dom";
 import { apiUrl } from "../Common/Constants";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
-import CustomButton from "./CustomButton";
 import { useAdminMenuKey } from "../Admin/AdminMenuKeyContext";
 
 const ChangePasswordForm = () => {
@@ -36,7 +36,7 @@ const ChangePasswordForm = () => {
 
       if (decodedToken.exp < currentTime) {
         message.error("Session expired. Please log in again.");
-        navigate("/login");
+        navigate("/auth/signin");
         return;
       }
 
@@ -49,7 +49,6 @@ const ChangePasswordForm = () => {
 
   const handleSave = async (values) => {
     setLoading(true);
-
 
     if (values?.oldPassword == values?.newPassword) {
       message.error("New password must be different than the old password");
@@ -70,11 +69,6 @@ const ChangePasswordForm = () => {
           oldPassword: values.oldPassword,
           newPassword: values.newPassword,
           role: role,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
 
@@ -207,15 +201,15 @@ const ChangePasswordForm = () => {
             </Form.Item>
 
             <Form.Item>
-               <CustomButton
-                    size={"s"}
-                    style={{
-                      width: "120px",
-                      fontWeight: "bold",
-                    }}
-                    value={"Save Password"}
-                    htmlType="submit"
-                    />
+              <CustomButton
+                size={"s"}
+                style={{
+                  width: "120px",
+                  fontWeight: "bold",
+                }}
+                value={"Save Password"}
+                htmlType="submit"
+              />
             </Form.Item>
           </Form>,
         ]}

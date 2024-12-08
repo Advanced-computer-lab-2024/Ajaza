@@ -5,6 +5,7 @@ import {
   InboxOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
+import { RightOutlined } from "@ant-design/icons";
 import {
   Avatar,
   Card,
@@ -26,15 +27,13 @@ import Button from "./Common/CustomButton";
 import { jwtDecode } from "jwt-decode";
 import { apiUrl, Colors } from "./Common/Constants";
 import MapComponent from "./Common/Map";
+import "./Venues.css";
 
 const { Option } = Select;
 const { Dragger } = Upload;
 
 const apiClient = axios.create({
   baseURL: apiUrl,
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
 });
 
 const Venues = () => {
@@ -416,7 +415,8 @@ const Venues = () => {
                 style={{
                   minWidth: 370,
                   maxWidth: 370,
-                  maxHeight: 1000,
+                  maxHeight: 750,
+                  minHeight: 750,
                   marginBottom: "4px",
                   marginRight: "12px",
                   border: "1px solid #e8e8e8",
@@ -434,7 +434,7 @@ const Venues = () => {
                         fontWeight: "600",
                         marginBottom: "10px",
                         fontSize: "18px",
-                        color: "#1b696a", // Customize this color as needed
+                        color: Colors.primary.default, // Customize this color as needed
                       }}
                     >
                       {venue.name}
@@ -446,14 +446,33 @@ const Venues = () => {
                     style={{
                       overflow: "hidden",
                       textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
                       marginBottom: "8px", // Spacing after each description
                     }}
                   >
                     <Text strong>Description:</Text> {venue.desc}
                   </p>
 
-                  <p style={{ marginBottom: "8px" }}>
-                    <Text strong>Location:</Text> {venue.location}
+                  <p
+                    style={{
+                      overflow: "hidden", // Hides overflowing content
+                      textOverflow: "ellipsis", // Adds "..." to the truncated text
+                      whiteSpace: "nowrap", // Prevents wrapping to a new line
+                      marginBottom: "8px",
+                    }}
+                  >
+                    <Text strong>Location:</Text>{" "}
+                    <a
+                      href={venue.location}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: "#1890ff",
+                        textDecoration: "none",
+                      }}
+                    >
+                      {venue.location}
+                    </a>
                   </p>
 
                   <p style={{ marginBottom: "8px" }}>
@@ -506,15 +525,30 @@ const Venues = () => {
 
                   <p style={{ marginBottom: "12px" }}>
                     <Text strong>Tags:</Text>
-                    {venue.tags.map((tag, index) => (
-                      <Tag
-                        key={index}
-                        color="#1b696a"
-                        style={{ margin: "3px", display: "inline-block" }}
-                      >
-                        {tag}
-                      </Tag>
-                    ))}
+                    <div
+                      style={{
+                        display: "flex",
+                        overflowX: "auto", // Allows horizontal scrolling
+                        whiteSpace: "nowrap", // Prevent wrapping of tags
+                        width: "100%", // Make the container take full width of the parent
+                        position: "relative", // To position the gradient indicator
+                      }}
+                      className="tags-container"
+                    >
+                      {venue.tags.map((tag, index) => (
+                        <Tag
+                          key={index}
+                          color={Colors.primary.default}
+                          style={{
+                            margin: "3px",
+                            display: "inline-block",
+                            flexShrink: 0, // Prevent shrinking of tags
+                          }}
+                        >
+                          {tag}
+                        </Tag>
+                      ))}
+                    </div>
                   </p>
 
                   <Button

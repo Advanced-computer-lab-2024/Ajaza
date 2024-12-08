@@ -6,8 +6,9 @@ import {
   DeleteOutlined,
   PlusOutlined,
   MinusOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
-import { apiUrl } from "../Common/Constants";
+import { apiUrl, Colors } from "../Common/Constants";
 import { jwtDecode } from "jwt-decode";
 
 const { Title } = Typography;
@@ -120,11 +121,10 @@ const ManageActivityCategories = () => {
       {/* Updated Add Category Functionality Positioned Below Title */}
       <div
         style={{
-          marginTop: "16px",
           marginBottom: "24px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "end",
         }}
       >
         {addingCategory && (
@@ -141,35 +141,33 @@ const ManageActivityCategories = () => {
               placeholder="Enter new category name"
               style={{ width: "200px", marginRight: "8px" }}
             />
-            <Button type="primary" onClick={handleAddCategory} style={{backgroundColor:"#1b696a"}}>
-              Add
-            </Button>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleAddCategory}
+              style={{ backgroundColor: Colors.primary.default }}
+            ></Button>
           </div>
         )}
 
         <Button
           type="primary"
-          style={{backgroundColor: "#1b696a"}}
-          icon={addingCategory ? <MinusOutlined /> : <PlusOutlined />}
+          style={{ backgroundColor: Colors.primary.default }}
+          icon={addingCategory ? <CloseOutlined /> : <PlusOutlined />}
           onClick={() => setAddingCategory(!addingCategory)}
-        >
-          {addingCategory ? "Close Category" : "Add Category"}
-        </Button>
+        ></Button>
       </div>
 
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "22% 22% 22% 22%",
-          gridGap: "4%",
+          gridTemplateColumns: "15% 15% 15% 15% 15% 15%",
+          gridGap: "2%",
+          gridRowGap: "15px",
         }}
       >
         {categories.map((category) => (
-          <Card
-            key={category._id}
-            title={category.category}
-            style={{ width: 300 }}
-          >
+          <Card key={category._id} title={category.category}>
             <Button
               type="text"
               icon={<EditOutlined />}

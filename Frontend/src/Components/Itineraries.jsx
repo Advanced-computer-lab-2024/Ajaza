@@ -5,6 +5,7 @@ import {
   PlusOutlined,
   MinusCircleOutlined,
   FlagOutlined,
+  InboxOutlined,
 } from "@ant-design/icons";
 import {
   Avatar,
@@ -19,8 +20,11 @@ import {
   InputNumber,
   Switch,
   Divider,
+  Flex,
   Tag,
   Typography,
+  Upload,
+  Empty,
 } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
@@ -29,14 +33,14 @@ import { apiUrl, Colors } from "./Common/Constants";
 import { Color } from "antd/es/color-picker";
 import LoadingSpinner from "./Common/LoadingSpinner";
 import dayjs from "dayjs";
+import "./Itineraries.css";
+import {getSetNewToken} from "./Common/Constants"
 
 const { Option } = Select;
+const { Dragger } = Upload;
 
 const apiClient = axios.create({
   baseURL: apiUrl,
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
 });
 
 const Itineraries = () => {
@@ -48,6 +52,7 @@ const Itineraries = () => {
   const [canEdit, setCanEdit] = useState(true);
   const [touristsData, setTouristsData] = useState([]);
   const { Title, Text } = Typography;
+  const [fileList, setFileList] = useState([]);
 
   const [form] = Form.useForm();
   const [options, setOptions] = useState([]);
@@ -85,13 +90,14 @@ const Itineraries = () => {
 
   const fetchItineraries = async () => {
     try {
+      getSetNewToken(userid, "guide");
       const response = await apiClient.get(
         `/itinerary/readItinerariesOfGuide/${userid}`
       );
       setItinerariesData(response.data);
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Please try again.";
-      message.error(`Failed to fetch itinerary,${errorMessage}`);
+      const errorMessage = error.response?.data?.message || "Error: Please try again.";
+      message.error(`${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -126,6 +132,13 @@ const Itineraries = () => {
     }
   }, []);
 
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
+
   const createItinerary = async (values) => {
     try {
       console.log("Form Values:", values); // Debugging line
@@ -152,10 +165,28 @@ const Itineraries = () => {
         feedback: [],
       };
 
+      const formData = new FormData();
+      if (values.pictures && values.pictures.length > 0) {
+        for (let i = 0; i < values.pictures.length; i++) {
+          formData.append("pictures", values.pictures[i].originFileObj);
+        }
+      }
+
       const response = await apiClient.post(
         `/itinerary/createSpecifiedItinerary/${userid}`,
         newItinerary
       );
+
+      const picResponse = await apiClient.post(
+        `itinerary/uploadPhotos/${response.data._id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
       setItinerariesData([...itinerariesData, response.data]);
       message.success("Itinerary created successfully!");
       setIsModalVisible(false);
@@ -266,6 +297,9 @@ const Itineraries = () => {
     setIsModalVisible(true);
   };
 
+  const handleFileChange = ({ fileList: newFileList }) =>
+    setFileList(newFileList);
+
   const showModal = () => {
     setEditingItineraryId(null);
     form.resetFields();
@@ -314,6 +348,8 @@ const Itineraries = () => {
 
         {loading ? (
           <LoadingSpinner />
+        ) : itinerariesData.length == 0 ? (
+          <Empty />
         ) : (
           <Space
             direction="horizontal"
@@ -333,10 +369,22 @@ const Itineraries = () => {
                     onClick={() => deleteItinerary(itinerary._id)}
                   />,
                 ]}
+                cover={
+                  itinerary.pictures?.length != 0 ? (
+                    <Flex justify="center">
+                      <img
+                        alt={itinerary.pictures[0]}
+                        style={{ height: "150px", width: "80%" }}
+                        src={`/uploads/${itinerary.pictures[0]}.jpg`}
+                      />
+                    </Flex>
+                  ) : null
+                }
                 style={{
                   minWidth: 370,
                   maxWidth: 370,
-                  maxHeight: 900,
+                  maxHeight: 760,
+                  minHeight: 760,
                   marginBottom: "8px",
                   marginRight: "12px",
                   border:
@@ -369,7 +417,7 @@ const Itineraries = () => {
                         fontWeight: "600",
                         marginBottom: "10px",
                         fontSize: "18px",
-                        color: "#1b696a", // You can customize this color as needed
+                        color: Colors.primary.default, // You can customize this color as needed
                       }}
                     >
                       {itinerary.name}
@@ -377,7 +425,19 @@ const Itineraries = () => {
                   }
                   description={
                     <div>
-                      <p>{itinerary.description}</p>
+                      <p
+                        style={{
+                          overflow: "hidden", // Hides overflowing content
+                          textOverflow: "ellipsis", // Adds "..." to truncated text
+                          display: "-webkit-box", // Required for line clamping
+                          WebkitBoxOrient: "vertical", // Required for line clamping
+                          WebkitLineClamp: 3, // Number of lines to display
+                          lineHeight: "1.2em", // Ensure consistent line height
+                          maxHeight: "2.6em", // Adjust according to line height * line clamp
+                        }}
+                      >
+                        {itinerary.description}
+                      </p>
                       <p>
                         <Text strong>Price:</Text>{" "}
                         <span style={{ color: "#5b8b77" }}>
@@ -413,7 +473,7 @@ const Itineraries = () => {
                         {itinerary.tags?.map((tagId) => (
                           <Tag
                             key={tagId}
-                            color="#1b696a"
+                            color={Colors.primary.default}
                             style={{ margin: "3px" }}
                           >
                             {tags.find((tag) => tag._id === tagId)?.tag ||
@@ -421,13 +481,28 @@ const Itineraries = () => {
                           </Tag>
                         )) || "None"}
                       </p>
-                      <p>
+                      <p
+                        style={{
+                          display: "flex",
+                          overflowX: "auto", // Allows horizontal scrolling
+                          whiteSpace: "nowrap", // Prevent wrapping of text to the next line
+                          width: "100%", // Ensures it takes up full width
+                          position: "relative", // For positioning the gradient fade (optional)
+                        }}
+                      >
                         <Text strong>Available Dates:</Text>{" "}
-                        <span>
+                        <div
+                          style={{
+                            marginLeft: "3px",
+                            display: "flex",
+                            flexWrap: "nowrap", // Prevent wrapping of items
+                            alignItems: "center", // Align items in the middle
+                          }}
+                        >
                           {itinerary.availableDateTime.length > 0
                             ? itinerary.availableDateTime
                                 .map(
-                                  (dateEntry) =>
+                                  (dateEntry, index) =>
                                     `${new Date(
                                       dateEntry.date
                                     ).toLocaleDateString()} (Spots: ${
@@ -436,11 +511,26 @@ const Itineraries = () => {
                                 )
                                 .join(", ")
                             : "No available dates"}
-                        </span>
+                        </div>
                       </p>
-                      <p>
+                      <p
+                        style={{
+                          display: "flex",
+                          overflowX: "auto", // Allows horizontal scrolling
+                          whiteSpace: "nowrap", // Prevent wrapping of text to the next line
+                          width: "100%", // Ensures it takes up full width
+                          position: "relative", // Limits the text to 2 lines
+                        }}
+                      >
                         <Text strong>Timeline:</Text>{" "}
-                        <span>
+                        <div
+                          style={{
+                            marginLeft: "3px",
+                            display: "flex",
+                            flexWrap: "nowrap", // Prevent wrapping of items
+                            alignItems: "center", // Align items in the middle
+                          }}
+                        >
                           {itinerary.timeline.length > 0
                             ? itinerary.timeline
                                 .map(
@@ -449,8 +539,9 @@ const Itineraries = () => {
                                 )
                                 .join(", ")
                             : "No timeline available"}
-                        </span>
+                        </div>
                       </p>
+
                       <p>
                         <Text strong>Flagged:</Text>{" "}
                         <span
@@ -461,7 +552,6 @@ const Itineraries = () => {
                           {itinerary.isFlagged ? "Yes" : "No"}
                         </span>
                       </p>
-                      <Divider style={{ margin: "12px 0" }} />
                     </div>
                   }
                 />
@@ -659,30 +749,32 @@ const Itineraries = () => {
 
             {/* Available date time entries */}
             <Form.List name="availableDateTime">
-            {(fields, { add, remove }) => (
-    <>
-      {fields.map(({ key, fieldKey, name }) => (
-        <div key={key} style={{ display: "flex", marginBottom: 8 }}>
-          <Form.Item
-            {...fieldKey}
-            name={[name, "date"]}
-            fieldKey={[fieldKey[0], "date"]}
-            label="Available Date"
-            rules={[
-              { required: true, message: "Missing date" },
-              {
-                validator: (_, value) => {
-                  const today = dayjs().startOf("day");
-                  if (value && dayjs(value).isBefore(today)) {
-                    return Promise.reject(
-                      new Error("Itinerary date cannot be in the past")
-                    );
-                  }
-                  return Promise.resolve();
-                },
-              },
-            ]}
-            style={{ marginRight: 16 }} // Add margin to separate available date and available spots in the form
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, fieldKey, name }) => (
+                    <div key={key} style={{ display: "flex", marginBottom: 8 }}>
+                      <Form.Item
+                        {...fieldKey}
+                        name={[name, "date"]}
+                        fieldKey={[fieldKey[0], "date"]}
+                        label="Available Date"
+                        rules={[
+                          { required: true, message: "Missing date" },
+                          {
+                            validator: (_, value) => {
+                              const today = dayjs().startOf("day");
+                              if (value && dayjs(value).isBefore(today)) {
+                                return Promise.reject(
+                                  new Error(
+                                    "Itinerary date cannot be in the past"
+                                  )
+                                );
+                              }
+                              return Promise.resolve();
+                            },
+                          },
+                        ]}
+                        style={{ marginRight: 16 }} // Add margin to separate available date and available spots in the form
                       >
                         <Input type="date" />
                       </Form.Item>
@@ -712,8 +804,40 @@ const Itineraries = () => {
               )}
             </Form.List>
 
+            {!editingItineraryId && (
+              <Form.Item
+                label="Pictures"
+                name="pictures"
+                valuePropName="fileList"
+                getValueFromEvent={normFile}
+              >
+                <Dragger
+                  name="pictures"
+                  listType="text"
+                  fileList={fileList}
+                  onChange={handleFileChange}
+                  beforeUpload={() => false}
+                  maxCount={3}
+                >
+                  <p className="ant-upload-drag-icon">
+                    <InboxOutlined />
+                  </p>
+                  <p className="ant-upload-text">
+                    Click or drag file to this area to upload
+                  </p>
+                </Dragger>
+              </Form.Item>
+            )}
+
             <Form.Item>
-              <AntButton type="primary" htmlType="submit" style={{ marginTop: "10px" , backgroundColor: "#1b696a"}}>
+              <AntButton
+                type="primary"
+                htmlType="submit"
+                style={{
+                  marginTop: "10px",
+                  backgroundColor: Colors.primary.default,
+                }}
+              >
                 {editingItineraryId ? "Update Itinerary" : "Create Itinerary"}
               </AntButton>
             </Form.Item>

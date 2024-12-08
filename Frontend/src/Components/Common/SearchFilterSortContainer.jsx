@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Col, Row, Card, Avatar, Flex, Modal, Input } from "antd";
+import { Col, Row, Card, Avatar, Flex, Modal, Input, Empty } from "antd";
 import {
   EditOutlined,
   EllipsisOutlined,
@@ -15,7 +15,8 @@ import { jwtDecode } from "jwt-decode";
 
 import Search from "./Search";
 import { useCurrency } from "../Tourist/CurrencyContext";
-import { currencyRates } from "./Constants";
+import { currencyRates, Colors } from "./Constants";
+import LoadingSpinner from "./LoadingSpinner";
 
 function mapPropsToValues(element, propMapping) {
   if (!propMapping || !element) {
@@ -206,9 +207,10 @@ const SearchFilterSortContainer = ({
   horizontalGap = 30,
   verticalGap = 30,
   cardOnclick,
-  loading,
+  isLoading,
 }) => {
   const [displayedElements, setDisplayedElements] = useState(null);
+  const [isEmpty, setIsEmpty] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [sortField, setSortField] = useState(null);
   const [sortAsc, setSortAsc] = useState(true);
@@ -295,7 +297,6 @@ const SearchFilterSortContainer = ({
 
   //   setDisplayedElements(temp);
   // }, [sortAsc]);
-
   useEffect(() => {
     let temp = filterSearchArray(elements, searchValue, searchFields);
     temp = sortElements(temp, sortField, sortAsc);
@@ -311,9 +312,14 @@ const SearchFilterSortContainer = ({
   useEffect(() => {
     handleOk();
   }, [currency]);
-  // useEffect(() => {
-  //   console.log(displayedElements);
-  // }, [displayedElements]);
+
+  useEffect(() => {
+    if (displayedElements?.length == 0) {
+      setIsEmpty(true);
+    } else {
+      setIsEmpty(false);
+    }
+  }, [displayedElements]);
 
   const sortItems = [
     {
@@ -459,7 +465,7 @@ const SearchFilterSortContainer = ({
           />
         ) : null}
 
-        <Flex style={{ position: "absolute", right: "70px" }}>
+        <Flex style={{ position: "absolute", right: "80px" }}>
           <Dropdown
             menu={{
               selectable: true,
@@ -467,7 +473,7 @@ const SearchFilterSortContainer = ({
             }}
           >
             <a onClick={(e) => e.preventDefault()}>
-              <Space style={{color: "#1b696a"}}>
+              <Space style={{ color: Colors.primary.default }}>
                 Filter
                 <DownOutlined />
               </Space>
@@ -480,7 +486,9 @@ const SearchFilterSortContainer = ({
               selectable: true,
             }}
           >
-            <Typography.Link style={{ marginLeft: "30px" , color:"#1b696a"}}>
+            <Typography.Link
+              style={{ marginLeft: "30px", color: Colors.primary.default }}
+            >
               <Space>
                 Sort
                 <DownOutlined />
@@ -489,27 +497,35 @@ const SearchFilterSortContainer = ({
           </Dropdown>
         </Flex>
       </Flex>
-      <Row gutter={[horizontalGap, verticalGap]}>
-        {displayedElements?.map((element, index) => {
-          const mappedProps = mapPropsToValues(element, propMapping);
-          const mappedFields = mapPropsToValues(element, fields);
-          const combinedProps = { ...mappedProps, ...constProps };
-          return (
-            <Col span={span} key={element["_id"]}>
-              {/* set element.name this to id */}
-              <CardComponent
-                {...combinedProps}
-                fields={mappedFields}
-                onClick={() => {
-                  if (cardOnclick) {
-                    cardOnclick(element);
-                  }
-                }}
-              />
-            </Col>
-          );
-        })}
-      </Row>
+      {!isLoading ? (
+        !isEmpty ? (
+          <Row gutter={[horizontalGap, verticalGap]}>
+            {displayedElements?.map((element, index) => {
+              const mappedProps = mapPropsToValues(element, propMapping);
+              const mappedFields = mapPropsToValues(element, fields);
+              const combinedProps = { ...mappedProps, ...constProps };
+              return (
+                <Col span={span} key={element["_id"]}>
+                  {/* set element.name this to id */}
+                  <CardComponent
+                    {...combinedProps}
+                    fields={mappedFields}
+                    onClick={() => {
+                      if (cardOnclick) {
+                        cardOnclick(element);
+                      }
+                    }}
+                  />
+                </Col>
+              );
+            })}
+          </Row>
+        ) : // <Empty />
+        null
+      ) : (
+        // null
+        <LoadingSpinner />
+      )}
       <Modal
         open={open}
         title={

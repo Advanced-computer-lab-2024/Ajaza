@@ -17,7 +17,7 @@ import "./Feedbacks.css";
 import CustomButton from "./CustomButton";
 const contentStyle = {
   margin: 0,
-  height: "260px",
+  height: "210px",
   color: "#fff",
   lineHeight: "400px",
   textAlign: "center",
@@ -37,6 +37,7 @@ const Feedbacks = ({
   writeReviewForm,
   onSubmitWriteReview,
 }) => {
+  const numOfItems = 4;
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleCancel = () => {
@@ -60,7 +61,7 @@ const Feedbacks = ({
           {feedbacks
             ?.reduce((result, feedback, index) => {
               // Group feedbacks into batches of 3
-              if (index % 3 === 0) {
+              if (index % numOfItems === 0) {
                 result.push([feedback]);
               } else {
                 result[result.length - 1].push(feedback);
@@ -73,7 +74,7 @@ const Feedbacks = ({
                   {batch.map((feedbackItem, colIdx) => (
                     <Col
                       key={colIdx}
-                      span={8}
+                      span={24 / numOfItems}
                       style={{ height: "100%", display: "flex" }}
                     >
                       <Card
@@ -101,12 +102,26 @@ const Feedbacks = ({
                             style={{ fontSize: 17, color: "white" }}
                           />
                         </div>
-                        <Flex style={{ fontSize: 16, marginBottom: 20 }}>
+                        <Flex
+                          style={{
+                            fontSize: 16,
+                            marginBottom: 20,
+                            alignItems: "center",
+                          }}
+                        >
                           <div style={titleStyle}>
                             {feedbackItem?.touristId?.username ? (
                               feedbackItem?.touristId?.username
                             ) : (
-                              <span>{feedbackItem?.touristName}</span>
+                              <div
+                                style={{
+                                  width: "70px",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                }}
+                              >
+                                {feedbackItem?.touristName}
+                              </div>
                             )}
                           </div>
                           <Rate
@@ -118,7 +133,18 @@ const Feedbacks = ({
                           />
                         </Flex>
 
-                        <div className="desc">{feedbackItem.comments}</div>
+                        <div
+                          className="desc"
+                          style={{
+                            display: "-webkit-box",
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                            WebkitLineClamp: 3, // Change this number to set max lines
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {feedbackItem.comments}
+                        </div>
                       </Card>
                     </Col>
                   ))}

@@ -11,12 +11,14 @@ import {
   Empty,
 } from "antd";
 import { SearchOutlined, BarsOutlined } from "@ant-design/icons";
-import { apiUrl } from "../Common/Constants";
+import { apiUrl, Colors } from "../Common/Constants";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import LoadingSpinner from "../Common/LoadingSpinner";
 import Search from "../Common/Search";
+import NumberOfUsers from "./NumberOfUsers";
+
 const { Title } = Typography;
 
 const ExamineAccounts = () => {
@@ -226,21 +228,39 @@ const ExamineAccounts = () => {
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "column",
-        padding: "20px",
       }}
     >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          width: "100%",
+          maxWidth: "800px", // Control overall width
+          transform: "scale(0.9)", // Scale down by 10%
+          transformOrigin: "top center", // Scale from top center
+          marginBottom: "0px", // Adjust margin to account for scaling
+        }}
+      >
+        <NumberOfUsers />
+      </div>
       <Title level={2} style={{ textAlign: "center", marginBottom: "20px" }}>
-        Accepting and Rejecting User Accounts
+        Pending Accounts
       </Title>
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-         <Search
-            activateHover={false}
-            searchValue={searchValue}
-            setSearchValue={setSearchValue}
-            style={{ width: "600px" }}
-            inputStyleParam={{ paddingLeft: "40px" }}
-          />
-          </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginBottom: "20px",
+        }}
+      >
+        <Search
+          activateHover={false}
+          searchValue={searchValue}
+          setSearchValue={setSearchValue}
+          style={{ width: "600px" }}
+          inputStyleParam={{ paddingLeft: "40px" }}
+        />
+      </div>
 
       {loading ? (
         <LoadingSpinner />
@@ -250,11 +270,9 @@ const ExamineAccounts = () => {
           {selectedAccount ? (
             <Card
               title={`Username: ${selectedAccount.username}`}
-              bordered={false}
               style={{
                 width: "60%",
                 textAlign: "center",
-                boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
               }}
             >
               <p>Account Type: {selectedAccount.type}</p>
@@ -274,104 +292,72 @@ const ExamineAccounts = () => {
                 <Button
                   type="primary"
                   onClick={handleAccept}
-                  style={{ marginRight: 10 , backgroundColor:"#1b696a" }}
+                  style={{
+                    marginRight: 10,
+                    backgroundColor: Colors.primary.default,
+                  }}
                 >
                   Accept
                 </Button>
-                <Button type="primary" onClick={handleReject} style={{backgroundColor:"#1b696a"}}>
+                <Button
+                  type="primary"
+                  onClick={handleReject}
+                  style={{ backgroundColor: Colors.primary.default }}
+                >
                   Reject
                 </Button>
               </div>
             </Card>
-          ) : (
-
-
-
-
-
-
-
-
-
-            <Row
-            gutter={[
-              accounts.length <= 3 ? 120 : 16, // Adjust horizontal spacing for 3 cards
-              16, // Keep vertical gutter consistent
-            ]}
-            justify={accounts.length === 3 ? "space-around" : "center"} // Adjust justification for 3 cards
-          >
-            {accounts.length > 0 ? (
-              <>
-                {accounts.map((account) => (
-                  <Col
-                    span={8}
-                    key={account._id}
+          ) : accounts.length > 0 ? (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "22% 22% 22% 22%",
+                gridGap: "4%",
+                rowGap: "15px",
+                width: "100%",
+              }}
+            >
+              {accounts.map((account) => (
+                <Col
+                  key={account._id}
+                  style={{
+                    marginBottom: accounts.length === 2 ? "40px" : "20px", // Extra bottom margin for two cards
+                  }}
+                  onClick={() => handleDetailsView(account)}
+                >
+                  <Card
+                    title={account.username}
                     style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      marginBottom: accounts.length === 2 ? "40px" : "20px", // Extra bottom margin for two cards
+                      width: "auto",
+                      minHeight: "200px",
                     }}
-                    onClick={() => handleDetailsView(account)}
                   >
-                    <Card
-                      title={`Username: ${account.username}`}
-                      bordered={false}
+                    <p>{`Account Type: ${account.type}`}</p>
+                    <p
                       style={{
-                        width: "300px",
-                        minHeight: "200px",
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "space-between",
-                        boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                        wordBreak: "break-word", // Ensures the text wraps to the next line
+                        overflow: "hidden", // Prevents content from spilling
+                        textOverflow: "ellipsis", // Adds "..." for long overflowed text
+                        whiteSpace: "nowrap", // Keeps text on one line, combined with ellipsis
                       }}
                     >
-                      <p>{`Account Type: ${account.type}`}</p>
-                      <p
-                        style={{
-                          wordBreak: "break-word", // Ensures the text wraps to the next line
-                          overflow: "hidden", // Prevents content from spilling
-                          textOverflow: "ellipsis", // Adds "..." for long overflowed text
-                          whiteSpace: "nowrap", // Keeps text on one line, combined with ellipsis
-                        }}
-                      >
-                        {`Email: ${account.email}`}
-                      </p>
-                      <Button
-                        type="default"
-                        icon={<BarsOutlined />}
-                        onClick={() => handleDetailsView(account)}
-                        style={{ color: "#1b696a" }}
-                      >
-                        View Details
-                      </Button>
-                    </Card>
-                  </Col>
-                ))}
-                {/* Add filler columns to maintain consistent spacing */}
-                {accounts.length % 3 !== 0 &&
-                  Array.from(
-                    { length: 3 - (accounts.length % 3) },
-                    (_, index) => (
-                      <Col
-                        span={8}
-                        key={`filler-${index}`}
-                        style={{ visibility: "hidden" }}
-                      >
-                        <Card
-                          bordered={false}
-                          style={{ width: "300px", minHeight: "200px" }}
-                        />
-                      </Col>
-                    )
-                  )}
-              </>
-            ) : (
-              <Col span={24} style={{ textAlign: "center" }}>
-                <p>No accounts found.</p>
-              </Col>
-            )}
-          </Row>
-          
+                      {`Email: ${account.email}`}
+                    </p>
+                    <Button
+                      type="default"
+                      icon={<BarsOutlined />}
+                      onClick={() => handleDetailsView(account)}
+                      style={{ color: Colors.primary.default }}
+                    >
+                      View Details
+                    </Button>
+                  </Card>
+                </Col>
+              ))}
+            </div>
+          ) : (
+            <Empty />
           )}
         </>
       )}

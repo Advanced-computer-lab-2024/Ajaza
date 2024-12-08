@@ -15,6 +15,8 @@ import Item from "./Item";
 import SelectCurrency from "../Tourist/SelectCurrency";
 import { jwtDecode } from "jwt-decode";
 import CustomButton from "./CustomButton";
+import PlusMinusPill from "./PlusMinusPill";
+import zIndex from "@mui/material/styles/zIndex";
 
 const Product = () => {
   let { id } = useParams();
@@ -107,13 +109,18 @@ const Product = () => {
   useEffect(() => {
     if (touristId && product) {
       const fetchCartData = async () => {
+        console.log("here");
+
         try {
           const response = await axios.get(
             `${apiUrl}tourist/cart/${touristId}`
           );
-          const cartItem = response.data.find(
-            (item) => item.productId === product._id
-          );
+          console.log(response);
+
+          const cartItem = response.data.find((item) => {
+            return item.productId._id === product._id;
+          });
+
           if (cartItem) {
             setQuantity(cartItem.quantity);
           }
@@ -229,6 +236,7 @@ const Product = () => {
       {touristId ? (
         <div
           style={{
+            position: "relative",
             display: "flex",
             alignItems: "center",
             marginTop: "20px",
@@ -237,67 +245,80 @@ const Product = () => {
         >
           {quantity === 0 ? (
             <CustomButton
-                value={"Add to Cart"}
-                size={"s"}
-                style={{ position: 'relative', top: 250, left: -315, zIndex: 10 }}
-                onClick={handleAddToCart}
-              />
+              value={"Add to Cart"}
+              size={"s"}
+              //style={{ position: 'relative', top: 60, left: -105, zIndex: 10 }}
+              style={{ position: "absolute", top: 63.5, right: 7, zIndex: 10 }}
+              onClick={handleAddToCart}
+            />
           ) : (
-            <>
-              <MinusOutlined
-                onClick={handleDecrement}
-                style={{
-                  fontSize: "24px",
-                  color: quantity > 1 ? "#FF0000" : "#d9d9d9",
-                  cursor: quantity > 1 ? "pointer" : "not-allowed",
-                  //marginRight: "10px",
-                  position: "relative",
-                  top: 250,
-                  left: -315,
-                  zIndex: 10,
-                }}
-              />
-              <span style={{ fontSize: "18px", margin: "0 10px" ,
-               position: "relative", top: 250 , left: -315,
-               }}>
-                {quantity}
-              </span>
-              <PlusOutlined
-                onClick={handleIncrement}
-                style={{
-                  fontSize: "24px",
-                  color: "#4CAF50",
-                  cursor: "pointer",
-                  //marginRight: "10px",
-                  position: "relative",
-                  top: 250,
-                  left: -315,
-                  zIndex: 10,
-                }}
-              />
-              <DeleteOutlined
-                onClick={handleRemoveFromCart}
-                style={{
-                  fontSize: "24px",
-                  color: "#FF0000",
-                  cursor: "pointer",
-                  position: "relative",
-                  top: 250,
-                  left: -315,
-                  zIndex: 10,
-                  marginLeft: "10px",
-                }}
-              />
-            </>
+            // <div style={{ display: "flex" }}>
+            //   <MinusOutlined
+            //     onClick={handleDecrement}
+            //     style={{
+            //       fontSize: "24px",
+            //       color: quantity > 1 ? "#FF0000" : "#d9d9d9",
+            //       cursor: quantity > 1 ? "pointer" : "not-allowed",
+            //       //marginRight: "10px",
+            //       position: "relative",
+            //       top: 250,
+            //       left: -315,
+            //       zIndex: 10,
+            //     }}
+            //   />
+            //   <span
+            //     style={{
+            //       fontSize: "18px",
+            //       margin: "0 10px",
+            //       position: "relative",
+            //       top: 250,
+            //       left: -315,
+            //     }}
+            //   >
+            //     {quantity}
+            //   </span>
+            //   <PlusOutlined
+            //     onClick={handleIncrement}
+            //     style={{
+            //       fontSize: "24px",
+            //       color: "#4CAF50",
+            //       cursor: "pointer",
+            //       //marginRight: "10px",
+            //       position: "relative",
+            //       top: 250,
+            //       left: -315,
+            //       zIndex: 10,
+            //     }}
+            //   />
+            //   <DeleteOutlined
+            //     onClick={handleRemoveFromCart}
+            //     style={{
+            //       fontSize: "24px",
+            //       color: "#FF0000",
+            //       cursor: "pointer",
+            //       position: "relative",
+            //       top: 250,
+            //       left: -315,
+            //       zIndex: 10,
+            //       marginLeft: "10px",
+            //     }}
+            //   />
+            // </div>
+            <PlusMinusPill
+              quantity={quantity}
+              style={{ position: "absolute", top: 72, right: 15, zIndex: 10 }}
+              handleDelete={handleRemoveFromCart}
+              handleMinus={handleDecrement}
+              handlePlus={handleIncrement}
+            />
           )}
         </div>
       ) : null}
-
-      <SelectCurrency
+      {/* <SelectCurrency
         currency={currency}
         onCurrencyChange={handleCurrencyChange}
         style={{ left: -7, top: 45 }}
-      />
+      /> */}
 
       <Item
         id={id}
@@ -311,6 +332,7 @@ const Product = () => {
         feedbacks={product?.feedback}
         type={"product"}
         currency={currency}
+        productCurrentQuantity={quantity}
       />
 
       {/*<div style={{ display: "flex", alignItems: "center", marginTop: "20px" }}>

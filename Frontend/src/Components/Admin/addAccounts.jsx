@@ -11,7 +11,7 @@ import {
 } from "antd";
 import axios from "axios"; // Import axios
 import AdminCustomLayout from "./AdminCustomLayout";
-import { apiUrl } from "../Common/Constants";
+import { apiUrl, Colors } from "../Common/Constants";
 
 const { Header, Content } = Layout;
 
@@ -141,7 +141,11 @@ const AddAccounts = () => {
               </Form.Item>
 
               <Form.Item>
-                <Button type="primary" htmlType="submit" style={{backgroundColor:"#1b696a"}}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  style={{ backgroundColor: Colors.primary.default }}
+                >
                   Add Admin Account
                 </Button>
               </Form.Item>
@@ -191,7 +195,11 @@ const AddAccounts = () => {
                 <Input placeholder="Password" type="password" />
               </Form.Item>
               <Form.Item>
-                <Button type="primary" htmlType="submit" style={{backgroundColor:"#1b696a"}}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  style={{ backgroundColor: Colors.primary.default }}
+                >
                   Add Tourism Governor Account
                 </Button>
               </Form.Item>
@@ -224,39 +232,40 @@ const AddAccounts = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor:"#1b696a"
+          backgroundColor: Colors.primary.default,
         }}
       >
         <div className="demo-logo" />
         <Menu
-         className="admin-menu"
+          className="admin-menu"
           //theme="dark"
           mode="horizontal"
           defaultSelectedKeys={["1"]}
           items={menuItems.map((item) => ({
             key: item.key,
             label: item.label,
-            style: { 
+            style: {
               paddingLeft: "20px",
-               paddingRight: "20px" ,
-               backgroundColor: "#1b696a",
-               color: "white",
-            }, }))}
+              paddingRight: "20px",
+              backgroundColor: Colors.primary.default,
+              color: "white",
+            },
+          }))}
           onClick={handleMenuClick}
           style={{
             flex: 0,
             display: "flex",
             justifyContent: "center",
             gap: "50px", // Add spacing between menu items
-            backgroundColor:"#1b696a",
-            color:"white"
+            backgroundColor: Colors.primary.default,
+            color: "white",
           }}
         />
       </Header>
       <Content
         style={{
           padding: "0 48px",
-          color:"white"
+          color: "white",
         }}
       >
         <div
@@ -265,7 +274,6 @@ const AddAccounts = () => {
             minHeight: 380,
             //background: colorBgContainer,
             //borderRadius: borderRadiusLG,
-            
           }}
         >
           {renderContent()}

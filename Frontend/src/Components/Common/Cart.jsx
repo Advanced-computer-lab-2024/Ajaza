@@ -13,12 +13,13 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { apiUrl, getSetNewToken } from "../Common/Constants";
+import { apiUrl, getSetNewToken, Colors } from "../Common/Constants";
 import { useCurrency } from "../Tourist/CurrencyContext";
 import { MinusOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 import CustomButton from "./CustomButton";
 import StripeContainer from "./StripeContainer";
+import PlusMinusPill from "./PlusMinusPill";
 import "./Cart.css";
 export const Cart = () => {
   const navigate = useNavigate();
@@ -152,8 +153,9 @@ export const Cart = () => {
       );
       setPrice(totalPrice); // Update the price state
     };
-  
+
     calculateTotalPrice();
+    console.log("shaker", cartItems);
   }, [cartItems]);
 
   const handleIncrement = async (productId) => {
@@ -351,39 +353,57 @@ export const Cart = () => {
                   <img
                     src={`/uploads/${item.photo}.jpg`}
                     alt={item.productName}
+                    style={{ width: "200px", height: "90px", margin: "0" }}
                     className="cart-image"
                   />
                 )}
-                <div className="cart-text">
-                  <Text strong>{item.name}</Text> {/* Name */}
+                <div
+                  className="cart-text"
+                  style={{ marginLeft: "10px", textAlign: "left" }}
+                >
+                  <div style={{ marginBottom: "5px" }}>
+                    <Text strong>{item.name}</Text>
+                  </div>
                   <Text className="cart-price">
-                    Price:{" "}
-                    {(
-                      item.quantity *
-                      item.price *
-                      currencyRates[currency]
-                    ).toFixed(2)}{" "}
-                    {currency}
-                  </Text>{" "}
-                  {/* Price */}
+                    <strong>Price:</strong>{" "}
+                    <strong>
+                      {(
+                        item.quantity *
+                        item.price *
+                        currencyRates[currency]
+                      ).toFixed(2)}{" "}
+                      {currency}
+                    </strong>
+                  </Text>
+
+                  {/* Stock Information */}
+                  {item.stock > 0 && (
+                    <div
+                      style={{
+                        marginTop: "8px",
+                        color: "green",
+                        alignSelf: "flex-start",
+                        fontSize: "13px",
+                      }}
+                    >
+                      In stock
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="cart-actions">
-                <Button
-                  icon={<DeleteOutlined />}
-                  danger
-                  onClick={() => handleRemoveItem(item.productId)}
-                />
-                <Button
-                  icon={<MinusOutlined />}
-                  onClick={() => handleDecrement(item.productId)}
-                />
-                <Text className="cart-quantity">{item.quantity}</Text>
-                <Button
-                  icon={<PlusOutlined />}
-                  onClick={() => handleIncrement(item.productId)}
+                <PlusMinusPill
+                  quantity={item.quantity}
+                  handlePlus={() => handleIncrement(item.productId)}
+                  handleMinus={() => handleDecrement(item.productId)}
+                  handleDelete={() => handleRemoveItem(item.productId)}
+                  style={{
+                    position: "relative",
+                    top: 0,
+                    right: 0,
+                  }}
                 />
               </div>
             </div>
@@ -397,7 +417,8 @@ export const Cart = () => {
       {/* Checkout Button */}
       <div className="checkout-button-container">
         <CustomButton
-          size="s"
+          size="m"
+          style={{ width: "130px", height: "50px" }}
           value="Checkout"
           onClick={showModal}
           className="checkout-button"
@@ -415,17 +436,30 @@ export const Cart = () => {
             display: paymentMethod === "card" ? "none" : "inline-block",
           },
         }}
+        style={
+          paymentMethod === "card" ? { paddingBottom: "-100px !important" } : {}
+        }
         cancelText="Cancel"
+        cancelButtonProps={
+          paymentMethod === "card"
+            ? {
+                style: {
+                  position: "absolute",
+                  right: "140px",
+                  bottom: "31.5px",
+                },
+              }
+            : {}
+        }
       >
         <div
           style={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            height: "50px",
           }}
         >
-          <div style={{ textAlign: "center", marginBottom: "4px" }}>
+          <div style={{ textAlign: "center" }}>
             <h1>Checkout</h1>
             <Divider />
           </div>
@@ -436,7 +470,8 @@ export const Cart = () => {
               Order Summary
             </h6>
             <div
-              style={{ maxHeight: "200px", overflowY: "auto", padding: "10px" }}
+              className="scrollModern"
+              style={{ maxHeight: "200px", overflowY: "auto" }}
             >
               {cartItems.map((item, index) => (
                 <div
@@ -456,12 +491,17 @@ export const Cart = () => {
                       {item.quantity}x {item.name}
                     </strong>
                     <p style={{ margin: "5px 0", fontSize: "14px" }}>
-                      Price: ${item.price.toFixed(2)}
+                      Price: {currency}
+                      {(item.price * currencyRates[currency]).toFixed(2)}
                     </p>
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <p style={{ margin: 0, fontWeight: "bold" }}>
-                      Total: ${(item.quantity * item.price).toFixed(2)}
+                      Total: {currency}
+                      {(
+                        item.quantity *
+                        (item.price * currencyRates[currency])
+                      ).toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -476,7 +516,8 @@ export const Cart = () => {
                     marginRight: "10px",
                   }}
                 >
-                  ${price.toFixed(2)}
+                  {currency}
+                  {(price * currencyRates[currency]).toFixed(2)}
                 </span>
               )}
               <span
@@ -485,7 +526,8 @@ export const Cart = () => {
                   fontWeight: "bold",
                 }}
               >
-                ${(price * promo).toFixed(2)}
+                {currency}
+                {(price * currencyRates[currency] * promo).toFixed(2)}
               </span>
             </h4>
           </div>
@@ -504,9 +546,9 @@ export const Cart = () => {
                 <Button
                   onClick={handleApplyPromo}
                   style={{
-                    backgroundColor: "#1b696a",
+                    backgroundColor: Colors.primary.default,
                     color: "white",
-                    borderColor: "#1b696a",
+                    borderColor: Colors.primary.default,
                   }}
                 >
                   Apply
@@ -516,9 +558,9 @@ export const Cart = () => {
                 <Button
                   onClick={handleRemovePromo}
                   style={{
-                    backgroundColor: "#cc0b38",
+                    backgroundColor: Colors.warning,
                     color: "white",
-                    borderColor: "#cc0b38",
+                    borderColor: Colors.warning,
                   }}
                 >
                   Cancel
@@ -556,7 +598,7 @@ export const Cart = () => {
           <a
             onClick={navigateToSection}
             style={{
-              color: "blue",
+              color: Colors.primary.default,
               textDecoration: "underline",
               cursor: "pointer",
             }}
@@ -574,7 +616,7 @@ export const Cart = () => {
               Wallet
             </Radio>
             <Radio value="card" style={{ marginRight: "15px" }}>
-            Credit/Debit Card
+              Credit/Debit Card
             </Radio>
             <Radio value="cod" style={{ marginRight: "15px" }}>
               Cash on Delivery
@@ -583,7 +625,7 @@ export const Cart = () => {
         </div>
         {/* Wallet Balance */}
         {paymentMethod === "wallet" && decodedToken?.userDetails?.wallet && (
-          <p>
+          <p style={{ marginTop: "10px" }}>
             <strong>Current balance: </strong>
             {decodedToken.userDetails.wallet.toFixed(2)} USD
           </p>

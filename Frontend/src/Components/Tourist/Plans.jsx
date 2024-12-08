@@ -38,7 +38,7 @@ const Plans = () => {
     title: "name",
     extra: "price",
     rating: "avgRating",
-    photo: "photo",
+    photo: "pictures",
     discounts: "discounts",
   };
 
@@ -97,8 +97,9 @@ const Plans = () => {
   const handleCurrencyChange = (newCurrency) => {
     setCurrency(newCurrency);
   };
-  const fields = { Categories: "category", Tags: "tags", Type: "type" };
+  const fields = {};
   const searchFields = ["name", "category", "tags"];
+  const [isLoading, setIsLoading] = useState(true);
   const constProps = { rateDisplay: true, currency, currencyRates };
   const sortFields = ["avgRating", "price"];
   const [filterFields, setfilterFields] = useState({
@@ -163,6 +164,12 @@ const Plans = () => {
         let categories = categoryResponse.data;
         let tags = tagResponse.data;
 
+        // console.log(activities);
+        // console.log(itineraries);
+        // console.log(venues);
+        // console.log(categories);
+        // console.log(tags);
+
         filterFields.category = {
           displayName: "Categories",
           values: convertCategoriesToValues(categories),
@@ -220,13 +227,17 @@ const Plans = () => {
           });
         } else {
           venues = venues.map((venue) => {
-            const calculatedPrice = calculateYourPrice(venue, "egypt", "student");
-    
-          return {
-            ...venue, 
-            basePrice: `${calculateYourPrice}`, 
-          };
-        });
+            const calculatedPrice = calculateYourPrice(
+              venue,
+              "egypt",
+              "student"
+            );
+
+            return {
+              ...venue,
+              basePrice: `${calculateYourPrice}`,
+            };
+          });
         }
 
         activities = activities.map((activity) => {
@@ -243,11 +254,16 @@ const Plans = () => {
         ];
 
         combinedArray = combinedArray.map((element) => {
-          return { ...element, avgRating: getAvgRating(element.feedback) , basePrice: element.price };
+          return {
+            ...element,
+            avgRating: getAvgRating(element.feedback),
+            basePrice: element.price,
+          };
         });
         console.log(combinedArray);
 
         setCombinedElements(combinedArray);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -262,7 +278,7 @@ const Plans = () => {
         if (element.type !== "Activity") {
           return {
             ...element,
-            price: (element.basePrice * currencyRates[currency]).toFixed(2), 
+            price: (element.basePrice * currencyRates[currency]).toFixed(2),
           };
         }
         // If it's an activity, return it without modifying
@@ -270,7 +286,6 @@ const Plans = () => {
       })
     );
   }, [currency]);
-  
 
   return (
     <div>
@@ -282,12 +297,12 @@ const Plans = () => {
           marginBottom: "16px",
         }}
       >
-        <SelectCurrency
+        {/* <SelectCurrency
           //basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
           style={{ left: 1000, top: 55 }}
-        />
+        /> */}
       </div>
       <SearchFilterSortContainer
         cardComponent={BasicCard}
@@ -307,6 +322,7 @@ const Plans = () => {
           }
           navigate(`${type}/${element?._id}`);
         }}
+        isLoading={isLoading}
       />
     </div>
   );

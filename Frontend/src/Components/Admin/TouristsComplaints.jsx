@@ -11,10 +11,11 @@ import {
   Menu,
 } from "antd";
 import { BarsOutlined } from "@ant-design/icons";
-import { apiUrl } from "../Common/Constants";
+import { apiUrl, Colors } from "../Common/Constants";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import ComplaintDetails from "./ComplaintDetails";
+import LoadingSpinner from "../Common/LoadingSpinner";
 
 const { Title } = Typography;
 
@@ -192,22 +193,20 @@ const TouristsComplaints = () => {
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "column",
-        padding: "20px",
         position: "relative", // Make the parent container relative
         width: "100%", // Ensure the div takes the full width
       }}
     >
-      <Title level={2} style={{ textAlign: "center", marginBottom: "20px" }}>
+      <Title level={2} style={{ textAlign: "center", marginBottom: "30px" }}>
         Complaints
       </Title>
-
       <Dropdown overlay={menu} trigger={["click"]}>
         <Button
           style={{
             position: "absolute",
             top: 0,
             right: 0,
-            backgroundColor: "#1b696a", // Blue color
+            backgroundColor: Colors.primary.default, // Blue color
             color: "white", // White text
             marginTop: "20px", // Push it down a bit from the top
             marginRight: "300px", // Add some space from the right edge
@@ -216,7 +215,6 @@ const TouristsComplaints = () => {
           Filter
         </Button>
       </Dropdown>
-
       {/* Dropdown Button for Sorting - Positioned at the top right of the component */}
       <Dropdown overlay={sortMenu} trigger={["click"]}>
         <Button
@@ -227,15 +225,14 @@ const TouristsComplaints = () => {
             right: 0,
             marginTop: "20px", // Push it down a bit from the top
             marginRight: "20px", // Add some space from the right edge
-            backgroundColor: "#1b696a",
+            backgroundColor: Colors.primary.default,
           }}
         >
           Sort by Date ({isDescending ? "Newest First" : "Oldest First"})
         </Button>
       </Dropdown>
-
       {loading ? (
-        <div>Loading...</div>
+        <LoadingSpinner />
       ) : (
         <>
           {/* If a complaint is selected, show it in a large card */}
@@ -243,11 +240,9 @@ const TouristsComplaints = () => {
             <div>
               <Card
                 title={`${selectedComplaint.title}`}
-                bordered={false}
                 style={{
                   width: "100%",
                   textAlign: "center",
-                  boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
                 }}
               >
                 <p>
@@ -296,89 +291,63 @@ const TouristsComplaints = () => {
                 <Button
                   type="primary"
                   onClick={handleSendReply}
-                  style={{ marginTop: "10px" , backgroundColor: "#1b696a" }}
+                  style={{
+                    marginTop: "10px",
+                    backgroundColor: Colors.primary.default,
+                  }}
                 >
                   Send Reply
                 </Button>
               </div>
             </div>
-          ) : (
-            <Row
-            gutter={[
-              complaints.length <= 3 ? 120 : 16, // Adjust horizontal spacing for 3 cards
-              16, // Keep vertical gutter consistent
-            ]}
-            justify={complaints.length === 3 ? "space-around" : "center"} // Adjust justification for 3 cards
-          >
-            {complaints.length > 0 ? (
-              <>
-                {complaints.map((complaint) => (
-                  <Col
-                    span={8}
-                    key={complaint._id}
+          ) : complaints.length > 0 ? (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "22% 22% 22% 22%",
+                gridGap: "4%",
+                rowGap: "15px",
+                width: "100%",
+              }}
+            >
+              {complaints.map((complaint) => (
+                <Col
+                  key={complaint._id}
+                  onClick={() => handleDetailsView(complaint)}
+                >
+                  <Card
+                    title={`Title: ${complaint.title}`}
                     style={{
+                      minHeight: "200px",
+                      width: "auto",
                       display: "flex",
-                      justifyContent: "center",
-                      marginBottom: complaints.length === 2 ? "40px" : "20px", // Extra bottom margin for two cards
+                      flexDirection: "column",
+                      justifyContent: "space-between",
                     }}
-                    onClick={() => handleDetailsView(complaint)}
                   >
-                    <Card
-                      title={`Title: ${complaint.title}`}
-                      bordered={false}
-                      style={{
-                        width: "300px",
-                        minHeight: "200px",
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "space-between",
-                        boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-                      }}
+                    <p>
+                      <strong>Status: </strong> {complaint.status}
+                    </p>
+                    <p>
+                      <strong>Date: </strong>{" "}
+                      {new Date(complaint.date).toLocaleDateString()}
+                    </p>
+                    <Button
+                      type="default"
+                      icon={<BarsOutlined />}
+                      onClick={() => handleDetailsView(complaint)}
+                      style={{ color: Colors.primary.default }}
                     >
-                      <p>
-                        <strong>Status: </strong> {complaint.status}
-                      </p>
-                      <p>
-                        <strong>Date: </strong>{" "}
-                        {new Date(complaint.date).toLocaleDateString()}
-                      </p>
-                      <Button
-                        type="default"
-                        icon={<BarsOutlined />}
-                        onClick={() => handleDetailsView(complaint)}
-                        style={{ color: "#1b696a" }}
-                      >
-                        View Details
-                      </Button>
-                    </Card>
-                  </Col>
-                ))}
-                {/* Add filler columns to maintain consistent spacing */}
-                {complaints.length % 3 !== 0 &&
-                  Array.from(
-                    { length: 3 - (complaints.length % 3) },
-                    (_, index) => (
-                      <Col
-                        span={8}
-                        key={`filler-${index}`}
-                        style={{ visibility: "hidden" }}
-                      >
-                        <Card
-                          bordered={false}
-                          style={{ width: "300px", minHeight: "200px" }}
-                        />
-                      </Col>
-                    )
-                  )}
-              </>
-            ) : (
-              <Col span={24} style={{ textAlign: "center" }}>
-                <p>No complaints found.</p>
-              </Col>
-            )}
-          </Row>
-          
-          
+                      View Details
+                    </Button>
+                  </Card>
+                </Col>
+              ))}
+            </div>
+          ) : (
+            <Col span={24} style={{ textAlign: "center" }}>
+              <p>No complaints found.</p>
+            </Col>
           )}
         </>
       )}

@@ -34,11 +34,12 @@ const convertTagsToValues = (tagsArray) => {
 const BookmarkedPlans = () => {
   const navigate = useNavigate();
   const [combinedElements, setCombinedElements] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const propMapping = {
     title: "name",
     extra: "price",
     rating: "avgRating",
-    photo: "photo",
+    photo: "pictures",
     discounts: "discounts",
   };
 
@@ -175,6 +176,7 @@ const BookmarkedPlans = () => {
         console.log(combinedArray);
 
         setCombinedElements(combinedArray);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -193,12 +195,12 @@ const BookmarkedPlans = () => {
           marginBottom: "16px",
         }}
       >
-        <SelectCurrency
+        {/* <SelectCurrency
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
           style={{ left: 1000, top: 55 }}
-        />
+        /> */}
       </div>
       <SearchFilterSortContainer
         cardComponent={BasicCard}
@@ -218,6 +220,7 @@ const BookmarkedPlans = () => {
           }
           navigate(`/tourist/${type}/${element?._id}`);
         }}
+        isLoading={isLoading}
       />
     </div>
   );

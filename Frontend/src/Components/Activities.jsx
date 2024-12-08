@@ -4,6 +4,7 @@ import {
   DeleteOutlined,
   FlagOutlined,
   PlusOutlined,
+  InboxOutlined,
 } from "@ant-design/icons";
 import {
   InputNumber,
@@ -21,6 +22,9 @@ import {
   Divider,
   Typography,
   Rate,
+  Upload,
+  Empty,
+  Flex,
 } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
@@ -30,13 +34,12 @@ import MapComponent from "./Common/Map";
 import dayjs from "dayjs";
 import { Colors } from "./Common/Constants";
 import LoadingSpinner from "./Common/LoadingSpinner";
+import {getSetNewToken} from "./Common/Constants"
 
+const { Dragger } = Upload;
 // Create an axios instance with default headers
 const apiClient = axios.create({
   baseURL: apiUrl,
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`, // Set the token from localStorage
-  },
 });
 
 const Activities = () => {
@@ -49,6 +52,7 @@ const Activities = () => {
   const [form] = Form.useForm();
   const [selectedLocation, setSelectedLocation] = useState(null);
   const { Title, Text } = Typography;
+  const [fileList, setFileList] = useState([]);
 
   const token = localStorage.getItem("token");
   let decodedToken = null;
@@ -59,6 +63,7 @@ const Activities = () => {
 
   const fetchActivities = async () => {
     try {
+      getSetNewToken(userid, "advertiser");
       const response = await apiClient.get(`activity/readActivities/${userid}`);
       setActivitiesData(response.data);
     } catch (error) {
@@ -101,6 +106,16 @@ const Activities = () => {
     fetchTags();
   }, []);
 
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
+
+  const handleFileChange = ({ fileList: newFileList }) =>
+    setFileList(newFileList);
+
   const createActivity = async (values) => {
     try {
       const newActivity = {
@@ -119,10 +134,28 @@ const Activities = () => {
         transportation: values.transportation,
       };
 
+      const formData = new FormData();
+      if (values.pictures && values.pictures.length > 0) {
+        for (let i = 0; i < values.pictures.length; i++) {
+          formData.append("pictures", values.pictures[i].originFileObj);
+        }
+      }
+
       const response = await apiClient.post(
         `activity/createSpecifiedActivity/${userid}`,
         newActivity
       );
+
+      const picResponse = await apiClient.post(
+        `activity/uploadPhotos/${response.data._id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
       setActivitiesData([...activitiesData, response.data]);
       console.log("activity:", response.data);
       message.success("Activity created successfully!");
@@ -213,8 +246,10 @@ const Activities = () => {
           );
           message.success("Activity deleted successfully!");
         } catch (error) {
-          const errorMessage = error.response?.data?.message || "Please try again.";
-          message.error(`Failed to delete activity: ${errorMessage}`);        }
+          const errorMessage =
+            error.response?.data?.message || "Please try again.";
+          message.error(`Failed to delete activity: ${errorMessage}`);
+        }
       },
     });
   };
@@ -284,7 +319,7 @@ const Activities = () => {
 
       {loading ? (
         <LoadingSpinner />
-      ) : (
+      ) : activitiesData.length > 0 ? (
         <Space
           direction="horizontal"
           size="middle"
@@ -295,6 +330,17 @@ const Activities = () => {
             return (
               <Card
                 key={activity._id}
+                cover={
+                  activity.pictures?.length != 0 ? (
+                    <Flex justify="center">
+                      <img
+                        alt={activity.pictures[0]}
+                        style={{ height: "150px", width: "80%" }}
+                        src={`/uploads/${activity.pictures[0]}.jpg`}
+                      />
+                    </Flex>
+                  ) : null
+                }
                 actions={[
                   <EditOutlined
                     key="edit"
@@ -308,9 +354,10 @@ const Activities = () => {
                 style={{
                   minWidth: 370,
                   maxWidth: 370,
-                  maxHeight: 900,
+                  maxHeight: 760,
+                  minHeight: 760,
                   marginBottom: "8px",
-                  marginRight: "12px",
+                  marginRight: "14px",
                   border:
                     activity.isFlagged && activity.hidden
                       ? "3px solid red"
@@ -340,7 +387,7 @@ const Activities = () => {
                         fontWeight: "600",
                         marginBottom: "10px",
                         fontSize: "18px",
-                        color: "#1b696a", // You can customize this color as needed
+                        color: Colors.primary.default, // You can customize this color as needed
                       }}
                     >
                       {activity.name}
@@ -348,15 +395,34 @@ const Activities = () => {
                   }
                   description={
                     <div>
-                      <p>{activity.description}</p>
-
-                      <p>
+                      <p
+                        style={{
+                          overflow: "hidden", // Hides overflowing content
+                          textOverflow: "ellipsis", // Adds "..." at the end of the truncated text
+                          display: "-webkit-box", // Required for line clamping
+                          WebkitBoxOrient: "vertical", // Required for line clamping
+                          WebkitLineClamp: 3, // Number of lines to display
+                          maxHeight: "2.5em",
+                        }}
+                      >
+                        {activity.description}
+                      </p>
+                      <p
+                        style={{
+                          overflow: "hidden", // Hides overflowing content
+                          textOverflow: "ellipsis", // Adds "..." to the truncated text
+                          whiteSpace: "nowrap", // Prevents wrapping to a new line
+                        }}
+                      >
                         <Text strong>Location:</Text>{" "}
                         <a
                           href={activity.location}
                           target="_blank"
                           rel="noopener noreferrer"
-                          style={{ color: "#1890ff" }}
+                          style={{
+                            color: "#1890ff",
+                            textDecoration: "none",
+                          }}
                         >
                           {activity.location}
                         </a>
@@ -381,7 +447,7 @@ const Activities = () => {
                         {activity.tags.map((tagId) => (
                           <Tag
                             key={tagId}
-                            color="#1b696a"
+                            color={Colors.primary.default}
                             style={{ margin: "3px" }}
                           >
                             {tags.find((tag) => tag._id === tagId)?.tag ||
@@ -403,13 +469,14 @@ const Activities = () => {
                       <p>
                         <Text strong>Flagged:</Text>{" "}
                         <span
-                          style={{ color: activity.isFlagged ? "red" : "#555" }}
+                          style={{
+                            color: activity.isFlagged ? "red" : "#555",
+                          }}
                         >
                           {activity.isFlagged ? "Yes" : "No"}
                         </span>{" "}
                       </p>
 
-                      <Divider style={{ margin: "12px 0" }} />
                       <Rate value={avgRating} />
                     </div>
                   }
@@ -418,6 +485,8 @@ const Activities = () => {
             );
           })}
         </Space>
+      ) : (
+        <Empty description="Create your activity" />
       )}
 
       <Modal
@@ -500,12 +569,11 @@ const Activities = () => {
               { required: true, message: "Please input the upper limit!" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  let lower = getFieldValue("lower");
-                  console.log("low", lower);
+                  let lower = parseInt(getFieldValue("lower"), 10); // Ensure it's an integer
                   if (
                     lower !== undefined &&
                     value !== undefined &&
-                    lower > value
+                    lower > parseInt(value, 10) // Convert 'value' as well
                   ) {
                     return Promise.reject(
                       new Error(
@@ -528,12 +596,11 @@ const Activities = () => {
               { required: true, message: "Please input the lower limit!" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  let upper = getFieldValue("upper");
-                  console.log("up", upper);
+                  let upper = parseInt(getFieldValue("upper"), 10); // Ensure it's an integer
                   if (
                     upper !== undefined &&
                     value !== undefined &&
-                    value > upper
+                    parseInt(value, 10) > upper // Convert 'value' as well
                   ) {
                     return Promise.reject(
                       new Error(
@@ -599,8 +666,37 @@ const Activities = () => {
             <InputNumber min={0} max={100} placeholder="Enter discount value" />
           </Form.Item>
 
+          {!editingActivityId && (
+            <Form.Item
+              label="Pictures"
+              name="pictures"
+              valuePropName="fileList"
+              getValueFromEvent={normFile}
+            >
+              <Dragger
+                name="pictures"
+                listType="text"
+                fileList={fileList}
+                onChange={handleFileChange}
+                beforeUpload={() => false}
+                maxCount={3}
+              >
+                <p className="ant-upload-drag-icon">
+                  <InboxOutlined />
+                </p>
+                <p className="ant-upload-text">
+                  Click or drag file to this area to upload
+                </p>
+              </Dragger>
+            </Form.Item>
+          )}
+
           <Form.Item>
-            <AntButton type="primary" htmlType="submit" style={{backgroundColor:"#1b696a"}}>
+            <AntButton
+              type="primary"
+              htmlType="submit"
+              style={{ backgroundColor: "#1b696a" }}
+            >
               {editingActivityId ? "Save Changes" : "Create Activity"}
             </AntButton>
           </Form.Item>

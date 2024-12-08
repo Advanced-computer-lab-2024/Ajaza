@@ -32,7 +32,6 @@ import { jwtDecode } from "jwt-decode";
 
 import MapView from "./MapView";
 import { convertDateToString, camelCaseToNormalText } from "./Constants";
-import Timeline from "./Timeline";
 import StripeContainer from "./StripeContainer";
 import { Dropdown } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -82,7 +81,6 @@ const HeaderInfo = ({
   language,
   pickUp,
   dropOff,
-  timelineItems,
   accessibility,
   avgRating,
   colSpan,
@@ -90,6 +88,7 @@ const HeaderInfo = ({
   isFlagged,
   handleFlagClick,
   currency,
+  productCurrentQuantity,
 }) => {
   const [multiplePhotos, setMultiplePhotos] = useState(false);
 
@@ -215,6 +214,56 @@ const HeaderInfo = ({
       : currency
   );
 
+  const [currencyRates] = useState({
+    AED: 3.6725,
+    ARS: 1004.0114,
+    AUD: 1.5348,
+    BDT: 110.5,
+    BHD: 0.376,
+    BND: 1.3456,
+    BRL: 5.8149,
+    CAD: 1.3971,
+    CHF: 0.8865,
+    CLP: 973.6481,
+    CNY: 7.2462,
+    COP: 4389.3228,
+    CZK: 24.2096,
+    DKK: 7.1221,
+    EGP: 48.58,
+    EUR: 0.9549,
+    GBP: 0.7943,
+    HKD: 7.7825,
+    HUF: 392.6272,
+    IDR: 15911.807,
+    ILS: 3.7184,
+    INR: 84.5059,
+    JPY: 154.4605,
+    KRW: 1399.323,
+    KWD: 0.3077,
+    LKR: 291.0263,
+    MAD: 10.5,
+    MXN: 20.4394,
+    MYR: 4.4704,
+    NOK: 11.0668,
+    NZD: 1.7107,
+    OMR: 0.385,
+    PHP: 58.9091,
+    PKR: 279.0076,
+    PLN: 4.1476,
+    QAR: 3.64,
+    RUB: 101.2963,
+    SAR: 3.75,
+    SEK: 11.063,
+    SGD: 1.3456,
+    THB: 34.7565,
+    TRY: 34.5345,
+    TWD: 32.5602,
+    UAH: 36.9,
+    USD: 1,
+    VND: 24000.0,
+    ZAR: 18.0887,
+  });
+
   const [token, setToken] = useState(null);
   const [decodedToken, setDecodedToken] = useState(null);
   const [userid, setUserid] = useState(null);
@@ -227,6 +276,8 @@ const HeaderInfo = ({
     cvv: "",
   });
   const navigate = useNavigate();
+
+  console.log(photos);
 
   // // //stripe
   // const stripe = useStripe();
@@ -806,6 +857,10 @@ const HeaderInfo = ({
 
     if (type == "product") {
       // add to wishlist logic
+      if (productCurrentQuantity > 0) {
+        message.warning(`${name} is already in cart`);
+        return;
+      }
       try {
         const response = await axios.post(`${apiUrl}tourist/add-to-wishlist`, {
           touristId: userid,
@@ -1096,77 +1151,52 @@ const HeaderInfo = ({
         </div>
       </Flex>
 
-      <Row>
-        {photos ? (
-          multiplePhotos ? (
-            <Col span={colSpan}>
-              <Carousel arrows infinite={true} style={{ marginBottom: "50px" }}>
-                {photos.map((photo, id) => {
-                  return (
-                    <div id={id}>
-                      <div id={id} style={contentStyle}>
-                        <img
-                          src={`/uploads/${photo}.jpg`}
-                          style={{
-                            width: "95%",
-                            height: "92%",
-                            margin: "0 auto",
-                            borderRadius: "20px",
-                          }}
-                          alt=""
-                        />
-                        {/* <div style={contentStyle}>adam</div> */}
-                      </div>
-                    </div>
-                  );
-                })}
-              </Carousel>
-            </Col>
-          ) : (
-            <Col span={colSpan}>
-              <Carousel arrows infinite={true}>
-                <div>
-                  <div style={contentStyle}>
-                    <img
-                      src={`/uploads/${photos}.jpg`}
-                      style={{
-                        width: "95%",
-                        height: "92%",
-                        margin: "0 auto",
-                        borderRadius: "20px",
-                      }}
-                      alt=""
-                    />
-                    {/* <div style={contentStyle}>adam</div> */}
-                  </div>
-                </div>
-              </Carousel>
-            </Col>
-          )
-        ) : location && type === "activity" ? (
-          // No photo and there is a location
-
+      <Row style={{ marginBottom: "20px" }}>
+        {multiplePhotos ? (
           <Col span={colSpan}>
-            <MapView googleMapsLink={location} />
-          </Col>
-        ) : timelineItems ? (
-          <Col span={colSpan} style={{ marginTop: "50px" }}>
-            <Row justify="center">
-              {Object.entries(timelineItems).map(([key, value]) => {
+            <Carousel arrows infinite={true}>
+              {photos.map((photo, id) => {
                 return (
-                  <Col
-                    span={key == "availableDateTime" ? 16 : 8}
-                    key={key}
-                    className={key}
-                  >
-                    <h3>{camelCaseToNormalText(key)}</h3>
-                    <Timeline key={key} timelineItems={value} fieldName={key} />
-                  </Col>
+                  <div id={id}>
+                    <div id={id} style={contentStyle}>
+                      <img
+                        src={`/uploads/${photo}.jpg`}
+                        style={{
+                          width: "95%",
+                          height: "92%",
+                          margin: "0 auto",
+                          borderRadius: "20px",
+                        }}
+                        alt=""
+                      />
+                      {/* <div style={contentStyle}>adam</div> */}
+                    </div>
+                  </div>
                 );
               })}
-            </Row>
+            </Carousel>
           </Col>
-        ) : null}
+        ) : (
+          <Col span={colSpan}>
+            <Carousel arrows infinite={true}>
+              <div>
+                <div style={contentStyle}>
+                  <img
+                    src={`/uploads/${photos}.jpg`}
+                    style={{
+                      width: "95%",
+                      height: "92%",
+                      margin: "0 auto",
+                      borderRadius: "20px",
+                    }}
+                    alt=""
+                  />
+                  {/* <div style={contentStyle}>adam</div> */}
+                </div>
+              </div>
+            </Carousel>
+          </Col>
+        )}
 
         <Col span={24 - colSpan} style={{ padding: "0 20px" }}>
           <Flex justify={inPast ? "end" : "space-between"} align="center">
@@ -1182,13 +1212,13 @@ const HeaderInfo = ({
                   style={{
                     fontSize: "20px",
                     color: Colors.grey[800],
-                    marginLeft: "20px",
+                    marginLeft: "15px",
                   }}
                   onClick={removeNotification}
                 />
               ) : (
                 <BellOutlined
-                  style={{ fontSize: "20px", marginLeft: "20px" }}
+                  style={{ fontSize: "20px", marginLeft: "15px" }}
                   onClick={addNotification}
                 />
               )}
@@ -1197,16 +1227,35 @@ const HeaderInfo = ({
               decodedToken?.role == "seller" ||
               type == "venue" ? null : isSaved ? (
                 <HeartFilled
-                  style={{
-                    fontSize: "20px",
-                    color: Colors.warning,
-                    marginLeft: "20px",
-                  }}
+                  style={
+                    type == "product" && decodedToken?.role == "tourist"
+                      ? {
+                          fontSize: "20px",
+                          color: Colors.warning,
+                          marginLeft: "15px",
+                          position: "relative",
+                          right: "100px",
+                        }
+                      : {
+                          fontSize: "20px",
+                          color: Colors.warning,
+                          marginLeft: "15px",
+                        }
+                  }
                   onClick={unSave}
                 />
               ) : (
                 <HeartOutlined
-                  style={{ fontSize: "20px", marginLeft: "20px" }}
+                  style={
+                    type == "product" && decodedToken?.role == "tourist"
+                      ? {
+                          fontSize: "20px",
+                          marginLeft: "15px",
+                          position: "relative",
+                          right: "100px",
+                        }
+                      : { fontSize: "20px", marginLeft: "15px" }
+                  }
                   onClick={save}
                 />
               )}
@@ -1233,12 +1282,23 @@ const HeaderInfo = ({
                     <></>
                   ) : (
                     <ShareAltOutlined
-                      style={{
-                        fontSize: "20px",
-                        marginLeft: "20px",
-                        marginRight: "20px",
-                        cursor: "pointer",
-                      }}
+                      style={
+                        type == "product" && decodedToken?.role == "tourist"
+                          ? {
+                              fontSize: "20px",
+                              marginLeft: "15px",
+                              marginRight: "20px",
+                              cursor: "pointer",
+                              position: "relative",
+                              right: "100px",
+                            }
+                          : {
+                              fontSize: "20px",
+                              marginLeft: "15px",
+                              marginRight: "20px",
+                              cursor: "pointer",
+                            }
+                      }
                     />
                   )}
                 </Dropdown>
@@ -1289,6 +1349,7 @@ const HeaderInfo = ({
                       width: "120px",
                       backgroundColor: Colors.warning,
                       fontWeight: "bold",
+                      marginLeft: "-5px",
                     }}
                     value={"Cancel Booking"}
                     onClick={cancelBookingItem}
@@ -1307,12 +1368,23 @@ const HeaderInfo = ({
                 visible={isModalVisible}
                 onOk={handleOk}
                 onCancel={handleCancel}
-                okText="Pay & Book by wallet"
+                okText="  Book by wallet"
                 okButtonProps={{
                   style: {
                     display: paymentMethod === "card" ? "none" : "inline-block",
                   },
                 }}
+                cancelButtonProps={
+                  paymentMethod === "card"
+                    ? {
+                        style: {
+                          position: "absolute",
+                          right: "150px",
+                          bottom: "31.5px",
+                        },
+                      }
+                    : {}
+                }
               >
                 <div>
                   {/* Select Date (For Itinerary) */}
@@ -1340,27 +1412,18 @@ const HeaderInfo = ({
                       defaultValue={discountedPriceUpper}
                       style={{ width: "100%", marginBottom: 10 }}
                     >
-                      <Option
-                        value={discountedPriceLower}
-                        style={{ color: "#cd7f32", fontWeight: "bold" }}
-                      >
+                      <Option value={discountedPriceLower} style={{}}>
                         Bronze Tier: {currencySymbol}
                         {discountedPriceLower.toFixed(2)}
                       </Option>
                       {priceUpper !== priceLower && (
-                        <Option
-                          value={discountedMiddlePrice}
-                          style={{ color: "#c0c0c0", fontWeight: "bold" }}
-                        >
+                        <Option value={discountedMiddlePrice} style={{}}>
                           Silver Tier: {currencySymbol}
                           {discountedMiddlePrice.toFixed(2)}
                         </Option>
                       )}
                       {priceUpper !== priceLower && (
-                        <Option
-                          value={discountedPriceUpper}
-                          style={{ color: "#ffd700", fontWeight: "bold" }}
-                        >
+                        <Option value={discountedPriceUpper} style={{}}>
                           Gold Tier: {currencySymbol}
                           {discountedPriceUpper.toFixed(2)}
                         </Option>
@@ -1371,30 +1434,46 @@ const HeaderInfo = ({
                   {/* Promo Code Input */}
                   <div style={{ marginTop: "15px" }}>
                     <h6>Promo code</h6>
-                    <Input
-                      type="text"
-                      placeholder="Enter promo code"
-                      value={promoCode}
-                      onChange={handleInputChange}
-                    />
-                    {promo === 1 && (
-                      <Button
-                        onClick={handleApplyPromo}
-                        style={{ marginTop: "5px", marginBottom: "8px" }}
-                      >
-                        Apply
-                      </Button>
-                    )}
-                    {promo !== 1 && (
-                      <Button
-                        onClick={handleRemovePromo}
-                        style={{ marginTop: "5px", marginBottom: "8px" }}
-                      >
-                        Cancel
-                      </Button>
-                    )}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                      }}
+                    >
+                      <Input
+                        type="text"
+                        placeholder="Enter promo code"
+                        value={promoCode}
+                        onChange={handleInputChange}
+                      />
+                      {promo === 1 && (
+                        <Button
+                          onClick={handleApplyPromo}
+                          style={{
+                            backgroundColor: Colors.primary.default,
+                            color: "white",
+                            borderColor: Colors.primary.default,
+                          }}
+                        >
+                          Apply
+                        </Button>
+                      )}
+                      {promo !== 1 && (
+                        <Button
+                          onClick={handleRemovePromo}
+                          style={{
+                            backgroundColor: Colors.warning,
+                            color: "white",
+                            borderColor: Colors.warning,
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  <h4>
+                  <h4 style={{ marginTop: "15px" }}>
                     Price:{" "}
                     {promo !== 1 && (
                       <span
@@ -1414,7 +1493,7 @@ const HeaderInfo = ({
                   </h4>
 
                   {/* Payment Method */}
-                  <div style={{ marginTop: 20 }}>
+                  <div style={{ marginTop: 15 }}>
                     <Radio.Group
                       value={paymentMethod}
                       onChange={(e) => setPaymentMethod(e.target.value)}
@@ -1427,9 +1506,9 @@ const HeaderInfo = ({
                   {/* Wallet Balance */}
                   {paymentMethod === "wallet" &&
                     decodedToken?.userDetails?.wallet && (
-                      <p>
+                      <p style={{ marginTop: "15px" }}>
                         <strong>Current balance: </strong>
-                        {decodedToken.userDetails.wallet.toFixed(2)}
+                        {currency}{decodedToken.userDetails.wallet*(currencyRates[currency] || 1).toFixed(2)}
                       </p>
                     )}
 
@@ -1572,7 +1651,7 @@ const HeaderInfo = ({
                 display: "-webkit-box",
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
-                WebkitLineClamp: 4, // Change this number to set max lines
+                WebkitLineClamp: 9, // Change this number to set max lines
                 textOverflow: "ellipsis",
               }}
             >
@@ -1587,6 +1666,11 @@ const HeaderInfo = ({
               </span>
             </div>
           ) : null}
+          {type == "activity" && (
+            <div style={{ width: "100%", height: "100%", marginTop: "30px" }}>
+              <MapView googleMapsLink={location} />
+            </div>
+          )}
         </Col>
       </Row>
     </>

@@ -296,6 +296,7 @@ exports.createSpecifiedActivity = async (req, res) => {
       discounts,
       isOpen,
       spots,
+      pictures
     } = req.body;
     const advertiser = await Advertiser.findById(advertiserId);
     if (!advertiser) {
@@ -332,6 +333,7 @@ exports.createSpecifiedActivity = async (req, res) => {
       spots,
       isFlagged: false,
       hidden: false,
+      pictures
     });
 
     const savedActivity = await newActivity.save();
@@ -410,6 +412,7 @@ exports.deleteSpecificActivity = async (req, res) => {
     }
 
     activity.hidden = true;
+    activity.isFlagged = false; //new
     await activity.save();
 
     res.status(200).json({ message: "Activity is now marked as hidden." });
@@ -634,5 +637,21 @@ exports.unhideActivity = async (req, res) => {
     res
       .status(500)
       .json({ message: `Error unhiding activity: ${error.message}` });
+  }
+};
+
+
+exports.uploadActivityPictures = async (req, res) => {
+  try {
+    const activity = await Activity.findById(req.params.activityId);
+    const pictures = req.body.pictures;
+    if (!activity) {
+      return res.status(404).json({ message: "Activity not found" });
+    }
+    activity.pictures = pictures;
+    await activity.save();
+    res.status(200).json(activity);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 };

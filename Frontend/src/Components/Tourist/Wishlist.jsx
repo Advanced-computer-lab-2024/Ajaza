@@ -4,12 +4,19 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import SearchFilterSortContainer from "../Common/SearchFilterSortContainer";
 import BasicCard from "../Common/BasicCard";
-import { apiUrl, comparePriceRange, getAvgRating } from "../Common/Constants";
+import {
+  apiUrl,
+  Colors,
+  comparePriceRange,
+  getAvgRating,
+} from "../Common/Constants";
 import SelectCurrency from "./SelectCurrency";
 import { useCurrency } from "./CurrencyContext";
 import LoadingSpinner from "../Common/LoadingSpinner";
 import { ShoppingCartOutlined } from "@ant-design/icons";
-import { Space, message } from "antd";
+import { Empty, Space, message } from "antd";
+import PlusMinusPill from "../Common/PlusMinusPill";
+
 const Wishlist = () => {
   const navigate = useNavigate();
   //const { touristId } = useParams(); // Get touristId from the URL
@@ -17,11 +24,12 @@ const Wishlist = () => {
   const [loading, setLoading] = useState(true);
   const { currency, setCurrency } = useCurrency();
 
-  const currencyRates = { AED: 3.6725 ,
-    ARS: 1004.0114 ,
+  const currencyRates = {
+    AED: 3.6725,
+    ARS: 1004.0114,
     AUD: 1.5348,
-    BDT: 110.50,
-    BHD: 0.3760,
+    BDT: 110.5,
+    BHD: 0.376,
     BND: 1.3456,
     BRL: 5.8149,
     CAD: 1.3971,
@@ -36,35 +44,35 @@ const Wishlist = () => {
     GBP: 0.7943,
     HKD: 7.7825,
     HUF: 392.6272,
-    IDR: 15911.8070,
+    IDR: 15911.807,
     ILS: 3.7184,
     INR: 84.5059,
     JPY: 154.4605,
-    KRW: 1399.3230,
+    KRW: 1399.323,
     KWD: 0.3077,
     LKR: 291.0263,
-    MAD: 10.50,
+    MAD: 10.5,
     MXN: 20.4394,
     MYR: 4.4704,
     NOK: 11.0668,
     NZD: 1.7107,
-    OMR: 0.3850,
+    OMR: 0.385,
     PHP: 58.9091,
     PKR: 279.0076,
     PLN: 4.1476,
-    QAR: 3.6400,
+    QAR: 3.64,
     RUB: 101.2963,
-    SAR: 3.7500,
-    SEK: 11.0630,
+    SAR: 3.75,
+    SEK: 11.063,
     SGD: 1.3456,
     THB: 34.7565,
     TRY: 34.5345,
     TWD: 32.5602,
-    UAH: 36.90,
-    USD : 1,
-    VND: 24000.00,
+    UAH: 36.9,
+    USD: 1,
+    VND: 24000.0,
     ZAR: 18.0887,
-     }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -113,7 +121,7 @@ const Wishlist = () => {
           avgRating: getAvgRating(product.feedback), // Calculate average rating
           basePrice: product.price, // Store the base price to use for conversions
           price: product.price * (currencyRates[currency] || 1),
-          }));
+        }));
         setWishlist(products);
       } catch (error) {
         console.error("Error fetching wishlist:", error);
@@ -142,7 +150,7 @@ const Wishlist = () => {
     extra: "price",
     rating: "avgRating",
     photo: "photo",
-    stock: "quantity"
+    stock: "quantity",
   };
 
   const fields = {
@@ -171,7 +179,6 @@ const Wishlist = () => {
         comparePriceRange(filterCriteria, element),
     },
   });
-  const [isInCart, setIsInCart] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const locationUrl = useLocation();
   const [userid, setUserid] = useState(null);
@@ -216,10 +223,34 @@ const Wishlist = () => {
       if (newToken) {
         localStorage.setItem("token", newToken); // Store the new token
         // console.log("Updated token:", newToken);
+        // const decTemp = jwtDecode(newToken);
+        // setDecodedToken(decTemp);
+        // setUserid(decTemp?.userId);
+        // console.log(newToken);
+        console.log("new token fetched successfully");
+      }
+    } catch (error) {
+      console.error("Error getting new token:", error);
+      message.error("Failed to refresh token. Please try again.");
+    }
+  };
+
+  const getNewTokenAndUpdate = async () => {
+    try {
+      const response = await axios.post(`${apiUrl}api/auth/generate-token`, {
+        id: userid,
+        role: decodedToken.role,
+      });
+
+      const { token: newToken } = response.data;
+
+      if (newToken) {
+        localStorage.setItem("token", newToken); // Store the new token
+        console.log("Updated token:", newToken);
         const decTemp = jwtDecode(newToken);
         setDecodedToken(decTemp);
         setUserid(decTemp?.userId);
-        // console.log(newToken);
+        console.log(newToken);
         console.log("new token fetched successfully");
       }
     } catch (error) {
@@ -236,19 +267,71 @@ const Wishlist = () => {
     stock,
     ...props
   }) => {
+    const [quantity, setQuantity] = useState(0);
+    const increaseQuantity = async () => {
+      try {
+        if (quantity != element?.stock) {
+          const response = await axios.post(
+            `${apiUrl}tourist/cart/plus/${userid}`,
+            { productId: id }
+          );
+          message.success(response.data.message);
+          setQuantity((prevQuantity) => prevQuantity + 1);
+          await getNewToken();
+        } else {
+          message.warning("Cannot add more items, reached the stock limit");
+        }
+      } catch (error) {
+        console.error("Error incrementing quantity:", error);
+        message.error("Failed to increment quantity");
+      }
+    };
+
+    const decreaseQuantity = async () => {
+      try {
+        const response = await axios.post(
+          `${apiUrl}tourist/cart/minus/${userid}`,
+          { productId: id }
+        );
+        message.success(response.data.message);
+        setQuantity((prevQuantity) => prevQuantity - 1);
+        await getNewToken();
+      } catch (error) {
+        console.error("Error decrementing quantity:", error);
+        message.error("Failed to decrement quantity");
+      }
+    };
+
+    const handleRemoveItem = async () => {
+      try {
+        //console.log("mimiiii", productId);
+        await axios.post(`${apiUrl}tourist/cart/remove/${userid}`, {
+          productId: id,
+        });
+        setQuantity(0);
+        await getNewToken();
+        console.log(wishlist);
+
+        setWishlist((prevWishlist) =>
+          prevWishlist.filter((product) => product._id !== id)
+        );
+
+        message.success("Item removed from cart");
+      } catch (error) {
+        console.error("Error removing item from cart:", error);
+        message.error("Failed to remove item from cart");
+      }
+    };
+
     const addToCartFromWishlist = async () => {
       const productId = id;
-      const stockNo=stock;
+      const stockNo = stock;
       try {
         if (!userid || !productId) {
           console.error("Tourist ID or Product ID is missing!");
           return;
         }
-        if(quantity<=0){
-            message.error("Please choose quantity");
-            return;
-        }
-        if(stockNo<quantity){
+        if (stockNo < 1) {
           message.error("Quantity chosen is more than stock limit");
           return;
         }
@@ -257,15 +340,13 @@ const Wishlist = () => {
           {
             touristId: userid,
             productId,
-            quantity, 
+            quantity: 1,
           }
         );
+        console.log(response);
 
         if (response.status === 200) {
-          setWishlist((prevWishlist) =>
-            prevWishlist.filter((product) => product._id !== productId)
-          );
-          setIsInCart(true);
+          setQuantity(1);
           await getNewToken();
           message.success("Item added to cart");
         }
@@ -276,113 +357,63 @@ const Wishlist = () => {
         );
       }
     };
-    const [quantity, setQuantity] = useState(0); 
-    const increaseQuantity = () => {
-      setQuantity((prevQuantity) => prevQuantity + 1);
-    };
 
-    const decreaseQuantity = () => {
-      setQuantity((prevQuantity) => (prevQuantity > 0 ? prevQuantity - 1 : 0)); 
-    };
-    console.log("quantity is:", quantity); // Debugging
-
-   
+    useEffect(() => {
+      console.log(quantity);
+    }, [quantity]);
 
     return (
-      <div style={{ position: "relative" }}>
+      <div className="wishlistCard" style={{ position: "relative" }}>
         {/* Render the BasicCard */}
         <BasicCard element={element} propMapping={propMapping} {...props} />
 
         {/* Render the Cart Icon */}
-        <div
-          style={{
-            position: "absolute",
-            top: "10px",
-            left: "10px",
-            cursor: "pointer",
-          }}
-          onClick={addToCartFromWishlist} // Pass quantity along with element
-        >
-          <ShoppingCartOutlined
+        {quantity == 0 ? (
+          <div
             style={{
-              marginLeft: "10px",
-              fontSize: "20px",
-              color: "green",
+              position: "absolute",
+              top: "12px",
+              left: "20px",
               cursor: "pointer",
             }}
-          />
-        </div>
-
-        {/* Quantity Adjustment Section */}
-        <div
-          style={{
-            position: "absolute",
-            top: "30px",
-            left: "5px",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <button
-            onClick={decreaseQuantity}
-            style={{
-                width: "10px",
-                height: "15px",
-                borderRadius: "2px",
-                border: "none",
-                backgroundColor: "#ddd",
-                cursor: "pointer",
+            onClick={addToCartFromWishlist} // Pass quantity along with element
+          >
+            <ShoppingCartOutlined
+              className="cartIcon"
+              style={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                padding: "0", // Reset padding
-            }}
-            >
-            <span
-                style={{
-                position: "relative",
-                top: "-2px", 
-                }}
-            >
-                -
-            </span>
-            </button>
-
-          <span
+                borderRadius: "10px",
+                fontSize: "18px",
+                cursor: "pointer",
+                width: "35px",
+                height: "35px",
+                border: "1px solid",
+                borderColor: Colors.grey[100],
+              }}
+            />
+          </div>
+        ) : (
+          <div
             style={{
-              margin: "0 10px",
-              fontSize: "16px",
-              fontWeight: "bold",
+              position: "absolute",
+              top: "10px",
+              left: "7 px",
+              display: "flex",
+              alignItems: "center",
             }}
           >
-            {quantity}
-          </span>
-          <button
-            onClick={increaseQuantity}
-            style={{
-                width: "10px",
-                height: "15px",
-                borderRadius: "2px",
-                border: "none",
-                backgroundColor: "#ddd",
-                cursor: "pointer",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                padding: "0", // Reset padding
-            }}
-            >
-            <span
-                style={{
-                position: "relative",
-                top: "-2px", 
-                }}
-            >
-                +
-            </span>
-            </button>
-
-        </div>
+            <PlusMinusPill
+              handlePlus={increaseQuantity}
+              handleMinus={decreaseQuantity}
+              quantity={quantity}
+              handleDelete={handleRemoveItem}
+              containerHeight={35}
+              iconSize={14}
+            />
+          </div>
+        )}
       </div>
     );
   };
@@ -398,12 +429,12 @@ const Wishlist = () => {
           marginBottom: "16px",
         }}
       >
-        <SelectCurrency
+        {/* <SelectCurrency
           //basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
           style={{ left: 1000, top: 55 }}
-        />
+        /> */}
       </div>
       {loading ? (
         <LoadingSpinner />
@@ -420,7 +451,7 @@ const Wishlist = () => {
           cardOnclick={cardOnclick}
         />
       ) : (
-        <div>No products in your wishlist.</div>
+        <Empty />
       )}
     </div>
   );

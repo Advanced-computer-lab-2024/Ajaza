@@ -7,12 +7,20 @@ import { jwtDecode } from "jwt-decode";
 import SelectCurrency from "./SelectCurrency";
 import { useNavigate } from "react-router-dom";
 import { useCurrency } from "./CurrencyContext";
+import * as Frigade from "@frigade/react";
+import CustomButton from "../Common/CustomButton";
+import { Button } from "antd";
+
 
 const token = localStorage.getItem("token");
 let decodedToken = null;
+let role = null;
 if (token) {
   decodedToken = jwtDecode(token);
+  role = decodedToken?.role; // Extract the role from the token
+
 }
+console.log("itin role nour", role);
 const userid = decodedToken ? decodedToken.userId : null;
 
 const convertCategoriesToValues = (categoriesArray) => {
@@ -34,11 +42,11 @@ const convertTagsToValues = (tagsArray) => {
 };
 
 const currencyRates = {
-  AED: 3.6725 ,
-  ARS: 1004.0114 ,
+  AED: 3.6725,
+  ARS: 1004.0114,
   AUD: 1.5348,
-  BDT: 110.50,
-  BHD: 0.3760,
+  BDT: 110.5,
+  BHD: 0.376,
   BND: 1.3456,
   BRL: 5.8149,
   CAD: 1.3971,
@@ -53,33 +61,33 @@ const currencyRates = {
   GBP: 0.7943,
   HKD: 7.7825,
   HUF: 392.6272,
-  IDR: 15911.8070,
+  IDR: 15911.807,
   ILS: 3.7184,
   INR: 84.5059,
   JPY: 154.4605,
-  KRW: 1399.3230,
+  KRW: 1399.323,
   KWD: 0.3077,
   LKR: 291.0263,
-  MAD: 10.50,
+  MAD: 10.5,
   MXN: 20.4394,
   MYR: 4.4704,
   NOK: 11.0668,
   NZD: 1.7107,
-  OMR: 0.3850,
+  OMR: 0.385,
   PHP: 58.9091,
   PKR: 279.0076,
   PLN: 4.1476,
-  QAR: 3.6400,
+  QAR: 3.64,
   RUB: 101.2963,
-  SAR: 3.7500,
-  SEK: 11.0630,
+  SAR: 3.75,
+  SEK: 11.063,
   SGD: 1.3456,
   THB: 34.7565,
   TRY: 34.5345,
   TWD: 32.5602,
-  UAH: 36.90,
+  UAH: 36.9,
   USD: 1,
-  VND: 24000.00,
+  VND: 24000.0,
   ZAR: 18.0887,
 };
 
@@ -89,21 +97,26 @@ const Itineraries = () => {
     navigate(element["_id"]);
   };
   const [combinedElements, setCombinedElements] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   // propName:fieldName
   const propMapping = {
     title: "name",
     extra: "price",
     rating: "avgRating",
     dateTime: "availableDateTime",
+    photo: "pictures",
   };
   const fields = {
     Language: "language",
-    "Accessibility Offered": "accessibility",
-    "Pick Up": "pickUp",
-    "Drop off": "dropOff",
     Tags: "tags",
   };
   const { currency, setCurrency } = useCurrency();
+  const { Tour, useFrigade } = Frigade; // Access Tour and useFrigade from Frigade default export
+
+  const { flowStatus, resetFlow } = useFrigade(); // Importing flow management functions
+  const [showFrigade, setShowFrigade] = useState(false);
+
 
   const handleCurrencyChange = (newCurrency) => {
     setCurrency(newCurrency);
@@ -255,14 +268,20 @@ const Itineraries = () => {
             );
           },
         };
+        console.log(itineraries);
 
         let combinedArray = itineraries;
 
         combinedArray = combinedArray.map((element) => {
-          return { ...element, avgRating: getAvgRating(element.feedback) , basePrice : element.price};
+          return {
+            ...element,
+            avgRating: getAvgRating(element.feedback),
+            basePrice: element.price,
+          };
         });
 
         setCombinedElements(combinedArray);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -274,13 +293,64 @@ const Itineraries = () => {
     setCombinedElements((prevElements) =>
       prevElements.map((element) => ({
         ...element,
-        price: (element.basePrice * currencyRates[currency]).toFixed(2), 
+        price: (element.basePrice * currencyRates[currency]).toFixed(2),
       }))
     );
   }, [currency]);
 
+  const renderFrigadeProvider = () => {
+    if (role === null) {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_skhaNY2m" />
+        </Frigade.Provider>
+      );
+    } else if (role === "tourist") {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_skhaNY2m" />
+        </Frigade.Provider>
+      );
+    }
+    else {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_skhaNY2m" />
+        </Frigade.Provider>
+      );
+    }
+  }
+
+  const handleShowFrigade = () => {
+    if (flowStatus === "ENDED") {
+      resetFlow(); // Reset the flow to start from the first step
+    }
+    setShowFrigade(false); // Temporarily hide Frigade to force re-render
+    setTimeout(() => {
+      setShowFrigade(true); // Show Frigade after resetting
+    }, 0);
+  };
+  
+
   return (
     <div>
+           
+      <CustomButton size={"s"} value={"Hint"} onClick={handleShowFrigade} style={{ marginBottom: "16px" }}/>
+      
+      {showFrigade && renderFrigadeProvider()}
+     <div>
       <div
         style={{
           display: "flex",
@@ -289,12 +359,12 @@ const Itineraries = () => {
           marginBottom: "16px",
         }}
       >
-        <SelectCurrency
+        {/* <SelectCurrency
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
           style={{ left: 1000, top: 55 }}
-        />
+        /> */}
       </div>
       <SearchFilterSortContainer
         cardComponent={BasicCard}
@@ -306,7 +376,9 @@ const Itineraries = () => {
         sortFields={sortFields}
         filterFields={filterFields}
         cardOnclick={cardOnclick}
+        isLoading={isLoading}
       />
+    </div>
     </div>
   );
 };
