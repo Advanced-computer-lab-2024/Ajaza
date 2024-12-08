@@ -651,144 +651,178 @@ useEffect(() => {
 
 
 
-  return (
-    <div>
-      <h2>Admin Sales Report</h2>
-      <Tabs defaultActiveKey="product" centered destroyInactiveTabPane={false}>
+return (
+  <div>
+    <h2>Admin Sales Report</h2>
+    <Tabs defaultActiveKey="product" centered destroyInactiveTabPane={false}>
 
-        <TabPane tab="Products" key="product">
-          <p><strong>Product Sales:</strong> ${totals.productSales.toFixed(2)}</p>
-          <p><strong>Total Sales + Commissions:</strong> ${totals.totalSales.toFixed(2)}</p>
-          <div style={{ display: 'flex', gap: '20px' }}>
-          <div style={{ flex: 1 }}>
-          <Table
-            columns={productColumns}
-            dataSource={data.product}
-            loading={loading}
-            rowKey={(record) => record.key || record.productName}
-            onChange={(pagination, filters, sorter) => {
-              const productNames = filters.productName || [];
-              const dateRange = filters.dateRange || null;
-              
-
-              const newFilters = {
-                productNames: productNames.length > 0 ? productNames : filters.productNames || [],
-                dateRange: dateRange ? dateRange : filters.dateRange || null,
-                filterMode: filters.filterMode || 'date',
-              };
-
-              setFilters((prev) => ({
-                ...prev,
-                productNames: newFilters.productNames,
-                dateRange: newFilters.dateRange,
-              }));
-
-              const filteredData = applyFilters(originalData.product, newFilters, 'product');
-
-              setData((prevData) => ({
-                ...prevData,
-                product: filteredData,
-              }));
-              const newProductSales = filteredData.reduce((sum, item) => sum + item.total, 0);
-              setTotals((prevTotals) => ({
-                ...prevTotals,
-                productSales: newProductSales,
-              }));
-            }}
-          />
-                          </div>
-                <div style={{ flex: 1, minHeight: '400px' }}>
-                    <div ref={chartRef1} />
-                </div>
-            </div>
-        </TabPane>
-
-        <TabPane tab="Activities" key="activity">
-          <p><strong>Activity Commission:</strong> ${totals.activityBookingsCommission.toFixed(2)}</p>
-          <p><strong>Total Sales + Commissions:</strong> ${totals.totalSales.toFixed(2)}</p>
-          <div style={{ display: 'flex', gap: '20px' }}>
-          <div style={{ flex: 1 }}>
-          <Table
-            columns={activityColumns}
-            dataSource={data.activity}
-            loading={loading}
-            rowKey={(record) => record.key || record.activityName}
-            onChange={(pagination, filters, sorter) => {
-            const activityNames = filters.activityName || [];
-            const dateRange = filters.dateRange || null;
-
-            const newFilters = {
-              activityNames: activityNames.length > 0 ? activityNames : filters.activityNames || [],
-              dateRange: dateRange ? dateRange : filters.dateRange || null,
-              filterMode: filters.filterMode || 'date',
-            };
-
-            setFilters((prev) => ({
-              ...prev,
-              activityNames: newFilters.activityNames,
-              dateRange: newFilters.dateRange,
-            }));
-
-            const filteredData = applyFilters(originalData.activity, newFilters, 'activity');
-
-            setData((prevData) => ({
-              ...prevData,
-              activity: filteredData,
-            }));
+      <TabPane tab="Products" key="product">
+        <p><strong>Product Sales:</strong> ${totals.productSales.toFixed(2)}</p>
+        <p><strong>Total Sales + Commissions:</strong> ${totals.totalSales.toFixed(2)}</p>
+        <div
+          style={{
+            display: 'flex',
+            gap: '20px',
+            justifyContent: data.product.length > 0 ? 'space-between' : 'center',
+            alignItems: data.product.length > 0 ? 'flex-start' : 'center',
+            flexDirection: data.product.length > 0 ? 'row' : 'column',
+            minHeight: '400px',
           }}
-          />
-            </div>
-                <div style={{ flex: 1, minHeight: '400px' }}>
-                    <div ref={chartRef2} />
-                </div>
-            </div>
-        </TabPane>
-
-        <TabPane tab="Itineraries" key="itinerary">
-          <p><strong>Itinerary Commission:</strong> ${totals.itineraryBookingsCommission.toFixed(2)}</p>
-          <p><strong>Total Sales + Commissions:</strong> ${totals.totalSales.toFixed(2)}</p>
-          <div style={{ display: 'flex', gap: '20px' }}>
+        >
           <div style={{ flex: 1 }}>
-          <Table
-            columns={itineraryColumns}
-            dataSource={data.itinerary}
-            loading={loading}
-            rowKey={(record) => record.key || record.itineraryName}
-            onChange={(pagination, filters, sorter) => {
-            const itineraryNames = filters.itineraryName || [];
-            const dateRange = filters.dateRange || null;
+            <Table
+              columns={productColumns}
+              dataSource={data.product}
+              loading={loading}
+              rowKey={(record) => record.key || record.productName}
+              onChange={(pagination, filters, sorter) => {
+                const productNames = filters.productName || [];
+                const dateRange = filters.dateRange || null;
 
-            const newFilters = {
-              itineraryNames: itineraryNames.length > 0 ? itineraryNames : filters.itineraryNames || [],
-              dateRange: dateRange ? dateRange : filters.dateRange || null,
-              filterMode: filters.filterMode || 'date',
-            };
+                const newFilters = {
+                  productNames: productNames.length > 0 ? productNames : filters.productNames || [],
+                  dateRange: dateRange ? dateRange : filters.dateRange || null,
+                  filterMode: filters.filterMode || 'date',
+                };
 
-            setFilters((prev) => ({
-              ...prev,
-              itineraryNames: newFilters.itineraryNames,
-              dateRange: newFilters.dateRange,
-            }));
+                setFilters((prev) => ({
+                  ...prev,
+                  productNames: newFilters.productNames,
+                  dateRange: newFilters.dateRange,
+                }));
 
-            const filteredData = applyFilters(originalData.itinerary, newFilters, 'itinerary');
+                const filteredData = applyFilters(originalData.product, newFilters, 'product');
 
-            setData((prevData) => ({
-              ...prevData,
-              itinerary: filteredData,
-            }));
-          }}
-          />
-
+                setData((prevData) => ({
+                  ...prevData,
+                  product: filteredData,
+                }));
+                const newProductSales = filteredData.reduce((sum, item) => sum + item.total, 0);
+                setTotals((prevTotals) => ({
+                  ...prevTotals,
+                  productSales: newProductSales,
+                }));
+              }}
+            />
+          </div>
+          {data.product.length > 0 && (
+            <div style={{ flex: 1, minHeight: '400px' }}>
+              <h3 style={{ fontSize: '16px' }}>Product Sales Chart</h3>
+              <div ref={chartRef1} />
+            </div>
+          )}
         </div>
-                <div style={{ flex: 1, minHeight: '400px' }}>
-                    <div ref={chartRef3} />
-                </div>
-            </div>
-        </TabPane>
+      </TabPane>
 
-      </Tabs>
-    </div>
-  );
+      <TabPane tab="Activities" key="activity">
+        <p><strong>Activity Commission:</strong> ${totals.activityBookingsCommission.toFixed(2)}</p>
+        <p><strong>Total Sales + Commissions:</strong> ${totals.totalSales.toFixed(2)}</p>
+        <div
+          style={{
+            display: 'flex',
+            gap: '20px',
+            justifyContent: data.activity.length > 0 ? 'space-between' : 'center',
+            alignItems: data.activity.length > 0 ? 'flex-start' : 'center',
+            flexDirection: data.activity.length > 0 ? 'row' : 'column',
+            minHeight: '400px',
+          }}
+        >
+          <div style={{ flex: 1 }}>
+            <Table
+              columns={activityColumns}
+              dataSource={data.activity}
+              loading={loading}
+              rowKey={(record) => record.key || record.activityName}
+              onChange={(pagination, filters, sorter) => {
+                const activityNames = filters.activityName || [];
+                const dateRange = filters.dateRange || null;
+
+                const newFilters = {
+                  activityNames: activityNames.length > 0 ? activityNames : filters.activityNames || [],
+                  dateRange: dateRange ? dateRange : filters.dateRange || null,
+                  filterMode: filters.filterMode || 'date',
+                };
+
+                setFilters((prev) => ({
+                  ...prev,
+                  activityNames: newFilters.activityNames,
+                  dateRange: newFilters.dateRange,
+                }));
+
+                const filteredData = applyFilters(originalData.activity, newFilters, 'activity');
+
+                setData((prevData) => ({
+                  ...prevData,
+                  activity: filteredData,
+                }));
+              }}
+            />
+          </div>
+          {data.activity.length > 0 && (
+            <div style={{ flex: 1, minHeight: '400px' }}>
+              <h3 style={{ fontSize: '16px' }}>Activity Commission Chart</h3>
+              <div ref={chartRef2} />
+            </div>
+          )}
+        </div>
+      </TabPane>
+
+      <TabPane tab="Itineraries" key="itinerary">
+        <p><strong>Itinerary Commission:</strong> ${totals.itineraryBookingsCommission.toFixed(2)}</p>
+        <p><strong>Total Sales + Commissions:</strong> ${totals.totalSales.toFixed(2)}</p>
+        <div
+          style={{
+            display: 'flex',
+            gap: '20px',
+            justifyContent: data.itinerary.length > 0 ? 'space-between' : 'center',
+            alignItems: data.itinerary.length > 0 ? 'flex-start' : 'center',
+            flexDirection: data.itinerary.length > 0 ? 'row' : 'column',
+            minHeight: '400px',
+          }}
+        >
+          <div style={{ flex: 1 }}>
+            <Table
+              columns={itineraryColumns}
+              dataSource={data.itinerary}
+              loading={loading}
+              rowKey={(record) => record.key || record.itineraryName}
+              onChange={(pagination, filters, sorter) => {
+                const itineraryNames = filters.itineraryName || [];
+                const dateRange = filters.dateRange || null;
+
+                const newFilters = {
+                  itineraryNames: itineraryNames.length > 0 ? itineraryNames : filters.itineraryNames || [],
+                  dateRange: dateRange ? dateRange : filters.dateRange || null,
+                  filterMode: filters.filterMode || 'date',
+                };
+
+                setFilters((prev) => ({
+                  ...prev,
+                  itineraryNames: newFilters.itineraryNames,
+                  dateRange: newFilters.dateRange,
+                }));
+
+                const filteredData = applyFilters(originalData.itinerary, newFilters, 'itinerary');
+
+                setData((prevData) => ({
+                  ...prevData,
+                  itinerary: filteredData,
+                }));
+              }}
+            />
+          </div>
+          {data.itinerary.length > 0 && (
+            <div style={{ flex: 1, minHeight: '400px' }}>
+              <h3 style={{ fontSize: '16px' }}>Itinerary Commission Chart</h3>
+              <div ref={chartRef3} />
+            </div>
+          )}
+        </div>
+      </TabPane>
+
+    </Tabs>
+  </div>
+);
 };
 
 export default AdminReport;
