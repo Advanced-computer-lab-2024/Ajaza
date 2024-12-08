@@ -256,6 +256,7 @@ const Activity = () => {
         onCurrencyChange={handleCurrencyChange}
         style={{ left: -7, top: 45 }}
       /> */}
+
       {role == "tourist" || !role ? (
         <Button
           id="nour2"
