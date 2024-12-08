@@ -6,12 +6,21 @@ import BasicCard from "../Common/BasicCard";
 import { jwtDecode } from "jwt-decode";
 import SelectCurrency from "../Tourist/SelectCurrency";
 import { useNavigate } from "react-router-dom";
+import { useCurrency } from "../Tourist/CurrencyContext";
+import * as Frigade from "@frigade/react";
+import CustomButton from "../Common/CustomButton";
+import { Button } from "antd";
+
 
 const token = localStorage.getItem("token");
 let decodedToken = null;
+let role = null;
 if (token) {
   decodedToken = jwtDecode(token);
+  role = decodedToken?.role; // Extract the role from the token
+
 }
+console.log("itin role nour", role);
 const userid = decodedToken ? decodedToken.userId : null;
 
 const convertCategoriesToValues = (categoriesArray) => {
@@ -33,53 +42,53 @@ const convertTagsToValues = (tagsArray) => {
 };
 
 const currencyRates = {
-  AED: 3.6725 ,
-ARS: 1004.0114 ,
-AUD: 1.5348,
-BDT: 110.50,
-BHD: 0.3760,
-BND: 1.3456,
-BRL: 5.8149,
-CAD: 1.3971,
-CHF: 0.8865,
-CLP: 973.6481,
-CNY: 7.2462,
-COP: 4389.3228,
-CZK: 24.2096,
-DKK: 7.1221,
-EGP: 48.58,
-EUR: 0.9549,
-GBP: 0.7943,
-HKD: 7.7825,
-HUF: 392.6272,
-IDR: 15911.8070,
-ILS: 3.7184,
-INR: 84.5059,
-JPY: 154.4605,
-KRW: 1399.3230,
-KWD: 0.3077,
-LKR: 291.0263,
-MAD: 10.50,
-MXN: 20.4394,
-MYR: 4.4704,
-NOK: 11.0668,
-NZD: 1.7107,
-OMR: 0.3850,
-PHP: 58.9091,
-PKR: 279.0076,
-PLN: 4.1476,
-QAR: 3.6400,
-RUB: 101.2963,
-SAR: 3.7500,
-SEK: 11.0630,
-SGD: 1.3456,
-THB: 34.7565,
-TRY: 34.5345,
-TWD: 32.5602,
-UAH: 36.90,
-USD : 1,
-VND: 24000.00,
-ZAR: 18.0887,
+  AED: 3.6725,
+  ARS: 1004.0114,
+  AUD: 1.5348,
+  BDT: 110.5,
+  BHD: 0.376,
+  BND: 1.3456,
+  BRL: 5.8149,
+  CAD: 1.3971,
+  CHF: 0.8865,
+  CLP: 973.6481,
+  CNY: 7.2462,
+  COP: 4389.3228,
+  CZK: 24.2096,
+  DKK: 7.1221,
+  EGP: 48.58,
+  EUR: 0.9549,
+  GBP: 0.7943,
+  HKD: 7.7825,
+  HUF: 392.6272,
+  IDR: 15911.807,
+  ILS: 3.7184,
+  INR: 84.5059,
+  JPY: 154.4605,
+  KRW: 1399.323,
+  KWD: 0.3077,
+  LKR: 291.0263,
+  MAD: 10.5,
+  MXN: 20.4394,
+  MYR: 4.4704,
+  NOK: 11.0668,
+  NZD: 1.7107,
+  OMR: 0.385,
+  PHP: 58.9091,
+  PKR: 279.0076,
+  PLN: 4.1476,
+  QAR: 3.64,
+  RUB: 101.2963,
+  SAR: 3.75,
+  SEK: 11.063,
+  SGD: 1.3456,
+  THB: 34.7565,
+  TRY: 34.5345,
+  TWD: 32.5602,
+  UAH: 36.9,
+  USD: 1,
+  VND: 24000.0,
+  ZAR: 18.0887,
 };
 
 const ItinerariesAdmin = () => {
@@ -88,21 +97,30 @@ const ItinerariesAdmin = () => {
     navigate(element["_id"]);
   };
   const [combinedElements, setCombinedElements] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   // propName:fieldName
   const propMapping = {
     title: "name",
     extra: "price",
     rating: "avgRating",
     dateTime: "availableDateTime",
+    photo: "pictures",
   };
   const fields = {
     Language: "language",
-    "Accessibility Offered": "accessibility",
-    "Pick Up": "pickUp",
-    "Drop off": "dropOff",
     Tags: "tags",
   };
-  const [currency, setCurrency] = useState("USD");
+  const { currency, setCurrency } = useCurrency();
+  const { Tour, useFrigade } = Frigade; // Access Tour and useFrigade from Frigade default export
+
+  const { flowStatus, resetFlow } = useFrigade(); // Importing flow management functions
+  const [showFrigade, setShowFrigade] = useState(false);
+
+
+  const handleCurrencyChange = (newCurrency) => {
+    setCurrency(newCurrency);
+  };
   const searchFields = ["name"];
   const constProps = { rateDisplay: true, currency, currencyRates };
   const sortFields = ["avgRating", "price"];
@@ -250,15 +268,20 @@ const ItinerariesAdmin = () => {
             );
           },
         };
+        console.log(itineraries);
 
         let combinedArray = itineraries;
 
         combinedArray = combinedArray.map((element) => {
-          return { ...element, avgRating: getAvgRating(element.feedback) , basePrice : element.price };
+          return {
+            ...element,
+            avgRating: getAvgRating(element.feedback),
+            basePrice: element.price,
+          };
         });
-        console.log(combinedArray);
 
         setCombinedElements(combinedArray);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -266,21 +289,68 @@ const ItinerariesAdmin = () => {
     fetchData();
   }, []);
 
-  const handleCurrencyChange = (selectedCurrency) => {
-    setCurrency(selectedCurrency);
-  };
-
   useEffect(() => {
     setCombinedElements((prevElements) =>
       prevElements.map((element) => ({
         ...element,
-        price: (element.basePrice * currencyRates[currency]).toFixed(2), 
+        price: (element.basePrice * currencyRates[currency]).toFixed(2),
       }))
     );
   }, [currency]);
 
+  const renderFrigadeProvider = () => {
+    if (role === null) {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_skhaNY2m" />
+        </Frigade.Provider>
+      );
+    } else if (role === "tourist") {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_skhaNY2m" />
+        </Frigade.Provider>
+      );
+    }
+    else {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_skhaNY2m" />
+        </Frigade.Provider>
+      );
+    }
+  }
+
+  const handleShowFrigade = () => {
+    if (flowStatus === "ENDED") {
+      resetFlow(); // Reset the flow to start from the first step
+    }
+    setShowFrigade(false); // Temporarily hide Frigade to force re-render
+    setTimeout(() => {
+      setShowFrigade(true); // Show Frigade after resetting
+    }, 0);
+  };
+  
+
   return (
     <div>
+           
+      <CustomButton size={"s"} value={"Hint"} onClick={handleShowFrigade} style={{ marginBottom: "16px" }}/>
+      
+      {showFrigade && renderFrigadeProvider()}
+     <div>
       <div
         style={{
           display: "flex",
@@ -293,7 +363,7 @@ const ItinerariesAdmin = () => {
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
-          style={{ left: 1070, top: 55 }}
+          style={{ left: 1000, top: 55 }}
         /> */}
       </div>
       <SearchFilterSortContainer
@@ -306,7 +376,9 @@ const ItinerariesAdmin = () => {
         sortFields={sortFields}
         filterFields={filterFields}
         cardOnclick={cardOnclick}
+        isLoading={isLoading}
       />
+    </div>
     </div>
   );
 };
