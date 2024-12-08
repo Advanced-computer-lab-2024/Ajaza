@@ -407,7 +407,7 @@ export const Cart = () => {
                     >
                       In stock
                     </div>
-                  ):(
+                  ) : (
                     <div
                       style={{
                         marginTop: "8px",
@@ -434,6 +434,11 @@ export const Cart = () => {
                     top: 0,
                     right: 0,
                   }}
+                />
+                <Button
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleRemoveItem(item.productId)}
                 />
               </div>
             </div>
