@@ -1012,7 +1012,7 @@ const Profile = () => {
                             setDropdownOpen(!dropdownOpen);
                           }}
                         >
-                          View and Edit Preferences
+                          Preferences
                         </Button>
                       </Dropdown>
                       {userDetails && userDetails.badge && (

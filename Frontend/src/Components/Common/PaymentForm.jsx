@@ -237,7 +237,7 @@ const PaymentForm = ({
           loading={loading}
         >
           {loading
-            ? "Processing..."
+            ? "Processing"
             : type === "product"
             ? "Place Order"
             : "Book by card"}
