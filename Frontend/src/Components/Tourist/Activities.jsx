@@ -100,6 +100,7 @@ const Activities = () => {
     rating: "avgRating",
     dateTime: "availableDateTime",
     photo: "pictures",
+    discounts: "discounts",
   };
   const cardOnclick = (element) => {
     navigate(element["_id"]);
