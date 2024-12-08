@@ -31,7 +31,12 @@ import {
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import "./Profile.css";
-import { apiUrl, getSetNewToken, Colors } from "../Common/Constants";
+import {
+  apiUrl,
+  getSetNewToken,
+  Colors,
+  currencySymbols,
+} from "../Common/Constants";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useCurrency } from "../Tourist/CurrencyContext";
@@ -106,6 +111,7 @@ const Profile = () => {
   const [addresses, setAddresses] = useState([]);
   const navigate = useNavigate(); // useNavigate hook for programmatic navigation
   const { currency, setCurrency } = useCurrency();
+  const [currencySymbol, setCurrencySymbol] = useState("$");
   const [walletConverted, setWalletConverted] = useState(0);
   const [points, setPoints] = useState(0);
   const [wallet, setWallet] = useState(0);
@@ -152,6 +158,11 @@ const Profile = () => {
         userDetails.wallet * (currencyRates[currency] || 1)
       ).toFixed(2);
       setWalletConverted(convertedValue);
+      if (currencySymbols[currency]) {
+        setCurrencySymbol(currencySymbols[currency]);
+      } else {
+        setCurrencySymbol(`${currency} `);
+      }
     }
   }, [userDetails, currency]);
 
@@ -1001,7 +1012,7 @@ const Profile = () => {
                             setDropdownOpen(!dropdownOpen);
                           }}
                         >
-                          View and Edit Preferences
+                          Preferences
                         </Button>
                       </Dropdown>
                       {userDetails && userDetails.badge && (
@@ -1071,7 +1082,8 @@ const Profile = () => {
                         <div>
                           <strong>Wallet: </strong>
                           <span>
-                            {walletConverted} {currency}
+                            {currencySymbol}
+                            {walletConverted}
                           </span>
                         </div>
                       )}

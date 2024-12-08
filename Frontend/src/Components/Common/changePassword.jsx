@@ -34,11 +34,11 @@ const ChangePasswordForm = () => {
       const decodedToken = jwtDecode(token);
       const currentTime = Date.now() / 1000;
 
-      if (decodedToken.exp < currentTime) {
-        message.error("Session expired. Please log in again.");
-        navigate("/auth/signin");
-        return;
-      }
+      // if (decodedToken.exp < currentTime) {
+      //   message.error("Session expired. Please log in again.");
+      //   navigate("/auth/signin");
+      //   return;
+      // }
 
       const userDetails = decodedToken.userDetails;
       setUserId(userDetails._id);

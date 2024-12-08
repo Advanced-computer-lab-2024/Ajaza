@@ -276,9 +276,6 @@ const HeaderInfo = ({
     cvv: "",
   });
   const navigate = useNavigate();
-
-  console.log(photos);
-
   // // //stripe
   // const stripe = useStripe();
   // const elements = useElements();
@@ -817,7 +814,13 @@ const HeaderInfo = ({
           capital = "Itinerary";
         }
 
-        message.success(response.data.message);
+        let successMessage = response.data.message;
+        successMessage = successMessage.replace("USD", currencySymbol);
+        console.log(successMessage);
+
+        successMessage = successMessage.split(". ")[0];
+
+        message.success(successMessage);
         setIsBooked(false);
         await getNewToken();
       } else {
@@ -1482,13 +1485,13 @@ const HeaderInfo = ({
                           marginRight: "10px",
                         }}
                       >
+                        {currencySymbol}
                         {selectedPrice}
-                        {currency}
                       </span>
                     )}
                     <span style={{ color: promo !== 1 ? "green" : "black" }}>
+                      {currencySymbol}
                       {selectedPrice * promo}
-                      {currency}
                     </span>
                   </h4>
 
@@ -1508,7 +1511,11 @@ const HeaderInfo = ({
                     decodedToken?.userDetails?.wallet && (
                       <p style={{ marginTop: "15px" }}>
                         <strong>Current balance: </strong>
-                        {currency}{decodedToken.userDetails.wallet*(currencyRates[currency] || 1).toFixed(2)}
+                        {currencySymbol}
+                        {(
+                          decodedToken.userDetails.wallet *
+                          (currencyRates[currency] || 1)
+                        ).toFixed(2)}
                       </p>
                     )}
 

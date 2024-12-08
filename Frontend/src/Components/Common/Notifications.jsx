@@ -97,7 +97,6 @@ const Notifications = () => {
                         style={{
                           backgroundColor: Colors.primary.default,
                           color: "#fff",
-                          border: "1px solid #4caf50",
                         }}
                         value="View Activity"
                         onClick={() => Viewactivity(notification.activityId)}
@@ -110,7 +109,6 @@ const Notifications = () => {
                         style={{
                           backgroundColor: Colors.primary.default,
                           color: "#fff",
-                          border: "1px solid #4caf50",
                         }}
                         value="View Itinerary"
                         onClick={() => Viewiten(notification.itineraryId)}

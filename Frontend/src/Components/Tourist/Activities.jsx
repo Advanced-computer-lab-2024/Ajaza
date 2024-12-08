@@ -17,7 +17,6 @@ let role = null;
 if (token) {
   decodedToken = jwtDecode(token);
   role = decodedToken?.role; // Extract the role from the token
-
 }
 console.log("acti role nour", role);
 const userid = decodedToken ? decodedToken.userId : null;
@@ -101,6 +100,7 @@ const Activities = () => {
     rating: "avgRating",
     dateTime: "availableDateTime",
     photo: "pictures",
+    discounts: "discounts",
   };
   const cardOnclick = (element) => {
     navigate(element["_id"]);
@@ -315,7 +315,6 @@ const Activities = () => {
       );
     }
   };
-  
 
   const handleShowFrigade = () => {
     if (flowStatus === "ENDED") {
@@ -326,43 +325,47 @@ const Activities = () => {
       setShowFrigade(true); // Show Frigade after resetting
     }, 0);
   };
-  
 
   return (
-    <div >
-
-
-            <CustomButton size={"s"} value={"Hint"} onClick={handleShowFrigade} style={{ marginBottom: "16px" }}/>
-            {showFrigade && renderFrigadeProvider()}
-   <div>  
-<div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "16px",
-        }}
-      >
-        {/* <SelectCurrency
+    <div>
+      {role == "tourist" || !role ? (
+        <CustomButton
+          size={"s"}
+          value={"Hint"}
+          onClick={handleShowFrigade}
+          style={{ marginBottom: "16px" }}
+        />
+      ) : null}
+      {showFrigade && renderFrigadeProvider()}
+      <div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "16px",
+          }}
+        >
+          {/* <SelectCurrency
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
           style={{ left: 1000, top: 55 }}
         /> */}
+        </div>
+        <SearchFilterSortContainer
+          cardComponent={BasicCard}
+          elements={combinedElements}
+          propMapping={propMapping}
+          searchFields={searchFields}
+          constProps={constProps}
+          fields={fields}
+          sortFields={sortFields}
+          filterFields={filterFields}
+          cardOnclick={cardOnclick}
+          isLoading={isLoading}
+        />
       </div>
-      <SearchFilterSortContainer
-        cardComponent={BasicCard}
-        elements={combinedElements}
-        propMapping={propMapping}
-        searchFields={searchFields}
-        constProps={constProps}
-        fields={fields}
-        sortFields={sortFields}
-        filterFields={filterFields}
-        cardOnclick={cardOnclick}
-        isLoading={isLoading}
-      />
-    </div>
     </div>
   );
 };

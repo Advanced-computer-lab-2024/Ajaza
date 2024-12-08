@@ -17,7 +17,7 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
-import { apiUrl } from "../Common/Constants";
+import { apiUrl, Colors } from "../Common/Constants";
 
 const { Title } = Typography;
 
@@ -124,7 +124,6 @@ const CreatePromoCode = () => {
 
       <div
         style={{
-          marginTop: "16px",
           marginBottom: "24px",
           display: "flex",
           alignItems: "center",
@@ -159,14 +158,14 @@ const CreatePromoCode = () => {
               type="primary"
               icon={<PlusOutlined />}
               onClick={handleAddPromoCode}
-              style={{ backgroundColor: "#1b696a" }}
+              style={{ backgroundColor: Colors.primary.default }}
             ></Button>
           </div>
         )}
 
         <Button
           type="primary"
-          style={{ backgroundColor: "#1b696a" }}
+          style={{ backgroundColor: Colors.primary.default }}
           icon={addingPromoCode ? <CloseOutlined /> : <PlusOutlined />}
           onClick={() => setAddingPromoCode(!addingPromoCode)}
         ></Button>
