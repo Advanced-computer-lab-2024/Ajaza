@@ -13,7 +13,12 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { apiUrl, getSetNewToken, Colors } from "../Common/Constants";
+import {
+  apiUrl,
+  getSetNewToken,
+  Colors,
+  currencySymbols,
+} from "../Common/Constants";
 import { useCurrency } from "../Tourist/CurrencyContext";
 import { MinusOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
@@ -21,6 +26,7 @@ import CustomButton from "./CustomButton";
 import StripeContainer from "./StripeContainer";
 import PlusMinusPill from "./PlusMinusPill";
 import "./Cart.css";
+import LoadingSpinner from "./LoadingSpinner";
 export const Cart = () => {
   const navigate = useNavigate();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -28,6 +34,10 @@ export const Cart = () => {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [cartItems, setCartItems] = useState([]);
   const { currency } = useCurrency();
+  const [currencySymbol, setCurrencySymbol] = useState(
+    currencySymbols[currency]
+  );
+
   const [loading, setLoading] = useState(true);
   const [touristId, setTouristId] = useState(null);
   const [price, setPrice] = useState();
@@ -236,7 +246,7 @@ export const Cart = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingSpinner />;
   }
 
   if (!loading && (!cartItems || cartItems.length === 0)) {
@@ -359,20 +369,29 @@ export const Cart = () => {
                 )}
                 <div
                   className="cart-text"
-                  style={{ marginLeft: "10px", textAlign: "left" }}
+                  style={{
+                    marginLeft: "10px",
+                    textAlign: "left",
+                  }}
                 >
-                  <div style={{ marginBottom: "5px" }}>
-                    <Text strong>{item.name}</Text>
+                  <div
+                    style={{
+                      marginBottom: "5px",
+                      fontSize: "20px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {item.name}
                   </div>
                   <Text className="cart-price">
                     <strong>Price:</strong>{" "}
                     <strong>
+                      {currencySymbol}
                       {(
                         item.quantity *
                         item.price *
                         currencyRates[currency]
                       ).toFixed(2)}{" "}
-                      {currency}
                     </strong>
                   </Text>
 
@@ -381,9 +400,9 @@ export const Cart = () => {
                     <div
                       style={{
                         marginTop: "8px",
-                        color: "green",
+                        color: Colors.positive,
                         alignSelf: "flex-start",
-                        fontSize: "13px",
+                        fontSize: "14px",
                       }}
                     >
                       In stock
@@ -491,13 +510,13 @@ export const Cart = () => {
                       {item.quantity}x {item.name}
                     </strong>
                     <p style={{ margin: "5px 0", fontSize: "14px" }}>
-                      Price: {currency}
+                      Price: {currencySymbol}
                       {(item.price * currencyRates[currency]).toFixed(2)}
                     </p>
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <p style={{ margin: 0, fontWeight: "bold" }}>
-                      Total: {currency}
+                      Total: {currencySymbol}
                       {(
                         item.quantity *
                         (item.price * currencyRates[currency])
@@ -516,7 +535,7 @@ export const Cart = () => {
                     marginRight: "10px",
                   }}
                 >
-                  {currency}
+                  {currencySymbol}
                   {(price * currencyRates[currency]).toFixed(2)}
                 </span>
               )}
@@ -526,7 +545,7 @@ export const Cart = () => {
                   fontWeight: "bold",
                 }}
               >
-                {currency}
+                {currencySymbol}
                 {(price * currencyRates[currency] * promo).toFixed(2)}
               </span>
             </h4>
@@ -627,7 +646,7 @@ export const Cart = () => {
         {paymentMethod === "wallet" && decodedToken?.userDetails?.wallet && (
           <p style={{ marginTop: "10px" }}>
             <strong>Current balance: </strong>
-            {decodedToken.userDetails.wallet.toFixed(2)} USD
+            {decodedToken.userDetails.wallet.toFixed(2)}
           </p>
         )}
 

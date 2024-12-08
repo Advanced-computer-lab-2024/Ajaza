@@ -231,7 +231,6 @@ const CustomLayout = ({
                       style={{
                         backgroundColor: "#1b696a",
                         color: "#fff",
-                        border: "1px solid #4caf50",
                       }}
                       value={
                         notification.activityId
