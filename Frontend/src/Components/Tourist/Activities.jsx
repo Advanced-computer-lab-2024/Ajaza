@@ -328,7 +328,7 @@ const Activities = () => {
 
   return (
     <div>
-      {role == "tourist" || !role ? (
+      {/* {role == "tourist" || !role ? (
         <CustomButton
           size={"s"}
           value={"Hint"}
@@ -336,7 +336,7 @@ const Activities = () => {
           style={{ marginBottom: "16px" }}
         />
       ) : null}
-      {showFrigade && renderFrigadeProvider()}
+      {showFrigade && renderFrigadeProvider()} */}
       <div>
         <div
           style={{

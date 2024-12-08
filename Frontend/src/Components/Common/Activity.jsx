@@ -241,7 +241,7 @@ const Activity = () => {
 
   return (
     <>
-      {role == "tourist" || !role ? (
+      {/* {role == "tourist" || !role ? (
         <CustomButton
           size={"s"}
           value={"Hint"}
@@ -249,7 +249,7 @@ const Activity = () => {
           style={{ marginBottom: "16px" }}
         />
       ) : null}
-      {showFrigade && renderFrigadeProvider()}
+      {showFrigade && renderFrigadeProvider()} */}
 
       {/* <SelectCurrency
         currency={currency}
@@ -257,7 +257,7 @@ const Activity = () => {
         style={{ left: -7, top: 45 }}
       /> */}
 
-      {role == "tourist" || !role ? (
+      {/* {role == "tourist" || !role ? (
         <Button
           id="nour2"
           style={{
@@ -272,7 +272,7 @@ const Activity = () => {
             cursor: "default", 
           }}
         />
-      ) : null}
+      ) : null} */}
       <Item
         id={activity?._id}
         name={activity?.name}

@@ -347,9 +347,9 @@ const Itineraries = () => {
   return (
     <div>
            
-      <CustomButton size={"s"} value={"Hint"} onClick={handleShowFrigade} style={{ marginBottom: "16px" }}/>
+      {/* <CustomButton size={"s"} value={"Hint"} onClick={handleShowFrigade} style={{ marginBottom: "16px" }}/>
       
-      {showFrigade && renderFrigadeProvider()}
+      {showFrigade && renderFrigadeProvider()} */}
      <div>
       <div
         style={{
