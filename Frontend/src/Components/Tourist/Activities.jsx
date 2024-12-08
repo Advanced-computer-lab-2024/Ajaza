@@ -7,15 +7,18 @@ import { jwtDecode } from "jwt-decode";
 import SelectCurrency from "./SelectCurrency";
 import { useNavigate } from "react-router-dom";
 import { useCurrency } from "./CurrencyContext";
+import * as Frigade from "@frigade/react";
+import CustomButton from "../Common/CustomButton";
+import { Button } from "antd";
 
 const token = localStorage.getItem("token");
 let decodedToken = null;
+let role = null;
 if (token) {
   decodedToken = jwtDecode(token);
+  role = decodedToken?.role; // Extract the role from the token
 }
-
-console.log(decodedToken);
-
+console.log("acti role nour", role);
 const userid = decodedToken ? decodedToken.userId : null;
 
 const convertCategoriesToValues = (categoriesArray) => {
@@ -89,6 +92,7 @@ const currencyRates = {
 const Activities = () => {
   const navigate = useNavigate();
   const [combinedElements, setCombinedElements] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   // propName:fieldName
   const propMapping = {
     title: "name",
@@ -96,11 +100,16 @@ const Activities = () => {
     rating: "avgRating",
     dateTime: "availableDateTime",
     photo: "pictures",
+    discounts: "discounts",
   };
   const cardOnclick = (element) => {
     navigate(element["_id"]);
   };
   const { currency, setCurrency } = useCurrency();
+  const { Tour, useFrigade } = Frigade; // Access Tour and useFrigade from Frigade default export
+
+  const { flowStatus, resetFlow } = useFrigade(); // Importing flow management functions
+  const [showFrigade, setShowFrigade] = useState(false);
 
   const handleCurrencyChange = (newCurrency) => {
     setCurrency(newCurrency);
@@ -212,15 +221,19 @@ const Activities = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [activityResponse, categoryResponse, tagResponse] =
+
+        
+        const [activityResponse, categoryResponse, tagResponse , activityresponseAdmin] =
           await Promise.all([
             axios.get(`${apiUrl}activity/notHidden`),
             axios.get(`${apiUrl}category`),
             axios.get(`${apiUrl}tag`),
+            axios.get(`${apiUrl}activity/admin`),
           ]);
         let activities = activityResponse.data;
         let categories = categoryResponse.data;
         let tags = tagResponse.data;
+        let activitiesAdmin = activityresponseAdmin.data;
 
         console.log(activities);
 
@@ -255,16 +268,25 @@ const Activities = () => {
           },
         };
 
+        if(role === "admin"){
+          console.log("admin a3taked");
+          activities = activitiesAdmin.map((activity) => {
+            return { ...activity, price: `${activity.lower}-${activity.upper}` };
+          });
+        }
+        else if (role=== "tourist"){
+          console.log("tourist a3taked");
         activities = activities.map((activity) => {
           return { ...activity, price: `${activity.lower}-${activity.upper}` };
         });
-
+      }
         let combinedArray = activities;
 
         combinedArray = combinedArray.map((element) => {
           return { ...element, avgRating: getAvgRating(element.feedback) };
         });
         setCombinedElements(combinedArray);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -272,34 +294,102 @@ const Activities = () => {
     fetchData();
   }, []);
 
+  const renderFrigadeProvider = () => {
+    if (role === null) {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_cj5av0DS" />
+        </Frigade.Provider>
+      );
+    } else if (role === "tourist") {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_cj5av0DS" />
+        </Frigade.Provider>
+      );
+      //engy
+    } else if (role === "admin") {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_cj5av0DS" />
+        </Frigade.Provider>
+      );
+      //engy
+    } else {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_cj5av0DS" />
+        </Frigade.Provider>
+      );
+    }
+  };
+
+  const handleShowFrigade = () => {
+    if (flowStatus === "ENDED") {
+      resetFlow(); // Reset the flow to start from the first step
+    }
+    setShowFrigade(false); // Temporarily hide Frigade to force re-render
+    setTimeout(() => {
+      setShowFrigade(true); // Show Frigade after resetting
+    }, 0);
+  };
+
   return (
     <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "16px",
-        }}
-      >
-        {/* <SelectCurrency
+      {role == "tourist" || !role ? (
+        <CustomButton
+          size={"s"}
+          value={"Hint"}
+          onClick={handleShowFrigade}
+          style={{ marginBottom: "16px" }}
+        />
+      ) : null}
+      {showFrigade && renderFrigadeProvider()}
+      <div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "16px",
+          }}
+        >
+          {/* <SelectCurrency
           basePrice={null}
           currency={currency}
           onCurrencyChange={handleCurrencyChange}
           style={{ left: 1000, top: 55 }}
         /> */}
+        </div>
+        <SearchFilterSortContainer
+          cardComponent={BasicCard}
+          elements={combinedElements}
+          propMapping={propMapping}
+          searchFields={searchFields}
+          constProps={constProps}
+          fields={fields}
+          sortFields={sortFields}
+          filterFields={filterFields}
+          cardOnclick={cardOnclick}
+          isLoading={isLoading}
+        />
       </div>
-      <SearchFilterSortContainer
-        cardComponent={BasicCard}
-        elements={combinedElements}
-        propMapping={propMapping}
-        searchFields={searchFields}
-        constProps={constProps}
-        fields={fields}
-        sortFields={sortFields}
-        filterFields={filterFields}
-        cardOnclick={cardOnclick}
-      />
     </div>
   );
 };
