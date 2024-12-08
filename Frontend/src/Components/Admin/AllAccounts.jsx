@@ -343,7 +343,7 @@ const AllAccounts = () => {
               accounts.map((account) => (
                 <Col key={account._id} style={{ marginBottom: "16px" }}>
                   <Card title={account.username}>
-                    <p>Account Type: {account.type}</p>
+                    <p><strong>Account Type:</strong> {account.type}</p>
                     <Button
                       type="default"
                       icon={<DeleteOutlined />} // Use the delete icon here
