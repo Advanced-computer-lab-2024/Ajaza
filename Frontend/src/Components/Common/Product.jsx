@@ -153,6 +153,10 @@ const Product = () => {
 
   const handleIncrement = async () => {
     try {
+      if (product?.quantity == 0) {
+        message.warning("Cannot add more items, reached the stock limit");
+        return;
+      }
       const response = await axios.post(
         `${apiUrl}tourist/cart/plus/${touristId}`,
         {
@@ -160,7 +164,6 @@ const Product = () => {
           quantity: quantity + 1,
         }
       );
-      message.success(response.data.message);
       setQuantity((prev) => prev + 1);
       setProduct((prevProduct) => ({
         ...prevProduct,
