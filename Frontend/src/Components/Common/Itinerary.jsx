@@ -238,7 +238,7 @@ const Itinerary = () => {
   };
   return (
     <>
-      {role == "tourist" || !role ? (
+      {/* {role == "tourist" || !role ? (
         <CustomButton
           size={"s"}
           value={"Hint"}
@@ -264,7 +264,7 @@ const Itinerary = () => {
         />
       ) : null}
 
-      {showFrigade && renderFrigadeProvider()}
+      {showFrigade && renderFrigadeProvider()} */}
       {/* <SelectCurrency
         currency={currency}
         onCurrencyChange={handleCurrencyChange}
