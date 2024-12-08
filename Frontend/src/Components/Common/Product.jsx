@@ -134,6 +134,10 @@ const Product = () => {
 
   const handleAddToCart = async () => {
     try {
+      if (product?.quantity <= 0) {
+        message.warning("Product is out of stock");
+        return;
+      }
       const response = await axios.post(`${apiUrl}tourist/cart/${touristId}`, {
         productId: product?._id,
       });

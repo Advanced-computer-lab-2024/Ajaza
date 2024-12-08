@@ -142,13 +142,16 @@ const Item = ({
           </Col>
         </Row>
       )}
+      {type == "activity" ? (
+        <FeedbackMini feedbacks={creatorFeedback} numOfItems={3} />
+      ) : null}
       <Feedbacks
         writeReviewForm={writeReviewForm}
         onSubmitWriteReview={onSubmitWriteReview}
         feedbacks={feedbacks}
         setFeedbacks={setFeedbacks}
       />
-      {creatorFeedback ? (
+      {creatorFeedback && !timelineItems && type != "activity" ? (
         <div>
           <h4
             style={{

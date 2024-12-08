@@ -887,7 +887,6 @@ exports.feedback = async (req, res) => {
   }
 };
 
-
 //count guides by month
 exports.countGuidesByMonth = async (req, res) => {
   try {
@@ -902,8 +901,16 @@ exports.countGuidesByMonth = async (req, res) => {
       return res.status(400).json({ message: "Invalid date format" });
     }
 
-    const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
-    const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0);
+    const startOfMonth = new Date(
+      parsedDate.getFullYear(),
+      parsedDate.getMonth(),
+      1
+    );
+    const endOfMonth = new Date(
+      parsedDate.getFullYear(),
+      parsedDate.getMonth() + 1,
+      0
+    );
 
     const count = await Guide.countDocuments({
       date: { $gte: startOfMonth, $lt: endOfMonth },
@@ -921,7 +928,7 @@ exports.getGuidesRequestingDeletion = async (req, res) => {
     const guides = await Guide.find({ requestingDeletion: true });
 
     if (!guides.length) {
-      return res.status(404).json({ message: 'No guides requesting deletion found' });
+      return res.status(200).json([]);
     }
 
     res.status(200).json(guides);

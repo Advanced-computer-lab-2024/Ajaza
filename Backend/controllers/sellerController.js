@@ -30,7 +30,7 @@ exports.getAllSellers = async (req, res) => {
   }
 };
 
-exports.getAcceptedSellers = async(req, res) => {
+exports.getAcceptedSellers = async (req, res) => {
   try {
     const sellers = await Seller.find({ pending: false });
     res.status(200).json(sellers);
@@ -718,7 +718,6 @@ exports.getSellerDetails = async (req, res) => {
   }
 };
 
-
 // req 28 - tatos (Done)
 exports.viewSalesReport = async (req, res) => {
   const sellerId = req.params.id;
@@ -738,11 +737,10 @@ exports.viewSalesReport = async (req, res) => {
     if (seller.requestingDeletion) {
       return res.status(401).json({ message: "Seller is requesting deletion" });
     }
-    
 
     const tourists = await Tourist.find({
       "orders.products.productId": { $exists: true },
-    }).populate('orders.products.productId');
+    }).populate("orders.products.productId");
 
     if (!tourists || tourists.length === 0) {
       return res.status(404).json({ message: "No orders found" });
@@ -755,8 +753,13 @@ exports.viewSalesReport = async (req, res) => {
       for (const order of tourist.orders) {
         for (const product of order.products) {
           const productDetails = product.productId; // product details contain everything about the product (from Product.js)
-          if(productDetails.sellerId) {
-            if (productDetails && productDetails.sellerId.toString() === sellerId && (order.status !== "Cancelled")) { // added the && productDetails.sellerId to check if the product has a sellerId before converting to string and comparing
+          if (productDetails.sellerId) {
+            if (
+              productDetails &&
+              productDetails.sellerId.toString() === sellerId &&
+              order.status !== "Cancelled"
+            ) {
+              // added the && productDetails.sellerId to check if the product has a sellerId before converting to string and comparing
               totalSales += product.quantity * productDetails.price; // Calculate total sales   --> use product.quantity not productDetails.quantity to get the quantity in the order not the quantity of the product in store
               report.push({
                 name: productDetails.name,
@@ -781,33 +784,29 @@ exports.viewSalesReport = async (req, res) => {
   }
 };
 
-
-
-
-exports.seeNotifications = async(req,res) => {
+exports.seeNotifications = async (req, res) => {
   try {
     const userId = req.params.id;
 
     const user = await Seller.findById(userId);
 
-    if(!user) {
-      return res.status(404).json({message: "User not found"});
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    for(let i = 0; i < user.notifications.length; i++) {
+    for (let i = 0; i < user.notifications.length; i++) {
       user.notifications[i].seen = true;
     }
 
     await user.save();
 
-    return res.status(200).json({message: "Notifications seen successfully"});
+    return res.status(200).json({ message: "Notifications seen successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal error" });
   }
-  catch(error) {
-    return res.status(500).json({message: "Internal error"});
-  }
-}
+};
 
-exports.myItemsFeedback = async(req,res) => {
+exports.myItemsFeedback = async (req, res) => {
   try {
     const sellerId = req.params.id;
 
@@ -817,11 +816,14 @@ exports.myItemsFeedback = async(req,res) => {
       return acc.concat(product.feedback);
     }, []);
 
-    return { message: "Feedback returned successfully.", feedback: allFeedback };
+    return {
+      message: "Feedback returned successfully.",
+      feedback: allFeedback,
+    };
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
 //count sellers by month
 exports.countSellersByMonth = async (req, res) => {
@@ -837,8 +839,16 @@ exports.countSellersByMonth = async (req, res) => {
       return res.status(400).json({ message: "Invalid date format" });
     }
 
-    const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
-    const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0);
+    const startOfMonth = new Date(
+      parsedDate.getFullYear(),
+      parsedDate.getMonth(),
+      1
+    );
+    const endOfMonth = new Date(
+      parsedDate.getFullYear(),
+      parsedDate.getMonth() + 1,
+      0
+    );
 
     const count = await Seller.countDocuments({
       date: { $gte: startOfMonth, $lt: endOfMonth },
@@ -854,9 +864,10 @@ exports.countSellersByMonth = async (req, res) => {
 exports.getSellersRequestingDeletion = async (req, res) => {
   try {
     const sellers = await Seller.find({ requestingDeletion: true });
+    console.log(sellers);
 
     if (!sellers.length) {
-      return res.status(404).json({ message: 'No sellers requesting deletion found' });
+      return res.status(200).json([]);
     }
 
     res.status(200).json(sellers);

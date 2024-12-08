@@ -714,10 +714,9 @@ exports.viewSalesReport = async (req, res) => {
         .json({ message: "Advertiser is requesting deletion" });
     }
 
-
     const tourists = await Tourist.find({
       "activityBookings.activityId": { $exists: true },
-    }).populate('activityBookings.activityId');
+    }).populate("activityBookings.activityId");
 
     if (!tourists || tourists.length === 0) {
       return res.status(404).json({ message: "No activity bookings found" });
@@ -751,9 +750,6 @@ exports.viewSalesReport = async (req, res) => {
   }
 };
 
-
-
-
 // req 30 - tatos (Done)
 exports.viewTouristReport = async (req, res) => {
   const advertiserId = req.params.id;
@@ -776,10 +772,9 @@ exports.viewTouristReport = async (req, res) => {
         .json({ message: "Advertiser is requesting deletion" });
     }
 
-
     const tourists = await Tourist.find({
       "activityBookings.activityId": { $exists: true },
-    }).populate('activityBookings.activityId');
+    }).populate("activityBookings.activityId");
 
     if (!tourists || tourists.length === 0) {
       return res.status(404).json({ message: "No activity bookings found" });
@@ -808,17 +803,12 @@ exports.viewTouristReport = async (req, res) => {
       totalTourists,
       report,
     });
-
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
-
-
-
-
-exports.myItemsFeedback = async(req,res) => {
+exports.myItemsFeedback = async (req, res) => {
   try {
     const advertiserId = req.params.id;
 
@@ -828,35 +818,36 @@ exports.myItemsFeedback = async(req,res) => {
       return acc.concat(activity.feedback);
     }, []);
 
-    return { message: "Feedback returned successfully.", feedback: allFeedback };
+    return {
+      message: "Feedback returned successfully.",
+      feedback: allFeedback,
+    };
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
-exports.seeNotifications = async(req,res) => {
+exports.seeNotifications = async (req, res) => {
   try {
     const userId = req.params.id;
 
     const user = await Advertiser.findById(userId);
 
-    if(!user) {
-      return res.status(404).json({message: "User not found"});
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    for(let i = 0; i < user.notifications.length; i++) {
+    for (let i = 0; i < user.notifications.length; i++) {
       user.notifications[i].seen = true;
     }
 
     await user.save();
 
-    return res.status(200).json({message: "Notifications seen successfully"});
-  }
-  catch(error) {
-    return res.status(500).json({message: "Internal error"});
+    return res.status(200).json({ message: "Notifications seen successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal error" });
   }
 };
-
 
 // Count advertisers by month and year
 exports.countAdvertisersByMonth = async (req, res) => {
@@ -872,8 +863,16 @@ exports.countAdvertisersByMonth = async (req, res) => {
       return res.status(400).json({ message: "Invalid date format" });
     }
 
-    const startOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
-    const endOfMonth = new Date(parsedDate.getFullYear(), parsedDate.getMonth() + 1, 0);
+    const startOfMonth = new Date(
+      parsedDate.getFullYear(),
+      parsedDate.getMonth(),
+      1
+    );
+    const endOfMonth = new Date(
+      parsedDate.getFullYear(),
+      parsedDate.getMonth() + 1,
+      0
+    );
 
     const count = await Advertiser.countDocuments({
       date: { $gte: startOfMonth, $lt: endOfMonth },
@@ -891,7 +890,7 @@ exports.getAdvertisersRequestingDeletion = async (req, res) => {
     const advertisers = await Advertiser.find({ requestingDeletion: true });
 
     if (!advertisers.length) {
-      return res.status(404).json({ message: 'No advertisers requesting deletion found' });
+      return res.status(200).json([]);
     }
 
     res.status(200).json(advertisers);

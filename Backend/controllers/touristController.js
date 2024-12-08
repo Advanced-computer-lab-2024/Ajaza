@@ -1723,8 +1723,10 @@ exports.getSavedEvents = async (req, res) => {
     let activities = tourist.activityBookmarks;
 
     const now = new Date();
-    let itineraries = tourist.itineraryBookmarks.filter((itinerary) => 
-      itinerary.availableDateTime.some((dateTime) => new Date(dateTime.date) > now)
+    let itineraries = tourist.itineraryBookmarks.filter((itinerary) =>
+      itinerary.availableDateTime.some(
+        (dateTime) => new Date(dateTime.date) > now
+      )
     );
     console.log("yemken", activities, itineraries);
 
@@ -2385,6 +2387,7 @@ exports.checkout = async (req, res) => {
     for (const item of validCartItems) {
       const product = item.productId;
       product.quantity -= item.quantity;
+      product.sales += item.quantity * product.price;
       if (product.quantity == 0) {
         outOfStock(product.name, product.sellerId, product.adminId);
       }
@@ -2518,9 +2521,7 @@ exports.getTouristsRequestingDeletion = async (req, res) => {
     const tourists = await Tourist.find({ requestingDeletion: true });
 
     if (!tourists.length) {
-      return res
-        .status(404)
-        .json({ message: "No tourists requesting deletion found" });
+      return res.status(200).json([]);
     }
 
     res.status(200).json(tourists);
