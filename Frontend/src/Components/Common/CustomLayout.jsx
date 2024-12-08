@@ -454,7 +454,7 @@ const CustomLayout = ({
         </Header>
         <Content
           style={{
-            margin: "40px 40px",
+            margin: "40px 50px",
             padding: 24,
             minHeight: 280,
             background: colorBgContainer,

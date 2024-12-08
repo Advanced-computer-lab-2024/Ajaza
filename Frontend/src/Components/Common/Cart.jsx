@@ -353,10 +353,14 @@ export const Cart = () => {
                   <img
                     src={`/uploads/${item.photo}.jpg`}
                     alt={item.productName}
+                    style={{ width: "200px", height: "90px", margin: "0" }}
                     className="cart-image"
                   />
                 )}
-                <div className="cart-text" style={{ marginLeft: "10px" }}>
+                <div
+                  className="cart-text"
+                  style={{ marginLeft: "10px", textAlign: "left" }}
+                >
                   <div style={{ marginBottom: "5px" }}>
                     <Text strong>{item.name}</Text>
                   </div>
@@ -413,7 +417,8 @@ export const Cart = () => {
       {/* Checkout Button */}
       <div className="checkout-button-container">
         <CustomButton
-          size="s"
+          size="m"
+          style={{ width: "130px", height: "50px" }}
           value="Checkout"
           onClick={showModal}
           className="checkout-button"
@@ -486,13 +491,17 @@ export const Cart = () => {
                       {item.quantity}x {item.name}
                     </strong>
                     <p style={{ margin: "5px 0", fontSize: "14px" }}>
-                      Price: {currency}{(item.price *
-                        currencyRates[currency]).toFixed(2)}
+                      Price: {currency}
+                      {(item.price * currencyRates[currency]).toFixed(2)}
                     </p>
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <p style={{ margin: 0, fontWeight: "bold" }}>
-                      Total: {currency}{(item.quantity * (item.price * currencyRates[currency])).toFixed(2)}
+                      Total: {currency}
+                      {(
+                        item.quantity *
+                        (item.price * currencyRates[currency])
+                      ).toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -507,7 +516,8 @@ export const Cart = () => {
                     marginRight: "10px",
                   }}
                 >
-                  {currency}{(price * currencyRates[currency]).toFixed(2)}
+                  {currency}
+                  {(price * currencyRates[currency]).toFixed(2)}
                 </span>
               )}
               <span
@@ -516,7 +526,8 @@ export const Cart = () => {
                   fontWeight: "bold",
                 }}
               >
-                {currency}{(price * currencyRates[currency] * promo).toFixed(2)}
+                {currency}
+                {(price * currencyRates[currency] * promo).toFixed(2)}
               </span>
             </h4>
           </div>

@@ -13,7 +13,11 @@ import {
   Select,
   Tooltip,
 } from "antd";
-import { SearchOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons"; // Import the Delete icon
+import {
+  SearchOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+} from "@ant-design/icons"; // Import the Delete icon
 import { apiUrl, Colors } from "../Common/Constants";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
@@ -23,14 +27,12 @@ import LoadingSpinner from "../Common/LoadingSpinner";
 import CustomButton from "../Common/CustomButton";
 const { Title } = Typography;
 
-
-
 const AllAccounts = () => {
   const [allAccounts, setAllAccounts] = useState([]); // Store all accounts
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   const [searchValue, setSearchValue] = useState("");
   const [isHovered, setIsHovered] = useState(false); // State to manage hover effect
 
@@ -113,7 +115,6 @@ const AllAccounts = () => {
         });
 
         const combinedArray = [
-          
           ...tourists,
           ...sellers,
           ...guides,
@@ -129,7 +130,6 @@ const AllAccounts = () => {
     }
   };
 
-
   const showModal = () => {
     setIsModalOpen(true);
   };
@@ -144,27 +144,25 @@ const AllAccounts = () => {
     const { username, password, accountType } = values;
 
     try {
-      if(accountType === "admin"){
+      if (accountType === "admin") {
         const response = await axios.post(apiUrl + "admin/addAdmin", {
           username: username,
           pass: password,
         });
-
       }
-      if(accountType === "tourismGovernor"){
+      if (accountType === "tourismGovernor") {
         const response = await axios.post(apiUrl + "governor/addGovernor", {
           // Update URL here
           username: values.username,
           pass: values.password, // Ensure the password field matches your API
         });
-
       }
       await fetchAccounts();
-     
+
       //form.setFieldsValue({ username: "", password: "" });
       form.resetFields();
       setIsModalOpen(false);
-     // message.success(response.data.message);
+      // message.success(response.data.message);
       localStorage.setItem("selectedMenuKey", 8);
 
       //navigate("../Complaints");
@@ -173,10 +171,6 @@ const AllAccounts = () => {
     }
   };
 
-  
-
-  
- 
   // Handle delete account
   const handleDelete = async (accountId, accountType) => {
     console.log(accountType + " ali" + accountId);
@@ -218,7 +212,6 @@ const AllAccounts = () => {
     }
   };
 
-
   useEffect(() => {
     if (searchValue) {
       const filteredAccounts = allAccounts.filter((account) =>
@@ -239,115 +232,117 @@ const AllAccounts = () => {
       style={{
         display: "flex",
         justifyContent: "space-between",
-        padding: "20px",
       }}
     >
-   
       <div style={{ flex: 1 }}>
-     
-    
-        <Title level={2} style={{ textAlign: "center", marginBottom: "20px" }}>
+        <Title level={2} style={{ textAlign: "center", marginBottom: "40px" }}>
           Accepted Accounts
         </Title>
 
+        <Modal open={isModalOpen} footer={null} onCancel={handleCancel}>
+          <div
+            style={{
+              background: "#ffffff",
+              textAlign: "center",
+              padding: "0 20px",
+            }}
+          >
+            <h2 style={{ fontSize: "20px", textAlign: "center" }}>
+              Add Account
+            </h2>
+            <p style={{ textAlign: "center" }}></p>
+            <Form form={form} onFinish={handleSubmit} layout="vertical">
+              {/* Account Type Selector */}
+              <Form.Item
+                name="accountType"
+                rules={[
+                  { required: true, message: "Account type is required." },
+                ]}
+              >
+                <Select placeholder="Select Account Type">
+                  <Select.Option value="admin">Admin</Select.Option>
+                  <Select.Option value="tourismGovernor">
+                    Tourism Governor
+                  </Select.Option>
+                </Select>
+              </Form.Item>
+
+              {/* Username Input */}
+              <Form.Item
+                name="username"
+                rules={[{ required: true, message: "Username is required." }]}
+              >
+                <Input placeholder="Username" />
+              </Form.Item>
+
+              {/* Password Input */}
+              <Form.Item
+                name="password"
+                rules={[{ required: true, message: "Password is required." }]}
+              >
+                <Input.Password placeholder="Password" />
+              </Form.Item>
+
+              {/* Submit Button */}
+              <Form.Item style={{ marginBottom: "0" }}>
+                <CustomButton
+                  size="s"
+                  value="Add Account"
+                  style={{ width: "120px" }}
+                  htmlType="submit"
+                />
+              </Form.Item>
+            </Form>
+          </div>
+        </Modal>
+
         <div
-        style={{ display: "flex", justifyContent: "end", marginBottom: "15px" }}
-      >
-        <Button
           style={{
-            backgroundColor: Colors.primary.default,
-            border: "none",
-            width: "30px",
-            height: "30px",
-            marginLeft: "auto",
+            position: "relative",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginBottom: "20px",
           }}
-          icon={<PlusOutlined style={{ color: "white" }} />}
-          rounded={true}
-          onClick={showModal}
-        />
-      </div>
-
-
-
-
-      <Modal open={isModalOpen} footer={null} onCancel={handleCancel}>
-  <div
-    style={{
-      background: "#ffffff",
-      textAlign: "center",
-      padding: "0 20px",
-    }}
-  >
-    <h2 style={{ fontSize: "20px", textAlign: "center" }}>
-      Add Account
-    </h2>
-    <p style={{ textAlign: "center" }}></p>
-    <Form form={form} onFinish={handleSubmit} layout="vertical">
-      {/* Account Type Selector */}
-      <Form.Item
-        name="accountType"
-        rules={[{ required: true, message: "Account type is required." }]}
-      >
-        <Select placeholder="Select Account Type">
-          <Select.Option value="admin">Admin</Select.Option>
-          <Select.Option value="tourismGovernor">Tourism Governor</Select.Option>
-        </Select>
-      </Form.Item>
-
-      {/* Username Input */}
-      <Form.Item
-        name="username"
-        rules={[{ required: true, message: "Username is required." }]}
-      >
-        <Input placeholder="Username" />
-      </Form.Item>
-
-      {/* Password Input */}
-      <Form.Item
-        name="password"
-        rules={[{ required: true, message: "Password is required." }]}
-      >
-        <Input.Password placeholder="Password" />
-      </Form.Item>
-
-      {/* Submit Button */}
-      <Form.Item style={{ marginBottom: "0" }}>
-        <CustomButton
-          size="s"
-          value="Add Account"
-          style={{ width: "120px" }}
-          htmlType="submit"
-        />
-      </Form.Item>
-    </Form>
-  </div>
-</Modal>
-
-
-
-
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-         <Search
+        >
+          <Search
             activateHover={false}
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             style={{ width: "600px" }}
             inputStyleParam={{ paddingLeft: "40px" }}
           />
-          </div>
+          <Button
+            style={{
+              backgroundColor: Colors.primary.default,
+              border: "none",
+              width: "30px",
+              height: "30px",
+              position: "absolute",
+              right: "0",
+            }}
+            icon={<PlusOutlined style={{ color: "white" }} />}
+            rounded={true}
+            onClick={showModal}
+          />
+        </div>
 
         {loading ? (
-          <div> Loading...</div>
+          <LoadingSpinner />
         ) : (
-          <Row gutter={16}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "22% 22% 22% 22%",
+              gridGap: "4%",
+              rowGap: "15px",
+              width: "100%",
+            }}
+          >
             {accounts.length > 0 ? (
               accounts.map((account) => (
-                <Col
-                  span={8}
-                  key={account._id}
-                  style={{ marginBottom: "16px" }}
-                >
-                  <Card title={account.username} bordered={false}>
+                <Col key={account._id} style={{ marginBottom: "16px" }}>
+                  <Card title={account.username}>
                     <p>Account Type: {account.type}</p>
                     <Button
                       type="default"
@@ -365,14 +360,9 @@ const AllAccounts = () => {
                 <p>No accounts found.</p>
               </Col>
             )}
-          </Row>
-
+          </div>
         )}
       </div>
-      
-
-      
-      
     </div>
   );
 };

@@ -8,6 +8,7 @@ import {
   Input,
   Button,
   Tooltip,
+  Empty,
 } from "antd";
 import { SearchOutlined, DeleteOutlined } from "@ant-design/icons"; // Import the Delete icon
 import { apiUrl } from "../Common/Constants";
@@ -21,7 +22,7 @@ const AccountsToBeDeleted = () => {
   const [allAccounts, setAllAccounts] = useState([]); // Store all accounts
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [searchValue, setSearchValue] = useState("");
   const [isHovered, setIsHovered] = useState(false); // State to manage hover effect
 
@@ -56,7 +57,9 @@ const AccountsToBeDeleted = () => {
           };
         });
 
-        let advertisers = await axios.get(apiUrl + "advertiser/requestingdeletion");
+        let advertisers = await axios.get(
+          apiUrl + "advertiser/requestingdeletion"
+        );
 
         advertisers = advertisers.data.map((advertiser) => {
           return {
@@ -104,12 +107,10 @@ const AccountsToBeDeleted = () => {
         });
 
         const combinedArray = [
-          
           ...tourists,
           ...sellers,
           ...guides,
           ...advertisers,
-        
         ];
         setAccounts(combinedArray);
         setAllAccounts(combinedArray);
@@ -120,10 +121,6 @@ const AccountsToBeDeleted = () => {
     }
   };
 
-  
-
-  
- 
   // Handle delete account
   const handleDelete = async (accountId, accountType) => {
     console.log(accountType + " ali" + accountId);
@@ -165,7 +162,6 @@ const AccountsToBeDeleted = () => {
     }
   };
 
-
   useEffect(() => {
     if (searchValue) {
       const filteredAccounts = allAccounts.filter((account) =>
@@ -186,25 +182,27 @@ const AccountsToBeDeleted = () => {
       style={{
         display: "flex",
         justifyContent: "space-between",
-        padding: "20px",
       }}
     >
-   
       <div style={{ flex: 1 }}>
-     
-    
-        <Title level={2} style={{ textAlign: "center", marginBottom: "20px" }}>
+        <Title level={2} style={{ textAlign: "center", marginBottom: "30px" }}>
           Deletion Requests
         </Title>
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-         <Search
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: "20px",
+          }}
+        >
+          <Search
             activateHover={false}
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             style={{ width: "600px" }}
             inputStyleParam={{ paddingLeft: "40px" }}
           />
-          </div>
+        </div>
 
         {loading ? (
           <div> Loading...</div>
@@ -232,17 +230,12 @@ const AccountsToBeDeleted = () => {
               ))
             ) : (
               <Col span={24} style={{ textAlign: "center" }}>
-                <p>No accounts found.</p>
+                <Empty />
               </Col>
             )}
           </Row>
-
         )}
       </div>
-      
-
-      
-      
     </div>
   );
 };
