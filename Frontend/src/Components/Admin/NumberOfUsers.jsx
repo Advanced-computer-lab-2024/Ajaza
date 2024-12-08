@@ -4,8 +4,6 @@ import moment from 'moment';
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { apiUrl, Colors } from "../Common/Constants";
-
-import { apiUrl } from "../Common/Constants";
 import { Column } from '@antv/g2plot';
 const { Title } = Typography;
 
@@ -53,59 +51,26 @@ const NumberOfUsers = () => {
         const response4 = await axios.get('http://localhost:5000/governor/countByMonth', {
           params: { date }, // Send the date as a query parameter
         });
-      try {
-        const response1 = await axios.get(
-          "http://localhost:5000/admin/countByMonth",
-          {
-            params: { date }, // Send the date as a query parameter
-          }
-        );
 
-        const response2 = await axios.get(
-          "http://localhost:5000/seller/countByMonth",
-          {
-            params: { date }, // Send the date as a query parameter
-          }
-        );
-        const response3 = await axios.get(
-          "http://localhost:5000/tourist/countByMonth",
-          {
-            params: { date }, // Send the date as a query parameter
-          }
-        );
-        const response4 = await axios.get(
-          "http://localhost:5000/governor/countByMonth",
-          {
-            params: { date }, // Send the date as a query parameter
-          }
-        );
+        const response5 = await axios.get('http://localhost:5000/advertiser/countByMonth', {
+          params: { date }, // Send the date as a query parameter
+        });
 
-        const response5 = await axios.get(
-          "http://localhost:5000/advertiser/countByMonth",
-          {
-            params: { date }, // Send the date as a query parameter
-          }
-        );
+        const response6 = await axios.get('http://localhost:5000/guide/countByMonth', {
+          params: { date }, // Send the date as a query parameter
+        });
 
-        const response6 = await axios.get(
-          "http://localhost:5000/guide/countByMonth",
-          {
-            params: { date }, // Send the date as a query parameter
-          }
-        );
 
-        countOfUsers =
-          response1.data.count +
-          response2.data.count +
-          response3.data.count +
-          response4.data.count +
-          response5.data.count +
-          response6.data.count;
-        setNumberOfNewUsers(countOfUsers);
-      } catch (exception) {}
-    } else {
-      setNumberOfNewUsers(10);
+       countOfUsers = response1.data.count + response2.data.count + response3.data.count + response4.data.count + response5.data.count + response6.data.count;
+        setNumberOfNewUsers(countOfUsers); 
+      }
+      catch (exception) {
+      }
+      
     }
+    else{
+        setNumberOfNewUsers(10);
+    }   
   };
 
   const fetch = async () => {
