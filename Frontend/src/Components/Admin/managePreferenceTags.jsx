@@ -118,7 +118,6 @@ const ManagePreferenceTags = () => {
       {/* Updated Add Tag Functionality Positioned Below Title */}
       <div
         style={{
-          marginTop: "16px",
           marginBottom: "24px",
           display: "flex",
           alignItems: "center",
