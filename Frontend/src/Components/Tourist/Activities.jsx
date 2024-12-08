@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useCurrency } from "./CurrencyContext";
 import * as Frigade from "@frigade/react";
 import CustomButton from "../Common/CustomButton";
+import {getSetNewToken} from "../Common/Constants";
 import { Button } from "antd";
 
 const token = localStorage.getItem("token");
@@ -92,6 +93,7 @@ const currencyRates = {
 const Activities = () => {
   const navigate = useNavigate();
   const [combinedElements, setCombinedElements] = useState([]);
+  const [role,setrole] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   // propName:fieldName
   const propMapping = {
@@ -219,17 +221,29 @@ const Activities = () => {
   });
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+       decodedToken = jwtDecode(token);
+       setrole(decodedToken?.role);
+       console.log("weeeeee" , role);
+     }
+  },[]);
+
+  useEffect(() => {
+   
     const fetchData = async () => {
       try {
-        const [activityResponse, categoryResponse, tagResponse] =
-          await Promise.all([
-            axios.get(`${apiUrl}activity/notHidden`),
-            axios.get(`${apiUrl}category`),
-            axios.get(`${apiUrl}tag`),
-          ]);
-        let activities = activityResponse.data;
-        let categories = categoryResponse.data;
-        let tags = tagResponse.data;
+        const [activityResponse, categoryResponse, tagResponse , activityresponseAdmin] =
+        await Promise.all([
+          axios.get(`${apiUrl}activity/notHidden`),
+          axios.get(`${apiUrl}category`),
+          axios.get(`${apiUrl}tag`),
+          axios.get(`${apiUrl}activity/admin`),
+        ]);
+      let activities = activityResponse.data;
+      let categories = categoryResponse.data;
+      let tags = tagResponse.data;
+      let activitiesAdmin = activityresponseAdmin.data;
 
         console.log(activities);
 
@@ -264,9 +278,20 @@ const Activities = () => {
           },
         };
 
+        console.log("SHIKO", role);
+        if(role === "admin"){
+          console.log("admin a3taked");
+          activities = activitiesAdmin.map((activity) => {
+            return { ...activity, price: `${activity.lower}-${activity.upper}` };
+          });
+        }
+        else if (role=== "tourist"){
+          console.log("tourist a3taked");
         activities = activities.map((activity) => {
           return { ...activity, price: `${activity.lower}-${activity.upper}` };
         });
+      }
+      //role = null;
 
         let combinedArray = activities;
 
@@ -280,7 +305,7 @@ const Activities = () => {
       }
     };
     fetchData();
-  }, []);
+  }, []); //role
 
   const renderFrigadeProvider = () => {
     if (role === null) {
@@ -303,6 +328,7 @@ const Activities = () => {
           <Frigade.Tour flowId="flow_cj5av0DS" />
         </Frigade.Provider>
       );
+  
     } else {
       return (
         <Frigade.Provider
@@ -371,3 +397,5 @@ const Activities = () => {
 };
 
 export default Activities;
+
+//law kont f admin then tourist beyetla3 ghalat.
