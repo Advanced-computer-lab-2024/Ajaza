@@ -90,14 +90,14 @@ const Admin = () => {
               path="tourists-Complaints/:id"
               element={<ComplaintDetails />}
             />
-            <Route path="events" element={<Activities />} />
-            <Route path="events/:id" element={<Activity />} />
+            <Route path="events" element={<Events />} />
+            <Route path="events/:id" element={<Event />} />
             <Route path="promocode" element={<CreatePromoCode />} />
             <Route path="report" element={<AdminReport />} />
 
             <Route path="numberOfUsers" element={<NumberOfUsers />} />
             <Route path="itinerariesAdmin" element={<ItinerariesAdmin />} />
-            <Route path="itinerariesAdmin/:id" element={<Itinerary />} />
+            <Route path="itinerariesAdmin/:id" element={<ItineraryAdmin />} />
 
             <Route path="preference-tags" element={<ManagePreferenceTags />} />
             <Route path="myProducts" element={<MyProducts />} />

@@ -30,7 +30,7 @@ exports.getAllActivities = async (req, res) => {
 //get admin activities.
 exports.getAdminActivities = async (req, res) => {
   try {
-    const activities = await Activity.find({   $nor: [{ hidden: true, isFlagged: false }] }).populate("advertiserId");
+    const activities = await Activity.find({   $nor: [{ hidden: false, isFlagged: true }] }).populate("advertiserId");
     res.status(200).json(activities);
   } catch (error) {
     res.status(500).json({ error: error.message });

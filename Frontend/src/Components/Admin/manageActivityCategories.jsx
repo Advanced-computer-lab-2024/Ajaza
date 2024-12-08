@@ -11,6 +11,7 @@ import {
 import { apiUrl, Colors } from "../Common/Constants";
 import { jwtDecode } from "jwt-decode";
 
+
 const { Title } = Typography;
 
 const ManageActivityCategories = () => {
@@ -23,6 +24,7 @@ const ManageActivityCategories = () => {
 
   // Fetch categories from the server
   useEffect(() => {
+    
     const fetchCategories = async () => {
       try {
         const response = await axios.get(apiUrl + "category");
@@ -30,6 +32,7 @@ const ManageActivityCategories = () => {
       } catch (error) {
         console.error(error);
         message.error("Failed to load categories.");
+        
       }
     };
 
@@ -121,6 +124,7 @@ const ManageActivityCategories = () => {
       {/* Updated Add Category Functionality Positioned Below Title */}
       <div
         style={{
+          marginTop: "16px",
           marginBottom: "24px",
           display: "flex",
           alignItems: "center",
