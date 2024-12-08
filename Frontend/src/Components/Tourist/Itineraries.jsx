@@ -306,10 +306,21 @@ const Itineraries = () => {
           userId={userid}
           onError={(error) => console.error("Frigade Error:", error)}
         >
-          <Frigade.Tour flowId="flow_CHZzYUZG" />
+          <Frigade.Tour flowId="flow_skhaNY2m" />
         </Frigade.Provider>
       );
     } else if (role === "tourist") {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_skhaNY2m" />
+        </Frigade.Provider>
+      );
+    }
+    else {
       return (
         <Frigade.Provider
           apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
