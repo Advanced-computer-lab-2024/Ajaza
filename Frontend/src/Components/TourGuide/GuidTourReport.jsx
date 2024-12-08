@@ -239,7 +239,16 @@ const GuidTourReport = () => {
         <div>
             <h2>Guide Tourists Report</h2>
             <p>Total Number of Tourists: <strong>{totalTourists}</strong></p>
-            <div style={{ display: 'flex', gap: '20px' }}>
+            <div
+                style={{
+                    display: 'flex',
+                    gap: '20px',
+                    justifyContent: salesData.length > 0 ? 'space-between' : 'center',
+                    alignItems: salesData.length > 0 ? 'flex-start' : 'center',
+                    flexDirection: salesData.length > 0 ? 'row' : 'column',
+                    minHeight: '400px',
+                }}
+            >
                 <div style={{ flex: 1 }}>
                     <Table
                         columns={columns}
@@ -248,12 +257,15 @@ const GuidTourReport = () => {
                         rowKey={(record) => record.key}
                     />
                 </div>
-                <div style={{ flex: 1, minHeight: '400px' }}>
-                    <div ref={chartRef} />
-                </div>
+                {salesData.length > 0 && (
+                    <div style={{ flex: 1, minHeight: '400px' }}>
+                        <h3 style={{ fontSize: '16px' }}>Tourists Count by Itinerary</h3>
+                        <div ref={chartRef} />
+                    </div>
+                )}
             </div>
         </div>
     );
-};
+};    
 
 export default GuidTourReport;

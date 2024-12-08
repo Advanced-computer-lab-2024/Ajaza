@@ -280,43 +280,56 @@ const SellerReport = () => {
         <div>
             <h2>Seller Sales Report</h2>
             <p>Total Sales: <strong>${totalSales.toFixed(2)}</strong></p>
-            <div style={{ display: 'flex', gap: '20px' }}>
-                <div style={{ flex: 1 }}>
-            <Table
-                columns={columns}
-                dataSource={salesData}
-                loading={loading}
-                rowKey={(record) => record.key || record.productName}
-                onChange={(pagination, filters, sorter) => {
-                    const productNames = filters.productName || [];
-                    const dateRange = filters.dateRange || null;
-
-                    const newFilters = {
-                        productNames: productNames.length > 0 ? productNames : filters.productNames || [],
-                        dateRange: dateRange ? dateRange : filters.dateRange || null,
-                        filterMode: filters.filterMode || 'date',
-                    };
-
-                    setFilters((prev) => ({
-                        ...prev,
-                        productNames: newFilters.productNames,
-                        dateRange: newFilters.dateRange,
-                    }));
-
-                    const filteredData = applyFilters(originalSalesData, newFilters);
-
-                    setSalesData(filteredData);
-                    const newTotalSales = filteredData.reduce((sum, item) => sum + item.totalRevenue, 0);
-                    setTotalSales(newTotalSales);
+            <div
+                style={{
+                    display: 'flex',
+                    gap: '20px',
+                    justifyContent: salesData.length > 0 ? 'space-between' : 'center',
+                    alignItems: salesData.length > 0 ? 'flex-start' : 'center',
+                    flexDirection: salesData.length > 0 ? 'row' : 'column',
+                    minHeight: '400px',
                 }}
-            />
+            >
+                <div style={{ flex: 1 }}>
+                    <Table
+                        columns={columns}
+                        dataSource={salesData}
+                        loading={loading}
+                        rowKey={(record) => record.key || record.productName}
+                        onChange={(pagination, filters, sorter) => {
+                            const productNames = filters.productName || [];
+                            const dateRange = filters.dateRange || null;
+    
+                            const newFilters = {
+                                productNames: productNames.length > 0 ? productNames : filters.productNames || [],
+                                dateRange: dateRange ? dateRange : filters.dateRange || null,
+                                filterMode: filters.filterMode || 'date',
+                            };
+    
+                            setFilters((prev) => ({
+                                ...prev,
+                                productNames: newFilters.productNames,
+                                dateRange: newFilters.dateRange,
+                            }));
+    
+                            const filteredData = applyFilters(originalSalesData, newFilters);
+    
+                            setSalesData(filteredData);
+                            const newTotalSales = filteredData.reduce((sum, item) => sum + item.totalRevenue, 0);
+                            setTotalSales(newTotalSales);
+                        }}
+                    />
                 </div>
-                <div style={{ flex: 1, minHeight: '400px' }}>
-                    <div ref={chartRef} />
-                </div>
+                {salesData.length > 0 && (
+                    <div style={{ flex: 1, minHeight: '400px' }}>
+                        <h3 style={{ fontSize: '16px' }}>Product Sales Chart</h3>
+                        <div ref={chartRef} />
+                    </div>
+                )}
             </div>
         </div>
     );
 };
+    
 
 export default SellerReport;
