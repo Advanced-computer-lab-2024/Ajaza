@@ -465,7 +465,7 @@ const SearchFilterSortContainer = ({
           />
         ) : null}
 
-        <Flex style={{ position: "absolute", right: "70px" }}>
+        <Flex style={{ position: "absolute", right: "80px" }}>
           <Dropdown
             menu={{
               selectable: true,
