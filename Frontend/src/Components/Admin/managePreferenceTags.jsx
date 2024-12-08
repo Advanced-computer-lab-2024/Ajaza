@@ -6,6 +6,7 @@ import {
   DeleteOutlined,
   PlusOutlined,
   MinusOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import { apiUrl, Colors } from "../Common/Constants";
 import Admin from "./Admin";
@@ -117,11 +118,10 @@ const ManagePreferenceTags = () => {
       {/* Updated Add Tag Functionality Positioned Below Title */}
       <div
         style={{
-          marginTop: "16px",
           marginBottom: "24px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "end",
         }}
       >
         {addingtag && (
@@ -138,31 +138,32 @@ const ManagePreferenceTags = () => {
               placeholder="Enter new tag name"
               style={{ width: "200px", marginRight: "8px" }}
             />
-            <Button type="primary" onClick={handleAddtag}>
-              Add
-            </Button>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleAddtag}
+            ></Button>
           </div>
         )}
 
         <Button
           type="primary"
-          icon={addingtag ? <MinusOutlined /> : <PlusOutlined />}
+          icon={addingtag ? <CloseOutlined /> : <PlusOutlined />}
           onClick={() => setAddingtag(!addingtag)}
           style={{ backgroundColor: Colors.primary.default }}
-        >
-          {addingtag ? "Close Tag" : "Add Tag"}
-        </Button>
+        ></Button>
       </div>
 
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "22% 22% 22% 22%",
-          gridGap: "4%",
+          gridTemplateColumns: "15% 15% 15% 15% 15% 15%",
+          gridGap: "2%",
+          gridRowGap: "15px",
         }}
       >
         {categories.map((tag) => (
-          <Card key={tag._id} title={tag.tag} style={{ width: 300 }}>
+          <Card key={tag._id} title={tag.tag}>
             <Button
               type="text"
               icon={<EditOutlined />}

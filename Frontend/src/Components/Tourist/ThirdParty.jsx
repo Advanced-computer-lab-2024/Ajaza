@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { message, Card, Tabs, Row, Col } from "antd";
+import { message, Card, Tabs, Row, Col, Empty } from "antd";
 import axios from "axios";
 import { apiUrl, Colors } from "../Common/Constants";
 import { jwtDecode } from "jwt-decode";
 import SelectCurrency from "./SelectCurrency";
 import { useCurrency } from "./CurrencyContext";
 import "./ThirdParty.css";
+import LoadingSpinner from "../Common/LoadingSpinner";
 
 const { TabPane } = Tabs;
 
+const tabTitleStyles = { fontSize: "18px", fontWeight: "600" };
 const ThirdParty = () => {
   const [hotels, setHotels] = useState([]);
   const [flights, setFlights] = useState([]);
@@ -114,15 +116,6 @@ const ThirdParty = () => {
 
   return (
     <div>
-      <Row style={{ marginBottom: "20px" }} justify="start">
-        <Col>
-          {/* <SelectCurrency
-            currency={currency}
-            onCurrencyChange={handleCurrencyChange}
-          /> */}
-        </Col>
-      </Row>
-
       <div
         style={{
           display: "flex",
@@ -132,34 +125,35 @@ const ThirdParty = () => {
       >
         <Tabs
           defaultActiveKey="1"
+          centered
+          size="large"
           style={{
             marginBottom: 20,
             color: Colors.primary.default,
             textAlign: "center",
+            width: "100%",
           }}
         >
-          <TabPane tab="Flights" key="1">
+          <TabPane tab={<div style={tabTitleStyles}>Flights</div>} key="1">
             {loading ? (
-              <p>Loading flight bookings...</p>
+              <LoadingSpinner />
             ) : flights.length > 0 ? (
               <div
                 style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: "16px",
-                  justifyContent: "flex-start",
+                  display: "grid",
+                  gridTemplateColumns: "22% 22% 22% 22%",
+                  gridGap: "4%",
                 }}
               >
                 {flights.map((flight) => (
                   <Card
                     key={flight._id}
                     title={flight.arrivalAirport}
-                    bordered={false}
+                    bordered={true}
                     style={{
                       width: "100%",
                       maxWidth: "300px",
                       marginBottom: "16px",
-                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
                       borderRadius: "8px",
                       padding: "16px",
                     }}
@@ -199,32 +193,29 @@ const ThirdParty = () => {
                 ))}
               </div>
             ) : (
-              <p>No flight bookings found.</p>
+              <Empty />
             )}
           </TabPane>
 
-          <TabPane tab="Hotels" key="2">
+          <TabPane tab={<div style={tabTitleStyles}>Hotels</div>} key="2">
             {loading ? (
-              <p>Loading hotel bookings...</p>
+              <LoadingSpinner />
             ) : hotels.length > 0 ? (
               <div
                 style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: "16px",
-                  justifyContent: "flex-start",
+                  display: "grid",
+                  gridTemplateColumns: "22% 22% 22% 22%",
+                  gridGap: "4%",
                 }}
               >
                 {hotels.map((hotel) => (
                   <Card
                     key={hotel._id}
                     title={hotel.city}
-                    bordered={false}
                     style={{
                       width: "100%",
                       maxWidth: "300px",
                       marginBottom: "16px",
-                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
                       borderRadius: "8px",
                       padding: "16px",
                     }}
@@ -251,32 +242,32 @@ const ThirdParty = () => {
                 ))}
               </div>
             ) : (
-              <p>No hotel bookings found.</p>
+              <Empty />
             )}
           </TabPane>
 
-          <TabPane tab="Transportations" key="3">
+          <TabPane
+            tab={<div style={tabTitleStyles}>Transportations</div>}
+            key="3"
+          >
             {loading ? (
-              <p>Loading transportation bookings...</p>
+              <LoadingSpinner />
             ) : transportations.length > 0 ? (
               <div
                 style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: "16px",
-                  justifyContent: "flex-start",
+                  display: "grid",
+                  gridTemplateColumns: "22% 22% 22% 22%",
+                  gridGap: "4%",
                 }}
               >
                 {transportations.map((transportation) => (
                   <Card
                     key={transportation._id}
                     title={"to " + transportation.end_address_line}
-                    bordered={false}
                     style={{
                       width: "100%",
                       maxWidth: "300px",
                       marginBottom: "16px",
-                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
                       borderRadius: "8px",
                       padding: "16px",
                     }}
@@ -335,7 +326,7 @@ const ThirdParty = () => {
                 ))}
               </div>
             ) : (
-              <p>No transportation bookings found.</p>
+              <Empty />
             )}
           </TabPane>
         </Tabs>

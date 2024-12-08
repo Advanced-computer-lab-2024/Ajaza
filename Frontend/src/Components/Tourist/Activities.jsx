@@ -221,19 +221,15 @@ const Activities = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-
-        
-        const [activityResponse, categoryResponse, tagResponse , activityresponseAdmin] =
+        const [activityResponse, categoryResponse, tagResponse] =
           await Promise.all([
             axios.get(`${apiUrl}activity/notHidden`),
             axios.get(`${apiUrl}category`),
             axios.get(`${apiUrl}tag`),
-            axios.get(`${apiUrl}activity/admin`),
           ]);
         let activities = activityResponse.data;
         let categories = categoryResponse.data;
         let tags = tagResponse.data;
-        let activitiesAdmin = activityresponseAdmin.data;
 
         console.log(activities);
 
@@ -268,18 +264,10 @@ const Activities = () => {
           },
         };
 
-        if(role === "admin"){
-          console.log("admin a3taked");
-          activities = activitiesAdmin.map((activity) => {
-            return { ...activity, price: `${activity.lower}-${activity.upper}` };
-          });
-        }
-        else if (role=== "tourist"){
-          console.log("tourist a3taked");
         activities = activities.map((activity) => {
           return { ...activity, price: `${activity.lower}-${activity.upper}` };
         });
-      }
+
         let combinedArray = activities;
 
         combinedArray = combinedArray.map((element) => {
@@ -315,18 +303,6 @@ const Activities = () => {
           <Frigade.Tour flowId="flow_cj5av0DS" />
         </Frigade.Provider>
       );
-      //engy
-    } else if (role === "admin") {
-      return (
-        <Frigade.Provider
-          apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
-          userId={userid}
-          onError={(error) => console.error("Frigade Error:", error)}
-        >
-          <Frigade.Tour flowId="flow_cj5av0DS" />
-        </Frigade.Provider>
-      );
-      //engy
     } else {
       return (
         <Frigade.Provider

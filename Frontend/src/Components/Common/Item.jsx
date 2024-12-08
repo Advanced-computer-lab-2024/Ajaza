@@ -5,6 +5,9 @@ import HeaderInfo from "./HeaderInfo";
 import { jwtDecode } from "jwt-decode";
 import { getAvgRating } from "./Constants";
 import LocationOpeningHours from "./LocationOpeningHours";
+import { camelCaseToNormalText } from "./Constants";
+import Timeline from "./Timeline";
+import FeedbackMini from "./FeedbackMini";
 
 const Item = ({
   id,
@@ -44,10 +47,13 @@ const Item = ({
   handleFlagClick,
   currency,
   creatorFeedback,
+  productCurrentQuantity,
 }) => {
   const [user, setUser] = useState(null);
   const [avgRating, setAvgRating] = useState(null);
   const [colSpan, setColSpan] = useState(16);
+
+  const timelineFeedbackSpan = 9;
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -89,7 +95,6 @@ const Item = ({
         language={language}
         pickUp={pickUp}
         dropOff={dropOff}
-        timelineItems={timelineItems}
         accessibility={accessibility}
         avgRating={avgRating}
         colSpan={colSpan}
@@ -98,6 +103,7 @@ const Item = ({
         isFlagged={isFlagged}
         handleFlagClick={handleFlagClick}
         currency={currency}
+        productCurrentQuantity={productCurrentQuantity}
       />
 
       {type == "venue" ? (
@@ -107,6 +113,35 @@ const Item = ({
           openingHours={openingHours}
         />
       ) : null}
+      {timelineItems && (
+        <Row style={{ marginTop: "10px" }}>
+          <Col span={timelineFeedbackSpan}>
+            <Row justify="center">
+              {Object.entries(timelineItems).map(([key, value]) => {
+                return (
+                  <Col
+                    span={key == "availableDateTime" ? 16 : 8}
+                    key={key}
+                    className={`${key} scrollModern`}
+                    style={{
+                      maxHeight: "270px",
+                      overflowY: "auto",
+                      overflowX: "hidden",
+                    }}
+                  >
+                    <h3>{camelCaseToNormalText(key)}</h3>
+                    <Timeline key={key} timelineItems={value} fieldName={key} />
+                  </Col>
+                );
+              })}
+            </Row>
+          </Col>
+          <Col span={24 - timelineFeedbackSpan}>
+            <h3 style={{ marginBottom: "0px" }}>{name} Feedback</h3>
+            <FeedbackMini feedbacks={creatorFeedback} numOfItems={3} />
+          </Col>
+        </Row>
+      )}
       <Feedbacks
         writeReviewForm={writeReviewForm}
         onSubmitWriteReview={onSubmitWriteReview}
@@ -119,7 +154,7 @@ const Item = ({
             style={{
               textAlign: "left",
               marginBottom: "-15px",
-              marginTop: "30px",
+              marginTop: "20px",
             }}
           >
             {creatorName} Feedback

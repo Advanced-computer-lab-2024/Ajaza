@@ -55,7 +55,7 @@ const MapView = ({ googleMapsLink }) => {
   return (
     <div
       ref={mapRef}
-      style={{ height: "400px", width: "100%", borderRadius: "25px" }}
+      style={{ height: "100%", width: "100%", borderRadius: "25px" }}
     />
   );
 };

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Table, message, DatePicker } from 'antd';
 import { jwtDecode } from "jwt-decode";
 import axios from 'axios';
 import moment from 'moment';
 import { FilterOutlined } from '@ant-design/icons';
+import { Column } from '@antv/g2plot';
 
 const { RangePicker } = DatePicker;
 
@@ -18,6 +19,7 @@ const SellerReport = () => {
         dateRange: null,
         filterMode: 'date',
     });
+    const chartRef = useRef(null);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -157,6 +159,7 @@ const SellerReport = () => {
             title: 'Product Name',
             dataIndex: 'productName',
             key: 'productName',
+            align: 'center',
             filters: uniqueProductNames.map(name => ({ text: name, value: name })),
             filterSearch: true,
             filterMultiple: true,
@@ -166,6 +169,7 @@ const SellerReport = () => {
             title: 'Order Date',
             dataIndex: 'orderDate',
             key: 'orderDate',
+            align: 'center',
             filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
                 <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <RangePicker
@@ -197,11 +201,13 @@ const SellerReport = () => {
             title: 'Quantity',
             dataIndex: 'quantity',
             key: 'quantity',
+            align: 'center',
         },
         {
             title: 'Price',
             dataIndex: 'price',
             key: 'price',
+            align: 'center',
             render: (text) => `$${text.toFixed(2)}`,
             sorter: (a, b) => a.price - b.price, // Enable sorting by price
         },
@@ -209,44 +215,121 @@ const SellerReport = () => {
             title: 'Total Revenue',
             dataIndex: 'totalRevenue',
             key: 'totalRevenue',
+            align: 'center',
             render: (text) => `$${text.toFixed(2)}`,
         },
     ];
+
+    useEffect(() => {
+        if (!salesData?.length || !chartRef.current) return;
+    
+        // Aggregate data by activity
+        const chartData = salesData.reduce((acc, curr) => {
+            const existing = acc.find(item => item.product === curr.productName);
+            if (existing) {
+                existing.sales += curr.price;
+            } else {
+                acc.push({
+                    product: curr.productName,
+                    sales: curr.price,
+                });
+            }
+            return acc;
+        }, []);
+    
+        // Initialize chart
+        const columnChart = new Column(chartRef.current, {
+            data: chartData,
+            xField: 'product',
+            yField: 'sales',
+            label: {
+                position: 'middle',
+                style: {
+                    fill: '#FFFFFF',
+                },
+            },
+            xAxis: {
+                label: {
+                    autoRotate: false,
+                    style: {
+                        textAlign: 'center',
+                        width: 100, // Set fixed width for label container
+                    },
+                    formatter: (text) => {
+                        // Split text by spaces and join with newlines
+                        return text.split(' ').join('\n');
+                    },
+                },
+            },
+            meta: {
+                sales: {
+                    alias: 'Total Sales ($)',
+                    formatter: (v) => `$${v.toFixed(2)}`
+                }
+            }
+        });
+    
+        columnChart.render();
+    
+        return () => columnChart.destroy();
+    }, [salesData]);
+
+
 
     return (
         <div>
             <h2>Seller Sales Report</h2>
             <p>Total Sales: <strong>${totalSales.toFixed(2)}</strong></p>
-            <Table
-                columns={columns}
-                dataSource={salesData}
-                loading={loading}
-                rowKey={(record) => record.key || record.productName}
-                onChange={(pagination, filters, sorter) => {
-                    const productNames = filters.productName || [];
-                    const dateRange = filters.dateRange || null;
-
-                    const newFilters = {
-                        productNames: productNames.length > 0 ? productNames : filters.productNames || [],
-                        dateRange: dateRange ? dateRange : filters.dateRange || null,
-                        filterMode: filters.filterMode || 'date',
-                    };
-
-                    setFilters((prev) => ({
-                        ...prev,
-                        productNames: newFilters.productNames,
-                        dateRange: newFilters.dateRange,
-                    }));
-
-                    const filteredData = applyFilters(originalSalesData, newFilters);
-
-                    setSalesData(filteredData);
-                    const newTotalSales = filteredData.reduce((sum, item) => sum + item.totalRevenue, 0);
-                    setTotalSales(newTotalSales);
+            <div
+                style={{
+                    display: 'flex',
+                    gap: '20px',
+                    justifyContent: salesData.length > 0 ? 'space-between' : 'center',
+                    alignItems: salesData.length > 0 ? 'flex-start' : 'center',
+                    flexDirection: salesData.length > 0 ? 'row' : 'column',
+                    minHeight: '400px',
                 }}
-            />
+            >
+                <div style={{ flex: 1 }}>
+                    <Table
+                        columns={columns}
+                        dataSource={salesData}
+                        loading={loading}
+                        rowKey={(record) => record.key || record.productName}
+                        onChange={(pagination, filters, sorter) => {
+                            const productNames = filters.productName || [];
+                            const dateRange = filters.dateRange || null;
+    
+                            const newFilters = {
+                                productNames: productNames.length > 0 ? productNames : filters.productNames || [],
+                                dateRange: dateRange ? dateRange : filters.dateRange || null,
+                                filterMode: filters.filterMode || 'date',
+                            };
+    
+                            setFilters((prev) => ({
+                                ...prev,
+                                productNames: newFilters.productNames,
+                                dateRange: newFilters.dateRange,
+                            }));
+    
+                            const filteredData = applyFilters(originalSalesData, newFilters);
+    
+                            setSalesData(filteredData);
+                            const newTotalSales = filteredData.reduce((sum, item) => sum + item.totalRevenue, 0);
+                            setTotalSales(newTotalSales);
+                        }}
+                    />
+                </div>
+                {salesData.length > 0 && (
+                    <div style={{ flex: 1, minHeight: '400px' }}>
+                        <h3 style={{ fontSize: '16px' }}>Product Sales Chart</h3>
+                        <div ref={chartRef} />
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
+    
 
 export default SellerReport;

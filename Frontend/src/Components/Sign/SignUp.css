@@ -1,0 +1,11 @@
+.signup .ant-tabs-nav-wrap {
+  background-color: rgba(0, 0, 0, 0.25) !important;
+}
+
+.signup .ant-tabs-ink-bar.ant-tabs-ink-bar-animated {
+  background-color: var(--primary-color-active) !important;
+}
+
+.signup .ant-tabs-tab-active .ant-tabs-tab-btn div {
+  color: var(--primary-color-active) !important;
+}

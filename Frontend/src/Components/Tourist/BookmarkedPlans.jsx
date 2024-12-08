@@ -34,6 +34,7 @@ const convertTagsToValues = (tagsArray) => {
 const BookmarkedPlans = () => {
   const navigate = useNavigate();
   const [combinedElements, setCombinedElements] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const propMapping = {
     title: "name",
     extra: "price",
@@ -175,6 +176,7 @@ const BookmarkedPlans = () => {
         console.log(combinedArray);
 
         setCombinedElements(combinedArray);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -218,6 +220,7 @@ const BookmarkedPlans = () => {
           }
           navigate(`/tourist/${type}/${element?._id}`);
         }}
+        isLoading={isLoading}
       />
     </div>
   );

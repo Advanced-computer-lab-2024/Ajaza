@@ -24,6 +24,7 @@ import {
   Rate,
   Upload,
   Empty,
+  Flex,
 } from "antd";
 import axios from "axios";
 import Button from "./Common/CustomButton";
@@ -33,14 +34,12 @@ import MapComponent from "./Common/Map";
 import dayjs from "dayjs";
 import { Colors } from "./Common/Constants";
 import LoadingSpinner from "./Common/LoadingSpinner";
+import {getSetNewToken} from "./Common/Constants"
 
 const { Dragger } = Upload;
 // Create an axios instance with default headers
 const apiClient = axios.create({
   baseURL: apiUrl,
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`, // Set the token from localStorage
-  },
 });
 
 const Activities = () => {
@@ -64,6 +63,7 @@ const Activities = () => {
 
   const fetchActivities = async () => {
     try {
+      getSetNewToken(userid, "advertiser");
       const response = await apiClient.get(`activity/readActivities/${userid}`);
       setActivitiesData(response.data);
     } catch (error) {
@@ -330,6 +330,17 @@ const Activities = () => {
             return (
               <Card
                 key={activity._id}
+                cover={
+                  activity.pictures?.length != 0 ? (
+                    <Flex justify="center">
+                      <img
+                        alt={activity.pictures[0]}
+                        style={{ height: "150px", width: "80%" }}
+                        src={`/uploads/${activity.pictures[0]}.jpg`}
+                      />
+                    </Flex>
+                  ) : null
+                }
                 actions={[
                   <EditOutlined
                     key="edit"
@@ -343,8 +354,8 @@ const Activities = () => {
                 style={{
                   minWidth: 370,
                   maxWidth: 370,
-                  maxHeight: 700,
-                  minHeight: 700,
+                  maxHeight: 760,
+                  minHeight: 760,
                   marginBottom: "8px",
                   marginRight: "14px",
                   border:
@@ -558,12 +569,11 @@ const Activities = () => {
               { required: true, message: "Please input the upper limit!" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  let lower = getFieldValue("lower");
-                  console.log("low", lower);
+                  let lower = parseInt(getFieldValue("lower"), 10); // Ensure it's an integer
                   if (
                     lower !== undefined &&
                     value !== undefined &&
-                    lower > value
+                    lower > parseInt(value, 10) // Convert 'value' as well
                   ) {
                     return Promise.reject(
                       new Error(
@@ -586,12 +596,11 @@ const Activities = () => {
               { required: true, message: "Please input the lower limit!" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  let upper = getFieldValue("upper");
-                  console.log("up", upper);
+                  let upper = parseInt(getFieldValue("upper"), 10); // Ensure it's an integer
                   if (
                     upper !== undefined &&
                     value !== undefined &&
-                    value > upper
+                    parseInt(value, 10) > upper // Convert 'value' as well
                   ) {
                     return Promise.reject(
                       new Error(

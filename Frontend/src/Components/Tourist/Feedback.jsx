@@ -41,7 +41,7 @@ const Feedback = ({ type, touristId, id, name, onSubmit }) => {
 
       const response = await axios.post(`${apiUrl}${endpoint}`, feedbackData);
       console.log(response);
-      message.success("Feedback submitted successfully!");
+      message.success("Thank you for your Feedback!");
 
       setIsSubmitted(true);
       onSubmit();

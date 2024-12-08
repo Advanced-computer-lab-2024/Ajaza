@@ -1,14 +1,22 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Layout, Menu, theme } from "antd";
+import { Layout, Menu, theme, Tabs } from "antd";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import CustomButton from "../Common/CustomButton";
 import CreateTourist from "./CreateTourist";
 import CreateTourGuide from "./CreateTourGuide";
 import CreateSeller from "./CreateSeller";
 import CreateAdvertiser from "./CreateAdvertiser";
-import image from "../../Assets/login.jpg";
+import image from "../../Assets/Register.png";
+import "./SignUp.css";
 import { Box } from "@mui/material";
 import { Colors } from "../Common/Constants";
+
+const { TabPane } = Tabs;
+const tabTitleStyles = {
+  color: Colors.primary.lighter,
+  fontSize: "18px",
+  fontWeight: "600",
+};
 
 const { Header, Content } = Layout;
 
@@ -55,67 +63,42 @@ const SignUp = () => {
   };
 
   return (
-    <Layout>
-      <Header
+    <div
+      className="signup"
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "calc(100vh - 70px)",
+        backgroundImage: `url(${image})`, // Set the background image
+        backgroundSize: "cover", // Cover the entire screen
+      }}
+    >
+      <Tabs
+        defaultActiveKey="1"
+        centered
+        size="large"
         style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 1,
+          color: Colors.primary.default,
+          textAlign: "center",
           width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: Colors.primary.default,
+          height: "100%",
         }}
       >
-        <Menu
-          className="signup-item"
-          mode="horizontal"
-          selectedKeys={[role]}
-          items={menuItems.map((item) => ({
-            key: item.key,
-            label: item.label,
-            style: {
-              paddingLeft: "20px",
-              paddingRight: "20px",
-              backgroundColor: Colors.primary.default,
-              color: "white",
-            },
-          }))}
-          onClick={handleMenuClick}
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            width: "100%", // Take full width of the header
-            maxWidth: "800px",
-            backgroundColor: Colors.primary.default,
-          }}
-        />
-      </Header>
-      <Content
-        style={{
-          padding: "0 48px",
-          backgroundColor: Colors.primary.default,
-        }}
-      >
-        <div
-          style={{
-            padding: 24,
-            minHeight: 380,
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
-            backgroundColor: Colors.primary.default,
-          }}
-        >
-          <Routes>
-            <Route path="/" element={<CreateTourist />} />
-            <Route path="guide" element={<CreateTourGuide />} />
-            <Route path="seller" element={<CreateSeller />} />
-            <Route path="advertiser" element={<CreateAdvertiser />} />
-          </Routes>
-        </div>
-      </Content>
-    </Layout>
+        <TabPane tab={<div style={tabTitleStyles}>Tourist</div>} key="1">
+          <CreateTourist />
+        </TabPane>
+        <TabPane tab={<div style={tabTitleStyles}>Tour Guide</div>} key="2">
+          <CreateTourGuide />
+        </TabPane>
+        <TabPane tab={<div style={tabTitleStyles}>Seller</div>} key="3">
+          <CreateSeller />
+        </TabPane>
+        <TabPane tab={<div style={tabTitleStyles}>Advertiser</div>} key="4">
+          <CreateAdvertiser />
+        </TabPane>
+      </Tabs>
+    </div>
   );
 };
 

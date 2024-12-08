@@ -11,17 +11,18 @@ const stripePay = require("../middleware/stripe");
 const axios = require("axios");
 const qs = require("qs");
 require("dotenv").config();
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 router.post("/", touristController.createTourist);
 
-router.get('/requestingdeletion', touristController.getTouristsRequestingDeletion);
-
+router.get(
+  "/requestingdeletion",
+  touristController.getTouristsRequestingDeletion
+);
 
 router.get("/", touristController.getAllTourists);
 
 router.get("/countByMonth", touristController.countTouristsByMonth);
-
 
 router.get("/:id", touristController.getTouristById);
 
@@ -280,10 +281,22 @@ router.post("/add-delivery-address", touristController.addDeliveryAddress);
 router.get("/3rdparty/:id", apiController.getAll3rdPartyData);
 
 // req67
-router.post("/bellActivity/:touristId/:activityId", touristController.addActivityBells);
-router.post("/bellItinerary/:touristId/:itineraryId", touristController.addItineraryBells);
-router.delete("/bellActivity/:touristId/:activityId", touristController.removeActivityBells);
-router.delete("/bellItinerary/:touristId/:itineraryId", touristController.removeItineraryBells);
+router.post(
+  "/bellActivity/:touristId/:activityId",
+  touristController.addActivityBells
+);
+router.post(
+  "/bellItinerary/:touristId/:itineraryId",
+  touristController.addItineraryBells
+);
+router.delete(
+  "/bellActivity/:touristId/:activityId",
+  touristController.removeActivityBells
+);
+router.delete(
+  "/bellItinerary/:touristId/:itineraryId",
+  touristController.removeItineraryBells
+);
 
 // req66
 router.get("/getSavedEvents/:id", touristController.getSavedEvents);
@@ -291,21 +304,26 @@ router.get("/getSavedEvents/:id", touristController.getSavedEvents);
 // req65
 router.post("/saveEvent/:id", touristController.saveEvent);
 
-router.post("/savedEvent/remove/activity/:id", touristController.removeActivityBookmark);
-router.post("/savedEvent/remove/itinerary/:id", touristController.removeItineraryBookmark);
-
+router.post(
+  "/savedEvent/remove/activity/:id",
+  touristController.removeActivityBookmark
+);
+router.post(
+  "/savedEvent/remove/itinerary/:id",
+  touristController.removeItineraryBookmark
+);
 
 // req104 OR 101 either both is first function or 101 is first and 104 second
 router.get("/orders/:id", touristController.getOrders);
 router.get("/orders/order/:id", touristController.getOrder);
 router.get("/orders/order/date/:id", touristController.getOrderByDate);
 
-
 // req105
 router.post("/orders/cancel/:id", touristController.cancelOrder);
 
 // req98
 router.post("/address/:id", touristController.addDeliveryAddress);
+router.patch("/address/:id", touristController.removeDeliveryAddress);
 
 // req94
 router.post("/cart/:id", touristController.addProductToCart);
@@ -314,7 +332,6 @@ router.post("/cart/:id", touristController.addProductToCart);
 router.post("/cart/changeQuantity/:id", touristController.changeQuantityInCart);
 router.post("/cart/plus/:id", touristController.incQuantityInCart);
 router.post("/cart/minus/:id", touristController.decQuantityInCart);
-
 
 router.get("/cart/:id", touristController.getCart);
 
@@ -332,19 +349,19 @@ Visa (insufficient funds): 4000 0000 0000 9995
 MasterCard (success): 5555 5555 5555 4444
 */
 
-router.post('/stripe', async (req, res) => {
+router.post("/stripe", async (req, res) => {
   const { paymentMethodId, amount } = req.body;
 
-  const amountIn = amount*100;
+  const amountIn = amount * 100;
 
   try {
     // Create a payment intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountIn, // Amount in cents (change as necessary)
-      currency: 'usd',
+      currency: "usd",
       payment_method: paymentMethodId, // Attach the payment method
       confirm: true, // Automatically confirm the payment intent
-      return_url: 'http://localhost:3000/payment-confirmation', // Optional: if redirect is needed
+      return_url: "http://localhost:3000/payment-confirmation", // Optional: if redirect is needed
       automatic_payment_methods: {
         enabled: true,
         allow_redirects: "never", // Avoid redirect-based methods

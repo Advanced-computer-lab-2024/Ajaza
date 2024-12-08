@@ -43,6 +43,7 @@ import Hotels from "./Hotels";
 import SignIn from "../Sign/SignIn";
 import ThirdParty from "./ThirdParty";
 import Transportations from "./Transportations";
+import Flights from "./Flights";
 import TouristSelectedComplaint from "./TouristSelectedComplaint";
 import FutureBooking from "./FutureBooking";
 import BookingHistory from "./BookingHistory";
@@ -214,7 +215,7 @@ const Tourist = () => {
           key: "15",
           label: "Flights",
           icon: <FlightTakeoffIcon />,
-          onClick: () => navigate("BookFlight"),
+          onClick: () => navigate("flights"),
           style: commonStyle,
         },
         {
@@ -285,7 +286,7 @@ const Tourist = () => {
         <Route path="services" element={<ThirdParty />} />
         <Route path="transportations" element={<Transportations />} />
 
-        <Route path="bookFlight" element={<BookFlight />} />
+        <Route path="flights" element={<Flights />} />
 
         <Route path="futureBookings" element={<FutureBooking />} />
         <Route path="wishlist/:id" element={<Wishlist />} />

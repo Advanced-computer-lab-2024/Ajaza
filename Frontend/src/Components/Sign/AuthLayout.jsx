@@ -21,7 +21,7 @@ const AuthLayout = ({ children }) => {
           fontSize: "40px",
           fontWeight: "900",
           textAlign: "left",
-          boxShadow: "rgba(0, 0, 0, 0.16) 0px 1px 4px",
+          boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
           height: "70px",
           padding: "0 20px",
         }}

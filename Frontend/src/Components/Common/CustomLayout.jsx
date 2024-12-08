@@ -140,10 +140,8 @@ const CustomLayout = ({
           icon: <WarningFilled style={{ color: "#ff4d4f" }} />,
           onOk: async () => {
             try {
-              // console.log(`${apiUrl}${role}/requestDeletion/${userDetails._id}`);
-
               const response = await axios.patch(
-                `${apiUrl}${role}/requestDeletion/${userDetails._id}`
+                `${apiUrl}${decodedToken?.role}/requestDeletion/${userDetails._id}`
               );
 
               navigate("/");
@@ -233,7 +231,6 @@ const CustomLayout = ({
                       style={{
                         backgroundColor: "#1b696a",
                         color: "#fff",
-                        border: "1px solid #4caf50",
                       }}
                       value={
                         notification.activityId
@@ -356,7 +353,7 @@ const CustomLayout = ({
     console.log("Marking notifications as seen for user:", userid);
     try {
       const response = await axios.post(
-        `${apiUrl}tourist/seeNotifications/${userid}`,
+        `${apiUrl}${role}/seeNotifications/${userid}`,
         {} // Empty body as required by API
       );
       if (response.status === 200) {
@@ -456,7 +453,7 @@ const CustomLayout = ({
         </Header>
         <Content
           style={{
-            margin: "40px 40px",
+            margin: "40px 50px",
             padding: 24,
             minHeight: 280,
             background: colorBgContainer,

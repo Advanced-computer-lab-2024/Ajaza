@@ -13,13 +13,20 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { apiUrl, getSetNewToken, Colors } from "../Common/Constants";
+import {
+  apiUrl,
+  getSetNewToken,
+  Colors,
+  currencySymbols,
+} from "../Common/Constants";
 import { useCurrency } from "../Tourist/CurrencyContext";
 import { MinusOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 import CustomButton from "./CustomButton";
 import StripeContainer from "./StripeContainer";
+import PlusMinusPill from "./PlusMinusPill";
 import "./Cart.css";
+import LoadingSpinner from "./LoadingSpinner";
 export const Cart = () => {
   const navigate = useNavigate();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -27,6 +34,10 @@ export const Cart = () => {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [cartItems, setCartItems] = useState([]);
   const { currency } = useCurrency();
+  const [currencySymbol, setCurrencySymbol] = useState(
+    currencySymbols[currency]
+  );
+
   const [loading, setLoading] = useState(true);
   const [touristId, setTouristId] = useState(null);
   const [price, setPrice] = useState();
@@ -154,6 +165,7 @@ export const Cart = () => {
     };
 
     calculateTotalPrice();
+    console.log("shaker", cartItems);
   }, [cartItems]);
 
   const handleIncrement = async (productId) => {
@@ -234,7 +246,7 @@ export const Cart = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingSpinner />;
   }
 
   if (!loading && (!cartItems || cartItems.length === 0)) {
@@ -351,38 +363,81 @@ export const Cart = () => {
                   <img
                     src={`/uploads/${item.photo}.jpg`}
                     alt={item.productName}
+                    style={{ width: "200px", height: "90px", margin: "0" }}
                     className="cart-image"
                   />
                 )}
-                <div className="cart-text">
-                  <Text strong>{item.name}</Text> {/* Name */}
+                <div
+                  className="cart-text"
+                  style={{
+                    marginLeft: "10px",
+                    textAlign: "left",
+                  }}
+                >
+                  <div
+                    style={{
+                      marginBottom: "5px",
+                      fontSize: "20px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {item.name}
+                  </div>
                   <Text className="cart-price">
-                    Price:{" "}
-                    {(
-                      item.quantity *
-                      item.price *
-                      currencyRates[currency]
-                    ).toFixed(2)}{" "}
-                    {currency}
-                  </Text>{" "}
-                  {/* Price */}
+                    <strong>Price:</strong>{" "}
+                    <strong>
+                      {currencySymbol}
+                      {(
+                        item.quantity *
+                        item.price *
+                        currencyRates[currency]
+                      ).toFixed(2)}{" "}
+                    </strong>
+                  </Text>
+
+                  {/* Stock Information */}
+                  {item.stock > 0 ? (
+                    <div
+                      style={{
+                        marginTop: "8px",
+                        color: Colors.positive,
+                        alignSelf: "flex-start",
+                        fontSize: "14px",
+                      }}
+                    >
+                      In stock
+                    </div>
+                  ) : (
+                    <div
+                      style={{
+                        marginTop: "8px",
+                        color: "red",
+                        alignSelf: "flex-start",
+                        fontSize: "13px",
+                      }}
+                    >
+                      Out of stock
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="cart-actions">
-                <Button
-                  icon={<MinusOutlined />}
-                  onClick={() => handleDecrement(item.productId)}
+                <PlusMinusPill
+                  quantity={item.quantity}
+                  handlePlus={() => handleIncrement(item.productId)}
+                  handleMinus={() => handleDecrement(item.productId)}
+                  handleDelete={() => handleRemoveItem(item.productId)}
+                  style={{
+                    position: "relative",
+                    top: 0,
+                    right: 0,
+                  }}
                 />
-                <Text className="cart-quantity">{item.quantity}</Text>
                 <Button
-                  icon={<PlusOutlined />}
-                  onClick={() => handleIncrement(item.productId)}
-                />
-                <Button
-                  icon={<DeleteOutlined />}
                   danger
+                  icon={<DeleteOutlined />}
                   onClick={() => handleRemoveItem(item.productId)}
                 />
               </div>
@@ -397,7 +452,8 @@ export const Cart = () => {
       {/* Checkout Button */}
       <div className="checkout-button-container">
         <CustomButton
-          size="s"
+          size="m"
+          style={{ width: "130px", height: "50px" }}
           value="Checkout"
           onClick={showModal}
           className="checkout-button"
@@ -415,17 +471,30 @@ export const Cart = () => {
             display: paymentMethod === "card" ? "none" : "inline-block",
           },
         }}
+        style={
+          paymentMethod === "card" ? { paddingBottom: "-100px !important" } : {}
+        }
         cancelText="Cancel"
+        cancelButtonProps={
+          paymentMethod === "card"
+            ? {
+                style: {
+                  position: "absolute",
+                  right: "140px",
+                  bottom: "31.5px",
+                },
+              }
+            : {}
+        }
       >
         <div
           style={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            height: "50px",
           }}
         >
-          <div style={{ textAlign: "center", marginTop: "20px" }}>
+          <div style={{ textAlign: "center" }}>
             <h1>Checkout</h1>
             <Divider />
           </div>
@@ -436,7 +505,8 @@ export const Cart = () => {
               Order Summary
             </h6>
             <div
-              style={{ maxHeight: "200px", overflowY: "auto", padding: "10px" }}
+              className="scrollModern"
+              style={{ maxHeight: "200px", overflowY: "auto" }}
             >
               {cartItems.map((item, index) => (
                 <div
@@ -456,12 +526,17 @@ export const Cart = () => {
                       {item.quantity}x {item.name}
                     </strong>
                     <p style={{ margin: "5px 0", fontSize: "14px" }}>
-                      Price: ${item.price.toFixed(2)}
+                      Price: {currencySymbol}
+                      {(item.price * currencyRates[currency]).toFixed(2)}
                     </p>
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <p style={{ margin: 0, fontWeight: "bold" }}>
-                      Total: ${(item.quantity * item.price).toFixed(2)}
+                      Total: {currencySymbol}
+                      {(
+                        item.quantity *
+                        (item.price * currencyRates[currency])
+                      ).toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -476,7 +551,8 @@ export const Cart = () => {
                     marginRight: "10px",
                   }}
                 >
-                  ${price.toFixed(2)}
+                  {currencySymbol}
+                  {(price * currencyRates[currency]).toFixed(2)}
                 </span>
               )}
               <span
@@ -485,7 +561,8 @@ export const Cart = () => {
                   fontWeight: "bold",
                 }}
               >
-                ${(price * promo).toFixed(2)}
+                {currencySymbol}
+                {(price * currencyRates[currency] * promo).toFixed(2)}
               </span>
             </h4>
           </div>
@@ -516,9 +593,9 @@ export const Cart = () => {
                 <Button
                   onClick={handleRemovePromo}
                   style={{
-                    backgroundColor: "#cc0b38",
+                    backgroundColor: Colors.warning,
                     color: "white",
-                    borderColor: "#cc0b38",
+                    borderColor: Colors.warning,
                   }}
                 >
                   Cancel
@@ -556,7 +633,7 @@ export const Cart = () => {
           <a
             onClick={navigateToSection}
             style={{
-              color: "blue",
+              color: Colors.primary.default,
               textDecoration: "underline",
               cursor: "pointer",
             }}
@@ -583,9 +660,9 @@ export const Cart = () => {
         </div>
         {/* Wallet Balance */}
         {paymentMethod === "wallet" && decodedToken?.userDetails?.wallet && (
-          <p>
+          <p style={{ marginTop: "10px" }}>
             <strong>Current balance: </strong>
-            {decodedToken.userDetails.wallet.toFixed(2)} USD
+            {decodedToken.userDetails.wallet.toFixed(2)}
           </p>
         )}
 

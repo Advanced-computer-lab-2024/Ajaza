@@ -34,11 +34,11 @@ const ChangePasswordForm = () => {
       const decodedToken = jwtDecode(token);
       const currentTime = Date.now() / 1000;
 
-      if (decodedToken.exp < currentTime) {
-        message.error("Session expired. Please log in again.");
-        navigate("/login");
-        return;
-      }
+      // if (decodedToken.exp < currentTime) {
+      //   message.error("Session expired. Please log in again.");
+      //   navigate("/auth/signin");
+      //   return;
+      // }
 
       const userDetails = decodedToken.userDetails;
       setUserId(userDetails._id);
@@ -49,7 +49,6 @@ const ChangePasswordForm = () => {
 
   const handleSave = async (values) => {
     setLoading(true);
-
 
     if (values?.oldPassword == values?.newPassword) {
       message.error("New password must be different than the old password");
@@ -70,11 +69,6 @@ const ChangePasswordForm = () => {
           oldPassword: values.oldPassword,
           newPassword: values.newPassword,
           role: role,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
 
@@ -207,15 +201,15 @@ const ChangePasswordForm = () => {
             </Form.Item>
 
             <Form.Item>
-               <CustomButton
-                    size={"s"}
-                    style={{
-                      width: "120px",
-                      fontWeight: "bold",
-                    }}
-                    value={"Save Password"}
-                    htmlType="submit"
-                    />
+              <CustomButton
+                size={"s"}
+                style={{
+                  width: "120px",
+                  fontWeight: "bold",
+                }}
+                value={"Save Password"}
+                htmlType="submit"
+              />
             </Form.Item>
           </Form>,
         ]}

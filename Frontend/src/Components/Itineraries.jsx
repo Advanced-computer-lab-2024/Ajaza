@@ -20,6 +20,7 @@ import {
   InputNumber,
   Switch,
   Divider,
+  Flex,
   Tag,
   Typography,
   Upload,
@@ -32,15 +33,14 @@ import { apiUrl, Colors } from "./Common/Constants";
 import { Color } from "antd/es/color-picker";
 import LoadingSpinner from "./Common/LoadingSpinner";
 import dayjs from "dayjs";
+import "./Itineraries.css";
+import {getSetNewToken} from "./Common/Constants"
 
 const { Option } = Select;
 const { Dragger } = Upload;
 
 const apiClient = axios.create({
   baseURL: apiUrl,
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
 });
 
 const Itineraries = () => {
@@ -90,12 +90,13 @@ const Itineraries = () => {
 
   const fetchItineraries = async () => {
     try {
+      getSetNewToken(userid, "guide");
       const response = await apiClient.get(
         `/itinerary/readItinerariesOfGuide/${userid}`
       );
       setItinerariesData(response.data);
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Please try again.";
+      const errorMessage = error.response?.data?.message || "Error: Please try again.";
       message.error(`${errorMessage}`);
     } finally {
       setLoading(false);
@@ -368,11 +369,22 @@ const Itineraries = () => {
                     onClick={() => deleteItinerary(itinerary._id)}
                   />,
                 ]}
+                cover={
+                  itinerary.pictures?.length != 0 ? (
+                    <Flex justify="center">
+                      <img
+                        alt={itinerary.pictures[0]}
+                        style={{ height: "150px", width: "80%" }}
+                        src={`/uploads/${itinerary.pictures[0]}.jpg`}
+                      />
+                    </Flex>
+                  ) : null
+                }
                 style={{
                   minWidth: 370,
                   maxWidth: 370,
-                  maxHeight: 700,
-                  minHeight: 700,
+                  maxHeight: 760,
+                  minHeight: 760,
                   marginBottom: "8px",
                   marginRight: "12px",
                   border:
@@ -471,19 +483,26 @@ const Itineraries = () => {
                       </p>
                       <p
                         style={{
-                          overflow: "hidden", // Hides overflowing content
-                          textOverflow: "ellipsis", // Adds "..." at the end of the truncated text
-                          display: "-webkit-box", // Enables multi-line truncation
-                          WebkitBoxOrient: "vertical", // Required for line clamping
-                          WebkitLineClamp: 1, // Limits the text to 2 lines
+                          display: "flex",
+                          overflowX: "auto", // Allows horizontal scrolling
+                          whiteSpace: "nowrap", // Prevent wrapping of text to the next line
+                          width: "100%", // Ensures it takes up full width
+                          position: "relative", // For positioning the gradient fade (optional)
                         }}
                       >
                         <Text strong>Available Dates:</Text>{" "}
-                        <span>
+                        <div
+                          style={{
+                            marginLeft: "3px",
+                            display: "flex",
+                            flexWrap: "nowrap", // Prevent wrapping of items
+                            alignItems: "center", // Align items in the middle
+                          }}
+                        >
                           {itinerary.availableDateTime.length > 0
                             ? itinerary.availableDateTime
                                 .map(
-                                  (dateEntry) =>
+                                  (dateEntry, index) =>
                                     `${new Date(
                                       dateEntry.date
                                     ).toLocaleDateString()} (Spots: ${
@@ -492,19 +511,26 @@ const Itineraries = () => {
                                 )
                                 .join(", ")
                             : "No available dates"}
-                        </span>
+                        </div>
                       </p>
                       <p
                         style={{
-                          overflow: "hidden", // Hides overflowing content
-                          textOverflow: "ellipsis", // Adds "..." at the end of the truncated text
-                          display: "-webkit-box", // Enables multi-line truncation
-                          WebkitBoxOrient: "vertical", // Required for line clamping
-                          WebkitLineClamp: 1, // Limits the text to 2 lines
+                          display: "flex",
+                          overflowX: "auto", // Allows horizontal scrolling
+                          whiteSpace: "nowrap", // Prevent wrapping of text to the next line
+                          width: "100%", // Ensures it takes up full width
+                          position: "relative", // Limits the text to 2 lines
                         }}
                       >
                         <Text strong>Timeline:</Text>{" "}
-                        <span>
+                        <div
+                          style={{
+                            marginLeft: "3px",
+                            display: "flex",
+                            flexWrap: "nowrap", // Prevent wrapping of items
+                            alignItems: "center", // Align items in the middle
+                          }}
+                        >
                           {itinerary.timeline.length > 0
                             ? itinerary.timeline
                                 .map(
@@ -513,7 +539,7 @@ const Itineraries = () => {
                                 )
                                 .join(", ")
                             : "No timeline available"}
-                        </span>
+                        </div>
                       </p>
 
                       <p>

@@ -7,12 +7,20 @@ import { jwtDecode } from "jwt-decode";
 import SelectCurrency from "./SelectCurrency";
 import { useNavigate } from "react-router-dom";
 import { useCurrency } from "./CurrencyContext";
+import * as Frigade from "@frigade/react";
+import CustomButton from "../Common/CustomButton";
+import { Button } from "antd";
+
 
 const token = localStorage.getItem("token");
 let decodedToken = null;
+let role = null;
 if (token) {
   decodedToken = jwtDecode(token);
+  role = decodedToken?.role; // Extract the role from the token
+
 }
+console.log("itin role nour", role);
 const userid = decodedToken ? decodedToken.userId : null;
 
 const convertCategoriesToValues = (categoriesArray) => {
@@ -104,6 +112,11 @@ const Itineraries = () => {
     Tags: "tags",
   };
   const { currency, setCurrency } = useCurrency();
+  const { Tour, useFrigade } = Frigade; // Access Tour and useFrigade from Frigade default export
+
+  const { flowStatus, resetFlow } = useFrigade(); // Importing flow management functions
+  const [showFrigade, setShowFrigade] = useState(false);
+
 
   const handleCurrencyChange = (newCurrency) => {
     setCurrency(newCurrency);
@@ -285,8 +298,59 @@ const Itineraries = () => {
     );
   }, [currency]);
 
+  const renderFrigadeProvider = () => {
+    if (role === null) {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_skhaNY2m" />
+        </Frigade.Provider>
+      );
+    } else if (role === "tourist") {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_skhaNY2m" />
+        </Frigade.Provider>
+      );
+    }
+    else {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_skhaNY2m" />
+        </Frigade.Provider>
+      );
+    }
+  }
+
+  const handleShowFrigade = () => {
+    if (flowStatus === "ENDED") {
+      resetFlow(); // Reset the flow to start from the first step
+    }
+    setShowFrigade(false); // Temporarily hide Frigade to force re-render
+    setTimeout(() => {
+      setShowFrigade(true); // Show Frigade after resetting
+    }, 0);
+  };
+  
+
   return (
     <div>
+           
+      <CustomButton size={"s"} value={"Hint"} onClick={handleShowFrigade} style={{ marginBottom: "16px" }}/>
+      
+      {showFrigade && renderFrigadeProvider()}
+     <div>
       <div
         style={{
           display: "flex",
@@ -314,6 +378,7 @@ const Itineraries = () => {
         cardOnclick={cardOnclick}
         isLoading={isLoading}
       />
+    </div>
     </div>
   );
 };

@@ -25,3 +25,7 @@
 .slick-dots li.slick-active button {
   background-color: var(--grey-700) !important; /* Change active dot color */
 }
+
+.feedbackMini .ant-card-body {
+  padding: 15px !important;
+}
