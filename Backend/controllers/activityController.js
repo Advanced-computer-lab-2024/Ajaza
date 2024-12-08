@@ -5,7 +5,6 @@ const Tag = require("../models/Tag");
 const Category = require("../models/Category");
 const nodemailer = require("nodemailer");
 
-
 // Create a new activity
 exports.createActivity = async (req, res) => {
   try {
@@ -30,7 +29,9 @@ exports.getAllActivities = async (req, res) => {
 //get admin activities.
 exports.getAdminActivities = async (req, res) => {
   try {
-    const activities = await Activity.find({   $nor: [{ hidden: true, isFlagged: false }] }).populate("advertiserId");
+    const activities = await Activity.find({
+      $nor: [{ hidden: false, isFlagged: true }],
+    }).populate("advertiserId");
     res.status(200).json(activities);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -41,7 +42,11 @@ exports.getAdminActivities = async (req, res) => {
 exports.getAllActivitiesNH = async (req, res) => {
   try {
     const currentDate = new Date();
-    const activities = await Activity.find({hidden: { $ne: true }, isOpen: { $ne: false }, date: { $gt: currentDate }}).populate("advertiserId");
+    const activities = await Activity.find({
+      hidden: { $ne: true },
+      isOpen: { $ne: false },
+      date: { $gt: currentDate },
+    }).populate("advertiserId");
     res.status(200).json(activities);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -50,26 +55,27 @@ exports.getAllActivitiesNH = async (req, res) => {
 
 exports.getAllHasBookings = async (req, res) => {
   try {
-
     const touristId = req.params.id;
 
     const tourist = await Tourist.findById(touristId);
 
-    if(!tourist) {
-      return res.status(404).json({message: "Tourist not found"});
+    if (!tourist) {
+      return res.status(404).json({ message: "Tourist not found" });
     }
     const currentDate = new Date();
-    const activityIds = tourist.activityBookings.map(booking => booking.activityId);
+    const activityIds = tourist.activityBookings.map(
+      (booking) => booking.activityId
+    );
     const activities = await Activity.find({
       _id: { $in: activityIds },
       date: { $gt: currentDate },
-      hidden: { $ne: true }
-    }).populate("advertiserId");    
+      hidden: { $ne: true },
+    }).populate("advertiserId");
     res.status(200).json(activities);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-}
+};
 
 // Get activity by ID
 exports.getActivityById = async (req, res) => {
@@ -296,7 +302,7 @@ exports.createSpecifiedActivity = async (req, res) => {
       discounts,
       isOpen,
       spots,
-      pictures
+      pictures,
     } = req.body;
     const advertiser = await Advertiser.findById(advertiserId);
     if (!advertiser) {
@@ -333,7 +339,7 @@ exports.createSpecifiedActivity = async (req, res) => {
       spots,
       isFlagged: false,
       hidden: false,
-      pictures
+      pictures,
     });
 
     const savedActivity = await newActivity.save();
@@ -365,7 +371,9 @@ exports.readActivitiesOfAdvertiser = async (req, res) => {
     });
 
     if (!activities || activities.length === 0) {
-      return res.status(404).json({ message: 'No activities found for this advertiser.' });
+      return res
+        .status(404)
+        .json({ message: "No activities found for this advertiser." });
     }
     res.status(200).json(activities);
   } catch (error) {
@@ -480,7 +488,8 @@ exports.updateActivityFilteredFields = async (req, res) => {
 
     const updatedActivity = await activity.save();
 
-    if (isOpenBefore === false && isOpen === true)  notifyInterestedTourists(activityId, activity.name); //added by AA
+    if (isOpenBefore === false && isOpen === true)
+      notifyInterestedTourists(activityId, activity.name); //added by AA
 
     res.status(200).json(updatedActivity);
   } catch (error) {
@@ -490,17 +499,19 @@ exports.updateActivityFilteredFields = async (req, res) => {
 
 async function notifyInterestedTourists(activityId, name) {
   try {
-
     const tourists = await Tourist.find({
       activityBells: activityId,
-    })
+    });
 
-    for(let i = 0; i< tourists.length;i++) {
-      tourists[i].notifications.push({text: (name + " is now open for booking"), seen: false, activityId: activityId});
+    for (let i = 0; i < tourists.length; i++) {
+      tourists[i].notifications.push({
+        text: name + " is now open for booking",
+        seen: false,
+        activityId: activityId,
+      });
       await tourists[i].save();
     }
-
-  } catch(error) {
+  } catch (error) {
     console.log(error);
   }
 }
@@ -639,7 +650,6 @@ exports.unhideActivity = async (req, res) => {
       .json({ message: `Error unhiding activity: ${error.message}` });
   }
 };
-
 
 exports.uploadActivityPictures = async (req, res) => {
   try {
