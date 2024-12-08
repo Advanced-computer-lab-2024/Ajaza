@@ -5,6 +5,8 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { apiUrl, Colors } from "../Common/Constants";
 import { Column } from "@antv/g2plot";
+import LoadingSpinner from "../Common/LoadingSpinner";
+
 const { Title } = Typography;
 
 const NumberOfUsers = () => {
@@ -299,14 +301,19 @@ const NumberOfUsers = () => {
 
   return (
     <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
-      <Row gutter={[16, 16]} justify="space-between" align="top">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "35% 65%",
+          gridGap: "35px",
+        }}
+      >
         {/* Statistics Card */}
-        <Col xs={24} sm={24} md={10} lg={8}>
+        <Col>
           <Card
             style={{
               width: "100%",
               textAlign: "center",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
               padding: "15px",
             }}
           >
@@ -351,33 +358,24 @@ const NumberOfUsers = () => {
         </Col>
 
         {/* Chart */}
-        <Col xs={24} sm={24} md={14} lg={16}>
+        <Col>
           <div
             style={{
               marginTop: "0px",
-              height: "400px",
+              height: "250px",
               padding: "10px",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
               background: "#fff",
             }}
           >
             <h3 style={{ marginBottom: "15px" }}>Monthly User Distribution</h3>
             {loading ? (
-              <Spin
-                size="large"
-                tip="Loading..."
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  height: "100%",
-                }}
-              />
+              <LoadingSpinner />
             ) : (
               <div ref={chartRef} style={{ height: "100%" }} />
             )}
           </div>
         </Col>
-      </Row>
+      </div>
     </div>
   );
 };
