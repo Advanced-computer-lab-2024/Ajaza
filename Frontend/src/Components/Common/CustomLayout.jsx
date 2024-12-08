@@ -353,7 +353,7 @@ const CustomLayout = ({
     console.log("Marking notifications as seen for user:", userid);
     try {
       const response = await axios.post(
-        `${apiUrl}tourist/seeNotifications/${userid}`,
+        `${apiUrl}${role}/seeNotifications/${userid}`,
         {} // Empty body as required by API
       );
       if (response.status === 200) {

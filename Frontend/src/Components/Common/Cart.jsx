@@ -396,7 +396,7 @@ export const Cart = () => {
                   </Text>
 
                   {/* Stock Information */}
-                  {item.stock > 0 && (
+                  {item.stock > 0 ? (
                     <div
                       style={{
                         marginTop: "8px",
@@ -406,6 +406,17 @@ export const Cart = () => {
                       }}
                     >
                       In stock
+                    </div>
+                  ):(
+                    <div
+                      style={{
+                        marginTop: "8px",
+                        color: "red",
+                        alignSelf: "flex-start",
+                        fontSize: "13px",
+                      }}
+                    >
+                      Out of stock
                     </div>
                   )}
                 </div>
