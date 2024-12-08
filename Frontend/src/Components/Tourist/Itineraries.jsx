@@ -97,7 +97,6 @@ const Itineraries = () => {
     navigate(element["_id"]);
   };
   const [combinedElements, setCombinedElements] = useState([]);
-  const [role,setrole] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // propName:fieldName
@@ -245,26 +244,14 @@ const Itineraries = () => {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-       decodedToken = jwtDecode(token);
-       setrole(decodedToken?.role);
-       console.log("weeeeeeITIN" , role);
-     }
-  },[]);
-
-  useEffect(() => {
     const fetchData = async () => {
       try {
-        const [itineraryResponse, tagResponse, itineraryResponseAdmin ] = await Promise.all([
+        const [itineraryResponse, tagResponse] = await Promise.all([
           axios.get(`${apiUrl}itinerary/notHidden`),
           axios.get(`${apiUrl}tag`),
-          axios.get(`${apiUrl}itinerary/admin`),
-
         ]);
         let itineraries = itineraryResponse.data;
         let tags = tagResponse.data;
-        let itinerariesAdmin = itineraryResponseAdmin.data;
 
         filterFields.tags = {
           displayName: "Tags",
@@ -282,18 +269,9 @@ const Itineraries = () => {
           },
         };
         console.log(itineraries);
-        let combinedArray;
-        console.log("ENGY", role);
-        if(role === "admin"){
-          console.log("admin a3taked");
-           combinedArray = itinerariesAdmin;
 
-          }
-        else if (role=== "tourist"){
-          console.log("tourist a3taked");
-           combinedArray = itineraries;
+        let combinedArray = itineraries;
 
-        }
         combinedArray = combinedArray.map((element) => {
           return {
             ...element,
@@ -369,9 +347,9 @@ const Itineraries = () => {
   return (
     <div>
            
-      <CustomButton size={"s"} value={"Hint"} onClick={handleShowFrigade} style={{ marginBottom: "16px" }}/>
+      {/* <CustomButton size={"s"} value={"Hint"} onClick={handleShowFrigade} style={{ marginBottom: "16px" }}/>
       
-      {showFrigade && renderFrigadeProvider()}
+      {showFrigade && renderFrigadeProvider()} */}
      <div>
       <div
         style={{
