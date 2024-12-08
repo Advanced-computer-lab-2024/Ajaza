@@ -270,7 +270,11 @@ const Wishlist = () => {
     const [quantity, setQuantity] = useState(0);
     const increaseQuantity = async () => {
       try {
-        if (quantity != element?.stock) {
+        console.log(element);
+
+        if (quantity >= stock) {
+          message.warning("Cannot add more items, reached the stock limit");
+        } else {
           const response = await axios.post(
             `${apiUrl}tourist/cart/plus/${userid}`,
             { productId: id }
@@ -278,8 +282,6 @@ const Wishlist = () => {
           message.success(response.data.message);
           setQuantity((prevQuantity) => prevQuantity + 1);
           await getNewToken();
-        } else {
-          message.warning("Cannot add more items, reached the stock limit");
         }
       } catch (error) {
         console.error("Error incrementing quantity:", error);
@@ -361,7 +363,6 @@ const Wishlist = () => {
     useEffect(() => {
       console.log(quantity);
     }, [quantity]);
-
     return (
       <div className="wishlistCard" style={{ position: "relative" }}>
         {/* Render the BasicCard */}

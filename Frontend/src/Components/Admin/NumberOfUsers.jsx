@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Card, Statistic, Row, Col, Typography, DatePicker } from "antd";
+import React, { useEffect, useState, useRef } from "react";
+import { Card, Statistic, Row, Col, Typography, DatePicker, Spin } from "antd";
 import moment from "moment";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { apiUrl, Colors } from "../Common/Constants";
+import { Column } from "@antv/g2plot";
+import LoadingSpinner from "../Common/LoadingSpinner";
 
 const { Title } = Typography;
 
@@ -13,6 +15,11 @@ const NumberOfUsers = () => {
   );
   const [users, setNumberOfUsers] = useState("...");
   const [newuser, setNumberOfNewUsers] = useState("...");
+  const chartRef = useRef(null);
+  const [monthlyData, setMonthlyData] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(moment().format("YYYY"));
+  const [loading, setLoading] = useState(true);
+
   // Dummy data for new users per month
   const dummyData = {
     "2024-01": 100,
@@ -29,9 +36,10 @@ const NumberOfUsers = () => {
   };
   const fetchMonth = async () => {
     if (selectedMonth) {
-      console.log(selectedMonth);
       let date = selectedMonth + "-25";
       let countOfUsers = 0;
+      const [year, month] = selectedMonth.split("-");
+      setSelectedYear(year);
       try {
         const response1 = await axios.get(
           "http://localhost:5000/admin/countByMonth",
@@ -179,53 +187,195 @@ const NumberOfUsers = () => {
     setSelectedMonth(formattedDate);
   };
 
+  const fetchMonthGraph = async (selectedMonth) => {
+    let date = selectedMonth + "-25";
+    let countOfUsers = 0;
+    const [year, month] = selectedMonth.split("-");
+    setSelectedYear(year);
+    console.log("tatos1: ", year);
+    console.log("tatos: ", selectedYear);
+    try {
+      const response1 = await axios.get(
+        "http://localhost:5000/admin/countByMonth",
+        {
+          params: { date }, // Send the date as a query parameter
+        }
+      );
+
+      const response2 = await axios.get(
+        "http://localhost:5000/seller/countByMonth",
+        {
+          params: { date }, // Send the date as a query parameter
+        }
+      );
+      const response3 = await axios.get(
+        "http://localhost:5000/tourist/countByMonth",
+        {
+          params: { date }, // Send the date as a query parameter
+        }
+      );
+      const response4 = await axios.get(
+        "http://localhost:5000/governor/countByMonth",
+        {
+          params: { date }, // Send the date as a query parameter
+        }
+      );
+
+      const response5 = await axios.get(
+        "http://localhost:5000/advertiser/countByMonth",
+        {
+          params: { date }, // Send the date as a query parameter
+        }
+      );
+
+      const response6 = await axios.get(
+        "http://localhost:5000/guide/countByMonth",
+        {
+          params: { date }, // Send the date as a query parameter
+        }
+      );
+
+      countOfUsers =
+        response1.data.count +
+        response2.data.count +
+        response3.data.count +
+        response4.data.count +
+        response5.data.count +
+        response6.data.count;
+      return countOfUsers;
+    } catch (exception) {}
+  };
+
+  useEffect(() => {
+    // create graph data
+    const fetchData = async () => {
+      setLoading(true); // Start loading
+      const newData = [];
+      for (let i = 1; i <= 12; i++) {
+        const month = i < 10 ? `0${i}` : `${i}`;
+        const count = await fetchMonthGraph(`${selectedYear}-${month}`);
+        newData.push({
+          month: moment(`${selectedYear}-${month}`).format("MMMM"),
+          users: count || 0,
+        });
+      }
+      setMonthlyData(newData);
+      setLoading(false); // Stop loading once data is fetched
+    };
+
+    fetchData();
+  }, [selectedYear]);
+
+  useEffect(() => {
+    if (!monthlyData?.length || !chartRef.current) return;
+
+    const columnChart = new Column(chartRef.current, {
+      data: monthlyData,
+      xField: "month",
+      yField: "users",
+      label: {
+        position: "middle",
+        style: {
+          fill: "#FFFFFF",
+        },
+      },
+      xAxis: {
+        label: {
+          autoRotate: false,
+          style: {
+            textAlign: "center",
+          },
+        },
+      },
+      meta: {
+        users: {
+          alias: "Number of Users",
+        },
+      },
+    });
+
+    columnChart.render();
+
+    return () => columnChart.destroy();
+  }, [monthlyData]);
+
   return (
-    <div style={{ width: "100%", maxWidth: "500px" }}>
-      <Card
+    <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
+      <div
         style={{
-          width: "100%",
-          textAlign: "center",
-          padding: "15px",
+          display: "grid",
+          gridTemplateColumns: "35% 65%",
+          gridGap: "35px",
         }}
       >
-        <Title level={2} style={{ fontSize: "24px", marginBottom: "20px" }}>
-          User Statistics
-        </Title>
+        {/* Statistics Card */}
+        <Col>
+          <Card
+            style={{
+              width: "100%",
+              textAlign: "center",
+              padding: "15px",
+            }}
+          >
+            <Title level={2} style={{ fontSize: "24px", marginBottom: "20px" }}>
+              User Statistics
+            </Title>
 
-        <DatePicker.MonthPicker
-          onChange={onMonthChange}
-          style={{
-            marginBottom: "20px",
-            width: "100%",
-            maxWidth: "400px",
-          }}
-          placeholder="Select month"
-        />
+            <DatePicker.MonthPicker
+              onChange={onMonthChange}
+              style={{
+                marginBottom: "20px",
+                width: "100%",
+                maxWidth: "400px",
+              }}
+              placeholder="Select month"
+            />
 
-        <Row gutter={[16, 16]} justify="center">
-          <Col span={12}>
-            <Statistic
-              title={<span style={{ fontSize: "16px" }}>Total Users</span>}
-              value={users}
-              valueStyle={{ fontSize: "24px" }}
-              suffix="users"
-            />
-          </Col>
-          <Col span={12}>
-            <Statistic
-              title={
-                <span style={{ fontSize: "16px" }}>
-                  New Users in{" "}
-                  {moment(selectedMonth, "YYYY-MM").format("MMM YYYY")}
-                </span>
-              }
-              value={newuser}
-              valueStyle={{ color: Colors.positive, fontSize: "24px" }}
-              suffix="users"
-            />
-          </Col>
-        </Row>
-      </Card>
+            <Row gutter={[16, 16]} justify="center">
+              <Col span={12}>
+                <Statistic
+                  title={<span style={{ fontSize: "16px" }}>Total Users</span>}
+                  value={users}
+                  valueStyle={{ color: "#3f8600", fontSize: "24px" }}
+                  suffix="users"
+                />
+              </Col>
+              <Col span={12}>
+                <Statistic
+                  title={
+                    <span style={{ fontSize: "16px" }}>
+                      New Users in{" "}
+                      {moment(selectedMonth, "YYYY-MM").format("MMM YYYY")}
+                    </span>
+                  }
+                  value={newuser}
+                  valueStyle={{ color: "#cf1322", fontSize: "24px" }}
+                  suffix="users"
+                />
+              </Col>
+            </Row>
+          </Card>
+        </Col>
+
+        {/* Chart */}
+        <Col>
+          <div
+            style={{
+              marginTop: "0px",
+              height: "250px",
+              padding: "10px",
+              background: "#fff",
+            }}
+          >
+            <h3 style={{ marginBottom: "15px" }}>Monthly User Distribution</h3>
+            {loading ? (
+              <LoadingSpinner />
+            ) : (
+              <div ref={chartRef} style={{ height: "100%" }} />
+            )}
+          </div>
+        </Col>
+      </div>
     </div>
   );
 };

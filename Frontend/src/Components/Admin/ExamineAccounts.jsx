@@ -230,20 +230,18 @@ const ExamineAccounts = () => {
         flexDirection: "column",
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          width: "100%",
-          maxWidth: "800px", // Control overall width
-          transform: "scale(0.9)", // Scale down by 10%
-          transformOrigin: "top center", // Scale from top center
-          marginBottom: "0px", // Adjust margin to account for scaling
-        }}
-      >
-        <NumberOfUsers />
-      </div>
-      <Title level={2} style={{ textAlign: "center", marginBottom: "20px" }}>
+    <div style={{ 
+      display: "flex", 
+      justifyContent: "center", 
+      width: "100%", 
+      maxWidth: "1200px",  // Control overall width
+      transform: "scale(0.95)",  // Scale down by 10%
+      transformOrigin: "top center",  // Scale from top center
+      marginBottom: "0px"  // Adjust margin to account for scaling
+    }}>
+      <NumberOfUsers />
+    </div>
+      <Title level={2} style={{ textAlign: "center", marginBottom: "20px", marginTop: "30px" }}>
         Pending Accounts
       </Title>
       <div

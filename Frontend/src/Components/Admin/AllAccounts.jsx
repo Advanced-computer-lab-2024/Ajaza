@@ -343,13 +343,9 @@ const AllAccounts = () => {
           <Row gutter={16}>
             {accounts.length > 0 ? (
               accounts.map((account) => (
-                <Col
-                  span={8}
-                  key={account._id}
-                  style={{ marginBottom: "16px" }}
-                >
-                  <Card title={account.username} bordered={false}>
-                    <p>Account Type: {account.type}</p>
+                <Col key={account._id} style={{ marginBottom: "16px" }}>
+                  <Card title={account.username}>
+                    <p><strong>Account Type:</strong> {account.type}</p>
                     <Button
                       type="default"
                       icon={<DeleteOutlined />} // Use the delete icon here

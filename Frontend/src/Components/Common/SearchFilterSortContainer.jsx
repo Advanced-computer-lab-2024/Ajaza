@@ -128,14 +128,23 @@ const sortElements = (elements, sortField, sortAsc) => {
   return [...elements].sort((a, b) => {
     let aValue = a[sortField];
     let bValue = b[sortField];
+
     if (sortField == "price") {
       if (a[sortField].length != null) {
         aValue = a.lower;
+        if (a.discounts) {
+          aValue = a.lower - (a.lower * a.discounts) / 100;
+        }
       }
       if (b[sortField].length != null) {
         bValue = b.lower;
+        if (b.discounts) {
+          bValue = b.lower - (b.lower * b.discounts) / 100;
+        }
       }
     }
+    console.log("a.value", aValue);
+    console.log("b.value", bValue);
 
     if (!sortField) {
     }

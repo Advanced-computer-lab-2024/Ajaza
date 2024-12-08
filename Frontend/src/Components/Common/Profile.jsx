@@ -455,6 +455,7 @@ const Profile = () => {
         setPreferences({ preferredTags, preferredCategories });
         setWallet(wallet);
         setPoints(points);
+        await getSetNewToken(touristId, "tourist");
       } catch (error) {
         console.error("Error fetching profile:", error);
       }
@@ -492,6 +493,7 @@ const Profile = () => {
       const { wallet, points } = response.data;
       setWallet(wallet);
       setPoints(points);
+      await getSetNewToken(decodedToken?.userDetails?._id, "tourist");
       message.success(response.data.message);
     } catch (error) {
       message.error(error.response?.data?.message || "Error redeeming points.");
@@ -1012,7 +1014,7 @@ const Profile = () => {
                             setDropdownOpen(!dropdownOpen);
                           }}
                         >
-                          View and Edit Preferences
+                          Preferences
                         </Button>
                       </Dropdown>
                       {userDetails && userDetails.badge && (

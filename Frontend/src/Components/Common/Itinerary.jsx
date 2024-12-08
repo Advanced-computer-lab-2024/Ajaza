@@ -251,16 +251,15 @@ const Itinerary = () => {
         <Button
           id="nour"
           style={{
-            position: "absolute", // Ensures the button can be placed anywhere on the screen
-            right: "0", // Aligns it to the maximum right
-            top: "0", // Optional: Aligns it to the top of its container
-            margin: "16px", // Adds some spacing from the edges (adjust as needed)
-            padding: "1px", // Makes the button tiny
-            fontSize: "0.1rem", // Reduces the text size to be almost invisible
-            border: "none", // Removes border (optional)
-            background: "transparent", // Makes the background transparent (optional)
-            color: "transparent", // Hides the text color (optional)
-            cursor: "default", // Makes it less clickable-looking
+            right: "0", 
+            top: "16px", 
+            margin: "16px", 
+            padding: "1px", 
+            fontSize: "0.1rem", 
+            border: "none", 
+            background: "transparent", 
+            color: "transparent", 
+            cursor: "default", 
           }}
         />
       ) : null}

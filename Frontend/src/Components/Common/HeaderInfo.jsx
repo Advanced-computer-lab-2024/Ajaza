@@ -276,9 +276,6 @@ const HeaderInfo = ({
     cvv: "",
   });
   const navigate = useNavigate();
-
-  console.log(photos);
-
   // // //stripe
   // const stripe = useStripe();
   // const elements = useElements();
@@ -817,7 +814,13 @@ const HeaderInfo = ({
           capital = "Itinerary";
         }
 
-        message.success(response.data.message);
+        let successMessage = response.data.message;
+        successMessage = successMessage.replace("USD", currencySymbol);
+        console.log(successMessage);
+
+        successMessage = successMessage.split(". ")[0];
+
+        message.success(successMessage);
         setIsBooked(false);
         await getNewToken();
       } else {

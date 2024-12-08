@@ -229,9 +229,9 @@ const Events = () => {
         let activities = activityResponse.data;
         let categories = categoryResponse.data;
         let tags = tagResponse.data;
-
+        
         console.log(activities);
-
+        
         filterFields.category = {
           displayName: "Categories",
           values: convertCategoriesToValues(categories),
