@@ -132,4 +132,4 @@ dist
 
 .env
 
-# Frontend/src/Components/Common/StripeContainer.jsx
+Frontend/src/Components/Common/StripeContainer.jsx
