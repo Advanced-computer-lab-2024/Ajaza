@@ -21,11 +21,21 @@ const AdminReport = () => {
     itineraryBookingsCommission: 0,
   });
   const [filters, setFilters] = useState({
-    productNames: [],
-    activityNames: [],
-    itineraryNames: [],
-    dateRange: null,
-    filterMode: 'date',
+    product: {
+      productNames: [],
+      dateRange: null,
+      filterMode: 'date',
+    },
+    activity: {
+      activityNames: [], 
+      dateRange: null,
+      filterMode: 'date',
+    },
+    itinerary: {
+      itineraryNames: [],
+      dateRange: null,
+      filterMode: 'date',
+    }
   });
   const chartRef1 = useRef(null);
   const chartRef2 = useRef(null);
@@ -207,18 +217,25 @@ const AdminReport = () => {
       filterMode: filterMode,
     };
 
-    setFilters(newFilters);
+    setFilters(prevFilters => ({
+      ...prevFilters,
+      [type]: {
+        ...prevFilters[type],
+        dateRange: adjustedDates,
+        filterMode: filterMode,
+      }
+    }));
 
     const filteredData = applyFilters(originalData[type], {
-      ...newFilters,
+      ...filters[type],
       dateRange: adjustedDates 
         ? adjustedDates.map(date => date.format("MM-DD-YYYY"))
         : null
     }, type);
-
-    setData((prevData) => ({
+  
+    setData(prevData => ({
       ...prevData,
-      [type]: filteredData,
+      [type]: filteredData
     }));
 
     if (type === 'product') {
@@ -254,17 +271,19 @@ const AdminReport = () => {
   };
 
   const resetFilters = (type) => {
-    setFilters({
-      productNames: [],
-      activityNames: [],
-      itineraryNames: [],
-      dateRange: null,
-      filterMode: 'date',
-    });
-    setData((prevData) => ({
-      ...prevData,
-      [type]: originalData[type],
-    }));
+    setFilters(prevFilters => ({
+      ...prevFilters,
+      [type]: {
+        productNames: [],
+        activityNames: [],
+        itineraryNames: [],
+        dateRange: null,
+        filterMode: 'date',
+      }}));
+      setData(prevData => ({
+        ...prevData,
+        [type]: originalData[type],
+      }));
     if (type === 'product') {
       const newProductSales = originalData.product.reduce((sum, item) => sum + item.total, 0);
       setTotals((prevTotals) => ({
@@ -326,7 +345,7 @@ const AdminReport = () => {
       dataIndex: 'orderDate',
       key: 'orderDate',
       align: 'center',
-      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
+      filterDropdown: ({ setSelectedKeys, confirm }) => (
         <div style={{ padding: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
           <RangePicker
             onChange={(dates) => {
@@ -334,7 +353,7 @@ const AdminReport = () => {
               confirm();
               handleDateRangeChange(dates, 'date', 'product');
             }}
-            value={filters.filterMode === 'date' ? filters.dateRange : null}
+            value={filters.product.filterMode === 'date' ? filters.product.dateRange : null}
             style={{ marginBottom: 8, display: 'block' }}
           />
           <RangePicker
@@ -344,7 +363,7 @@ const AdminReport = () => {
               confirm();
               handleDateRangeChange(dates, 'month', 'product');
             }}
-            value={filters.filterMode === 'month' ? filters.dateRange : null}
+            value={filters.product.filterMode === 'month' ? filters.product.dateRange : null}
             style={{ display: 'block' }}
           />
         </div>
@@ -381,7 +400,7 @@ const AdminReport = () => {
               confirm();
               handleDateRangeChange(dates, 'date', 'activity');
             }}
-            value={filters.filterMode === 'date' ? filters.dateRange : null}
+            value={filters.activity.filterMode === 'date' ? filters.activity.dateRange : null}
             style={{ marginBottom: 8, display: 'block' }}
           />
           <RangePicker
@@ -391,7 +410,7 @@ const AdminReport = () => {
               confirm();
               handleDateRangeChange(dates, 'month', 'activity');
             }}
-            value={filters.filterMode === 'month' ? filters.dateRange : null}
+            value={filters.activity.filterMode === 'month' ? filters.activity.dateRange : null}
             style={{ display: 'block' }}
           />
         </div>
@@ -428,7 +447,7 @@ const AdminReport = () => {
               confirm();
               handleDateRangeChange(dates, 'date', 'itinerary');
             }}
-            value={filters.filterMode === 'date' ? filters.dateRange : null}
+            value={filters.itinerary.filterMode === 'date' ? filters.itinerary.dateRange : null}
             style={{ marginBottom: 8, display: 'block' }}
           />
           <RangePicker
@@ -438,7 +457,7 @@ const AdminReport = () => {
               confirm();
               handleDateRangeChange(dates, 'month', 'itinerary');
             }}
-            value={filters.filterMode === 'month' ? filters.dateRange : null}
+            value={filters.itinerary.filterMode === 'month' ? filters.itinerary.dateRange : null}
             style={{ display: 'block' }}
           />
         </div>
