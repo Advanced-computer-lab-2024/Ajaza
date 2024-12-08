@@ -55,12 +55,15 @@ const AdminCustomLayout = ({ children }) => {
       const decodedToken = jwtDecode(token);
       setUserid(decodedToken.userDetails._id);
       setRole(decodedToken.role);
-      setAllNotifications(decodedToken.userDetails.notifications);
+      setAllNotifications(decodedToken.userDetails.notifications || []);
       const unseenNotifications =
         decodedToken.userDetails?.notifications?.filter(
           (notification) => !notification.seen
         ) || [];
+      console.log("Unseen notifications:", unseenNotifications);
+      console.log("All notifications:", allnotifications);
       UnseennotificationsRef.current = unseenNotifications;
+      const allNotifications = decodedToken.userDetails?.notifications || [];
       setUnseenNotifications(unseenNotifications);
     }
   }, [isOpen]);
@@ -202,6 +205,60 @@ const AdminCustomLayout = ({ children }) => {
       </Flex>
     </Flex>
   );
+  
+  useEffect(() => {
+    setNavBarItems(
+      <Flex
+        align={"center"}
+        justify="center"
+        style={{ width: "100%", position: "relative" }}
+      >
+        <div id="logo" style={{ position: "relative", right: 40, bottom: 3 }}>
+          <img src={image} alt="Ajaza Logo" style={{ width: "58px" }} />
+        </div>
+        <Flex
+          align={"center"}
+          style={{
+            position: "absolute",
+            right: "28px",
+            top: "0",
+            bottom: "0",
+            margin: "auto 0",
+          }}
+        >
+          <Dropdown
+            overlay={notificationMenu}
+            trigger={["click"]}
+            onVisibleChange={(visible) => {
+              if (visible) {
+                setIsOpen(visible);
+              }
+            }}
+          >
+            <div onClick={(e) => e.preventDefault()}>
+              <IconFloatButton
+                icon={BellFilled}
+                badge={{ count: UnseennotificationsRef.current.length }}
+              />
+            </div>
+          </Dropdown>
+          <div
+            className="hover"
+            style={{
+              display: "flex",
+              marginLeft: "20px",
+              fontWeight: "bold",
+              color: Colors.warning,
+            }}
+            onClick={confirmLogOut}
+          >
+            Log Out
+          </div>
+        </Flex>
+      </Flex>
+    );
+  }, [allnotifications]);
+
   const [showManageOptions, setShowManageOptions] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -211,8 +268,8 @@ const AdminCustomLayout = ({ children }) => {
     console.log("Marking notifications as seen for user:", userid);
     try {
       const response = await axios.post(
-        `${apiUrl}tourist/seeNotifications/${userid}`,
-        {} 
+        `${apiUrl}admin/seeNotifications/${userid}`,
+        {}
       );
       if (response.status === 200) {
         console.log("Notifications marked as seen successfully");

@@ -119,7 +119,16 @@ const FeedbackMini = ({
                             {feedbackItem?.touristId?.username ? (
                               feedbackItem?.touristId?.username
                             ) : (
-                              <span>{feedbackItem?.touristName}</span>
+                              <div
+                                style={{
+                                  width: "70px",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  fontSize: "15px",
+                                }}
+                              >
+                                {feedbackItem?.touristName}
+                              </div>
                             )}
                           </div>
                           <Rate
