@@ -37,6 +37,7 @@ import { AdminMenuKeyProvider } from "./AdminMenuKeyContext";
 import NumberOfUsers from "./NumberOfUsers";
 import AccountsToBeDeleted from "./AccountsToBeDeleted";
 import Itinerary from "../Common/Itinerary";
+import Itineraries from "../Tourist/Itineraries";
 import Activities from "../Tourist/Activities";
 import Activity from "../Common/Activity";
 const { Content } = Layout;
@@ -90,14 +91,14 @@ const Admin = () => {
               path="tourists-Complaints/:id"
               element={<ComplaintDetails />}
             />
-            <Route path="events" element={<Events />} />
-            <Route path="events/:id" element={<Event />} />
+            <Route path="events" element={<Activities />} />
+            <Route path="events/:id" element={<Activity />} />
             <Route path="promocode" element={<CreatePromoCode />} />
             <Route path="report" element={<AdminReport />} />
 
             <Route path="numberOfUsers" element={<NumberOfUsers />} />
-            <Route path="itinerariesAdmin" element={<ItinerariesAdmin />} />
-            <Route path="itinerariesAdmin/:id" element={<ItineraryAdmin />} />
+            <Route path="itinerariesAdmin" element={<Itineraries />} />
+            <Route path="itinerariesAdmin/:id" element={<Itinerary />} />
 
             <Route path="preference-tags" element={<ManagePreferenceTags />} />
             <Route path="myProducts" element={<MyProducts />} />
