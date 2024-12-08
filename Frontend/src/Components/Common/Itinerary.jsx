@@ -148,14 +148,35 @@ const Itinerary = () => {
     ? (itinerary.price * currencyRates[currency]).toFixed(2)
     : 0;
     const renderFrigadeProvider = () => {
- if (role === "tourist") {
+      if (role === null) {
         return (
           <Frigade.Provider
             apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
             userId={userid}
             onError={(error) => console.error("Frigade Error:", error)}
           >
-            <Frigade.Tour flowId="flow_skhaNY2m" />
+            <Frigade.Tour flowId="flow_6pXvUJAc" />
+          </Frigade.Provider>
+        );
+      } else if (role === "tourist") {
+        return (
+          <Frigade.Provider
+            apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
+            userId={userid}
+            onError={(error) => console.error("Frigade Error:", error)}
+          >
+            <Frigade.Tour flowId="flow_nBUck4iC" />
+          </Frigade.Provider>
+        );
+      }
+      else {
+        return (
+          <Frigade.Provider
+            apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+            userId={userid}
+            onError={(error) => console.error("Frigade Error:", error)}
+          >
+            <Frigade.Tour flowId="flow_6pXvUJAc" />
           </Frigade.Provider>
         );
       }

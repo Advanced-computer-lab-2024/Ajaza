@@ -136,18 +136,30 @@ const Activity = () => {
           <Frigade.Tour flowId="flow_k40qeJxX" />
         </Frigade.Provider>
       );
-    } else if (role === "tourist") {
+    } 
+ else if (role === "tourist") {
       return (
         <Frigade.Provider
-          apiKey="api_public_iZeCx2HTYA5gWBiS1if7cRp5H63bhGN3sYG8Ue4I8qEN72Y5l7ZTh5BeEmMvrt05"
+          apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
           userId={userid}
           onError={(error) => console.error("Frigade Error:", error)}
         >
-          <Frigade.Tour flowId="flow_9GyY5ygE" />
+          <Frigade.Tour flowId="flow_XpXP41GH" />
         </Frigade.Provider>
       );
     }
+    else {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_k40qeJxX" />
+        </Frigade.Provider>
+      );
   }
+}
 
   const handleShowFrigade = () => {
     if (flowStatus === "ENDED") {
@@ -167,7 +179,17 @@ const Activity = () => {
     : 0;
   return (
     <>
-    <Button
+
+<CustomButton size={"s"} value={"Hint"} onClick={handleShowFrigade} style={{ marginBottom: "16px" }}/> 
+ {showFrigade && renderFrigadeProvider()}
+
+      {/* <SelectCurrency
+        currency={currency}
+        onCurrencyChange={handleCurrencyChange}
+        style={{ left: -7, top: 45 }}
+      /> */}
+
+       <Button
       id="nour2"
   style={{
     
@@ -182,12 +204,6 @@ const Activity = () => {
     cursor: "default",   // Makes it less clickable-looking
   }}
 />
-      {/* <SelectCurrency
-        currency={currency}
-        onCurrencyChange={handleCurrencyChange}
-        style={{ left: -7, top: 45 }}
-      /> */}
-
       <Item
         id={activity?._id}
         name={activity?.name}

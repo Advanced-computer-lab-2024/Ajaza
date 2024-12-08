@@ -283,18 +283,39 @@ const Activities = () => {
   }, []);
 
   const renderFrigadeProvider = () => {
-if (role === "tourist") {
+    if (role === null) {
       return (
         <Frigade.Provider
-          apiKey="api_public_iZeCx2HTYA5gWBiS1if7cRp5H63bhGN3sYG8Ue4I8qEN72Y5l7ZTh5BeEmMvrt05"
+          apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
           userId={userid}
           onError={(error) => console.error("Frigade Error:", error)}
         >
-          <Frigade.Tour flowId="flow_9GyY5ygE" />
+          <Frigade.Tour flowId="flow_cj5av0DS" />
+        </Frigade.Provider>
+      );
+    } else if (role === "tourist") {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_cj5av0DS" />
+        </Frigade.Provider>
+      );
+    } else {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_cj5av0DS" />
         </Frigade.Provider>
       );
     }
-  }
+  };
+  
 
   const handleShowFrigade = () => {
     if (flowStatus === "ENDED") {
@@ -309,9 +330,9 @@ if (role === "tourist") {
 
   return (
     <div >
-      
 
-            <CustomButton size={"s"} value={"Help"} onClick={handleShowFrigade} style={{ marginBottom: "16px" }}/>
+
+            <CustomButton size={"s"} value={"Hint"} onClick={handleShowFrigade} style={{ marginBottom: "16px" }}/>
             {showFrigade && renderFrigadeProvider()}
    <div>  
 <div
