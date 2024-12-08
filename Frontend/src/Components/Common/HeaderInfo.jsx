@@ -1482,13 +1482,13 @@ const HeaderInfo = ({
                           marginRight: "10px",
                         }}
                       >
+                        {currencySymbol}
                         {selectedPrice}
-                        {currency}
                       </span>
                     )}
                     <span style={{ color: promo !== 1 ? "green" : "black" }}>
+                      {currencySymbol}
                       {selectedPrice * promo}
-                      {currency}
                     </span>
                   </h4>
 
@@ -1508,7 +1508,11 @@ const HeaderInfo = ({
                     decodedToken?.userDetails?.wallet && (
                       <p style={{ marginTop: "15px" }}>
                         <strong>Current balance: </strong>
-                        {currency}{decodedToken.userDetails.wallet*(currencyRates[currency] || 1).toFixed(2)}
+                        {currencySymbol}
+                        {(
+                          decodedToken.userDetails.wallet *
+                          (currencyRates[currency] || 1)
+                        ).toFixed(2)}
                       </p>
                     )}
 

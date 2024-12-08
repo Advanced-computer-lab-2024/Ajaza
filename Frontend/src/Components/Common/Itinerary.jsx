@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Item from "./Item";
-import { Form, Spin, Flex } from "antd";
+import { Form, Spin, Flex, Modal } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -8,8 +8,6 @@ import { apiUrl, Colors } from "./Constants";
 import { jwtDecode } from "jwt-decode";
 import { Button } from "antd";
 import CustomButton from "../Common/CustomButton";
-
-
 
 import LoadingSpinner from "./LoadingSpinner";
 import SelectCurrency from "../Tourist/SelectCurrency";
@@ -22,7 +20,6 @@ let role = null;
 if (token) {
   decodedToken = jwtDecode(token);
   role = decodedToken?.role; // Extract the role from the token
-
 }
 console.log("itin role nour", role);
 const userid = decodedToken ? decodedToken.userId : null;
@@ -91,16 +88,21 @@ const Itinerary = () => {
     ZAR: 18.0887,
   });
 
-  useEffect(() => {
-    const fetchItinerary = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}itinerary/future/${id}`);
-        setItinerary(response.data);
-      } catch (error) {
-        console.error("Error fetching itinerary:", error);
-      }
-    };
+  // Admin
+  const [isFlagRed, setIsFlagRed] = useState(false); // Flag color state
+  const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility
+  const [unflagisModalVisible, unflagsetIsModalVisible] = useState(false); // Modal visibility
 
+  const fetchItinerary = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}itinerary/future/${id}`);
+      setItinerary(response.data);
+    } catch (error) {
+      console.error("Error fetching itinerary:", error);
+    }
+  };
+
+  useEffect(() => {
     fetchItinerary();
   }, [id]);
 
@@ -113,6 +115,15 @@ const Itinerary = () => {
         availableDateTime: itinerary?.availableDateTime,
       });
       console.log(itinerary?.timeline);
+
+      // Admin
+      if (itinerary.hidden === true) {
+        setIsFlagRed(true);
+
+        // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
+      } else {
+        setIsFlagRed(false);
+      }
     }
   }, [itinerary]);
 
@@ -143,65 +154,118 @@ const Itinerary = () => {
   if (!itinerary) {
     return <LoadingSpinner />;
   }
+  const confirmFlag = async () => {
+    //  setIsFlagRed(true);
+    // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
+    try {
+      const response = await axios.patch(`${apiUrl}itinerary/hide/${id}`);
+      //fetchItinerary();
+      console.log(response.data);
+      //  setItinerary(response.data.updatedItinerary);
+      //  setActivity(response.data);
+    } catch (error) {
+      console.error("Error hiding event:", error);
+    }
+    fetchItinerary();
+    setIsModalVisible(false); // Close the modal
+  };
+
+  const handleFlagClick = () => {
+    if (!isFlagRed) {
+      setIsModalVisible(true); // Open the modal
+    } else {
+      unflagsetIsModalVisible(true);
+    }
+  };
+
+  const confirmUnFlag = async () => {
+    //  setIsFlagRed(true);
+    // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
+    try {
+      const response = await axios.patch(`${apiUrl}itinerary/unhide/${id}`);
+      console.log(response.data);
+      setItinerary(response.data.updatedItinerary);
+      //  setActivity(response.data);
+    } catch (error) {
+      console.error("Error hiding event:", error);
+    }
+    unflagsetIsModalVisible(false); // Close the modal
+  };
+
+  // Handle modal cancellation
+  const cancelFlag = () => {
+    setIsModalVisible(false); // Close the modal
+  };
+  const cancelUnFlag = () => {
+    unflagsetIsModalVisible(false); // Close the modal
+  };
 
   const convertedPrice = itinerary
     ? (itinerary.price * currencyRates[currency]).toFixed(2)
     : 0;
-    const renderFrigadeProvider = () => {
-      if (role === null) {
-        return (
-          <Frigade.Provider
-            apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
-            userId={userid}
-            onError={(error) => console.error("Frigade Error:", error)}
-          >
-            <Frigade.Tour flowId="flow_6pXvUJAc" />
-          </Frigade.Provider>
-        );
-      } else if (role === "tourist") {
-        return (
-          <Frigade.Provider
-            apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
-            userId={userid}
-            onError={(error) => console.error("Frigade Error:", error)}
-          >
-            <Frigade.Tour flowId="flow_nBUck4iC" />
-          </Frigade.Provider>
-        );
-      }
-      else {
-        return (
-          <Frigade.Provider
-            apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
-            userId={userid}
-            onError={(error) => console.error("Frigade Error:", error)}
-          >
-            <Frigade.Tour flowId="flow_6pXvUJAc" />
-          </Frigade.Provider>
-        );
-      }
+  const renderFrigadeProvider = () => {
+    if (role === null) {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_6pXvUJAc" />
+        </Frigade.Provider>
+      );
+    } else if (role === "tourist") {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_nBUck4iC" />
+        </Frigade.Provider>
+      );
+    } else {
+      return (
+        <Frigade.Provider
+          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+          userId={userid}
+          onError={(error) => console.error("Frigade Error:", error)}
+        >
+          <Frigade.Tour flowId="flow_6pXvUJAc" />
+        </Frigade.Provider>
+      );
     }
+  };
   return (
     <>
-          <CustomButton size={"s"} value={"Hint"} onClick={handleShowFrigade} style={{ marginBottom: "16px" }}/>
+      {role == "tourist" || !role ? (
+        <CustomButton
+          size={"s"}
+          value={"Hint"}
+          onClick={handleShowFrigade}
+          style={{ marginBottom: "16px" }}
+        />
+      ) : null}
 
-     <Button
-                id="nour"
+      {role == "tourist" || !role ? (
+        <Button
+          id="nour"
+          style={{
+            position: "absolute", // Ensures the button can be placed anywhere on the screen
+            right: "0", // Aligns it to the maximum right
+            top: "0", // Optional: Aligns it to the top of its container
+            margin: "16px", // Adds some spacing from the edges (adjust as needed)
+            padding: "1px", // Makes the button tiny
+            fontSize: "0.1rem", // Reduces the text size to be almost invisible
+            border: "none", // Removes border (optional)
+            background: "transparent", // Makes the background transparent (optional)
+            color: "transparent", // Hides the text color (optional)
+            cursor: "default", // Makes it less clickable-looking
+          }}
+        />
+      ) : null}
 
-  style={{
-    position: "absolute", // Ensures the button can be placed anywhere on the screen
-    right: "0",          // Aligns it to the maximum right
-    top: "0",            // Optional: Aligns it to the top of its container
-    margin: "16px",      // Adds some spacing from the edges (adjust as needed)
-    padding: "1px",      // Makes the button tiny
-    fontSize: "0.1rem",  // Reduces the text size to be almost invisible
-    border: "none",      // Removes border (optional)
-    background: "transparent", // Makes the background transparent (optional)
-    color: "transparent", // Hides the text color (optional)
-    cursor: "default",   // Makes it less clickable-looking
-  }}
-/>
-{showFrigade && renderFrigadeProvider()}
+      {showFrigade && renderFrigadeProvider()}
       {/* <SelectCurrency
         currency={currency}
         onCurrencyChange={handleCurrencyChange}
@@ -228,11 +292,38 @@ const Itinerary = () => {
           dropOff={itinerary?.dropOff}
           creatorName={itinerary?.guideId?.username}
           type={"itinerary"}
+          isFlagged={itinerary?.isFlagged}
+          handleFlagClick={handleFlagClick}
           availableDates={itinerary.availableDateTime}
           currency={currency}
           creatorFeedback={creatorFeedback}
         />
       )}
+
+      {/* Admin modal */}
+      <Modal
+        title="Confirm Flag"
+        visible={isModalVisible}
+        onOk={confirmFlag}
+        onCancel={cancelFlag}
+        okType="danger"
+        okText="Flag"
+        cancelText="Cancel"
+      >
+        <p>Are you sure you want to flag this itinerary as Inappropriate?</p>
+      </Modal>
+
+      {/* Confirmation Modal */}
+      <Modal
+        title="Cancel Flagging"
+        visible={unflagisModalVisible}
+        onOk={confirmUnFlag}
+        onCancel={cancelUnFlag}
+        okText="Yes"
+        cancelText="No"
+      >
+        <p>Are you sure you want to unflag this itinerary?</p>
+      </Modal>
     </>
   );
 };

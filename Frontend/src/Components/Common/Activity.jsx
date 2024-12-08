@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Item from "./Item";
-import { Form } from "antd";
+import { Form, Modal } from "antd";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { apiUrl } from "./Constants";
@@ -18,7 +18,6 @@ let role = null;
 if (token) {
   decodedToken = jwtDecode(token);
   role = decodedToken?.role; // Extract the role from the token
-
 }
 console.log("acti role nour", role);
 const userid = decodedToken ? decodedToken.userId : null;
@@ -87,16 +86,28 @@ const Activity = () => {
     ZAR: 18.0887,
   });
 
-  useEffect(() => {
-    const fetchActivity = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}activity/${id}`);
-        setActivity(response.data);
-      } catch (error) {
-        console.error("Error fetching activity:", error);
-      }
-    };
+  // admin
+  const [isFlagRed, setIsFlagRed] = useState(false); // Flag color state
+  const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility
+  const [unflagisModalVisible, unflagsetIsModalVisible] = useState(false);
 
+  const fetchActivity = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}activity/${id}`);
+      setActivity(response.data);
+      if (response.data.hidden === true) {
+        setIsFlagRed(true);
+
+        // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
+      } else {
+        setIsFlagRed(false);
+      }
+    } catch (error) {
+      console.error("Error fetching activity:", error);
+    }
+  };
+
+  useEffect(() => {
     fetchActivity();
   }, [id]);
 
@@ -136,8 +147,7 @@ const Activity = () => {
           <Frigade.Tour flowId="flow_k40qeJxX" />
         </Frigade.Provider>
       );
-    } 
- else if (role === "tourist") {
+    } else if (role === "tourist") {
       return (
         <Frigade.Provider
           apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
@@ -147,8 +157,7 @@ const Activity = () => {
           <Frigade.Tour flowId="flow_XpXP41GH" />
         </Frigade.Provider>
       );
-    }
-    else {
+    } else {
       return (
         <Frigade.Provider
           apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
@@ -158,8 +167,8 @@ const Activity = () => {
           <Frigade.Tour flowId="flow_k40qeJxX" />
         </Frigade.Provider>
       );
-  }
-}
+    }
+  };
 
   const handleShowFrigade = () => {
     if (flowStatus === "ENDED") {
@@ -170,40 +179,99 @@ const Activity = () => {
       setShowFrigade(true); // Show Frigade after resetting
     }, 0);
   };
-  
+
   const convertedLowerPrice = activity
     ? (activity.lower * currencyRates[currency]).toFixed(2)
     : 0;
   const convertedUpperPrice = activity
     ? (activity.upper * currencyRates[currency]).toFixed(2)
     : 0;
+
+  // Admin
+
+  const handleFlagClick = () => {
+    if (!isFlagRed) {
+      setIsModalVisible(true); // Open the modal
+    } else {
+      unflagsetIsModalVisible(true);
+    }
+  };
+
+  const confirmFlag = async () => {
+    //  setIsFlagRed(true);
+    // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
+    try {
+      const response = await axios.patch(`${apiUrl}activity/hide/${id}`);
+      console.log(response.data);
+      setActivity(response.data.updatedActivity);
+      //  setActivity(response.data);
+    } catch (error) {
+      console.error("Error hiding event:", error);
+    }
+
+    setIsModalVisible(false); // Close the modal
+    fetchActivity();
+  };
+
+  const confirmUnFlag = async () => {
+    //  setIsFlagRed(true);
+    // localStorage.setItem(`flagClicked-${id}`, "true"); // Persist flag clicked state for this event ID
+    try {
+      const response = await axios.patch(`${apiUrl}activity/unhide/${id}`);
+      console.log(response.data);
+      setActivity(response.data.updatedActivity);
+      //  setActivity(response.data);
+    } catch (error) {
+      console.error("Error unhiding event:", error);
+    }
+
+    unflagsetIsModalVisible(false); // Close the modal
+    fetchActivity();
+  };
+
+  // Handle modal confirmation
+
+  // Handle modal cancellation
+  const cancelFlag = () => {
+    setIsModalVisible(false); // Close the modal
+  };
+  const cancelUnFlag = () => {
+    unflagsetIsModalVisible(false); // Close the modal
+  };
+
   return (
     <>
-
-<CustomButton size={"s"} value={"Hint"} onClick={handleShowFrigade} style={{ marginBottom: "16px" }}/> 
- {showFrigade && renderFrigadeProvider()}
+      {role == "tourist" || !role ? (
+        <CustomButton
+          size={"s"}
+          value={"Hint"}
+          onClick={handleShowFrigade}
+          style={{ marginBottom: "16px" }}
+        />
+      ) : null}
+      {showFrigade && renderFrigadeProvider()}
 
       {/* <SelectCurrency
         currency={currency}
         onCurrencyChange={handleCurrencyChange}
         style={{ left: -7, top: 45 }}
       /> */}
-
-       <Button
-      id="nour2"
-  style={{
-    
-    right: "0",          // Aligns it to the maximum right
-    top: "0",            // Optional: Aligns it to the top of its container
-    margin: "16px",      // Adds some spacing from the edges (adjust as needed)
-    padding: "1px",      // Makes the button tiny
-    fontSize: "0.1rem",  // Reduces the text size to be almost invisible
-    border: "none",      // Removes border (optional)
-    background: "transparent", // Makes the background transparent (optional)
-    color: "transparent", // Hides the text color (optional)
-    cursor: "default",   // Makes it less clickable-looking
-  }}
-/>
+      {role == "tourist" || !role ? (
+        <Button
+          id="nour2"
+          style={{
+            right: "0", // Aligns it to the maximum right
+            top: "0", // Optional: Aligns it to the top of its container
+            margin: "16px", // Adds some spacing from the edges (adjust as needed)
+            padding: "1px", // Makes the button tiny
+            fontSize: "0.1rem", // Reduces the text size to be almost invisible
+            border: "none", // Removes border (optional)
+            background: "transparent", // Makes the background transparent (optional)
+            color: "transparent", // Hides the text color (optional)
+            cursor: "default", // Makes it less clickable-looking
+          }}
+        />
+      ) : null}
       <Item
         id={activity?._id}
         name={activity?.name}
@@ -226,8 +294,35 @@ const Activity = () => {
         creatorName={advertiser?.username}
         creatorFeedback={advertiser?.feedback}
         type={"activity"}
+        isFlagged={activity?.isFlagged}
+        handleFlagClick={handleFlagClick}
         currency={currency}
       />
+
+      {/* admin */}
+      <Modal
+        title="Confirm UnFlag"
+        visible={unflagisModalVisible}
+        onOk={confirmUnFlag}
+        onCancel={cancelUnFlag}
+        okText="Yes"
+        cancelText="No"
+      >
+        <p>Are you sure you want to unflag this activity?</p>
+      </Modal>
+
+      {/* Confirmation Modal */}
+      <Modal
+        title="Confirm Flag"
+        visible={isModalVisible}
+        onOk={confirmFlag}
+        onCancel={cancelFlag}
+        okType="danger"
+        okText="Flag"
+        cancelText="Cancel"
+      >
+        <p>Are you sure you want to flag this activity as Inappropriate?</p>
+      </Modal>
     </>
   );
 };
