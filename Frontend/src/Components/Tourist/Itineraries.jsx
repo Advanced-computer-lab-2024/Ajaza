@@ -13,12 +13,10 @@ import { Button } from "antd";
 
 const token = localStorage.getItem("token");
 let decodedToken = null;
-let role = null;
 if (token) {
   decodedToken = jwtDecode(token);
-  role = decodedToken?.role; // Extract the role from the token
+  console.log("token: ", decodedToken);
 }
-console.log("itin role nour", role);
 const userid = decodedToken ? decodedToken.userId : null;
 
 const convertCategoriesToValues = (categoriesArray) => {
@@ -242,6 +240,14 @@ const Itineraries = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      const token = localStorage.getItem("token");
+      let decodedToken = null;
+      let role = null;
+      if (token) {
+        decodedToken = jwtDecode(token);
+        console.log("token: ", decodedToken);
+        role = decodedToken?.role; // Extract the role from the token 
+      }
       try {
         const [itineraryResponse, tagResponse] = await Promise.all([
           axios.get(
@@ -297,39 +303,39 @@ const Itineraries = () => {
     );
   }, [currency]);
 
-  const renderFrigadeProvider = () => {
-    if (role === null) {
-      return (
-        <Frigade.Provider
-          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
-          userId={userid}
-          onError={(error) => console.error("Frigade Error:", error)}
-        >
-          <Frigade.Tour flowId="flow_skhaNY2m" />
-        </Frigade.Provider>
-      );
-    } else if (role === "tourist") {
-      return (
-        <Frigade.Provider
-          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
-          userId={userid}
-          onError={(error) => console.error("Frigade Error:", error)}
-        >
-          <Frigade.Tour flowId="flow_skhaNY2m" />
-        </Frigade.Provider>
-      );
-    } else {
-      return (
-        <Frigade.Provider
-          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
-          userId={userid}
-          onError={(error) => console.error("Frigade Error:", error)}
-        >
-          <Frigade.Tour flowId="flow_skhaNY2m" />
-        </Frigade.Provider>
-      );
-    }
-  };
+  // const renderFrigadeProvider = () => {
+  //   if (role === null) {
+  //     return (
+  //       <Frigade.Provider
+  //         apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+  //         userId={userid}
+  //         onError={(error) => console.error("Frigade Error:", error)}
+  //       >
+  //         <Frigade.Tour flowId="flow_skhaNY2m" />
+  //       </Frigade.Provider>
+  //     );
+  //   } else if (role === "tourist") {
+  //     return (
+  //       <Frigade.Provider
+  //         apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+  //         userId={userid}
+  //         onError={(error) => console.error("Frigade Error:", error)}
+  //       >
+  //         <Frigade.Tour flowId="flow_skhaNY2m" />
+  //       </Frigade.Provider>
+  //     );
+  //   } else {
+  //     return (
+  //       <Frigade.Provider
+  //         apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+  //         userId={userid}
+  //         onError={(error) => console.error("Frigade Error:", error)}
+  //       >
+  //         <Frigade.Tour flowId="flow_skhaNY2m" />
+  //       </Frigade.Provider>
+  //     );
+  //   }
+  // };
 
   const handleShowFrigade = () => {
     if (flowStatus === "ENDED") {
