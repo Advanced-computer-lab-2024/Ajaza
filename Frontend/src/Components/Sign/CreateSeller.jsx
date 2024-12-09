@@ -30,12 +30,11 @@ const CreateSeller = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleFileChange = (field) => ({ fileList }) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: fileList,
-    }));
+  const handleFileChange = (name) => (info) => {
+    let fileList = [...info.fileList];
+    setFormData((prevData) => ({ ...prevData, [name]: fileList }));
   };
+
   const nextStep = async () => {
     if (!canNext) return;
     setLoading(true);
@@ -161,10 +160,12 @@ const CreateSeller = () => {
   };
 
   const beforeUpload = (file) => {
-    console.log("File to be uploaded: ", file);
-    return false; // Prevent default upload behavior
+    const isImage = file.type.startsWith("image/");
+    if (!isImage) {
+      message.error("You can only upload image files!");
+    }
+    return isImage || Upload.LIST_IGNORE;
   };
-  
 
   const passwordStrengthValidator = (_, value) => {
     if (!value) {
@@ -219,7 +220,7 @@ const CreateSeller = () => {
             </h1>
           </div>
           <Form
-            name="upload-form"
+            name="basic"
             style={{
               maxWidth: 600,
               width: "100%",
