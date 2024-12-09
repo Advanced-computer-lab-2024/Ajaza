@@ -20,7 +20,6 @@ const TouristHistory = () => {
     if (token) {
       const decodedToken = jwtDecode(token);
       const userDetails = decodedToken.userDetails;
-      console.log("hi", userDetails);
       setTouristId(userDetails._id);
     }
   }, []);
@@ -60,9 +59,13 @@ const TouristHistory = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
+        console.log(`${apiUrl}tourist/history/getHistory/${touristId}`);
+
         const response = await axios.get(
           `${apiUrl}tourist/history/getHistory/${touristId}`
         );
+        console.log("here");
+
         console.log("response", response);
         setHistory(response.data);
         const guideIds = response.data.guides.map((guide) => guide.guideId);
@@ -105,104 +108,112 @@ const TouristHistory = () => {
     <div>
       <h2 style={{ marginBottom: "30px" }}>My History</h2>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
-        {history.activities.filter((activity) => activity.gaveFeedback === false).map((activity) => (
-          <Card
-            key={activity.activityId}
-            title={activity.name}
-            style={{
-              width: "315px",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-            }}
-          >
-            <p>
-              <strong>Date:</strong>{" "}
-              {new Date(activity.date).toLocaleDateString()}
-            </p>
-            {activity.gaveFeedback ? (
-              <p>Thanks for your feedback!</p>
-            ) : (
-              <Feedback
-                type="activity"
-                touristId={touristId}
-                id={activity.activityId}
-                name={activity.name}
-                onSubmit={handleFeedbackSubmit}
-              />
-            )}
-          </Card>
-        ))}
+        {history.activities
+          .filter((activity) => activity.gaveFeedback === false)
+          .map((activity) => (
+            <Card
+              key={activity.activityId}
+              title={activity.name}
+              style={{
+                width: "315px",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+              }}
+            >
+              <p>
+                <strong>Date:</strong>{" "}
+                {new Date(activity.date).toLocaleDateString()}
+              </p>
+              {activity.gaveFeedback ? (
+                <p>Thanks for your feedback!</p>
+              ) : (
+                <Feedback
+                  type="activity"
+                  touristId={touristId}
+                  id={activity.activityId}
+                  name={activity.name}
+                  onSubmit={handleFeedbackSubmit}
+                />
+              )}
+            </Card>
+          ))}
 
-        {history.itineraries.filter((activity) => activity.gaveFeedback === false).map((itinerary) => (
-          <Card
-            key={itinerary.itineraryId}
-            title={itinerary.name}
-            style={{
-              width: "315px",
-            }}
-          >
-            <p>
-              <strong>Date:</strong>{" "}
-              {new Date(itinerary.date).toLocaleDateString()}
-            </p>
-            {itinerary.gaveFeedback ? (
-              <p>Thanks for your feedback!</p>
-            ) : (
-              <Feedback
-                type="itinerary"
-                touristId={touristId}
-                id={itinerary.itineraryId}
-                name={itinerary.name}
-                onSubmit={handleFeedbackSubmit}
-              />
-            )}
-          </Card>
-        ))}
+        {history.itineraries
+          .filter((activity) => activity.gaveFeedback === false)
+          .map((itinerary) => (
+            <Card
+              key={itinerary.itineraryId}
+              title={itinerary.name}
+              style={{
+                width: "315px",
+              }}
+            >
+              <p>
+                <strong>Date:</strong>{" "}
+                {new Date(itinerary.date).toLocaleDateString()}
+              </p>
+              {itinerary.gaveFeedback ? (
+                <p>Thanks for your feedback!</p>
+              ) : (
+                <Feedback
+                  type="itinerary"
+                  touristId={touristId}
+                  id={itinerary.itineraryId}
+                  name={itinerary.name}
+                  onSubmit={handleFeedbackSubmit}
+                />
+              )}
+            </Card>
+          ))}
 
-        {history.guides.filter((activity) => activity.gaveFeedback === false).map((guide) => (
-          <Card
-            key={guide.guideId}
-            title={`Guide: ${guide.name}`}
-            style={{ width: "315px" }}
-          >
-            {guide.gaveFeedback ? (
-              <p>Thanks for your feedback!</p>
-            ) : (
-              <Feedback
-                type="guide"
-                touristId={touristId}
-                id={guide.guideId}
-                name={guide.name}
-                onSubmit={handleFeedbackSubmit}
-              />
-            )}
-          </Card>
-        ))}
+        {history.guides
+          .filter((activity) => activity.gaveFeedback === false)
+          .map((guide) => (
+            <Card
+              key={guide.guideId}
+              title={`Guide: ${guide.name}`}
+              style={{ width: "315px" }}
+            >
+              {guide.gaveFeedback ? (
+                <p>Thanks for your feedback!</p>
+              ) : (
+                <Feedback
+                  type="guide"
+                  touristId={touristId}
+                  id={guide.guideId}
+                  name={guide.name}
+                  onSubmit={handleFeedbackSubmit}
+                />
+              )}
+            </Card>
+          ))}
 
-        {history.products.filter((activity) => activity.gaveFeedback === false).map((product) => (
-          <Card
-            key={product.productId}
-            title={product.name}
-            style={{
-              width: "315px",
-            }}
-          >
-            <p>
-              <strong>Date:</strong>{" "}
-              {new Date(product.date).toLocaleDateString()}
-            </p>
-            {product.gaveFeedback ? (
-              <p>Thanks for your feedback!</p>
-            ) : (
-              <Feedback
-                type="product"
-                touristId={touristId}
-                id={product.productId}
-                name={product.name}
-                onSubmit={handleFeedbackSubmit}
-              />
-            )}
-          </Card>
-        ))}
+        {history.products
+          .filter((activity) => activity.gaveFeedback === false)
+          .map((product) => (
+            <Card
+              key={product.productId}
+              title={product.name}
+              style={{
+                width: "315px",
+              }}
+            >
+              <p>
+                <strong>Date:</strong>{" "}
+                {new Date(product.date).toLocaleDateString()}
+              </p>
+              {product.gaveFeedback ? (
+                <p>Thanks for your feedback!</p>
+              ) : (
+                <Feedback
+                  type="product"
+                  touristId={touristId}
+                  id={product.productId}
+                  name={product.name}
+                  onSubmit={handleFeedbackSubmit}
+                />
+              )}
+            </Card>
+          ))}
       </div>
     </div>
   );
