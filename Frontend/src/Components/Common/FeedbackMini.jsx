@@ -93,8 +93,8 @@ const FeedbackMini = ({
                         <div
                           style={{
                             position: "absolute",
-                            left: 15,
-                            top: 15,
+                            left: 10,
+                            top: 13,
                             height: 25,
                             width: 25,
                             display: "flex",
@@ -121,10 +121,10 @@ const FeedbackMini = ({
                             ) : (
                               <div
                                 style={{
-                                  width: "70px",
+                                  width: "65px",
                                   overflow: "hidden",
                                   textOverflow: "ellipsis",
-                                  fontSize: "15px",
+                                  fontSize: "14px",
                                 }}
                               >
                                 {feedbackItem?.touristName}
@@ -136,7 +136,7 @@ const FeedbackMini = ({
                             disabled
                             defaultValue={0}
                             value={feedbackItem.rating}
-                            style={{ marginLeft: "auto", fontSize: "16px" }}
+                            style={{ marginLeft: "auto", fontSize: "15px" }}
                           />
                         </Flex>
 

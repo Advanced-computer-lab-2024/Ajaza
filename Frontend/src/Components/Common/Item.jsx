@@ -67,6 +67,8 @@ const Item = ({
   }, [feedbacks]);
   // Product fields done
   // Activity fields done
+  console.log(creatorFeedback);
+
   // Itinerary maxTourists
   return (
     <>
@@ -137,7 +139,9 @@ const Item = ({
             </Row>
           </Col>
           <Col span={24 - timelineFeedbackSpan}>
-            <h3 style={{ marginBottom: "0px" }}>{name} Feedback</h3>
+            {creatorFeedback?.length > 0 ? (
+              <h3 style={{ marginBottom: "0px" }}>{creatorName} Feedback</h3>
+            ) : null}
             <FeedbackMini feedbacks={creatorFeedback} numOfItems={3} />
           </Col>
         </Row>
@@ -157,7 +161,7 @@ const Item = ({
           setFeedbacks={setFeedbacks}
         />
       ) : null}
-      {creatorFeedback && !timelineItems && type != "activity" ? (
+      {creatorFeedback?.length > 0 && !timelineItems && type != "activity" ? (
         <div>
           <h4
             style={{

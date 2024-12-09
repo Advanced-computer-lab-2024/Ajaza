@@ -1507,17 +1507,16 @@ const HeaderInfo = ({
                   </div>
 
                   {/* Wallet Balance */}
-                  {paymentMethod === "wallet" &&
-                    decodedToken?.userDetails?.wallet && (
-                      <p style={{ marginTop: "15px" }}>
-                        <strong>Current balance: </strong>
-                        {currencySymbol}
-                        {(
-                          decodedToken.userDetails.wallet *
-                          (currencyRates[currency] || 1)
-                        ).toFixed(2)}
-                      </p>
-                    )}
+                  {paymentMethod === "wallet" && (
+                    <p style={{ marginTop: "15px" }}>
+                      <strong>Current balance: </strong>
+                      {currencySymbol}
+                      {(
+                        decodedToken?.userDetails?.wallet *
+                        (currencyRates[currency] || 1)
+                      ).toFixed(2)}
+                    </p>
+                  )}
 
                   {/* Stripe Payment Form */}
                   {paymentMethod === "card" && (

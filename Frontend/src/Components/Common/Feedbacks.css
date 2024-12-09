@@ -1,5 +1,6 @@
 .feedbackCard .ant-card-body {
   height: 100%;
+  padding: 20px;
 }
 
 .desc {
@@ -27,5 +28,5 @@
 }
 
 .feedbackMini .ant-card-body {
-  padding: 15px !important;
+  padding: 15px 10px !important;
 }

@@ -89,7 +89,7 @@ const Feedbacks = ({
                           style={{
                             position: "absolute",
                             left: 20,
-                            top: 20,
+                            top: 15,
                             height: 35,
                             width: 35,
                             display: "flex",
@@ -115,7 +115,7 @@ const Feedbacks = ({
                             ) : (
                               <div
                                 style={{
-                                  width: "70px",
+                                  width: "75px",
                                   overflow: "hidden",
                                   textOverflow: "ellipsis",
                                 }}
@@ -129,7 +129,7 @@ const Feedbacks = ({
                             disabled
                             defaultValue={0}
                             value={feedbackItem.rating}
-                            style={{ marginLeft: "auto" }}
+                            style={{ marginLeft: "auto", fontSize: "18px" }}
                           />
                         </Flex>
 
