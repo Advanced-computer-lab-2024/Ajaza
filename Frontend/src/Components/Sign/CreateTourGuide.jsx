@@ -203,7 +203,7 @@ const CreateTourGuide = () => {
         <Card
           style={{
             width: 600,
-            background: "rgba(255, 255, 255, 0.60)",
+            background: "rgba(255, 255, 255, 0.70)",
             boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
             borderRadius: "10px",
           }}

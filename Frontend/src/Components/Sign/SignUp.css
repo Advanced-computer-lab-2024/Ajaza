@@ -9,3 +9,11 @@
 .signup .ant-tabs-tab-active .ant-tabs-tab-btn div {
   color: var(--primary-color-active) !important;
 }
+
+/* .signup .ant-upload-list-item-error .anticon-paper-clip {
+  color: var(--grey-900) !important;
+}
+
+.signup .ant-upload-list-item-error .ant-upload-list-item-name {
+  color: var(--grey-900) !important;
+} */
