@@ -14,12 +14,9 @@ import { Button } from "antd";
 
 const token = localStorage.getItem("token");
 let decodedToken = null;
-let role = null;
 if (token) {
   decodedToken = jwtDecode(token);
-  role = decodedToken?.role; // Extract the role from the token
 }
-console.log("acti role nour", role);
 const userid = decodedToken ? decodedToken.userId : null;
 
 const convertCategoriesToValues = (categoriesArray) => {
@@ -93,7 +90,6 @@ const currencyRates = {
 const Activities = () => {
   const navigate = useNavigate();
   const [combinedElements, setCombinedElements] = useState([]);
-  const [role, setrole] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   // propName:fieldName
   const propMapping = {
@@ -221,17 +217,17 @@ const Activities = () => {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      decodedToken = jwtDecode(token);
-      setrole(decodedToken?.role);
-      console.log("weeeeee", role);
-    }
-  }, []);
-
-  useEffect(() => {
+  
     const fetchData = async () => {
+      const token = localStorage.getItem("token");
+      let role = null;
+      if (token) {
+        decodedToken = jwtDecode(token);
+        console.log("token: ", decodedToken);
+        role = decodedToken.role;
+      }
       try {
+        console.log("Role: ",role);
         const [activityResponse, categoryResponse, tagResponse] =
           await Promise.all([
             axios.get(
@@ -296,39 +292,39 @@ const Activities = () => {
     fetchData();
   }, []); //role
 
-  const renderFrigadeProvider = () => {
-    if (role === null) {
-      return (
-        <Frigade.Provider
-          apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
-          userId={userid}
-          onError={(error) => console.error("Frigade Error:", error)}
-        >
-          <Frigade.Tour flowId="flow_cj5av0DS" />
-        </Frigade.Provider>
-      );
-    } else if (role === "tourist") {
-      return (
-        <Frigade.Provider
-          apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
-          userId={userid}
-          onError={(error) => console.error("Frigade Error:", error)}
-        >
-          <Frigade.Tour flowId="flow_cj5av0DS" />
-        </Frigade.Provider>
-      );
-    } else {
-      return (
-        <Frigade.Provider
-          apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
-          userId={userid}
-          onError={(error) => console.error("Frigade Error:", error)}
-        >
-          <Frigade.Tour flowId="flow_cj5av0DS" />
-        </Frigade.Provider>
-      );
-    }
-  };
+  // const renderFrigadeProvider = () => {
+  //   if (role === null) {
+  //     return (
+  //       <Frigade.Provider
+  //         apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
+  //         userId={userid}
+  //         onError={(error) => console.error("Frigade Error:", error)}
+  //       >
+  //         <Frigade.Tour flowId="flow_cj5av0DS" />
+  //       </Frigade.Provider>
+  //     );
+  //   } else if (role === "tourist") {
+  //     return (
+  //       <Frigade.Provider
+  //         apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
+  //         userId={userid}
+  //         onError={(error) => console.error("Frigade Error:", error)}
+  //       >
+  //         <Frigade.Tour flowId="flow_cj5av0DS" />
+  //       </Frigade.Provider>
+  //     );
+  //   } else {
+  //     return (
+  //       <Frigade.Provider
+  //         apiKey="api_public_BsnsmMKMGzioY5tWxlro5ECqXG0RnxBcSzVLRIPBot76iWiUwd44kbcaXFdSyvcB"
+  //         userId={userid}
+  //         onError={(error) => console.error("Frigade Error:", error)}
+  //       >
+  //         <Frigade.Tour flowId="flow_cj5av0DS" />
+  //       </Frigade.Provider>
+  //     );
+  //   }
+  // };
 
   const handleShowFrigade = () => {
     if (flowStatus === "ENDED") {
