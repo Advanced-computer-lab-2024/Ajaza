@@ -94,7 +94,9 @@ const ExamineAccountDetails = () => {
         <p>Email: {account.email}</p>
 
         <h3>ID:</h3>
-        <Typography.Link onClick={() => openModal([`http://localhost:3000/${account.id}`])}>
+        <Typography.Link
+          onClick={() => openModal([`http://localhost:3000/${account.id}`])}
+        >
           View ID Image
         </Typography.Link>
         <hr />
@@ -111,7 +113,11 @@ const ExamineAccountDetails = () => {
         {(accountType === "seller" || accountType === "advertiser") && (
           <>
             <h3>Taxation Registry Card:</h3>
-            <Typography.Link onClick={() => openModal([`http://localhost:3000/${account.taxationRegCard}`])}>
+            <Typography.Link
+              onClick={() =>
+                openModal([`http://localhost:3000/${account.taxationRegCard}`])
+              }
+            >
               View Taxation Registry Card
             </Typography.Link>
           </>
@@ -142,11 +148,17 @@ const ExamineAccountDetails = () => {
         centered
         bodyStyle={{ textAlign: "center" }}
       >
-        {modalImages.map((image, index) => (
-          <div key={index} style={{ marginBottom: "20px" }}>
-            <img src={image} alt={`Certificate ${index + 1}`} style={{ width: "100%" }} />
-          </div>
-        ))}
+        <div style={{ margin: "20px" }}>
+          {modalImages.map((image, index) => (
+            <div key={index} style={{ marginBottom: "20px" }}>
+              <img
+                src={image}
+                alt={`Certificate ${index + 1}`}
+                style={{ width: "100%" }}
+              />
+            </div>
+          ))}
+        </div>
       </Modal>
     </div>
   );

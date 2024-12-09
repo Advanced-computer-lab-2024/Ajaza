@@ -140,7 +140,18 @@ const FeedbackMini = ({
                           />
                         </Flex>
 
-                        <div className="desc">{feedbackItem.comments}</div>
+                        <div
+                          style={{
+                            display: "-webkit-box",
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                            WebkitLineClamp: 3, // Change this number to set max lines
+                            textOverflow: "ellipsis",
+                          }}
+                          className="desc"
+                        >
+                          {feedbackItem.comments}
+                        </div>
                       </Card>
                     </Col>
                   ))}

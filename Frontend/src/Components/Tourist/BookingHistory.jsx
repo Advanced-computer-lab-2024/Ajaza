@@ -34,7 +34,8 @@ const Plans = () => {
     title: "name",
     extra: "price",
     rating: "avgRating",
-    photo: "photo",
+    photo: "pictures",
+    discounts: "discounts",
   };
 
   const currencyRates = {
@@ -92,7 +93,7 @@ const Plans = () => {
   const handleCurrencyChange = (newCurrency) => {
     setCurrency(newCurrency);
   };
-  const fields = { Categories: "category", Tags: "tags", Type: "type" };
+  const fields = {};
   const searchFields = ["name", "category", "tags"];
   const constProps = { rateDisplay: true, currency, currencyRates };
   const sortFields = ["avgRating", "price"];

@@ -34,7 +34,7 @@ import MapComponent from "./Common/Map";
 import dayjs from "dayjs";
 import { Colors } from "./Common/Constants";
 import LoadingSpinner from "./Common/LoadingSpinner";
-import {getSetNewToken} from "./Common/Constants"
+import { getSetNewToken } from "./Common/Constants";
 
 const { Dragger } = Upload;
 // Create an axios instance with default headers
@@ -320,171 +320,183 @@ const Activities = () => {
       {loading ? (
         <LoadingSpinner />
       ) : activitiesData.length > 0 ? (
-        <Space
+        <div
           direction="horizontal"
           size="middle"
-          style={{ display: "flex", flexWrap: "wrap" }}
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "space-around",
+          }}
         >
-          {activitiesData.map((activity) => {
-            const avgRating = getAvgRating(activity?.feedback);
-            return (
-              <Card
-                key={activity._id}
-                cover={
-                  activity.pictures?.length != 0 ? (
-                    <Flex justify="center">
-                      <img
-                        alt={activity.pictures[0]}
-                        style={{ height: "150px", width: "80%" }}
-                        src={`/uploads/${activity.pictures[0]}.jpg`}
-                      />
-                    </Flex>
-                  ) : null
-                }
-                actions={[
-                  <EditOutlined
-                    key="edit"
-                    onClick={() => showEditModal(activity)}
-                  />,
-                  <DeleteOutlined
-                    key="delete"
-                    onClick={() => deleteActivity(activity._id)}
-                  />,
-                ]}
-                style={{
-                  minWidth: 370,
-                  maxWidth: 370,
-                  maxHeight: 760,
-                  minHeight: 760,
-                  marginBottom: "8px",
-                  marginRight: "14px",
-                  border:
-                    activity.isFlagged && activity.hidden
-                      ? "3px solid red"
-                      : "1px solid #e8e8e8",
-                  position: "relative", // Set position to relative for positioning flag
-                  borderRadius: "12px", // Rounded corners
-                  padding: "16px", // Padding inside the card
-                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)", // Subtle shadow effect
-                }}
-              >
-                {activity.isFlagged && activity.hidden && (
-                  <FlagOutlined
-                    style={{
-                      position: "absolute",
-                      top: "8px",
-                      right: "8px",
-                      color: "red",
-                      fontSize: "25px",
-                    }}
-                  />
-                )}
-                <Card.Meta
-                  title={
-                    <Title
-                      level={4}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "30% 30% 30%",
+              gridGap: "5%",
+              rowGap: "20px",
+            }}
+          >
+            {activitiesData.map((activity) => {
+              const avgRating = getAvgRating(activity?.feedback);
+              return (
+                <Card
+                  key={activity._id}
+                  cover={
+                    activity.pictures?.length != 0 ? (
+                      <Flex justify="center">
+                        <img
+                          alt={activity.pictures[0]}
+                          style={{ height: "150px", width: "80%" }}
+                          src={`/uploads/${activity.pictures[0]}.jpg`}
+                        />
+                      </Flex>
+                    ) : null
+                  }
+                  actions={[
+                    <EditOutlined
+                      key="edit"
+                      onClick={() => showEditModal(activity)}
+                    />,
+                    <DeleteOutlined
+                      key="delete"
+                      onClick={() => deleteActivity(activity._id)}
+                    />,
+                  ]}
+                  style={{
+                    minWidth: 370,
+                    maxWidth: 370,
+                    maxHeight: 760,
+                    minHeight: 760,
+                    marginBottom: "8px",
+                    marginRight: "14px",
+                    border:
+                      activity.isFlagged && activity.hidden
+                        ? "3px solid red"
+                        : "1px solid #e8e8e8",
+                    position: "relative", // Set position to relative for positioning flag
+                    borderRadius: "12px", // Rounded corners
+                    padding: "16px", // Padding inside the card
+                  }}
+                >
+                  {activity.isFlagged && activity.hidden && (
+                    <FlagOutlined
                       style={{
-                        fontWeight: "600",
-                        marginBottom: "10px",
-                        fontSize: "18px",
-                        color: Colors.primary.default, // You can customize this color as needed
+                        position: "absolute",
+                        top: "8px",
+                        right: "8px",
+                        color: "red",
+                        fontSize: "25px",
                       }}
-                    >
-                      {activity.name}
-                    </Title>
-                  }
-                  description={
-                    <div>
-                      <p
+                    />
+                  )}
+                  <Card.Meta
+                    title={
+                      <Title
+                        level={4}
                         style={{
-                          overflow: "hidden", // Hides overflowing content
-                          textOverflow: "ellipsis", // Adds "..." at the end of the truncated text
-                          display: "-webkit-box", // Required for line clamping
-                          WebkitBoxOrient: "vertical", // Required for line clamping
-                          WebkitLineClamp: 3, // Number of lines to display
-                          maxHeight: "2.5em",
+                          fontWeight: "600",
+                          marginBottom: "10px",
+                          fontSize: "18px",
+                          color: Colors.primary.default, // You can customize this color as needed
                         }}
                       >
-                        {activity.description}
-                      </p>
-                      <p
-                        style={{
-                          overflow: "hidden", // Hides overflowing content
-                          textOverflow: "ellipsis", // Adds "..." to the truncated text
-                          whiteSpace: "nowrap", // Prevents wrapping to a new line
-                        }}
-                      >
-                        <Text strong>Location:</Text>{" "}
-                        <a
-                          href={activity.location}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        {activity.name}
+                      </Title>
+                    }
+                    description={
+                      <div>
+                        <p
                           style={{
-                            color: "#1890ff",
-                            textDecoration: "none",
+                            overflow: "hidden", // Hides overflowing content
+                            textOverflow: "ellipsis", // Adds "..." at the end of the truncated text
+                            display: "-webkit-box", // Required for line clamping
+                            WebkitBoxOrient: "vertical", // Required for line clamping
+                            WebkitLineClamp: 3, // Number of lines to display
+                            maxHeight: "2.5em",
                           }}
                         >
-                          {activity.location}
-                        </a>
-                      </p>
-                      <p>
-                        <Text strong>Datetime:</Text>{" "}
-                        {new Date(activity.date).toLocaleString()}
-                      </p>
-                      <p>
-                        <Text strong>Upper Limit:</Text> {activity.upper}
-                      </p>
-                      <p>
-                        <Text strong>Lower Limit:</Text> {activity.lower}
-                      </p>
-
-                      <p>
-                        <Text strong>Categories:</Text> {activity.category}
-                      </p>
-
-                      <p>
-                        <Text strong>Tags:</Text>
-                        {activity.tags.map((tagId) => (
-                          <Tag
-                            key={tagId}
-                            color={Colors.primary.default}
-                            style={{ margin: "3px" }}
+                          {activity.description}
+                        </p>
+                        <p
+                          style={{
+                            overflow: "hidden", // Hides overflowing content
+                            textOverflow: "ellipsis", // Adds "..." to the truncated text
+                            whiteSpace: "nowrap", // Prevents wrapping to a new line
+                          }}
+                        >
+                          <Text strong>Location:</Text>{" "}
+                          <a
+                            href={activity.location}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              color: "#1890ff",
+                              textDecoration: "none",
+                            }}
                           >
-                            {tags.find((tag) => tag._id === tagId)?.tag ||
-                              tagId}
-                          </Tag>
-                        )) || "None"}
-                      </p>
+                            {activity.location}
+                          </a>
+                        </p>
+                        <p>
+                          <Text strong>Datetime:</Text>{" "}
+                          {new Date(activity.date).toLocaleString()}
+                        </p>
+                        <p>
+                          <Text strong>Upper Limit:</Text> {activity.upper}
+                        </p>
+                        <p>
+                          <Text strong>Lower Limit:</Text> {activity.lower}
+                        </p>
 
-                      <p>
-                        <Text strong>Available Spots:</Text> {activity.spots}
-                      </p>
-                      <p>
-                        <Text strong>Is Open:</Text>{" "}
-                        {activity.isOpen ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <Text strong>Discounts:</Text> {activity.discounts}%
-                      </p>
-                      <p>
-                        <Text strong>Flagged:</Text>{" "}
-                        <span
-                          style={{
-                            color: activity.isFlagged ? "red" : "#555",
-                          }}
-                        >
-                          {activity.isFlagged ? "Yes" : "No"}
-                        </span>{" "}
-                      </p>
+                        <p>
+                          <Text strong>Categories:</Text> {activity.category}
+                        </p>
 
-                      <Rate value={avgRating} />
-                    </div>
-                  }
-                />
-              </Card>
-            );
-          })}
-        </Space>
+                        <p>
+                          <Text strong>Tags:</Text>
+                          {activity.tags.map((tagId) => (
+                            <Tag
+                              key={tagId}
+                              color={Colors.primary.default}
+                              style={{ margin: "3px" }}
+                            >
+                              {tags.find((tag) => tag._id === tagId)?.tag ||
+                                tagId}
+                            </Tag>
+                          )) || "None"}
+                        </p>
+
+                        <p>
+                          <Text strong>Available Spots:</Text> {activity.spots}
+                        </p>
+                        <p>
+                          <Text strong>Is Open:</Text>{" "}
+                          {activity.isOpen ? "Yes" : "No"}
+                        </p>
+                        <p>
+                          <Text strong>Discounts:</Text> {activity.discounts}%
+                        </p>
+                        <p>
+                          <Text strong>Flagged:</Text>{" "}
+                          <span
+                            style={{
+                              color: activity.isFlagged ? "red" : "#555",
+                            }}
+                          >
+                            {activity.isFlagged ? "Yes" : "No"}
+                          </span>{" "}
+                        </p>
+
+                        <Rate value={avgRating} />
+                      </div>
+                    }
+                  />
+                </Card>
+              );
+            })}
+          </div>
+        </div>
       ) : (
         <Empty description="Create your activity" />
       )}
@@ -608,6 +620,11 @@ const Activities = () => {
                       )
                     );
                   }
+                  if (value <= 0) {
+                    return Promise.reject(
+                      new Error("Lower limit must be greater than 0")
+                    );
+                  }
                   return Promise.resolve();
                 },
               }),
@@ -691,7 +708,7 @@ const Activities = () => {
             </Form.Item>
           )}
 
-          <Form.Item>
+          <Form.Item style={{ textAlign: "center" }}>
             <AntButton
               type="primary"
               htmlType="submit"
