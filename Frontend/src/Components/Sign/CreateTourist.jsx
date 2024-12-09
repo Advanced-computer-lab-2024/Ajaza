@@ -100,7 +100,7 @@ const CreateTourist = () => {
           style={{
             width: 650,
             height: 550,
-            background: "rgba(255, 255, 255, 0.60)",
+            background: "rgba(255, 255, 255, 0.70)",
             boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
             borderRadius: "10px",
             padding: "20px",
@@ -203,7 +203,10 @@ const CreateTourist = () => {
               ]}
               style={{ width: "100%" }}
             >
-              <DatePicker placeholder="Date of Birth" style={{ width: "80%" }}/>
+              <DatePicker
+                placeholder="Date of Birth"
+                style={{ width: "80%" }}
+              />
             </Form.Item>
 
             <Form.Item

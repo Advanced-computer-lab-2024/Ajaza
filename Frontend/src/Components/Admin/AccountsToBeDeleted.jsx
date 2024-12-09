@@ -16,6 +16,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import SearchFilterSortContainer from "../Common/SearchFilterSortContainer";
 import Search from "../Common/Search";
+import LoadingSpinner from "../Common/LoadingSpinner";
 const { Title } = Typography;
 
 const AccountsToBeDeleted = () => {
@@ -49,13 +50,14 @@ const AccountsToBeDeleted = () => {
     } else {
       try {
         let guides = await axios.get(apiUrl + "guide/requestingdeletion");
-
         guides = guides.data.map((guide) => {
           return {
             ...guide,
             type: "guide",
           };
         });
+
+        console.log(guides);
 
         let advertisers = await axios.get(
           apiUrl + "advertiser/requestingdeletion"
@@ -205,35 +207,33 @@ const AccountsToBeDeleted = () => {
         </div>
 
         {loading ? (
-          <div> Loading...</div>
-        ) : (
-          <Row gutter={16}>
-            {accounts.length > 0 ? (
-              accounts.map((account) => (
-                <Col
-                  span={8}
-                  key={account._id}
-                  style={{ marginBottom: "16px" }}
-                >
-                  <Card title={account.username} bordered={false}>
-                    <p>Account Type: {account.type}</p>
-                    <Button
-                      type="default"
-                      icon={<DeleteOutlined />} // Use the delete icon here
-                      onClick={() => handleDelete(account._id, account.type)}
-                      style={{ color: "red" }} // Optional: Change color to red
-                    >
-                      Delete
-                    </Button>
-                  </Card>
-                </Col>
-              ))
-            ) : (
-              <Col span={24} style={{ textAlign: "center" }}>
-                <Empty />
+          <LoadingSpinner />
+        ) : accounts.length > 0 ? (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "22% 22% 22% 22%",
+              gridGap: "4%",
+            }}
+          >
+            {accounts.map((account) => (
+              <Col key={account._id} style={{ marginBottom: "16px" }}>
+                <Card title={account.username} bordered={false}>
+                  <p>Account Type: {account.type}</p>
+                  <Button
+                    type="default"
+                    icon={<DeleteOutlined />} // Use the delete icon here
+                    onClick={() => handleDelete(account._id, account.type)}
+                    style={{ color: "red" }} // Optional: Change color to red
+                  >
+                    Delete
+                  </Button>
+                </Card>
               </Col>
-            )}
-          </Row>
+            ))}
+          </div>
+        ) : (
+          <Empty />
         )}
       </div>
     </div>
