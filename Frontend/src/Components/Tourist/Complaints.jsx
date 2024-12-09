@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { message, Card, Button, Form, Modal, Input, Empty } from "antd";
+import { message, Col, Card, Button, Form, Modal, Input, Empty } from "antd";
 import axios from "axios";
 import { apiUrl, Colors } from "../Common/Constants";
 import { jwtDecode } from "jwt-decode";
@@ -15,17 +15,8 @@ const Complaints = () => {
   const [touristId, setTouristId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const decodedToken = jwtDecode(token);
-      const userDetails = decodedToken.userDetails;
-      setTouristId(userDetails._id);
-    }
-  }, []);
 
-  useEffect(() => {
-    const fetchComplaints = async () => {
+  const fetchComplaints = async () => {
       if (touristId) {
         try {
           const response = await axios.get(
@@ -41,6 +32,17 @@ const Complaints = () => {
         }
       }
     };
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      const userDetails = decodedToken.userDetails;
+      setTouristId(userDetails._id);
+    }
+  }, []);
+
+  useEffect(() => {
+    
 
     fetchComplaints();
   }, [touristId]);
@@ -68,6 +70,7 @@ const Complaints = () => {
       form.setFieldsValue({ title: "", body: "" });
       form.resetFields();
       setIsModalOpen(false);
+      fetchComplaints();
       message.success(response.data.message);
       localStorage.setItem("selectedMenuKey", 8);
 
@@ -88,7 +91,7 @@ const Complaints = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-
+  
   return (
     <div>
       <h2>My Complaints</h2>
@@ -162,41 +165,45 @@ const Complaints = () => {
             display: "grid",
             gridTemplateColumns: "22% 22% 22% 22%",
             gridGap: "4%",
+            rowGap: "15px",
+            width: "100%",
           }}
         >
           {complaints.map((complaint) => (
-            <Card
-              key={complaint._id}
-              title={complaint.title}
-              style={{
-                width: "100%",
-                maxWidth: "300px",
-                marginBottom: "16px",
-                borderRadius: "8px",
-                padding: "16px",
-                paddingBottom: "4px",
-              }}
-            >
-              <p>
-                <strong>Status:</strong>{" "}
-                {complaint.pending ? "Pending" : "Resolved"}
-              </p>
-              <p>
-                <strong>Date:</strong>{" "}
-                {new Date(complaint.date).toLocaleDateString()}
-              </p>
-              <Button
-                type="default"
-                icon={<BarsOutlined />}
-                onClick={() => handleDetailsView(complaint)}
-                style={{ color: Colors.primary.default }}
-              >
-                View Details
-              </Button>
-            </Card>
-          ))}
-        </div>
-      ) : (
+                <Col
+                  key={complaint._id}
+                  onClick={() => handleDetailsView(complaint)}
+                >
+                  <Card
+                    title={`Title: ${complaint.title}`}
+                    style={{
+                      minHeight: "200px",
+                      width: "auto",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <p>
+                      <strong>Status: </strong> {complaint.pending ? "Pending" : "Resolved"}
+                    </p>
+                    <p>
+                      <strong>Date: </strong>{" "}
+                      {new Date(complaint.date).toLocaleDateString()}
+                    </p>
+                    <Button
+                      type="default"
+                      icon={<BarsOutlined />}
+                      onClick={() => handleDetailsView(complaint)}
+                      style={{ color: Colors.primary.default }}
+                    >
+                      View Details
+                    </Button>
+                  </Card>
+                </Col>
+              ))}
+            </div>
+          ) : (
         <Empty />
       )}
     </div>
