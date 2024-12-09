@@ -709,7 +709,7 @@ const Activities = () => {
             </Form.Item>
           )}
 
-          <Form.Item style={{ textAlign: "center" }}>
+          <Form.Item>
             <AntButton
               type="primary"
               htmlType="submit"

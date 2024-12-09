@@ -205,7 +205,7 @@ const AdminCustomLayout = ({ children }) => {
       </Flex>
     </Flex>
   );
-  
+
   useEffect(() => {
     setNavBarItems(
       <Flex
@@ -484,7 +484,7 @@ const AdminCustomLayout = ({ children }) => {
         </Header>
         <Content
           style={{
-            margin: "24px 16px",
+            margin: "40px 50px",
             padding: 24,
             minHeight: 280,
             background: colorBgContainer,
