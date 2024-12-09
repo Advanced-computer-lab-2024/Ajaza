@@ -24,19 +24,16 @@ const CreateAdvertiser = () => {
   const [canNext, setCanNext] = useState(true);
   const navigate = useNavigate();
 
-  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleFileChange = (field) => ({ fileList }) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: fileList,
-    }));
+  const handleFileChange = (name) => (info) => {
+    let fileList = [...info.fileList];
+    setFormData((prevData) => ({ ...prevData, [name]: fileList }));
   };
-  
+
   const nextStep = async () => {
     if (!canNext) return;
     setLoading(true);
@@ -162,10 +159,12 @@ const CreateAdvertiser = () => {
   };
 
   const beforeUpload = (file) => {
-    console.log("File to be uploaded: ", file);
-    return false; // Prevent default upload behavior
+    const isImage = file.type.startsWith("image/");
+    if (!isImage) {
+      message.error("You can only upload image files!");
+    }
+    return isImage || Upload.LIST_IGNORE;
   };
-  
 
   const passwordStrengthValidator = (_, value) => {
     if (!value) {
@@ -220,7 +219,7 @@ const CreateAdvertiser = () => {
             </h1>
           </div>
           <Form
-            name="upload-form"
+            name="basic"
             style={{
               maxWidth: 600,
               width: "100%",
@@ -300,14 +299,15 @@ const CreateAdvertiser = () => {
               <>
                 {/* Upload ID */}
                 <Form.Item
-  name="document1"
-  valuePropName="fileList"
-  getValueFromEvent={(e) => e && e.fileList}
-  rules={[
-    { required: true, message: "Please upload the document." },
-  ]}
->
-
+                  name="document1"
+                  valuePropName="fileList"
+                  getValueFromEvent={(e) => e.fileList}
+                  extra={
+                    <div style={{ color: Colors.grey[800] }}>
+                      Upload your ID
+                    </div>
+                  }
+                >
                   <Upload
                     name="doc1"
                     listType="text"
