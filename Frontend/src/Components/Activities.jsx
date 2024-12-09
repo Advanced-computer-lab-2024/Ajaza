@@ -335,6 +335,8 @@ const Activities = () => {
               gridTemplateColumns: "30% 30% 30%",
               gridGap: "5%",
               rowGap: "20px",
+              width: "100%",
+              flexShrink: "0",
             }}
           >
             {activitiesData.map((activity) => {
@@ -369,7 +371,6 @@ const Activities = () => {
                     maxHeight: 760,
                     minHeight: 760,
                     marginBottom: "8px",
-                    marginRight: "14px",
                     border:
                       activity.isFlagged && activity.hidden
                         ? "3px solid red"
