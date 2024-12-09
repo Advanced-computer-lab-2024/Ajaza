@@ -27,10 +27,22 @@ exports.getAllItineraries = async (req, res) => {
   }
 };
 
+
+const filterFutureItineraries = (itineraries) => {
+  const currentDate = new Date();
+  return itineraries.filter(itinerary =>
+    itinerary.availableDateTime.some(available => new Date(available.date) >= currentDate)
+  );
+};
+
+
 exports.getAdminItineraries = async (req, res) => {
   try {
-    const itineraries = await Itinerary.find({$nor: [{ hidden: true, isFlagged: false }]}).populate("guideId");
-    res.status(200).json(itineraries);
+    const itineraries = await Itinerary.find({ $nor: [{ hidden: true, isFlagged: false }] }).populate("guideId");
+    
+    const futureItineraries = filterFutureItineraries(itineraries);
+
+    res.status(200).json(futureItineraries);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
