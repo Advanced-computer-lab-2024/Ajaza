@@ -11,16 +11,12 @@ import * as Frigade from "@frigade/react";
 import CustomButton from "../Common/CustomButton";
 import { Button } from "antd";
 
-
 const token = localStorage.getItem("token");
 let decodedToken = null;
-let role = null;
 if (token) {
   decodedToken = jwtDecode(token);
-  role = decodedToken?.role; // Extract the role from the token
-
+  console.log("token: ", decodedToken);
 }
-console.log("itin role nour", role);
 const userid = decodedToken ? decodedToken.userId : null;
 
 const convertCategoriesToValues = (categoriesArray) => {
@@ -97,7 +93,6 @@ const Itineraries = () => {
     navigate(element["_id"]);
   };
   const [combinedElements, setCombinedElements] = useState([]);
-  const [role,setrole] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // propName:fieldName
@@ -117,7 +112,6 @@ const Itineraries = () => {
 
   const { flowStatus, resetFlow } = useFrigade(); // Importing flow management functions
   const [showFrigade, setShowFrigade] = useState(false);
-
 
   const handleCurrencyChange = (newCurrency) => {
     setCurrency(newCurrency);
@@ -245,26 +239,24 @@ const Itineraries = () => {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-       decodedToken = jwtDecode(token);
-       setrole(decodedToken?.role);
-       console.log("weeeeeeITIN" , role);
-     }
-  },[]);
-
-  useEffect(() => {
     const fetchData = async () => {
+      const token = localStorage.getItem("token");
+      let decodedToken = null;
+      let role = null;
+      if (token) {
+        decodedToken = jwtDecode(token);
+        console.log("token: ", decodedToken);
+        role = decodedToken?.role; // Extract the role from the token 
+      }
       try {
-        const [itineraryResponse, tagResponse, itineraryResponseAdmin ] = await Promise.all([
-          axios.get(`${apiUrl}itinerary/notHidden`),
+        const [itineraryResponse, tagResponse] = await Promise.all([
+          axios.get(
+            `${apiUrl}itinerary/${role === "admin" ? "admin" : "notHidden"}`
+          ),
           axios.get(`${apiUrl}tag`),
-          axios.get(`${apiUrl}itinerary/admin`),
-
         ]);
         let itineraries = itineraryResponse.data;
         let tags = tagResponse.data;
-        let itinerariesAdmin = itineraryResponseAdmin.data;
 
         filterFields.tags = {
           displayName: "Tags",
@@ -282,18 +274,9 @@ const Itineraries = () => {
           },
         };
         console.log(itineraries);
-        let combinedArray;
-        console.log("ENGY", role);
-        if(role === "admin"){
-          console.log("admin a3taked");
-           combinedArray = itinerariesAdmin;
 
-          }
-        else if (role=== "tourist"){
-          console.log("tourist a3taked");
-           combinedArray = itineraries;
+        let combinedArray = itineraries;
 
-        }
         combinedArray = combinedArray.map((element) => {
           return {
             ...element,
@@ -320,40 +303,39 @@ const Itineraries = () => {
     );
   }, [currency]);
 
-  const renderFrigadeProvider = () => {
-    if (role === null) {
-      return (
-        <Frigade.Provider
-          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
-          userId={userid}
-          onError={(error) => console.error("Frigade Error:", error)}
-        >
-          <Frigade.Tour flowId="flow_skhaNY2m" />
-        </Frigade.Provider>
-      );
-    } else if (role === "tourist") {
-      return (
-        <Frigade.Provider
-          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
-          userId={userid}
-          onError={(error) => console.error("Frigade Error:", error)}
-        >
-          <Frigade.Tour flowId="flow_skhaNY2m" />
-        </Frigade.Provider>
-      );
-    }
-    else {
-      return (
-        <Frigade.Provider
-          apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
-          userId={userid}
-          onError={(error) => console.error("Frigade Error:", error)}
-        >
-          <Frigade.Tour flowId="flow_skhaNY2m" />
-        </Frigade.Provider>
-      );
-    }
-  }
+  // const renderFrigadeProvider = () => {
+  //   if (role === null) {
+  //     return (
+  //       <Frigade.Provider
+  //         apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+  //         userId={userid}
+  //         onError={(error) => console.error("Frigade Error:", error)}
+  //       >
+  //         <Frigade.Tour flowId="flow_skhaNY2m" />
+  //       </Frigade.Provider>
+  //     );
+  //   } else if (role === "tourist") {
+  //     return (
+  //       <Frigade.Provider
+  //         apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+  //         userId={userid}
+  //         onError={(error) => console.error("Frigade Error:", error)}
+  //       >
+  //         <Frigade.Tour flowId="flow_skhaNY2m" />
+  //       </Frigade.Provider>
+  //     );
+  //   } else {
+  //     return (
+  //       <Frigade.Provider
+  //         apiKey="api_public_qO3GMS6zamh9JNuyKBJlI8IsQcnxTuSVWJLu3WUUTUyc8VQrjqvFeNsqTonlB3Ik"
+  //         userId={userid}
+  //         onError={(error) => console.error("Frigade Error:", error)}
+  //       >
+  //         <Frigade.Tour flowId="flow_skhaNY2m" />
+  //       </Frigade.Provider>
+  //     );
+  //   }
+  // };
 
   const handleShowFrigade = () => {
     if (flowStatus === "ENDED") {
@@ -364,30 +346,9 @@ const Itineraries = () => {
       setShowFrigade(true); // Show Frigade after resetting
     }, 0);
   };
-  
 
   return (
     <div>
-           
-      <CustomButton size={"s"} value={"Hint"} onClick={handleShowFrigade} style={{ marginBottom: "16px" }}/>
-      
-      {showFrigade && renderFrigadeProvider()}
-     <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "16px",
-        }}
-      >
-        {/* <SelectCurrency
-          basePrice={null}
-          currency={currency}
-          onCurrencyChange={handleCurrencyChange}
-          style={{ left: 1000, top: 55 }}
-        /> */}
-      </div>
       <SearchFilterSortContainer
         cardComponent={BasicCard}
         elements={combinedElements}
@@ -400,7 +361,6 @@ const Itineraries = () => {
         cardOnclick={cardOnclick}
         isLoading={isLoading}
       />
-    </div>
     </div>
   );
 };
