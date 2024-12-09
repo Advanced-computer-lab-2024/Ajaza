@@ -75,7 +75,7 @@ const FeedbackMini = ({
             }, [])
             .map((batch, idx) => (
               <div key={idx}>
-                <Row style={contentStyle}>
+                <Row style={contentStyle} gutter={15}>
                   {batch.map((feedbackItem, colIdx) => (
                     <Col
                       key={colIdx}

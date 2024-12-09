@@ -9,6 +9,7 @@ import {
   message,
   Input,
   Menu,
+  Empty,
 } from "antd";
 import { BarsOutlined } from "@ant-design/icons";
 import { apiUrl, Colors } from "../Common/Constants";
@@ -346,7 +347,7 @@ const TouristsComplaints = () => {
             </div>
           ) : (
             <Col span={24} style={{ textAlign: "center" }}>
-              <p>No complaints found.</p>
+              <Empty />
             </Col>
           )}
         </>

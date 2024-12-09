@@ -34,7 +34,7 @@ import { Color } from "antd/es/color-picker";
 import LoadingSpinner from "./Common/LoadingSpinner";
 import dayjs from "dayjs";
 import "./Itineraries.css";
-import {getSetNewToken} from "./Common/Constants"
+import { getSetNewToken } from "./Common/Constants";
 
 const { Option } = Select;
 const { Dragger } = Upload;
@@ -96,7 +96,8 @@ const Itineraries = () => {
       );
       setItinerariesData(response.data);
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Error: Please try again.";
+      const errorMessage =
+        error.response?.data?.message || "Error: Please try again.";
       message.error(`${errorMessage}`);
     } finally {
       setLoading(false);
@@ -351,213 +352,228 @@ const Itineraries = () => {
         ) : itinerariesData.length == 0 ? (
           <Empty />
         ) : (
-          <Space
+          <div
             direction="horizontal"
             size="middle"
-            style={{ display: "flex", flexWrap: "wrap" }}
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "space-around",
+            }}
           >
-            {itinerariesData.map((itinerary) => (
-              <Card
-                key={itinerary._id}
-                actions={[
-                  <EditOutlined
-                    key="edit"
-                    onClick={() => openEditModal(itinerary._id)}
-                  />,
-                  <DeleteOutlined
-                    key="delete"
-                    onClick={() => deleteItinerary(itinerary._id)}
-                  />,
-                ]}
-                cover={
-                  itinerary.pictures?.length != 0 ? (
-                    <Flex justify="center">
-                      <img
-                        alt={itinerary.pictures[0]}
-                        style={{ height: "150px", width: "80%" }}
-                        src={`/uploads/${itinerary.pictures[0]}.jpg`}
-                      />
-                    </Flex>
-                  ) : null
-                }
-                style={{
-                  minWidth: 370,
-                  maxWidth: 370,
-                  maxHeight: 760,
-                  minHeight: 760,
-                  marginBottom: "8px",
-                  marginRight: "12px",
-                  border:
-                    itinerary.isFlagged && itinerary.hidden
-                      ? "3px solid red"
-                      : "1px solid #e8e8e8",
-                  position: "relative", // Set position to relative for positioning flag
-                  borderRadius: "12px", // Rounded corners
-                  padding: "16px", // Padding inside the card
-                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                }}
-              >
-                {itinerary.isFlagged && itinerary.hidden && (
-                  <FlagOutlined
-                    style={{
-                      position: "absolute",
-                      top: "8px",
-                      right: "8px",
-                      color: "red",
-                      fontSize: "25px",
-                    }}
-                  />
-                )}
-
-                <Card.Meta
-                  title={
-                    <Title
-                      level={4}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "30% 30% 30%",
+                gridGap: "5%",
+                rowGap: "20px",
+                width: "100%",
+                flexShrink: "0",
+              }}
+            >
+              {itinerariesData.map((itinerary) => (
+                <Card
+                  key={itinerary._id}
+                  actions={[
+                    <EditOutlined
+                      key="edit"
+                      onClick={() => openEditModal(itinerary._id)}
+                    />,
+                    <DeleteOutlined
+                      key="delete"
+                      onClick={() => deleteItinerary(itinerary._id)}
+                    />,
+                  ]}
+                  cover={
+                    itinerary.pictures?.length != 0 ? (
+                      <Flex justify="center">
+                        <img
+                          alt={itinerary.pictures[0]}
+                          style={{ height: "150px", width: "80%" }}
+                          src={`/uploads/${itinerary.pictures[0]}.jpg`}
+                        />
+                      </Flex>
+                    ) : null
+                  }
+                  style={{
+                    minWidth: 370,
+                    maxWidth: 370,
+                    maxHeight: 760,
+                    minHeight: 760,
+                    marginBottom: "8px",
+                    marginRight: "12px",
+                    border:
+                      itinerary.isFlagged && itinerary.hidden
+                        ? "3px solid red"
+                        : "1px solid #e8e8e8",
+                    position: "relative", // Set position to relative for positioning flag
+                    borderRadius: "12px", // Rounded corners
+                    padding: "16px", // Padding inside the card
+                  }}
+                >
+                  {itinerary.isFlagged && itinerary.hidden && (
+                    <FlagOutlined
                       style={{
-                        fontWeight: "600",
-                        marginBottom: "10px",
-                        fontSize: "18px",
-                        color: Colors.primary.default, // You can customize this color as needed
+                        position: "absolute",
+                        top: "8px",
+                        right: "8px",
+                        color: "red",
+                        fontSize: "25px",
                       }}
-                    >
-                      {itinerary.name}
-                    </Title>
-                  }
-                  description={
-                    <div>
-                      <p
-                        style={{
-                          overflow: "hidden", // Hides overflowing content
-                          textOverflow: "ellipsis", // Adds "..." to truncated text
-                          display: "-webkit-box", // Required for line clamping
-                          WebkitBoxOrient: "vertical", // Required for line clamping
-                          WebkitLineClamp: 3, // Number of lines to display
-                          lineHeight: "1.2em", // Ensure consistent line height
-                          maxHeight: "2.6em", // Adjust according to line height * line clamp
-                        }}
-                      >
-                        {itinerary.description}
-                      </p>
-                      <p>
-                        <Text strong>Price:</Text>{" "}
-                        <span style={{ color: "#5b8b77" }}>
-                          {itinerary.price}
-                        </span>
-                      </p>
-                      <p>
-                        <Text strong>Language:</Text> {itinerary.language}
-                      </p>
-                      <p>
-                        <Text strong>Pick Up Location:</Text> {itinerary.pickUp}
-                      </p>
-                      <p>
-                        <Text strong>Drop Off Location:</Text>{" "}
-                        {itinerary.dropOff}
-                      </p>
-                      <p>
-                        <Text strong>Maximum Tourists:</Text>{" "}
-                        {itinerary.maxTourists}
-                      </p>
-                      <p>
-                        <Text strong>Active:</Text>{" "}
-                        {itinerary.active ? "Yes" : "No"}
-                      </p>
-                      <p>
-                        <Text strong>Accessibility:</Text>{" "}
-                        <span>
-                          {itinerary.accessibility || "Not specified"}
-                        </span>
-                      </p>
-                      <p>
-                        <Text strong>Tags:</Text>{" "}
-                        {itinerary.tags?.map((tagId) => (
-                          <Tag
-                            key={tagId}
-                            color={Colors.primary.default}
-                            style={{ margin: "3px" }}
-                          >
-                            {tags.find((tag) => tag._id === tagId)?.tag ||
-                              tagId}
-                          </Tag>
-                        )) || "None"}
-                      </p>
-                      <p
-                        style={{
-                          display: "flex",
-                          overflowX: "auto", // Allows horizontal scrolling
-                          whiteSpace: "nowrap", // Prevent wrapping of text to the next line
-                          width: "100%", // Ensures it takes up full width
-                          position: "relative", // For positioning the gradient fade (optional)
-                        }}
-                      >
-                        <Text strong>Available Dates:</Text>{" "}
-                        <div
-                          style={{
-                            marginLeft: "3px",
-                            display: "flex",
-                            flexWrap: "nowrap", // Prevent wrapping of items
-                            alignItems: "center", // Align items in the middle
-                          }}
-                        >
-                          {itinerary.availableDateTime.length > 0
-                            ? itinerary.availableDateTime
-                                .map(
-                                  (dateEntry, index) =>
-                                    `${new Date(
-                                      dateEntry.date
-                                    ).toLocaleDateString()} (Spots: ${
-                                      dateEntry.spots
-                                    })`
-                                )
-                                .join(", ")
-                            : "No available dates"}
-                        </div>
-                      </p>
-                      <p
-                        style={{
-                          display: "flex",
-                          overflowX: "auto", // Allows horizontal scrolling
-                          whiteSpace: "nowrap", // Prevent wrapping of text to the next line
-                          width: "100%", // Ensures it takes up full width
-                          position: "relative", // Limits the text to 2 lines
-                        }}
-                      >
-                        <Text strong>Timeline:</Text>{" "}
-                        <div
-                          style={{
-                            marginLeft: "3px",
-                            display: "flex",
-                            flexWrap: "nowrap", // Prevent wrapping of items
-                            alignItems: "center", // Align items in the middle
-                          }}
-                        >
-                          {itinerary.timeline.length > 0
-                            ? itinerary.timeline
-                                .map(
-                                  (entry) =>
-                                    `Start: ${entry.start}, Duration: ${entry.duration} mins, type: ${entry.type}`
-                                )
-                                .join(", ")
-                            : "No timeline available"}
-                        </div>
-                      </p>
+                    />
+                  )}
 
-                      <p>
-                        <Text strong>Flagged:</Text>{" "}
-                        <span
+                  <Card.Meta
+                    title={
+                      <Title
+                        level={4}
+                        style={{
+                          fontWeight: "600",
+                          marginBottom: "10px",
+                          fontSize: "18px",
+                          color: Colors.primary.default, // You can customize this color as needed
+                        }}
+                      >
+                        {itinerary.name}
+                      </Title>
+                    }
+                    description={
+                      <div>
+                        <p
                           style={{
-                            color: itinerary.isFlagged ? "red" : "#555",
+                            overflow: "hidden", // Hides overflowing content
+                            textOverflow: "ellipsis", // Adds "..." to truncated text
+                            display: "-webkit-box", // Required for line clamping
+                            WebkitBoxOrient: "vertical", // Required for line clamping
+                            WebkitLineClamp: 3, // Number of lines to display
+                            lineHeight: "1.2em", // Ensure consistent line height
+                            maxHeight: "2.6em", // Adjust according to line height * line clamp
                           }}
                         >
-                          {itinerary.isFlagged ? "Yes" : "No"}
-                        </span>
-                      </p>
-                    </div>
-                  }
-                />
-              </Card>
-            ))}
-          </Space>
+                          {itinerary.description}
+                        </p>
+                        <p>
+                          <Text strong>Price:</Text>{" "}
+                          <span style={{ color: "#5b8b77" }}>
+                            {itinerary.price}
+                          </span>
+                        </p>
+                        <p>
+                          <Text strong>Language:</Text> {itinerary.language}
+                        </p>
+                        <p>
+                          <Text strong>Pick Up Location:</Text>{" "}
+                          {itinerary.pickUp}
+                        </p>
+                        <p>
+                          <Text strong>Drop Off Location:</Text>{" "}
+                          {itinerary.dropOff}
+                        </p>
+                        <p>
+                          <Text strong>Maximum Tourists:</Text>{" "}
+                          {itinerary.maxTourists}
+                        </p>
+                        <p>
+                          <Text strong>Active:</Text>{" "}
+                          {itinerary.active ? "Yes" : "No"}
+                        </p>
+                        <p>
+                          <Text strong>Accessibility:</Text>{" "}
+                          <span>
+                            {itinerary.accessibility || "Not specified"}
+                          </span>
+                        </p>
+                        <p>
+                          <Text strong>Tags:</Text>{" "}
+                          {itinerary.tags?.map((tagId) => (
+                            <Tag
+                              key={tagId}
+                              color={Colors.primary.default}
+                              style={{ margin: "3px" }}
+                            >
+                              {tags.find((tag) => tag._id === tagId)?.tag ||
+                                tagId}
+                            </Tag>
+                          )) || "None"}
+                        </p>
+                        <p
+                          style={{
+                            display: "flex",
+                            overflowX: "auto", // Allows horizontal scrolling
+                            whiteSpace: "nowrap", // Prevent wrapping of text to the next line
+                            width: "100%", // Ensures it takes up full width
+                            position: "relative", // For positioning the gradient fade (optional)
+                          }}
+                        >
+                          <Text strong>Available Dates:</Text>{" "}
+                          <div
+                            style={{
+                              marginLeft: "3px",
+                              display: "flex",
+                              flexWrap: "nowrap", // Prevent wrapping of items
+                              alignItems: "center", // Align items in the middle
+                            }}
+                          >
+                            {itinerary.availableDateTime.length > 0
+                              ? itinerary.availableDateTime
+                                  .map(
+                                    (dateEntry, index) =>
+                                      `${new Date(
+                                        dateEntry.date
+                                      ).toLocaleDateString()} (Spots: ${
+                                        dateEntry.spots
+                                      })`
+                                  )
+                                  .join(", ")
+                              : "No available dates"}
+                          </div>
+                        </p>
+                        <p
+                          style={{
+                            display: "flex",
+                            overflowX: "auto", // Allows horizontal scrolling
+                            whiteSpace: "nowrap", // Prevent wrapping of text to the next line
+                            width: "100%", // Ensures it takes up full width
+                            position: "relative", // Limits the text to 2 lines
+                          }}
+                        >
+                          <Text strong>Timeline:</Text>{" "}
+                          <div
+                            style={{
+                              marginLeft: "3px",
+                              display: "flex",
+                              flexWrap: "nowrap", // Prevent wrapping of items
+                              alignItems: "center", // Align items in the middle
+                            }}
+                          >
+                            {itinerary.timeline.length > 0
+                              ? itinerary.timeline
+                                  .map(
+                                    (entry) =>
+                                      `Start: ${entry.start}, Duration: ${entry.duration} mins, type: ${entry.type}`
+                                  )
+                                  .join(", ")
+                              : "No timeline available"}
+                          </div>
+                        </p>
+
+                        <p>
+                          <Text strong>Flagged:</Text>{" "}
+                          <span
+                            style={{
+                              color: itinerary.isFlagged ? "red" : "#555",
+                            }}
+                          >
+                            {itinerary.isFlagged ? "Yes" : "No"}
+                          </span>
+                        </p>
+                      </div>
+                    }
+                  />
+                </Card>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* Modal for creating/editing an itinerary */}
@@ -680,6 +696,16 @@ const Itineraries = () => {
                           {
                             required: true,
                             message: "Please enter the start time",
+                          },
+                          {
+                            validator: (_, value) => {
+                              if (value > 24 || value < 0) {
+                                return Promise.reject(
+                                  new Error("Start time in 24H format")
+                                );
+                              }
+                              return Promise.resolve();
+                            },
                           },
                         ]}
                         style={{ flex: 1, marginRight: 8 }}
