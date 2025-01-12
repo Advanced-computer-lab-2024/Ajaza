@@ -89,7 +89,7 @@ connection.once("open", () => {
 });
 
 //first zero is minutes, second zero is hours of when will daily birth checks be held. //change zeroes for testing
-cron.schedule("0 0 * * *", () => {
+cron.schedule("48 16 * * *", () => {
   if (process.env.BIRTHDAYS === "true") {
     console.log("Running daily birthday check...");
     checkBirthdaysToday();
@@ -108,7 +108,7 @@ async function sendReminders() {
     console.log("No bookings within the next 24 hours.");
     return;
   }
-  for(let i = 0; i<bookings.length; i++){
+  for (let i = 0; i < bookings.length; i++) {
     const booking = bookings[i];
     const { touristId, bookingType, date, name } = booking;
     const tourist = await Tourist.findById(touristId);
@@ -128,14 +128,21 @@ async function sendReminders() {
 
     sendEmail(email, subject, html);
 
-    if(bookingType === "Activity"){ 
-      tourist.notifications.push({text: `You have a ${bookingType} booking tomorrow on ${date} for ${name}.`, seen: false, activityId: booking.activityId});
+    if (bookingType === "Activity") {
+      tourist.notifications.push({
+        text: `You have a ${bookingType} booking tomorrow on ${date} for ${name}.`,
+        seen: false,
+        activityId: booking.activityId,
+      });
     } else {
-      tourist.notifications.push({text: `You have a ${bookingType} booking tomorrow on ${date} for ${name}.`, seen: false, itineraryId: booking.itineraryId});
+      tourist.notifications.push({
+        text: `You have a ${bookingType} booking tomorrow on ${date} for ${name}.`,
+        seen: false,
+        itineraryId: booking.itineraryId,
+      });
     }
     await tourist.save();
   }
-
 }
 
 async function getBookings() {
@@ -144,8 +151,8 @@ async function getBookings() {
     const next24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
     const tourists = await Tourist.find({})
-      .populate('activityBookings.activityId')
-      .populate('itineraryBookings.itineraryId');
+      .populate("activityBookings.activityId")
+      .populate("itineraryBookings.itineraryId");
 
     const bookingsWithin24Hours = [];
 
@@ -166,7 +173,11 @@ async function getBookings() {
       });
 
       tourist.itineraryBookings.forEach((booking) => {
-        if (booking.date && booking.date >= now && booking.date <= next24Hours) {
+        if (
+          booking.date &&
+          booking.date >= now &&
+          booking.date <= next24Hours
+        ) {
           bookingsWithin24Hours.push({
             touristId,
             bookingType: "Itinerary",
